@@ -58,7 +58,15 @@ export function NumberFilterInputs({ value, onChange, placeholder }) {
   const val = value?.value ?? '';
 
   const handleChange = (next) => {
-    onChange({ ...value, ...next });
+    const newValue = { ...value, ...next };
+    // If both value and valueTo are empty, clear the filter
+    const hasValue = newValue.value !== undefined && newValue.value !== '';
+    const hasValueTo = newValue.valueTo !== undefined && newValue.valueTo !== '';
+    if (!hasValue && !hasValueTo) {
+      onChange(null);
+    } else {
+      onChange(newValue);
+    }
   };
 
   const handleClear = () => onChange(null);
@@ -88,7 +96,15 @@ export function NumberFilterToInput({ value, onChange }) {
   const valueTo = value?.valueTo ?? '';
 
   const handleChange = (next) => {
-    onChange({ ...value, ...next });
+    const newValue = { ...value, ...next };
+    // If both value and valueTo are empty, clear the filter
+    const hasValue = newValue.value !== undefined && newValue.value !== '';
+    const hasValueTo = newValue.valueTo !== undefined && newValue.valueTo !== '';
+    if (!hasValue && !hasValueTo) {
+      onChange(null);
+    } else {
+      onChange(newValue);
+    }
   };
 
   const handleClear = () => onChange(null);
