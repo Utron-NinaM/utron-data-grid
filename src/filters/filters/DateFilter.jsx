@@ -79,11 +79,9 @@ export function DateFilterInputs({ value, onChange, placeholder, direction }) {
           slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0 } } }}
           format={format}
         />
-        {hasValue && (
-          <IconButton size="small" onClick={handleClear} aria-label="Clear">
-            <ClearIcon fontSize="small" />
-          </IconButton>
-        )}
+        <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
+          <ClearIcon fontSize="small" />
+        </IconButton>
       </Box>
     </LocalizationProvider>
   );
@@ -112,11 +110,9 @@ export function DateFilterToInput({ value, onChange, direction }) {
           slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0 } } }}
           format={format}
         />
-        {hasValue && (
-          <IconButton size="small" onClick={handleClear} aria-label="Clear">
-            <ClearIcon fontSize="small" />
-          </IconButton>
-        )}
+        <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
+          <ClearIcon fontSize="small" />
+        </IconButton>
       </Box>
     </LocalizationProvider>
   );

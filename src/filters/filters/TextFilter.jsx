@@ -16,13 +16,13 @@ export function TextFilter({ value, onChange, placeholder }) {
       variant="outlined"
       inputProps={{ 'aria-label': placeholder, maxLength: MAX_FILTER_LENGTH }}
       InputProps={{
-        endAdornment: safeValue ? (
+        endAdornment: (
           <InputAdornment position="end">
-            <IconButton size="small" onClick={() => onChange('')} aria-label="Clear">
+            <IconButton size="small" onClick={() => onChange('')} aria-label="Clear" sx={{ visibility: safeValue ? 'visible' : 'hidden' }}>
               <ClearIcon fontSize="small" />
             </IconButton>
           </InputAdornment>
-        ) : null,
+        ),
       }}
     />
   );

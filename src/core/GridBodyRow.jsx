@@ -39,7 +39,7 @@ export function GridBodyRow({
       hover
       selected={selected}
       sx={rowSx}
-      onDoubleClick={onRowDoubleClick}
+      onDoubleClick={onRowDoubleClick ? () => onRowDoubleClick(row) : undefined}
     >
       {selectable && (
         <TableCell padding="checkbox">
@@ -50,18 +50,21 @@ export function GridBodyRow({
           />
         </TableCell>
       )}
-      {columns.map((col) => (
-        <GridCell
-          key={col.field}
-          value={isEditing && editValues[col.field] !== undefined ? editValues[col.field] : row[col.field]}
-          row={row}
-          column={col}
-          isEditing={isEditing && col.editable}
-          editor={isEditing && col.editable ? getEditor(col, row, editValues) : null}
-          hasError={validationErrors?.has(col.field)}
-          direction={direction}
-        />
-      ))}
+      {columns.map((col) => {
+        const colEditable = typeof col.editable === 'function' ? col.editable(row) : col.editable;
+        return (
+          <GridCell
+            key={col.field}
+            value={isEditing && editValues[col.field] !== undefined ? editValues[col.field] : row[col.field]}
+            row={row}
+            column={col}
+            isEditing={isEditing && colEditable}
+            editor={isEditing && colEditable ? getEditor(col, row, editValues) : null}
+            hasError={isEditing && validationErrors?.has(col.field)}
+            direction={direction}
+          />
+        );
+      })}
     </TableRow>
   );
 }

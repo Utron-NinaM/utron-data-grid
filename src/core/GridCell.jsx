@@ -15,7 +15,7 @@ export function GridCell({ value, row, column, isEditing, editor, hasError, dire
   const align = column.align ?? (direction === 'rtl' ? 'right' : 'left');
   const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : undefined;
   const sx = {
-    ...(hasError && { borderLeft: '2px solid', borderColor: 'error.main' }),
+    ...(hasError && { border: '1px solid', borderColor: 'error.light' }),
     ...cellStyle,
   };
 

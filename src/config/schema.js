@@ -7,7 +7,7 @@
  * type?: 'text' | 'number' | 'date' | 'datetime' | 'list'
  * filter?: 'text' | 'number' | 'date' | 'datetime' | 'list' | false
  * filterOptions?: { listValues?: any[] }
- * editable?: boolean
+ * editable?: boolean | ((row) => boolean)
  * validators?: Array<{ validate: (value, row) => boolean|string, message?: string }>
  * options?: any[] (for list)
  * render?: (value, row) => ReactNode

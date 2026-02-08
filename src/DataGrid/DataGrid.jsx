@@ -34,6 +34,10 @@ function EditToolbar({ onSave, onCancel }) {
  * @param {Function} [props.onSortChange]
  * @param {Function} [props.onFilterChange]
  * @param {Function} [props.onEditCommit]
+ * @param {Function} [props.onEditStart] (rowId, row) when entering edit
+ * @param {Function} [props.onEditCancel] (rowId) when user cancels edit
+ * @param {Function} [props.onValidationFail] (rowId, errors) when Save fails validation
+ * @param {Function} [props.isRowEditable] (row) => boolean – only these rows are editable
  * @param {Function} [props.onSelectionChange]
  * @param {Function} props.getRowId
  * @param {boolean} [props.editable]
@@ -57,6 +61,10 @@ export function DataGrid(props) {
     onSortChange,
     onFilterChange,
     onEditCommit,
+    onEditStart,
+    onEditCancel: onEditCancelProp,
+    onValidationFail,
+    isRowEditable,
     onSelectionChange,
     getRowId,
     editable = defaultGridConfig.editable,
@@ -163,12 +171,14 @@ export function DataGrid(props) {
   const handleRowDoubleClick = useCallback(
     (row) => {
       if (!editable || !onEditCommit) return;
+      if (isRowEditable && !isRowEditable(row)) return;
       const id = getRowId(row);
       setEditRowId(id);
       setEditValues({ ...row });
       setValidationErrors([]);
+      onEditStart?.(id, row);
     },
-    [editable, onEditCommit, getRowId]
+    [editable, onEditCommit, getRowId, isRowEditable, onEditStart]
   );
 
   const handleEditChange = useCallback((field, value) => {
@@ -176,14 +186,17 @@ export function DataGrid(props) {
   }, []);
 
   const handleEditCancel = useCallback(() => {
+    const id = editRowId;
     setEditRowId(null);
     setEditValues({});
     setValidationErrors([]);
-  }, []);
+    onEditCancelProp?.(id);
+  }, [editRowId, onEditCancelProp]);
 
   const handleEditSave = useCallback(() => {
     const errors = validateRow(editValues, columns);
     if (errors.length > 0) {
+      onValidationFail?.(editRowId, errors);
       setValidationErrors(errors);
       return;
     }
@@ -191,7 +204,7 @@ export function DataGrid(props) {
     onEditCommit?.(editRowId, editValues);
     setEditRowId(null);
     setEditValues({});
-  }, [editValues, editRowId, columns, onEditCommit]);
+  }, [editValues, editRowId, columns, onEditCommit, onValidationFail]);
 
   const filteredRows = useMemo(
     () => applyFilters(rows, filterModel, columns),
@@ -274,6 +287,7 @@ export function DataGrid(props) {
     <ThemeProvider theme={theme}>
       <DataGridProvider value={contextValue}>
         <Box sx={{ ...sx }} dir={direction}>
+        <ValidationAlert errors={validationErrors} />
           <GridTable
             columns={columns}
             rows={displayRows}
@@ -309,8 +323,7 @@ export function DataGrid(props) {
               onPageSizeChange={handlePageSizeChange}
               direction={direction}
             />
-          )}
-          <ValidationAlert errors={validationErrors} />
+          )}         
         </Box>
       </DataGridProvider>
     </ThemeProvider>

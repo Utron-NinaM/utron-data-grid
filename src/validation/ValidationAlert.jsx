@@ -9,7 +9,7 @@ export function ValidationAlert({ errors }) {
   const t = useTranslations();
   if (!errors?.length) return null;
   return (
-    <Alert severity="error" sx={{ mt: 1 }}>
+    <Alert severity="error" sx={{ mt: 1 , marginBottom: 1}}>
       <AlertTitle>{t('validationErrors')}</AlertTitle>
       <ul style={{ margin: 0, paddingLeft: 20 }}>
         {errors.map((e, i) => (
