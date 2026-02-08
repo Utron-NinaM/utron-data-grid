@@ -1,6 +1,7 @@
 import React from 'react';
 import { TableCell } from '@mui/material';
 import { ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
+import { useDataGridContext } from '../DataGrid/useDataGridContext';
 
 /**
  * @param {Object} props
@@ -10,9 +11,10 @@ import { ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
  * @param {boolean} [props.isEditing]
  * @param {React.ReactNode} [props.editor]
  * @param {boolean} [props.hasError]
- * @param {'ltr'|'rtl'} [props.direction]
  */
-export function GridCell({ value, row, column, isEditing, editor, hasError, direction }) {
+export function GridCell({ value, row, column, isEditing, editor, hasError }) {
+  const ctx = useDataGridContext();
+  const direction = ctx?.direction ?? 'ltr';
   const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
   const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : undefined;
   const sx = {

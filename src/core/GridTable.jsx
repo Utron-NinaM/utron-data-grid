@@ -4,6 +4,7 @@ import { useTranslations } from '../localization/useTranslations';
 import { GridHeaderCell, GridHeaderCellFilter } from './GridHeaderCell';
 import { GridBodyRow } from './GridBodyRow';
 import { ALIGN_CENTER } from '../config/schema';
+import { useDataGridContext } from '../DataGrid/useDataGridContext';
 
 /**
  * @param {Object} props
@@ -22,7 +23,6 @@ import { ALIGN_CENTER } from '../config/schema';
  * @param {Object} props.editValues
  * @param {Function} props.getEditor
  * @param {Set<string>} props.validationErrors
- * @param {'ltr'|'rtl'} props.direction
  * @param {Function} [props.getHeaderComboSlot]
  * @param {Function} [props.getFilterInputSlot]
  * @param {Function} [props.getFilterToInputSlot]
@@ -44,7 +44,6 @@ export function GridTable({
   editValues,
   getEditor,
   validationErrors,
-  direction,
   getHeaderComboSlot,
   getFilterInputSlot,
   getFilterToInputSlot,
@@ -52,6 +51,8 @@ export function GridTable({
 }) {
   const sortModelLength = sortModel?.length ?? 0;
   const t = useTranslations();
+  const ctx = useDataGridContext();
+  const direction = ctx?.direction ?? 'ltr';
 
   return (
     <>
@@ -82,7 +83,6 @@ export function GridTable({
                   onSort={onSort}
                   showClearSort={idx === 0 && sortModelLength > 0}
                   onClearSort={onClearSort}
-                  direction={direction}
                   headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
                   filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col) : null}
                   sortOrderIndex={
@@ -100,7 +100,6 @@ export function GridTable({
                   <GridHeaderCellFilter
                     key={col.field}
                     column={col}
-                    direction={direction}
                     slot={getFilterInputSlot(col)}
                   />
                 ))}
@@ -113,7 +112,6 @@ export function GridTable({
                   <GridHeaderCellFilter
                     key={col.field}
                     column={col}
-                    direction={direction}
                     slot={getFilterToInputSlot(col)}
                   />
                 ))}
@@ -148,7 +146,6 @@ export function GridTable({
                   editValues={editValues}
                   getEditor={getEditor}
                   validationErrors={validationErrors}
-                  direction={direction}
                   onRowDoubleClick={onRowDoubleClick}
                   rowSx={Object.keys(rowSx).length ? rowSx : undefined}
                 />

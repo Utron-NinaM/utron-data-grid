@@ -261,13 +261,13 @@ export function DataGrid(props) {
   );
 
   const getEditorForCell = useCallback(
-    (col, row, values) => getEditor(col, row, values, direction, handleEditChange),
-    [direction, handleEditChange]
+    (col, row, values) => getEditor(col, row, values, handleEditChange, direction),
+    [handleEditChange, direction]
   );
 
   const getHeaderComboSlotForColumn = useCallback(
-    (col) => getHeaderComboSlot(col, filterModel, handleFilterChange, direction),
-    [filterModel, handleFilterChange, direction]
+    (col) => getHeaderComboSlot(col, filterModel, handleFilterChange),
+    [filterModel, handleFilterChange]
   );
 
   const getFilterInputSlotForColumn = useCallback(
@@ -305,7 +305,6 @@ export function DataGrid(props) {
             editValues={editValues}
             getEditor={getEditorForCell}
             validationErrors={errorSet}
-            direction={direction}
             getHeaderComboSlot={getHeaderComboSlotForColumn}
             getFilterInputSlot={getFilterInputSlotForColumn}
             getFilterToInputSlot={getFilterToInputSlotForColumn}
@@ -322,7 +321,6 @@ export function DataGrid(props) {
               pageSizeOptions={pageSizeOptions}
               onPageChange={handlePageChange}
               onPageSizeChange={handlePageSizeChange}
-              direction={direction}
             />
           )}         
         </Box>

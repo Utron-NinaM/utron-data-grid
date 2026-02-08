@@ -14,7 +14,7 @@ import {
   FIELD_TYPE_LIST,
 } from '../config/schema';
 
-export function getEditor(column, row, editValues, direction, onChange) {
+export function getEditor(column, row, editValues, onChange, direction = 'ltr') {
   const value = editValues[column.field];
   const type = column.type ?? DEFAULT_FIELD_TYPE;
   const format = getDateFormat(direction);

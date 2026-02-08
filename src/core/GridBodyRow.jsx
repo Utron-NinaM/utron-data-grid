@@ -14,7 +14,6 @@ import { GridCell } from './GridCell';
  * @param {Object} props.editValues
  * @param {Function} props.getEditor
  * @param {Set<string>} props.validationErrors
- * @param {'ltr'|'rtl'} props.direction
  * @param {Function} [props.onRowDoubleClick]
  */
 export function GridBodyRow({
@@ -28,7 +27,6 @@ export function GridBodyRow({
   editValues,
   getEditor,
   validationErrors,
-  direction,
   onRowDoubleClick,
   rowSx,
 }) {
@@ -61,7 +59,6 @@ export function GridBodyRow({
             isEditing={isEditing && colEditable}
             editor={isEditing && colEditable ? getEditor(col, row, editValues) : null}
             hasError={isEditing && validationErrors?.has(col.field)}
-            direction={direction}
           />
         );
       })}

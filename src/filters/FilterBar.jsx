@@ -17,7 +17,7 @@ import {
 /**
  * Header combo slot: operator dropdown (number/date) or multi-select (list). Renders next to column label.
  */
-export function getHeaderComboSlot(column, filterModel, onFilterChange, direction) {
+export function getHeaderComboSlot(column, filterModel, onFilterChange) {
   const t = useTranslations();
   const field = column.field;
   const state = filterModel?.[field];
@@ -51,7 +51,7 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange, directio
 /**
  * Filter input slot: value inputs only (filter row below). No operator, no list combo.
  */
-export function getFilterInputSlot(column, filterModel, onFilterChange, direction) {
+export function getFilterInputSlot(column, filterModel, onFilterChange, direction = 'ltr') {
   const t = useTranslations();
   const field = column.field;
   const state = filterModel?.[field];
@@ -102,7 +102,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
 /**
  * "To" input slot only (for in-range second header row). Returns null when column is not number/date or operator is not inRange.
  */
-export function getFilterToInputSlot(column, filterModel, onFilterChange, direction) {
+export function getFilterToInputSlot(column, filterModel, onFilterChange, direction = 'ltr') {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
@@ -133,8 +133,8 @@ export function getFilterToInputSlot(column, filterModel, onFilterChange, direct
 }
 
 /** Legacy: full filter in one slot (for backward compat) */
-export function getFilterSlot(column, filterModel, onFilterChange, direction) {
-  const headerCombo = getHeaderComboSlot(column, filterModel, onFilterChange, direction);
+export function getFilterSlot(column, filterModel, onFilterChange, direction = 'ltr') {
+  const headerCombo = getHeaderComboSlot(column, filterModel, onFilterChange);
   const filterInput = getFilterInputSlot(column, filterModel, onFilterChange, direction);
   if (!headerCombo && !filterInput) return null;
   return (

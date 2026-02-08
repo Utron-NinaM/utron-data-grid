@@ -6,6 +6,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ClearIcon from '@mui/icons-material/Clear';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
+import { useDataGridContext } from '../DataGrid/useDataGridContext';
 
 const FILTER_ROW_BOX_SX = {
   width: '100%',
@@ -21,7 +22,9 @@ const FILTER_ROW_BOX_SX = {
 /**
  * Filter or "to" row cell: full width slot with consistent padding/alignment.
  */
-export function GridHeaderCellFilter({ column, direction, slot }) {
+export function GridHeaderCellFilter({ column, slot }) {
+  const ctx = useDataGridContext();
+  const direction = ctx?.direction ?? 'ltr';
   const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
   return (
     <TableCell align={align} padding="none" variant="head" sx={{ verticalAlign: 'top', padding: '4px', width: 'inherit', maxWidth: 'inherit', overflow: 'hidden' }}>
@@ -41,7 +44,6 @@ export function GridHeaderCellFilter({ column, direction, slot }) {
  * @param {Function} props.onSort
  * @param {boolean} [props.showClearSort]
  * @param {Function} props.onClearSort
- * @param {'ltr'|'rtl'} props.direction
  * @param {React.ReactNode} [props.headerComboSlot] Combo/operator next to label
  * @param {React.ReactNode} [props.filterSlot] Filter inputs row (below)
  * @param {number} [props.sortOrderIndex] 1-based index in sort order
@@ -52,11 +54,12 @@ export function GridHeaderCell({
   onSort,
   showClearSort,
   onClearSort,
-  direction,
   headerComboSlot,
   filterSlot,
   sortOrderIndex,
 }) {
+  const ctx = useDataGridContext();
+  const direction = ctx?.direction ?? 'ltr';
   const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
   const sortDir = sortModel?.find((s) => s.field === column.field);
   const order = sortDir?.order === SORT_ORDER_ASC ? SORT_ORDER_ASC : SORT_ORDER_DESC;
@@ -89,7 +92,9 @@ export function GridHeaderCell({
   );
 }
 
-export function PaginationIcons({ direction, onFirstPage, onPrevPage, onNextPage, onLastPage, firstDisabled, prevDisabled, nextDisabled, lastDisabled }) {
+export function PaginationIcons({ onFirstPage, onPrevPage, onNextPage, onLastPage, firstDisabled, prevDisabled, nextDisabled, lastDisabled }) {
+  const ctx = useDataGridContext();
+  const direction = ctx?.direction ?? 'ltr';
   const isRtl = direction === 'rtl';
   return (
     <Box sx={{ display: 'flex' }}>

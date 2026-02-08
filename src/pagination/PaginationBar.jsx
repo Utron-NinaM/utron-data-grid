@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Select, MenuItem, Typography } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
 import { PaginationIcons } from '../core/GridHeaderCell';
+import { useDataGridContext } from '../DataGrid/useDataGridContext';
 
 /**
  * RTL-aware: First/Prev and Next/Last swap sides in RTL; use translations for labels.
@@ -13,9 +14,10 @@ export function PaginationBar({
   pageSizeOptions,
   onPageChange,
   onPageSizeChange,
-  direction,
 }) {
   const t = useTranslations();
+  const ctx = useDataGridContext();
+  const direction = ctx?.direction ?? 'ltr';
   const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
   const from = totalRows === 0 ? 0 : page * pageSize + 1;
   const to = Math.min((page + 1) * pageSize, totalRows);
@@ -59,7 +61,6 @@ export function PaginationBar({
         {t('paginationRange', { from, to, count: totalRows })}
       </Typography>
       <PaginationIcons
-        direction={direction}
         onFirstPage={() => onPageChange(0)}
         onPrevPage={() => onPageChange(page - 1)}
         onNextPage={() => onPageChange(page + 1)}
