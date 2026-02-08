@@ -5,6 +5,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Autocomplete } from '@mui/material';
 import dayjs from 'dayjs';
+import 'dayjs/locale/he';
 import { getDateFormat } from '../utils/directionUtils';
 import {
   DEFAULT_FIELD_TYPE,
@@ -34,7 +35,7 @@ export function getEditor(column, row, editValues, onChange, direction = 'ltr') 
     case FIELD_TYPE_DATE:
     case FIELD_TYPE_DATETIME:
       return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'he' : 'en'}>
           <DatePicker
             value={value != null ? dayjs(value) : null}
             onChange={(d) => onChange(column.field, d ? d.toISOString() : null)}

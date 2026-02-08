@@ -4,6 +4,7 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useTranslations } from '../../localization/useTranslations';
+import { useDataGridContext } from '../../DataGrid/useDataGridContext';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -14,6 +15,9 @@ function getOptionLabel(o) {
 
 export function ListFilter({ value, onChange, options, placeholder }) {
   const t = useTranslations();
+  const ctx = useDataGridContext();
+  const direction = ctx?.direction ?? 'ltr';
+  const isRtl = direction === 'rtl';
   const [inputValue, setInputValue] = React.useState('');
   const selected = Array.isArray(value) ? value : value != null ? [value] : [];
   const listOptions = options ?? [];
@@ -38,16 +42,19 @@ export function ListFilter({ value, onChange, options, placeholder }) {
           setInputValue('');
         }}
         renderOption={(props, option, { selected: isSelected }) => {
-          const { key, ...restProps } = props;
+          const { key, ...restProps } = props;          
           return (
-            <li key={key} {...restProps}>
-              <Checkbox
-                icon={icon}
-                checkedIcon={checkedIcon}
-                style={{ marginRight: 8 }}
-                checked={isSelected}
-              />
-              {getOptionLabel(option)}
+            <li key={key} {...restProps} style={{ direction, textAlign: isRtl ? 'right' : 'left' }}>             
+                <>                  
+                <Checkbox
+              icon={icon}
+              checkedIcon={checkedIcon}
+              style={{ [isRtl ? 'marginLeft' : 'marginRight']: 8 }}
+              checked={isSelected}
+            />
+            
+            {getOptionLabel(option)}
+                </>
             </li>
           );
         }}
@@ -56,7 +63,12 @@ export function ListFilter({ value, onChange, options, placeholder }) {
           <TextField
             {...params}
             placeholder={placeholder ?? t('selectOption')}
-            inputProps={{ ...params.inputProps, maxLength: 200 }}
+            inputProps={{ ...params.inputProps, maxLength: 200, dir: direction }}
+            sx={{
+              '& .MuiInputBase-input': {
+                textAlign: isRtl ? 'right' : 'left',
+              },
+            }}
           />
         )}
         sx={{
@@ -65,13 +77,16 @@ export function ListFilter({ value, onChange, options, placeholder }) {
           maxWidth: '100%',
           overflow: 'hidden',
           boxSizing: 'border-box',
-          '& .MuiInputBase-root': { minHeight: 40, overflow: 'hidden' },
+          '& .MuiInputBase-root': { minHeight: 40, overflow: 'hidden', direction },
         }}
         slotProps={{
           popper: {
             disablePortal: false,
-            sx: { minWidth: 'max-content' },
+            sx: { minWidth: 'max-content', direction },
             modifiers: [{ name: 'sameWidth', enabled: false }],
+          },
+          listbox: {
+            sx: { direction },
           },
         }}
       />

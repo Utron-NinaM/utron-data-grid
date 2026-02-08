@@ -4,7 +4,6 @@ import { TextFilter } from './filters/TextFilter';
 import { NumberOperatorDropdown, NumberFilterInputs, NumberFilterToInput } from './filters/NumberFilter';
 import { DateOperatorDropdown, DateFilterInputs, DateFilterToInput } from './filters/DateFilter';
 import { ListFilter } from './filters/ListFilter';
-import { useTranslations } from '../localization/useTranslations';
 import {
   DEFAULT_FIELD_TYPE,
   FIELD_TYPE_NUMBER,
@@ -18,7 +17,6 @@ import {
  * Header combo slot: operator dropdown (number/date) or multi-select (list). Renders next to column label.
  */
 export function getHeaderComboSlot(column, filterModel, onFilterChange) {
-  const t = useTranslations();
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
@@ -51,12 +49,11 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
 /**
  * Filter input slot: value inputs only (filter row below). No operator, no list combo.
  */
-export function getFilterInputSlot(column, filterModel, onFilterChange, direction = 'ltr') {
-  const t = useTranslations();
+export function getFilterInputSlot(column, filterModel, onFilterChange, direction = 'ltr', t) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
-  const placeholder = `${t('filterPlaceholder')} ${column.headerName ?? field}`.trim();
+  const placeholder = t ? `${t('filterPlaceholder')} ${column.headerName ?? field}`.trim() : (column.headerName ?? field);
 
   if (filterType === false) return null;
 
@@ -85,7 +82,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
           value={state?.value ?? state}
           onChange={(v) => onFilterChange(field, v != null ? { value: v } : null)}
           options={column.filterOptions?.listValues ?? column.options ?? []}
-          placeholder={t('selectOption') + ' ' + (column.headerName ?? field)}
+          placeholder={t ? t('selectOption') + ' ' + (column.headerName ?? field) : (column.headerName ?? field)}
         />
       );
     default:
@@ -133,9 +130,9 @@ export function getFilterToInputSlot(column, filterModel, onFilterChange, direct
 }
 
 /** Legacy: full filter in one slot (for backward compat) */
-export function getFilterSlot(column, filterModel, onFilterChange, direction = 'ltr') {
+export function getFilterSlot(column, filterModel, onFilterChange, direction = 'ltr', t) {
   const headerCombo = getHeaderComboSlot(column, filterModel, onFilterChange);
-  const filterInput = getFilterInputSlot(column, filterModel, onFilterChange, direction);
+  const filterInput = getFilterInputSlot(column, filterModel, onFilterChange, direction, t);
   if (!headerCombo && !filterInput) return null;
   return (
     <>

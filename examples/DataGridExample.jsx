@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DataGrid } from '../src/DataGrid/DataGrid';
-import { columnsConfig } from './columnsConfig';
+import { columnsConfig, columnsConfigHebrew } from './columnsConfig';
 import { sampleData } from './sampleData';
 import { en } from './translations';
 
 export function DataGridExample() {
   const [direction, setDirection] = useState('ltr');
   const [data, setData] = useState(sampleData);
+
+  const columns = useMemo(() => {
+    return direction === 'rtl' ? columnsConfigHebrew : columnsConfig;
+  }, [direction]);
 
   const handleEditCommit = (rowId, row) => {
     setData((prev) => prev.map((r) => (r.id === rowId ? { ...r, ...row } : r)));
@@ -30,7 +34,7 @@ export function DataGridExample() {
       <div style={{ marginTop: 16 }}>
         <DataGrid
           rows={data}
-          columns={columnsConfig}
+          columns={columns}
           getRowId={(row) => row.id}
           translations={en}
           direction={direction}

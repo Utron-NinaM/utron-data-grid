@@ -270,9 +270,10 @@ export function DataGrid(props) {
     [filterModel, handleFilterChange]
   );
 
+  const t = useTranslations();
   const getFilterInputSlotForColumn = useCallback(
-    (col) => getFilterInputSlot(col, filterModel, handleFilterChange, direction),
-    [filterModel, handleFilterChange, direction]
+    (col) => getFilterInputSlot(col, filterModel, handleFilterChange, direction, t),
+    [filterModel, handleFilterChange, direction, t]
   );
 
   const getFilterToInputSlotForColumn = useCallback(

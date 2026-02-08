@@ -37,3 +37,42 @@ export const columnsConfig = [
   },
   { field: 'date', headerName: 'Date', type: 'date', filter: 'date', editable: true, width: 120 },
 ];
+
+export const columnsConfigHebrew = [
+  { field: 'make', headerName: 'יצרן', type: 'text', filter: 'text', editable: true, width: 120 },
+  { field: 'model', headerName: 'דגם', type: 'text', filter: 'text', editable: true, width: 120 },
+  { field: 'price', headerName: 'מחיר', type: 'number', filter: 'number', editable: true, width: 100 },
+  { field: 'year', headerName: 'שנה', type: 'number', filter: 'number', editable: true, width: 80 },
+  {
+    field: 'colorHebrew',
+    headerName: 'צבע',
+    type: 'list',
+    filter: 'list',
+    editable: true,
+    width: 100,
+    options: ['שחור', 'לבן', 'כסף', 'אדום', 'כחול', 'ירוק'],
+    filterOptions: { listValues: ['שחור', 'לבן', 'כסף', 'אדום', 'כחול', 'ירוק'] },
+  },
+  {
+    field: 'electricHebrew',
+    headerName: 'חשמלי',
+    type: 'list',
+    filter: 'list',
+    editable: true,
+    width: 90,
+    options: ['כן', 'לא'],
+    filterOptions: { listValues: ['כן', 'לא'] },
+  },
+  {
+    field: 'statusHebrew',
+    headerName: 'סטטוס',
+    type: 'list',
+    filter: 'list',
+    editable: true,
+    width: 100,
+    options: ['פעיל', 'לא פעיל', 'ממתין'],
+    filterOptions: { listValues: ['פעיל', 'לא פעיל', 'ממתין'] },
+  },
+  { field: 'descriptionHebrew', headerName: 'תיאור', type: 'text', filter: 'text', editable: true, width: 150 },
+  { field: 'date', headerName: 'תאריך', type: 'date', filter: 'date', editable: true, width: 120 },
+];

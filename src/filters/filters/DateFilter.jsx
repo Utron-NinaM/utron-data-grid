@@ -18,6 +18,7 @@ import {
 } from '../../config/schema';
 import { getDateFormat } from '../../utils/directionUtils';
 import dayjs from 'dayjs';
+import 'dayjs/locale/he';
 
 const operatorMap = {
   [OPERATOR_EQUALS]: 'operatorEquals',
@@ -79,7 +80,7 @@ export function DateFilterInputs({ value, onChange, placeholder, direction }) {
   const hasValue = value != null && (value.value != null || value.valueTo != null);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'ar' : 'en'}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'he' : 'en'}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <DatePicker
           label={placeholder}
@@ -110,7 +111,7 @@ export function DateFilterToInput({ value, onChange, direction }) {
   const hasValue = value != null && value.valueTo != null;
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'ar' : 'en'}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'he' : 'en'}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <DatePicker
           label="To"
