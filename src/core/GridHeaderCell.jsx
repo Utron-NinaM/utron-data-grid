@@ -8,11 +8,13 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 const FILTER_ROW_BOX_SX = {
   width: '100%',
+  maxWidth: '100%',
   boxSizing: 'border-box',
   px: 0.5,
   minHeight: 40,
   display: 'flex',
   alignItems: 'center',
+  overflow: 'hidden',
 };
 
 /**
@@ -21,7 +23,7 @@ const FILTER_ROW_BOX_SX = {
 export function GridHeaderCellFilter({ column, direction, slot }) {
   const align = column.align ?? (direction === 'rtl' ? 'right' : 'left');
   return (
-    <TableCell align={align} padding="none" variant="head" sx={{ verticalAlign: 'top', padding: '4px' }}>
+    <TableCell align={align} padding="none" variant="head" sx={{ verticalAlign: 'top', padding: '4px', width: 'inherit', maxWidth: 'inherit', overflow: 'hidden' }}>
       {slot != null ? (
         <Box sx={FILTER_ROW_BOX_SX}>{slot}</Box>
       ) : (
@@ -59,7 +61,7 @@ export function GridHeaderCell({
   const order = sortDir?.order === 'asc' ? 'asc' : 'desc';
 
   return (
-    <TableCell align={align} padding="none" variant="head" sx={{ verticalAlign: 'top', padding: '4px' }}>
+    <TableCell align={align} padding="none" variant="head" sx={{ verticalAlign: 'top', padding: '4px', width: 'inherit', maxWidth: 'inherit', overflow: 'hidden' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', py: 0.5 }}>
         <TableSortLabel
           active={!!sortDir}

@@ -14,6 +14,7 @@ function getOptionLabel(o) {
 
 export function ListFilter({ value, onChange, options, placeholder }) {
   const t = useTranslations();
+  const [inputValue, setInputValue] = React.useState('');
   const selected = Array.isArray(value) ? value : value != null ? [value] : [];
   const listOptions = options ?? [];
   const hasValue = selected.length > 0;
@@ -21,15 +22,21 @@ export function ListFilter({ value, onChange, options, placeholder }) {
   const handleClear = () => onChange(null);
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
       <Autocomplete
         multiple
         size="small"
         options={listOptions}
         value={selected}
+        inputValue={inputValue}
+        onInputChange={(_, newInputValue) => setInputValue(newInputValue)}
         disableCloseOnSelect
+        disableClearable
         getOptionLabel={getOptionLabel}
-        onChange={(_, newVal) => onChange(newVal?.length ? newVal : null)}
+        onChange={(_, newVal) => {
+          onChange(newVal?.length ? newVal : null);
+          setInputValue('');
+        }}
         renderOption={(props, option, { selected: isSelected }) => {
           const { key, ...restProps } = props;
           return (
@@ -44,11 +51,7 @@ export function ListFilter({ value, onChange, options, placeholder }) {
             </li>
           );
         }}
-        renderTags={(value) =>
-          value.map((option, index) => (
-            <Chip key={index} label={getOptionLabel(option)} size="small" />
-          ))
-        }
+        renderTags={() => null}
         renderInput={(params) => (
           <TextField
             {...params}
@@ -59,10 +62,10 @@ export function ListFilter({ value, onChange, options, placeholder }) {
         sx={{
           flex: 1,
           minWidth: 0,
+          maxWidth: '100%',
           overflow: 'hidden',
           boxSizing: 'border-box',
           '& .MuiInputBase-root': { minHeight: 40, overflow: 'hidden' },
-          '& .MuiAutocomplete-tagList': { overflow: 'hidden', maxWidth: '100%' },
         }}
         slotProps={{
           popper: {

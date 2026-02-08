@@ -71,12 +71,12 @@ export function DateFilterInputs({ value, onChange, placeholder, direction }) {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'ar' : 'en'}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <DatePicker
           label={placeholder}
           value={dateVal}
           onChange={(d) => handleChange({ value: d ? d.toISOString() : null })}
-          slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0 } } }}
+          slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0, maxWidth: '100%' } } }}
           format={format}
         />
         <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
@@ -102,12 +102,12 @@ export function DateFilterToInput({ value, onChange, direction }) {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'ar' : 'en'}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <DatePicker
           label="To"
           value={dateTo}
           onChange={(d) => handleChange({ valueTo: d ? d.toISOString() : null })}
-          slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0 } } }}
+          slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0, maxWidth: '100%' } } }}
           format={format}
         />
         <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
@@ -120,7 +120,7 @@ export function DateFilterToInput({ value, onChange, direction }) {
 
 export function DateFilter({ value, onChange, placeholder, direction }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
       <DateOperatorDropdown value={value} onChange={onChange} />
       <DateFilterInputs value={value} onChange={onChange} placeholder={placeholder} direction={direction} />
     </Box>

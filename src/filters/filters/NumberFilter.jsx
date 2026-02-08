@@ -66,14 +66,14 @@ export function NumberFilterInputs({ value, onChange, placeholder }) {
   const hasValue = value != null && ((value.value !== undefined && value.value !== '') || (value.valueTo !== undefined && value.valueTo !== ''));
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
       <TextField
         size="small"
         type="number"
         placeholder={placeholder}
         value={val}
         onChange={(e) => handleChange({ value: e.target.value })}
-        sx={{ flex: 1, minWidth: 0 }}
+        sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}
         inputProps={{ maxLength: MAX_INPUT_LENGTH }}
       />
       <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
@@ -96,14 +96,14 @@ export function NumberFilterToInput({ value, onChange }) {
   const hasValue = value != null && (value.valueTo !== undefined && value.valueTo !== '');
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
       <TextField
         size="small"
         type="number"
         placeholder="To"
         value={valueTo}
         onChange={(e) => handleChange({ valueTo: e.target.value })}
-        sx={{ flex: 1, minWidth: 0 }}
+        sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}
         inputProps={{ maxLength: MAX_INPUT_LENGTH }}
       />
       <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
@@ -115,7 +115,7 @@ export function NumberFilterToInput({ value, onChange }) {
 
 export function NumberFilter({ value, onChange, placeholder }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
       <NumberOperatorDropdown value={value} onChange={onChange} />
       <NumberFilterInputs value={value} onChange={onChange} placeholder={placeholder} />
     </Box>
