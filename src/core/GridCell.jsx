@@ -1,5 +1,6 @@
 import React from 'react';
 import { TableCell } from '@mui/material';
+import { ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
 
 /**
  * @param {Object} props
@@ -12,7 +13,7 @@ import { TableCell } from '@mui/material';
  * @param {'ltr'|'rtl'} [props.direction]
  */
 export function GridCell({ value, row, column, isEditing, editor, hasError, direction }) {
-  const align = column.align ?? (direction === 'rtl' ? 'right' : 'left');
+  const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
   const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : undefined;
   const sx = {
     ...(hasError && { border: '1px solid', borderColor: 'error.light' }),

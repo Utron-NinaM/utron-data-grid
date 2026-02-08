@@ -1,3 +1,5 @@
+import { SORT_ORDER_ASC } from '../config/schema';
+
 /**
  * Multi-column sort: apply sortModel in order (primary, secondary, ...)
  * @param {Object[]} rows
@@ -11,7 +13,7 @@ export function applySort(rows, sortModel) {
       const va = a[field];
       const vb = b[field];
       const cmp = compare(va, vb);
-      if (cmp !== 0) return order === 'asc' ? cmp : -cmp;
+      if (cmp !== 0) return order === SORT_ORDER_ASC ? cmp : -cmp;
     }
     return 0;
   });

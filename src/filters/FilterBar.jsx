@@ -5,6 +5,14 @@ import { NumberOperatorDropdown, NumberFilterInputs, NumberFilterToInput } from 
 import { DateOperatorDropdown, DateFilterInputs, DateFilterToInput } from './filters/DateFilter';
 import { ListFilter } from './filters/ListFilter';
 import { useTranslations } from '../localization/useTranslations';
+import {
+  DEFAULT_FIELD_TYPE,
+  FIELD_TYPE_NUMBER,
+  FIELD_TYPE_DATE,
+  FIELD_TYPE_DATETIME,
+  FIELD_TYPE_LIST,
+  OPERATOR_IN_RANGE,
+} from '../config/schema';
 
 /**
  * Header combo slot: operator dropdown (number/date) or multi-select (list). Renders next to column label.
@@ -13,27 +21,27 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange, directio
   const t = useTranslations();
   const field = column.field;
   const state = filterModel?.[field];
-  const filterType = column.filter ?? column.type ?? 'text';
+  const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
 
   if (filterType === false) return null;
 
   switch (filterType) {
-    case 'number':
+    case FIELD_TYPE_NUMBER:
       return (
         <NumberOperatorDropdown
           value={state}
           onChange={(v) => onFilterChange(field, v)}
         />
       );
-    case 'date':
-    case 'datetime':
+    case FIELD_TYPE_DATE:
+    case FIELD_TYPE_DATETIME:
       return (
         <DateOperatorDropdown
           value={state}
           onChange={(v) => onFilterChange(field, v)}
         />
       );
-    case 'list':
+    case FIELD_TYPE_LIST:
       return null;
     default:
       return null;
@@ -47,13 +55,13 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
   const t = useTranslations();
   const field = column.field;
   const state = filterModel?.[field];
-  const filterType = column.filter ?? column.type ?? 'text';
+  const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
   const placeholder = `${t('filterPlaceholder')} ${column.headerName ?? field}`.trim();
 
   if (filterType === false) return null;
 
   switch (filterType) {
-    case 'number':
+    case FIELD_TYPE_NUMBER:
       return (
         <NumberFilterInputs
           value={state}
@@ -61,8 +69,8 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
           placeholder={placeholder}
         />
       );
-    case 'date':
-    case 'datetime':
+    case FIELD_TYPE_DATE:
+    case FIELD_TYPE_DATETIME:
       return (
         <DateFilterInputs
           value={state}
@@ -71,7 +79,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
           direction={direction}
         />
       );
-    case 'list':
+    case FIELD_TYPE_LIST:
       return (
         <ListFilter
           value={state?.value ?? state}
@@ -97,21 +105,21 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
 export function getFilterToInputSlot(column, filterModel, onFilterChange, direction) {
   const field = column.field;
   const state = filterModel?.[field];
-  const filterType = column.filter ?? column.type ?? 'text';
+  const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
 
   if (filterType === false) return null;
-  if (state?.operator !== 'inRange') return null;
+  if (state?.operator !== OPERATOR_IN_RANGE) return null;
 
   switch (filterType) {
-    case 'number':
+    case FIELD_TYPE_NUMBER:
       return (
         <NumberFilterToInput
           value={state}
           onChange={(v) => onFilterChange(field, v)}
         />
       );
-    case 'date':
-    case 'datetime':
+    case FIELD_TYPE_DATE:
+    case FIELD_TYPE_DATETIME:
       return (
         <DateFilterToInput
           value={state}

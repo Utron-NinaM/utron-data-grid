@@ -12,6 +12,7 @@ import { PaginationBar } from '../pagination/PaginationBar';
 import { ValidationAlert } from '../validation/ValidationAlert';
 import { validateRow } from '../validation/validateRow';
 import { defaultGridConfig } from '../config/defaultConfig';
+import { SORT_ORDER_ASC, SORT_ORDER_DESC } from '../config/schema';
 
 function EditToolbar({ onSave, onCancel }) {
   const t = useTranslations();
@@ -119,8 +120,8 @@ export function DataGrid(props) {
     (field) => {
       const current = sortModel.find((s) => s.field === field);
       let next;
-      if (!current) next = [...sortModel, { field, order: 'asc' }];
-      else if (current.order === 'asc') next = sortModel.map((s) => (s.field === field ? { ...s, order: 'desc' } : s));
+      if (!current) next = [...sortModel, { field, order: SORT_ORDER_ASC }];
+      else if (current.order === SORT_ORDER_ASC) next = sortModel.map((s) => (s.field === field ? { ...s, order: SORT_ORDER_DESC } : s));
       else next = sortModel.filter((s) => s.field !== field);
       setSortModel(next);
     },

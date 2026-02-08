@@ -1,3 +1,5 @@
+import { ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
+
 /**
  * LTR → MM-DD-YYYY, RTL → DD-MM-YYYY for display/input
  * @param {'ltr'|'rtl'} direction
@@ -13,5 +15,5 @@ export function getDateTimeFormat(direction) {
 
 /** Default cell align by direction */
 export function getDefaultAlign(direction) {
-  return direction === 'rtl' ? 'right' : 'left';
+  return direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT;
 }

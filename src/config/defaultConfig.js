@@ -1,3 +1,5 @@
+import { DEFAULT_FIELD_TYPE } from './schema';
+
 /** Sensible defaults for grid and column config */
 
 export const defaultGridConfig = {
@@ -10,7 +12,7 @@ export const defaultGridConfig = {
 };
 
 export const defaultColumnConfig = {
-  type: 'text',
+  type: DEFAULT_FIELD_TYPE,
   filter: true,
   editable: false,
   align: undefined, // use direction-based default

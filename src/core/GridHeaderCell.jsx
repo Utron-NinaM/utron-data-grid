@@ -5,6 +5,7 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ClearIcon from '@mui/icons-material/Clear';
+import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
 
 const FILTER_ROW_BOX_SX = {
   width: '100%',
@@ -21,7 +22,7 @@ const FILTER_ROW_BOX_SX = {
  * Filter or "to" row cell: full width slot with consistent padding/alignment.
  */
 export function GridHeaderCellFilter({ column, direction, slot }) {
-  const align = column.align ?? (direction === 'rtl' ? 'right' : 'left');
+  const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
   return (
     <TableCell align={align} padding="none" variant="head" sx={{ verticalAlign: 'top', padding: '4px', width: 'inherit', maxWidth: 'inherit', overflow: 'hidden' }}>
       {slot != null ? (
@@ -56,9 +57,9 @@ export function GridHeaderCell({
   filterSlot,
   sortOrderIndex,
 }) {
-  const align = column.align ?? (direction === 'rtl' ? 'right' : 'left');
+  const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
   const sortDir = sortModel?.find((s) => s.field === column.field);
-  const order = sortDir?.order === 'asc' ? 'asc' : 'desc';
+  const order = sortDir?.order === SORT_ORDER_ASC ? SORT_ORDER_ASC : SORT_ORDER_DESC;
 
   return (
     <TableCell align={align} padding="none" variant="head" sx={{ verticalAlign: 'top', padding: '4px', width: 'inherit', maxWidth: 'inherit', overflow: 'hidden' }}>

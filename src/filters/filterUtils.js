@@ -1,3 +1,17 @@
+import {
+  FIELD_TYPE_NUMBER,
+  FIELD_TYPE_DATE,
+  FIELD_TYPE_DATETIME,
+  FIELD_TYPE_LIST,
+  OPERATOR_EQUALS,
+  OPERATOR_NOT_EQUAL,
+  OPERATOR_GREATER_THAN,
+  OPERATOR_LESS_THAN,
+  OPERATOR_GREATER_OR_EQUAL,
+  OPERATOR_LESS_OR_EQUAL,
+  OPERATOR_IN_RANGE,
+} from '../config/schema';
+
 /**
  * Apply filter model to rows. AND across columns.
  * @param {Object[]} rows
@@ -18,59 +32,59 @@ export function applyFilters(rows, filterModel, columns) {
 }
 
 function matchFilter(cellValue, state, type) {
-  const { operator = '=', value, valueTo } = state;
+  const { operator = OPERATOR_EQUALS, value, valueTo } = state;
   const v = cellValue;
 
-  if (type === 'number' || typeof v === 'number') {
+  if (type === FIELD_TYPE_NUMBER || typeof v === 'number') {
     const n = Number(v);
     const a = Number(value);
     const b = valueTo != null ? Number(valueTo) : null;
     switch (operator) {
-      case '=':
+      case OPERATOR_EQUALS:
         return n === a;
-      case '!=':
+      case OPERATOR_NOT_EQUAL:
         return n !== a;
-      case '>':
+      case OPERATOR_GREATER_THAN:
         return n > a;
-      case '<':
+      case OPERATOR_LESS_THAN:
         return n < a;
-      case '>=':
+      case OPERATOR_GREATER_OR_EQUAL:
         return n >= a;
-      case '<=':
+      case OPERATOR_LESS_OR_EQUAL:
         return n <= a;
-      case 'inRange':
+      case OPERATOR_IN_RANGE:
         return b != null && n >= Math.min(a, b) && n <= Math.max(a, b);
       default:
         return true;
     }
   }
 
-  if (type === 'date' || type === 'datetime' || (v && (v instanceof Date || typeof v === 'string' && isDateLike(v)))) {
+  if (type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME || (v && (v instanceof Date || typeof v === 'string' && isDateLike(v)))) {
     const t = toTime(v);
     const t1 = toTime(value);
     const t2 = valueTo != null ? toTime(valueTo) : null;
     if (t == null) return false;
     switch (operator) {
-      case '=':
+      case OPERATOR_EQUALS:
         return t === t1;
-      case '!=':
+      case OPERATOR_NOT_EQUAL:
         return t !== t1;
-      case '>':
+      case OPERATOR_GREATER_THAN:
         return t > t1;
-      case '<':
+      case OPERATOR_LESS_THAN:
         return t < t1;
-      case '>=':
+      case OPERATOR_GREATER_OR_EQUAL:
         return t >= t1;
-      case '<=':
+      case OPERATOR_LESS_OR_EQUAL:
         return t <= t1;
-      case 'inRange':
+      case OPERATOR_IN_RANGE:
         return t2 != null && t >= Math.min(t1, t2) && t <= Math.max(t1, t2);
       default:
         return true;
     }
   }
 
-  if (type === 'list' || Array.isArray(state.value)) {
+  if (type === FIELD_TYPE_LIST || Array.isArray(state.value)) {
     const selected = Array.isArray(state.value) ? state.value : [state.value];
     if (selected.length === 0) return true;
     return selected.some((s) => String(v) === String(s) || v === s);

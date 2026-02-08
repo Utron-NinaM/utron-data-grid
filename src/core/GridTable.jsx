@@ -3,6 +3,7 @@ import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper
 import { useTranslations } from '../localization/useTranslations';
 import { GridHeaderCell, GridHeaderCellFilter } from './GridHeaderCell';
 import { GridBodyRow } from './GridBodyRow';
+import { ALIGN_CENTER } from '../config/schema';
 
 /**
  * @param {Object} props
@@ -122,7 +123,7 @@ export function GridTable({
         <TableBody>
           {rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align="center">
+              <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align={ALIGN_CENTER}>
                 {t('noRows')}
               </TableCell>
             </TableRow>

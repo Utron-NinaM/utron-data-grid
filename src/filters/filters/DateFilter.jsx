@@ -6,25 +6,34 @@ import { IconButton, Box, Menu, MenuItem } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useTranslations } from '../../localization/useTranslations';
-import { DATE_OPERATORS } from '../../config/schema';
+import {
+  DATE_OPERATORS,
+  OPERATOR_EQUALS,
+  OPERATOR_NOT_EQUAL,
+  OPERATOR_GREATER_THAN,
+  OPERATOR_LESS_THAN,
+  OPERATOR_GREATER_OR_EQUAL,
+  OPERATOR_LESS_OR_EQUAL,
+  OPERATOR_IN_RANGE,
+} from '../../config/schema';
 import { getDateFormat } from '../../utils/directionUtils';
 import dayjs from 'dayjs';
 
 const operatorMap = {
-  '=': 'operatorEquals',
-  '!=': 'operatorNotEqual',
-  '>': 'operatorGreaterThan',
-  '<': 'operatorLessThan',
-  '>=': 'operatorGreaterOrEqual',
-  '<=': 'operatorLessOrEqual',
-  inRange: 'operatorInRange',
+  [OPERATOR_EQUALS]: 'operatorEquals',
+  [OPERATOR_NOT_EQUAL]: 'operatorNotEqual',
+  [OPERATOR_GREATER_THAN]: 'operatorGreaterThan',
+  [OPERATOR_LESS_THAN]: 'operatorLessThan',
+  [OPERATOR_GREATER_OR_EQUAL]: 'operatorGreaterOrEqual',
+  [OPERATOR_LESS_OR_EQUAL]: 'operatorLessOrEqual',
+  [OPERATOR_IN_RANGE]: 'operatorInRange',
 };
 
 /** Operator dropdown only (for header row next to column label) */
 export function DateOperatorDropdown({ value, onChange }) {
   const t = useTranslations();
   const [anchor, setAnchor] = useState(null);
-  const operator = value?.operator ?? '=';
+  const operator = value?.operator ?? OPERATOR_EQUALS;
 
   return (
     <>
@@ -32,7 +41,7 @@ export function DateOperatorDropdown({ value, onChange }) {
         <ArrowDropDownIcon />
       </IconButton>
       <Box component="span" sx={{ fontSize: '0.875rem', minWidth: 20 }}>
-        {operator === 'inRange' ? '…' : operator}
+        {operator === OPERATOR_IN_RANGE ? '…' : operator}
       </Box>
       <Menu
         anchorEl={anchor}
@@ -48,7 +57,7 @@ export function DateOperatorDropdown({ value, onChange }) {
               setAnchor(null);
             }}
           >
-            {op === 'inRange' ? '…' : op} {t(operatorMap[op] || op)}
+            {op === OPERATOR_IN_RANGE ? '…' : op} {t(operatorMap[op] || op)}
           </MenuItem>
         ))}
       </Menu>

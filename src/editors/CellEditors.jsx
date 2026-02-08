@@ -6,14 +6,21 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Autocomplete } from '@mui/material';
 import dayjs from 'dayjs';
 import { getDateFormat } from '../utils/directionUtils';
+import {
+  DEFAULT_FIELD_TYPE,
+  FIELD_TYPE_NUMBER,
+  FIELD_TYPE_DATE,
+  FIELD_TYPE_DATETIME,
+  FIELD_TYPE_LIST,
+} from '../config/schema';
 
 export function getEditor(column, row, editValues, direction, onChange) {
   const value = editValues[column.field];
-  const type = column.type ?? 'text';
+  const type = column.type ?? DEFAULT_FIELD_TYPE;
   const format = getDateFormat(direction);
 
   switch (type) {
-    case 'number':
+    case FIELD_TYPE_NUMBER:
       return (
         <TextField
           type="number"
@@ -24,8 +31,8 @@ export function getEditor(column, row, editValues, direction, onChange) {
           inputProps={{ maxLength: 50 }}
         />
       );
-    case 'date':
-    case 'datetime':
+    case FIELD_TYPE_DATE:
+    case FIELD_TYPE_DATETIME:
       return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
@@ -36,7 +43,7 @@ export function getEditor(column, row, editValues, direction, onChange) {
           />
         </LocalizationProvider>
       );
-    case 'list':
+    case FIELD_TYPE_LIST:
       return (
         <Autocomplete
           size="small"
