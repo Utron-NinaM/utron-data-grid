@@ -1,0 +1,43 @@
+{
+  "name": "utron-data-grid",
+  "version": "1.0.0",
+  "description": "Reusable React Data Grid with MUI – sorting, filtering, inline editing, pagination, RTL",
+  "main": "dist/utron-data-grid.umd.cjs",
+  "module": "dist/utron-data-grid.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/utron-data-grid.js",
+      "require": "./dist/utron-data-grid.umd.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^17.0.0",
+    "react-dom": "^18.0.0 || ^17.0.0",
+    "@mui/material": "^5.0.0 || ^6.0.0",
+    "@mui/x-date-pickers": "^6.0.0 || ^7.0.0",
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0",
+    "dayjs": "^1.11.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@mui/material": "^5.15.0",
+    "@mui/x-date-pickers": "^6.19.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "dayjs": "^1.11.10",
+    "vite": "^5.0.0"
+  }
+}
