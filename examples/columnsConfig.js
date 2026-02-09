@@ -24,6 +24,7 @@ export const columnsConfig = [
     width: 90,
     options: ['Yes', 'No'],
     filterOptions: { listValues: ['Yes', 'No'] },
+    cellStyle: (value, row) => (value === 'Yes' ? { backgroundColor: '#e8f5e9' } : {}),
   },
   {
     field: 'status',
@@ -34,6 +35,7 @@ export const columnsConfig = [
     width: 100,
     options: ['Active', 'Inactive', 'Pending'],
     filterOptions: { listValues: ['Active', 'Inactive', 'Pending'] },
+    rowStyle: (row) => (row.status === 'Pending' ? { backgroundColor: '#fff3e0' } : {}),
   },
   { field: 'date', headerName: 'Date', type: 'date', filter: 'date', editable: true, width: 120 },
 ];
@@ -62,6 +64,7 @@ export const columnsConfigHebrew = [
     width: 90,
     options: ['כן', 'לא'],
     filterOptions: { listValues: ['כן', 'לא'] },
+    cellStyle: (value, row) => (value === 'כן' ? { backgroundColor: '#e8f5e9' } : {}),
   },
   {
     field: 'statusHebrew',
@@ -72,6 +75,7 @@ export const columnsConfigHebrew = [
     width: 100,
     options: ['פעיל', 'לא פעיל', 'ממתין'],
     filterOptions: { listValues: ['פעיל', 'לא פעיל', 'ממתין'] },
+    rowStyle: (row) => (row.statusHebrew === 'ממתין' ? { backgroundColor: '#fff3e0' } : {}),
   },
   { field: 'descriptionHebrew', headerName: 'תיאור', type: 'text', filter: 'text', editable: true, width: 150 },
   { field: 'date', headerName: 'תאריך', type: 'date', filter: 'date', editable: true, width: 120 },
