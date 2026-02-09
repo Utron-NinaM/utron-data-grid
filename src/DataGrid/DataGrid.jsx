@@ -57,7 +57,6 @@ function EditToolbar({ onSave, onCancel }) {
  * @param {Object} [props.headerConfig.filterRows] Filter rows styles { backgroundColor?: string, height?: string|number }
  * @param {Object} [props.headerConfig.filterCells] Filter cells styles { backgroundColor?: string, height?: string|number }
  * @param {Object} [props.selectedRowStyle] MUI sx object for selected rows
- * @param {Object} [props.editedRowStyle] MUI sx object for rows being edited
  */
 export function DataGrid(props) {
   const {
@@ -89,7 +88,6 @@ export function DataGrid(props) {
     headerStyle,
     headerConfig,
     selectedRowStyle,
-    editedRowStyle,
   } = props;
 
   const [internalSort, setInternalSort] = useState([]);
@@ -344,7 +342,6 @@ export function DataGrid(props) {
             onRowDoubleClick={handleRowDoubleClick}
             selectedRowId={selectedRowId}
             selectedRowStyle={selectedRowStyle}
-            editedRowStyle={editedRowStyle}
             headerStyle={headerStyle}
             headerConfig={headerConfig}
             hasActiveRangeFilter={hasActiveRangeFilter}

@@ -58,7 +58,7 @@ export function EditingValidationExample() {
           onEditCommit={handleEditCommit}
           onEditStart={handleEditStart}
           onEditCancel={handleEditCancel}
-          onValidationFail={handleValidationFail}
+          onValidationFail={handleValidationFail}          
         />
       </div>
     </div>

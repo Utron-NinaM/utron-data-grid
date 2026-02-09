@@ -62,7 +62,6 @@ const rows = [
 | `sx` | `object` | MUI sx for root container |
 | `headerStyle` | `object` | MUI sx object for TableHead |
 | `selectedRowStyle` | `object` | MUI sx object for selected rows |
-| `editedRowStyle` | `object` | MUI sx object for rows being edited |
 
 ## Configuration (columns)
 

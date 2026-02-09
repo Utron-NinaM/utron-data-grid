@@ -27,7 +27,6 @@ import { ALIGN_CENTER } from '../config/schema';
  * @param {Function} [props.onRowDoubleClick]
  * @param {string|number|null} [props.selectedRowId]
  * @param {Object} [props.selectedRowStyle] MUI sx object for selected rows
- * @param {Object} [props.editedRowStyle] MUI sx object for rows being edited
  * @param {Object} [props.headerStyle] MUI sx object for TableHead
  * @param {Object} [props.headerConfig] Header configuration object
  * @param {Object} [props.headerConfig.mainRow] Main row styles { backgroundColor?: string, height?: string|number }
@@ -55,7 +54,6 @@ export function GridTable({
   onRowDoubleClick,
   selectedRowId,
   selectedRowStyle,
-  editedRowStyle,
   headerStyle,
   headerConfig,
   hasActiveRangeFilter,
@@ -205,7 +203,6 @@ export function GridTable({
                   selectedRowId={selectedRowId}
                   rowSx={Object.keys(rowSx).length ? rowSx : undefined}
                   selectedRowStyle={selectedRowStyle}
-                  editedRowStyle={editedRowStyle}
                 />
               );
             })

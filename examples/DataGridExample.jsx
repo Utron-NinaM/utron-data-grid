@@ -73,6 +73,7 @@ export function DataGridExample() {
             filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
             filterCells: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
           }}
+          selectedRowStyle={{ backgroundColor: 'rgb(129, 124, 124)' }}
         />
       </div>
     </div>
