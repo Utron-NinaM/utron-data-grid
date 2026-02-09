@@ -74,7 +74,7 @@ export function ListFilter({ value, onChange, options, placeholder }) {
           maxWidth: '100%',
           overflow: 'hidden',
           boxSizing: 'border-box',
-          '& .MuiInputBase-root': { minHeight: 40, overflow: 'hidden', direction },
+          '& .MuiInputBase-root': { minHeight: 20, overflow: 'hidden', direction },
         }}
         slotProps={{
           popper: {

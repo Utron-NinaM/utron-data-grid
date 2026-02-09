@@ -68,6 +68,11 @@ export function DataGridExample() {
           pageSizeOptions={[5, 10, 25, 50]}
           onEditCommit={handleEditCommit}
           onRowSelect={handleRowSelect}
+          headerConfig={{
+            mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30 },
+            filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
+            filterCells: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
+          }}
         />
       </div>
     </div>

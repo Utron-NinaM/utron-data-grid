@@ -26,6 +26,14 @@ import { ALIGN_CENTER } from '../config/schema';
  * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
  * @param {string|number|null} [props.selectedRowId]
+ * @param {Object} [props.selectedRowStyle] MUI sx object for selected rows
+ * @param {Object} [props.editedRowStyle] MUI sx object for rows being edited
+ * @param {Object} [props.headerStyle] MUI sx object for TableHead
+ * @param {Object} [props.headerConfig] Header configuration object
+ * @param {Object} [props.headerConfig.mainRow] Main row styles { backgroundColor?: string, height?: string|number }
+ * @param {Object} [props.headerConfig.filterRows] Filter rows styles { backgroundColor?: string, height?: string|number }
+ * @param {Object} [props.headerConfig.filterCells] Filter cells styles { backgroundColor?: string, height?: string|number }
+ * @param {boolean} [props.hasActiveRangeFilter] Whether any column has an active range filter
  */
 export function GridTable({
   rows,
@@ -46,6 +54,11 @@ export function GridTable({
   onRowClick,
   onRowDoubleClick,
   selectedRowId,
+  selectedRowStyle,
+  editedRowStyle,
+  headerStyle,
+  headerConfig,
+  hasActiveRangeFilter,
 }) {
   const translations = useTranslations();
   const ctx = useDataGridContext();
@@ -70,9 +83,22 @@ export function GridTable({
       )}
       <TableContainer component={Paper} variant="outlined" sx={{ overflowX: 'auto', width: '100%' }}>
         <Table size="small" stickyHeader aria-label="Data grid" sx={{ width: '100%' }}>
-          <TableHead>
-            <TableRow>
-              {multiSelectable && <TableCell padding="checkbox" />}
+          <TableHead sx={headerStyle}>
+            <TableRow
+              sx={{
+                ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
+              }}
+            >
+              {multiSelectable && (
+                <TableCell
+                  padding="checkbox"
+                  variant="head"
+                  sx={{
+                    ...headerStyle,
+                    backgroundColor: headerConfig?.mainRow?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
+                  }}
+                />
+              )}
               {columns.map((col, idx) => (
                 <GridHeaderCell
                   key={col.field}
@@ -88,29 +114,61 @@ export function GridTable({
                       ? sortModel.findIndex((s) => s.field === col.field) + 1
                       : undefined
                   }
+                  headerStyle={headerStyle}
+                  headerConfig={headerConfig}
                 />
               ))}
             </TableRow>
             {getFilterInputSlot && getFilterToInputSlot && (
-              <TableRow>
-                {multiSelectable && <TableCell padding="checkbox" variant="head" />}
+              <TableRow
+                sx={{
+                  ...(headerConfig?.filterRows?.backgroundColor && { backgroundColor: headerConfig.filterRows.backgroundColor }),
+                }}
+              >
+                {multiSelectable && (
+                  <TableCell
+                    padding="checkbox"
+                    variant="head"
+                    sx={{
+                      ...headerStyle,
+                      backgroundColor: headerConfig?.filterRows?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
+                    }}
+                  />
+                )}
                 {columns.map((col) => (
                   <GridHeaderCellFilter
                     key={col.field}
                     column={col}
                     slot={getFilterInputSlot(col, translations)}
+                    headerStyle={headerStyle}
+                    headerConfig={headerConfig}
                   />
                 ))}
               </TableRow>
             )}
-            {getFilterToInputSlot && (
-              <TableRow>
-                {multiSelectable && <TableCell padding="checkbox" variant="head" />}
+            {getFilterToInputSlot && hasActiveRangeFilter && (
+              <TableRow
+                sx={{
+                  ...(headerConfig?.filterRows?.backgroundColor && { backgroundColor: headerConfig.filterRows.backgroundColor }),
+                }}
+              >
+                {multiSelectable && (
+                  <TableCell
+                    padding="checkbox"
+                    variant="head"
+                    sx={{
+                      ...headerStyle,
+                      backgroundColor: headerConfig?.filterRows?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
+                    }}
+                  />
+                )}
                 {columns.map((col) => (
                   <GridHeaderCellFilter
                     key={col.field}
                     column={col}
                     slot={getFilterToInputSlot(col)}
+                    headerStyle={headerStyle}
+                    headerConfig={headerConfig}
                   />
                 ))}
               </TableRow>
@@ -146,6 +204,8 @@ export function GridTable({
                   onRowDoubleClick={onRowDoubleClick}
                   selectedRowId={selectedRowId}
                   rowSx={Object.keys(rowSx).length ? rowSx : undefined}
+                  selectedRowStyle={selectedRowStyle}
+                  editedRowStyle={editedRowStyle}
                 />
               );
             })

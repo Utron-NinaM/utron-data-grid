@@ -17,6 +17,8 @@ import { GridCell } from './GridCell';
  * @param {Function} [props.onRowDoubleClick]
  * @param {string|number|null} [props.selectedRowId]
  * @param {Object} [props.rowSx]
+ * @param {Object} [props.selectedRowStyle] MUI sx object for selected rows
+ * @param {Object} [props.editedRowStyle] MUI sx object for rows being edited
  */
 export function GridBodyRow({
   row,
@@ -31,17 +33,26 @@ export function GridBodyRow({
   onRowDoubleClick,
   selectedRowId,
   rowSx,
+  selectedRowStyle,
+  editedRowStyle,
 }) {
   const ctx = useDataGridContext();
   const { columns, multiSelectable } = ctx;
   const isEditing = editRowId === rowId;
   const isSelected = selectedRowId === rowId;
+  const isRowSelected = selected || isSelected;
+
+  const mergedSx = {
+    ...rowSx,
+    ...(isRowSelected && selectedRowStyle),
+    ...(isEditing && editedRowStyle),
+  };
 
   return (
     <TableRow
       hover
-      selected={selected || isSelected}
-      sx={rowSx}
+      selected={isRowSelected}
+      sx={mergedSx}
       onClick={onRowClick ? () => onRowClick(row) : undefined}
       onDoubleClick={onRowDoubleClick ? () => onRowDoubleClick(row) : undefined}
     >

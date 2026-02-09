@@ -12,7 +12,7 @@ import { PaginationBar } from '../pagination/PaginationBar';
 import { ValidationAlert } from '../validation/ValidationAlert';
 import { validateRow } from '../validation/validateRow';
 import { defaultGridConfig } from '../config/defaultConfig';
-import { SORT_ORDER_ASC, SORT_ORDER_DESC } from '../config/schema';
+import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE } from '../config/schema';
 
 function EditToolbar({ onSave, onCancel }) {
   const t = useTranslations();
@@ -51,6 +51,13 @@ function EditToolbar({ onSave, onCancel }) {
  * @param {Function} [props.onPageChange]
  * @param {Function} [props.onPageSizeChange]
  * @param {Object} [props.sx]
+ * @param {Object} [props.headerStyle] MUI sx object for TableHead
+ * @param {Object} [props.headerConfig] Header configuration object
+ * @param {Object} [props.headerConfig.mainRow] Main row styles { backgroundColor?: string, height?: string|number }
+ * @param {Object} [props.headerConfig.filterRows] Filter rows styles { backgroundColor?: string, height?: string|number }
+ * @param {Object} [props.headerConfig.filterCells] Filter cells styles { backgroundColor?: string, height?: string|number }
+ * @param {Object} [props.selectedRowStyle] MUI sx object for selected rows
+ * @param {Object} [props.editedRowStyle] MUI sx object for rows being edited
  */
 export function DataGrid(props) {
   const {
@@ -79,6 +86,10 @@ export function DataGrid(props) {
     onPageChange,
     onPageSizeChange,
     sx,
+    headerStyle,
+    headerConfig,
+    selectedRowStyle,
+    editedRowStyle,
   } = props;
 
   const [internalSort, setInternalSort] = useState([]);
@@ -243,6 +254,8 @@ export function DataGrid(props) {
     [direction]
   );
 
+  const filterInputHeight = headerConfig?.filterCells?.height || headerConfig?.filterRows?.height;
+
   const contextValue = useMemo(
     () => ({
       columns,
@@ -257,6 +270,7 @@ export function DataGrid(props) {
       onPageSizeChange,
       editable,
       multiSelectable,
+      filterInputHeight,
     }),
     [
       columns,
@@ -271,6 +285,7 @@ export function DataGrid(props) {
       onPageSizeChange,
       editable,
       multiSelectable,
+      filterInputHeight,
     ]
   );
 
@@ -295,6 +310,12 @@ export function DataGrid(props) {
   );
 
   const hasActiveFilters = Object.keys(filterModel).length > 0;
+
+  const hasActiveRangeFilter = useMemo(() => {
+    return Object.values(filterModel).some(
+      (state) => state?.operator === OPERATOR_IN_RANGE
+    );
+  }, [filterModel]);
 
   const errorSet = useMemo(() => new Set(validationErrors.map((e) => e.field)), [validationErrors]);
 
@@ -322,6 +343,11 @@ export function DataGrid(props) {
             onRowClick={handleRowClick}
             onRowDoubleClick={handleRowDoubleClick}
             selectedRowId={selectedRowId}
+            selectedRowStyle={selectedRowStyle}
+            editedRowStyle={editedRowStyle}
+            headerStyle={headerStyle}
+            headerConfig={headerConfig}
+            hasActiveRangeFilter={hasActiveRangeFilter}
           />
           {editable && editRowId != null && (
             <EditToolbar onSave={handleEditSave} onCancel={handleEditCancel} />
