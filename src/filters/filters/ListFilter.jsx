@@ -1,17 +1,14 @@
 import React from 'react';
-import { Autocomplete, TextField, Checkbox, Chip, IconButton, Box } from '@mui/material';
+import { Autocomplete, TextField, Checkbox, Box } from '@mui/material';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import ClearIcon from '@mui/icons-material/Clear';
 import { useTranslations } from '../../localization/useTranslations';
 import { useDataGridContext } from '../../DataGrid/useDataGridContext';
+import { ClearButton } from './ClearButton';
+import { getOptionLabel } from '../../utils/optionUtils';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
-
-function getOptionLabel(o) {
-  return typeof o === 'object' && o != null && o.label != null ? o.label : String(o);
-}
 
 export function ListFilter({ value, onChange, options, placeholder }) {
   const t = useTranslations();
@@ -90,9 +87,7 @@ export function ListFilter({ value, onChange, options, placeholder }) {
           },
         }}
       />
-      <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
-        <ClearIcon fontSize="small" />
-      </IconButton>
+      <ClearButton onClick={handleClear} visible={hasValue} />
     </Box>
   );
 }

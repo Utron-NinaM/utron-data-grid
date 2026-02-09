@@ -1,66 +1,9 @@
-import React, { useState } from 'react';
-import { TextField, Menu, MenuItem, IconButton, Box } from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ClearIcon from '@mui/icons-material/Clear';
-import { useTranslations } from '../../localization/useTranslations';
-import {
-  NUMBER_OPERATORS,
-  OPERATOR_EQUALS,
-  OPERATOR_NOT_EQUAL,
-  OPERATOR_GREATER_THAN,
-  OPERATOR_LESS_THAN,
-  OPERATOR_GREATER_OR_EQUAL,
-  OPERATOR_LESS_OR_EQUAL,
-  OPERATOR_IN_RANGE,
-} from '../../config/schema';
+import React from 'react';
+import { TextField, Box } from '@mui/material';
+import { OperatorDropdown } from './OperatorDropdown';
+import { ClearButton } from './ClearButton';
 
 const MAX_INPUT_LENGTH = 50;
-
-const operatorMap = {
-  [OPERATOR_EQUALS]: 'operatorEquals',
-  [OPERATOR_NOT_EQUAL]: 'operatorNotEqual',
-  [OPERATOR_GREATER_THAN]: 'operatorGreaterThan',
-  [OPERATOR_LESS_THAN]: 'operatorLessThan',
-  [OPERATOR_GREATER_OR_EQUAL]: 'operatorGreaterOrEqual',
-  [OPERATOR_LESS_OR_EQUAL]: 'operatorLessOrEqual',
-  [OPERATOR_IN_RANGE]: 'operatorInRange',
-};
-
-/** Operator dropdown only (for header row next to column label) */
-export function NumberOperatorDropdown({ value, onChange }) {
-  const t = useTranslations();
-  const [anchor, setAnchor] = useState(null);
-  const operator = value?.operator ?? OPERATOR_EQUALS;
-
-  return (
-    <>
-      <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} aria-label="Operator">
-        <ArrowDropDownIcon />
-      </IconButton>
-      <Box component="span" sx={{ fontSize: '0.875rem', minWidth: 20 }}>
-        {operator === OPERATOR_IN_RANGE ? '…' : operator}
-      </Box>
-      <Menu
-        anchorEl={anchor}
-        open={!!anchor}
-        onClose={() => setAnchor(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-      >
-        {NUMBER_OPERATORS.map((op) => (
-          <MenuItem
-            key={op}
-            onClick={() => {
-              onChange({ ...value, operator: op });
-              setAnchor(null);
-            }}
-          >
-            {op === OPERATOR_IN_RANGE ? '…' : op} {t(operatorMap[op] || op)}
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
-  );
-}
 
 /** Value input (from only) + clear. "To" is rendered in separate header row when inRange. */
 export function NumberFilterInputs({ value, onChange, placeholder }) {
@@ -93,9 +36,7 @@ export function NumberFilterInputs({ value, onChange, placeholder }) {
         sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}
         inputProps={{ maxLength: MAX_INPUT_LENGTH }}
       />
-      <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
-        <ClearIcon fontSize="small" />
-      </IconButton>
+      <ClearButton onClick={handleClear} visible={hasValue} />
     </Box>
   );
 }
@@ -131,9 +72,7 @@ export function NumberFilterToInput({ value, onChange }) {
         sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}
         inputProps={{ maxLength: MAX_INPUT_LENGTH }}
       />
-      <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
-        <ClearIcon fontSize="small" />
-      </IconButton>
+      <ClearButton onClick={handleClear} visible={hasValue} />
     </Box>
   );
 }
@@ -141,8 +80,9 @@ export function NumberFilterToInput({ value, onChange }) {
 export function NumberFilter({ value, onChange, placeholder }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
-      <NumberOperatorDropdown value={value} onChange={onChange} />
+      <OperatorDropdown value={value} onChange={onChange} />
       <NumberFilterInputs value={value} onChange={onChange} placeholder={placeholder} />
     </Box>
   );
 }
+

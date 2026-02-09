@@ -1,6 +1,6 @@
 import React from 'react';
-import { TextField, IconButton, Box } from '@mui/material';
-import ClearIcon from '@mui/icons-material/Clear';
+import { TextField, Box } from '@mui/material';
+import { ClearButton } from './ClearButton';
 
 const MAX_FILTER_LENGTH = 500;
 
@@ -21,9 +21,7 @@ export function TextFilter({ value, onChange, placeholder }) {
         inputProps={{ 'aria-label': placeholder, maxLength: MAX_FILTER_LENGTH }}
         sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}
       />
-      <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
-        <ClearIcon fontSize="small" />
-      </IconButton>
+      <ClearButton onClick={handleClear} visible={hasValue} />
     </Box>
   );
 }

@@ -38,7 +38,7 @@ export const OPERATOR_GREATER_OR_EQUAL = '>=';
 export const OPERATOR_LESS_OR_EQUAL = '<=';
 export const OPERATOR_IN_RANGE = 'inRange';
 
-export const NUMBER_OPERATORS = [
+export const OPERATORS = [
   OPERATOR_EQUALS,
   OPERATOR_NOT_EQUAL,
   OPERATOR_GREATER_THAN,
@@ -47,15 +47,16 @@ export const NUMBER_OPERATORS = [
   OPERATOR_LESS_OR_EQUAL,
   OPERATOR_IN_RANGE,
 ];
-export const DATE_OPERATORS = [
-  OPERATOR_EQUALS,
-  OPERATOR_NOT_EQUAL,
-  OPERATOR_GREATER_THAN,
-  OPERATOR_LESS_THAN,
-  OPERATOR_GREATER_OR_EQUAL,
-  OPERATOR_LESS_OR_EQUAL,
-  OPERATOR_IN_RANGE,
-];
+
+export const OPERATOR_MAP = {
+  [OPERATOR_EQUALS]: 'operatorEquals',
+  [OPERATOR_NOT_EQUAL]: 'operatorNotEqual',
+  [OPERATOR_GREATER_THAN]: 'operatorGreaterThan',
+  [OPERATOR_LESS_THAN]: 'operatorLessThan',
+  [OPERATOR_GREATER_OR_EQUAL]: 'operatorGreaterOrEqual',
+  [OPERATOR_LESS_OR_EQUAL]: 'operatorLessOrEqual',
+  [OPERATOR_IN_RANGE]: 'operatorInRange',
+};
 
 // Sort Orders
 export const SORT_ORDER_ASC = 'asc';

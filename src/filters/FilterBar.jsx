@@ -1,9 +1,10 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { TextFilter } from './filters/TextFilter';
-import { NumberOperatorDropdown, NumberFilterInputs, NumberFilterToInput } from './filters/NumberFilter';
-import { DateOperatorDropdown, DateFilterInputs, DateFilterToInput } from './filters/DateFilter';
+import { NumberFilterInputs, NumberFilterToInput } from './filters/NumberFilter';
+import { DateFilterInputs, DateFilterToInput } from './filters/DateFilter';
 import { ListFilter } from './filters/ListFilter';
+import { OperatorDropdown } from './filters/OperatorDropdown';
 import {
   DEFAULT_FIELD_TYPE,
   FIELD_TYPE_NUMBER,
@@ -25,16 +26,10 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
 
   switch (filterType) {
     case FIELD_TYPE_NUMBER:
-      return (
-        <NumberOperatorDropdown
-          value={state}
-          onChange={(v) => onFilterChange(field, v)}
-        />
-      );
     case FIELD_TYPE_DATE:
     case FIELD_TYPE_DATETIME:
       return (
-        <DateOperatorDropdown
+        <OperatorDropdown
           value={state}
           onChange={(v) => onFilterChange(field, v)}
         />
@@ -129,15 +124,3 @@ export function getFilterToInputSlot(column, filterModel, onFilterChange, direct
   }
 }
 
-/** Legacy: full filter in one slot (for backward compat) */
-export function getFilterSlot(column, filterModel, onFilterChange, direction = 'ltr', t) {
-  const headerCombo = getHeaderComboSlot(column, filterModel, onFilterChange);
-  const filterInput = getFilterInputSlot(column, filterModel, onFilterChange, direction, t);
-  if (!headerCombo && !filterInput) return null;
-  return (
-    <>
-      {headerCombo && <Box sx={{ mb: 0.5 }}>{headerCombo}</Box>}
-      {filterInput}
-    </>
-  );
-}

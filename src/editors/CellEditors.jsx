@@ -7,6 +7,7 @@ import { Autocomplete } from '@mui/material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
 import { getDateFormat } from '../utils/directionUtils';
+import { getOptionLabel } from '../utils/optionUtils';
 import {
   DEFAULT_FIELD_TYPE,
   FIELD_TYPE_NUMBER,
@@ -51,7 +52,7 @@ export function getEditor(column, row, editValues, onChange, direction = 'ltr') 
           options={column.options ?? []}
           value={value ?? null}
           onChange={(_, v) => onChange(column.field, v)}
-          getOptionLabel={(o) => (typeof o === 'object' && o != null && o.label != null ? o.label : String(o))}
+          getOptionLabel={getOptionLabel}
           renderInput={(params) => <TextField {...params} />}
           fullWidth
         />

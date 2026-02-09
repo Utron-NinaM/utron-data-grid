@@ -1,70 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { IconButton, Box, Menu, MenuItem } from '@mui/material';
-import ClearIcon from '@mui/icons-material/Clear';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { useTranslations } from '../../localization/useTranslations';
-import {
-  DATE_OPERATORS,
-  OPERATOR_EQUALS,
-  OPERATOR_NOT_EQUAL,
-  OPERATOR_GREATER_THAN,
-  OPERATOR_LESS_THAN,
-  OPERATOR_GREATER_OR_EQUAL,
-  OPERATOR_LESS_OR_EQUAL,
-  OPERATOR_IN_RANGE,
-} from '../../config/schema';
+import { Box } from '@mui/material';
+import { OperatorDropdown } from './OperatorDropdown';
+import { ClearButton } from './ClearButton';
 import { getDateFormat } from '../../utils/directionUtils';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
-
-const operatorMap = {
-  [OPERATOR_EQUALS]: 'operatorEquals',
-  [OPERATOR_NOT_EQUAL]: 'operatorNotEqual',
-  [OPERATOR_GREATER_THAN]: 'operatorGreaterThan',
-  [OPERATOR_LESS_THAN]: 'operatorLessThan',
-  [OPERATOR_GREATER_OR_EQUAL]: 'operatorGreaterOrEqual',
-  [OPERATOR_LESS_OR_EQUAL]: 'operatorLessOrEqual',
-  [OPERATOR_IN_RANGE]: 'operatorInRange',
-};
-
-/** Operator dropdown only (for header row next to column label) */
-export function DateOperatorDropdown({ value, onChange }) {
-  const t = useTranslations();
-  const [anchor, setAnchor] = useState(null);
-  const operator = value?.operator ?? OPERATOR_EQUALS;
-
-  return (
-    <>
-      <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} aria-label="Operator">
-        <ArrowDropDownIcon />
-      </IconButton>
-      <Box component="span" sx={{ fontSize: '0.875rem', minWidth: 20 }}>
-        {operator === OPERATOR_IN_RANGE ? '…' : operator}
-      </Box>
-      <Menu
-        anchorEl={anchor}
-        open={!!anchor}
-        onClose={() => setAnchor(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-      >
-        {DATE_OPERATORS.map((op) => (
-          <MenuItem
-            key={op}
-            onClick={() => {
-              onChange({ ...value, operator: op });
-              setAnchor(null);
-            }}
-          >
-            {op === OPERATOR_IN_RANGE ? '…' : op} {t(operatorMap[op] || op)}
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
-  );
-}
 
 /** Date picker (from only) + clear. "To" is rendered in separate header row when inRange. */
 export function DateFilterInputs({ value, onChange, placeholder, direction }) {
@@ -89,9 +32,7 @@ export function DateFilterInputs({ value, onChange, placeholder, direction }) {
           slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0, maxWidth: '100%' } } }}
           format={format}
         />
-        <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
-          <ClearIcon fontSize="small" />
-        </IconButton>
+        <ClearButton onClick={handleClear} visible={hasValue} />
       </Box>
     </LocalizationProvider>
   );
@@ -120,9 +61,7 @@ export function DateFilterToInput({ value, onChange, direction }) {
           slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0, maxWidth: '100%' } } }}
           format={format}
         />
-        <IconButton size="small" onClick={handleClear} aria-label="Clear" sx={{ visibility: hasValue ? 'visible' : 'hidden', flexShrink: 0 }}>
-          <ClearIcon fontSize="small" />
-        </IconButton>
+        <ClearButton onClick={handleClear} visible={hasValue} />
       </Box>
     </LocalizationProvider>
   );
@@ -131,7 +70,7 @@ export function DateFilterToInput({ value, onChange, direction }) {
 export function DateFilter({ value, onChange, placeholder, direction }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
-      <DateOperatorDropdown value={value} onChange={onChange} />
+      <OperatorDropdown value={value} onChange={onChange} />
       <DateFilterInputs value={value} onChange={onChange} placeholder={placeholder} direction={direction} />
     </Box>
   );
