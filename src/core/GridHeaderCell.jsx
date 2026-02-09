@@ -1,9 +1,5 @@
 import React from 'react';
 import { TableCell, TableSortLabel, IconButton, Box } from '@mui/material';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import LastPageIcon from '@mui/icons-material/LastPage';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ClearIcon from '@mui/icons-material/Clear';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
 import { useDataGridContext } from '../DataGrid/useDataGridContext';
@@ -92,24 +88,4 @@ export function GridHeaderCell({
   );
 }
 
-export function PaginationIcons({ onFirstPage, onPrevPage, onNextPage, onLastPage, firstDisabled, prevDisabled, nextDisabled, lastDisabled }) {
-  const ctx = useDataGridContext();
-  const direction = ctx?.direction ?? 'ltr';
-  const isRtl = direction === 'rtl';
-  return (
-    <Box sx={{ display: 'flex' }}>
-      <IconButton onClick={onFirstPage} disabled={firstDisabled} size="small" aria-label="First page">
-        {isRtl ? <LastPageIcon /> : <FirstPageIcon />}
-      </IconButton>
-      <IconButton onClick={onPrevPage} disabled={prevDisabled} size="small" aria-label="Previous page">
-        <ChevronLeftIcon />
-      </IconButton>
-      <IconButton onClick={onNextPage} disabled={nextDisabled} size="small" aria-label="Next page">
-        <ChevronRightIcon />
-      </IconButton>
-      <IconButton onClick={onLastPage} disabled={lastDisabled} size="small" aria-label="Last page">
-        {isRtl ? <FirstPageIcon /> : <LastPageIcon />}
-      </IconButton>
-    </Box>
-  );
-}
+
