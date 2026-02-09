@@ -12,6 +12,7 @@ export const defaultTranslations = {
   filterNumber: 'Filter',
   filterDate: 'Filter',
   selectOption: 'Select',
+  filterTo: 'To',
 
   // Number/date operators
   operatorEquals: 'Equals',
@@ -42,4 +43,51 @@ export const defaultTranslations = {
   // Validation
   validationErrors: 'Please correct the following:',
   validationRequired: 'Required',
+};
+
+/** Hebrew translations */
+export const hebrewTranslations = {
+  ...defaultTranslations,
+  // Sort / filters
+  clearSort: 'נקה מיון',
+  clearAllFilters: 'נקה כל הסינונים',
+  sortAsc: 'מיין בסדר עולה',
+  sortDesc: 'מיין בסדר יורד',
+
+  // Filter placeholders
+  filterPlaceholder: 'סינון',
+  filterNumber: 'סינון',
+  filterDate: 'סינון',
+  selectOption: 'בחר',
+  filterTo: 'עד',
+
+  // Number/date operators
+  operatorEquals: 'שווה',
+  operatorNotEqual: 'לא שווה',
+  operatorGreaterThan: 'גדול מ',
+  operatorLessThan: 'קטן מ',
+  operatorGreaterOrEqual: 'גדול או שווה',
+  operatorLessOrEqual: 'קטן או שווה',
+  operatorInRange: 'בטווח',
+
+  // Pagination
+  rowsPerPage: 'שורות לדף',
+  paginationRange: '{{from}}–{{to}} מתוך {{count}}',
+  firstPage: 'דף ראשון',
+  lastPage: 'דף אחרון',
+  prevPage: 'דף קודם',
+  nextPage: 'דף הבא',
+
+  // Empty / state
+  noRows: 'אין שורות',
+  noResults: 'אין תוצאות התואמות לסינונים',
+
+  // Edit
+  save: 'שמור',
+  cancel: 'בטל',
+  edit: 'ערוך',
+
+  // Validation
+  validationErrors: 'יש לתקן את השגיאות הבאות:',
+  validationRequired: 'נדרש',
 };

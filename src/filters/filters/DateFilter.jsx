@@ -6,8 +6,29 @@ import { Box } from '@mui/material';
 import { OperatorDropdown } from './OperatorDropdown';
 import { ClearButton } from './ClearButton';
 import { getDateFormat } from '../../utils/directionUtils';
+import { useTranslations } from '../../localization/useTranslations';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
+
+function getSlotProps(direction) {
+  const slotProps = {
+    textField: {
+      size: 'small',
+      dir: direction,
+      sx: {
+        flex: 1,
+        minWidth: 0,
+        maxWidth: '100%',
+      }
+    }
+  };
+  if (direction === 'rtl') {
+    slotProps.textField.sx['& .MuiInputLabel-root'] = {
+      right: 20,
+    };
+  }  
+  return slotProps;
+}
 
 /** Date picker (from only) + clear. "To" is rendered in separate header row when inRange. */
 export function DateFilterInputs({ value, onChange, placeholder, direction }) {
@@ -29,7 +50,8 @@ export function DateFilterInputs({ value, onChange, placeholder, direction }) {
           label={placeholder}
           value={dateVal}
           onChange={(d) => handleChange({ value: d ? d.toISOString() : null })}
-          slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0, maxWidth: '100%' } } }}
+          slotProps={getSlotProps(direction)}
+          dir={direction}
           format={format}
         />
         <ClearButton onClick={handleClear} visible={hasValue} />
@@ -40,6 +62,7 @@ export function DateFilterInputs({ value, onChange, placeholder, direction }) {
 
 /** "To" date picker only (for in-range second header row) */
 export function DateFilterToInput({ value, onChange, direction }) {
+  const t = useTranslations();
   const format = getDateFormat(direction);
   const dateTo = value?.valueTo != null ? dayjs(value.valueTo) : null;
 
@@ -55,10 +78,11 @@ export function DateFilterToInput({ value, onChange, direction }) {
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'he' : 'en'}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <DatePicker
-          label="To"
+          label={t('filterTo')}
           value={dateTo}
           onChange={(d) => handleChange({ valueTo: d ? d.toISOString() : null })}
-          slotProps={{ textField: { size: 'small', sx: { flex: 1, minWidth: 0, maxWidth: '100%' } } }}
+          slotProps={getSlotProps(direction)}
+          dir={direction}
           format={format}
         />
         <ClearButton onClick={handleClear} visible={hasValue} />

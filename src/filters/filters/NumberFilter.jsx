@@ -2,6 +2,7 @@ import React from 'react';
 import { TextField, Box } from '@mui/material';
 import { OperatorDropdown } from './OperatorDropdown';
 import { ClearButton } from './ClearButton';
+import { useTranslations } from '../../localization/useTranslations';
 
 const MAX_INPUT_LENGTH = 50;
 
@@ -43,6 +44,7 @@ export function NumberFilterInputs({ value, onChange, placeholder }) {
 
 /** "To" value input only (for in-range second header row) */
 export function NumberFilterToInput({ value, onChange }) {
+  const t = useTranslations();
   const valueTo = value?.valueTo ?? '';
 
   const handleChange = (next) => {
@@ -66,7 +68,7 @@ export function NumberFilterToInput({ value, onChange }) {
       <TextField
         size="small"
         type="number"
-        placeholder="To"
+        placeholder={t('filterTo')}
         value={valueTo}
         onChange={(e) => handleChange({ valueTo: e.target.value })}
         sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}

@@ -4,7 +4,6 @@ import { useTranslations } from '../localization/useTranslations';
 import { GridHeaderCell, GridHeaderCellFilter } from './GridHeaderCell';
 import { GridBodyRow } from './GridBodyRow';
 import { ALIGN_CENTER } from '../config/schema';
-import { useDataGridContext } from '../DataGrid/useDataGridContext';
 
 /**
  * @param {Object} props
@@ -49,10 +48,8 @@ export function GridTable({
   getFilterToInputSlot,
   onRowDoubleClick,
 }) {
+  const translations = useTranslations();  
   const sortModelLength = sortModel?.length ?? 0;
-  const t = useTranslations();
-  const ctx = useDataGridContext();
-  const direction = ctx?.direction ?? 'ltr';
 
   return (
     <>
@@ -60,12 +57,12 @@ export function GridTable({
         <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
           {onClearSort && (
             <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0}>
-              {t('clearSort')}
+              {translations('clearSort')}
             </Button>
           )}
           {onClearAllFilters && (
             <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
-              {t('clearAllFilters')}
+              {translations('clearAllFilters')}
             </Button>
           )}
         </Box>
@@ -84,7 +81,7 @@ export function GridTable({
                   showClearSort={idx === 0 && sortModelLength > 0}
                   onClearSort={onClearSort}
                   headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
-                  filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col) : null}
+                  filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations) : null}
                   sortOrderIndex={
                     sortModel?.findIndex((s) => s.field === col.field) >= 0
                       ? sortModel.findIndex((s) => s.field === col.field) + 1
@@ -100,7 +97,7 @@ export function GridTable({
                   <GridHeaderCellFilter
                     key={col.field}
                     column={col}
-                    slot={getFilterInputSlot(col)}
+                    slot={getFilterInputSlot(col, translations)}
                   />
                 ))}
               </TableRow>
@@ -122,7 +119,7 @@ export function GridTable({
           {rows.length === 0 ? (
             <TableRow>
               <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align={ALIGN_CENTER}>
-                {t('noRows')}
+                {translations('noRows')}
               </TableCell>
             </TableRow>
           ) : (

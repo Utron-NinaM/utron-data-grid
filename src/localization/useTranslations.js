@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { DataGridContext } from '../DataGrid/DataGridContext';
-import { defaultTranslations } from './defaultTranslations';
+import { defaultTranslations, hebrewTranslations } from './defaultTranslations';
 
 /**
  * @returns {(key: string, params?: Record<string, string|number>) => string}
@@ -13,7 +13,7 @@ export function useTranslations() {
       return params ? replaceParams(str, params) : str;
     };
   }
-  const translations = ctx.translations || {};
+  const translations = ctx.direction === 'rtl' ? hebrewTranslations : defaultTranslations;  
   const defaults = ctx.defaultTranslations ?? defaultTranslations;
   return function t(key, params) {
     const raw = translations[key] ?? defaults[key] ?? key;

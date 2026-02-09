@@ -59,7 +59,7 @@ export function ListFilter({ value, onChange, options, placeholder }) {
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder={placeholder ?? t('selectOption')}
+            placeholder={placeholder ?? t('filterPlaceholder')}
             inputProps={{ ...params.inputProps, maxLength: 200, dir: direction }}
             sx={{
               '& .MuiInputBase-input': {

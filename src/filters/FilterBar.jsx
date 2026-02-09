@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box } from '@mui/material';
 import { TextFilter } from './filters/TextFilter';
 import { NumberFilterInputs, NumberFilterToInput } from './filters/NumberFilter';
 import { DateFilterInputs, DateFilterToInput } from './filters/DateFilter';
@@ -44,11 +43,11 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
 /**
  * Filter input slot: value inputs only (filter row below). No operator, no list combo.
  */
-export function getFilterInputSlot(column, filterModel, onFilterChange, direction = 'ltr', t) {
+export function getFilterInputSlot(column, filterModel, onFilterChange, direction = 'ltr', translations) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
-  const placeholder = t ? `${t('filterPlaceholder')} ${column.headerName ?? field}`.trim() : (column.headerName ?? field);
+  const placeholder = translations ? translations('filterPlaceholder') : '';
 
   if (filterType === false) return null;
 
@@ -77,7 +76,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
           value={state?.value ?? state}
           onChange={(v) => onFilterChange(field, v != null ? { value: v } : null)}
           options={column.filterOptions?.listValues ?? column.options ?? []}
-          placeholder={t ? t('selectOption') + ' ' + (column.headerName ?? field) : (column.headerName ?? field)}
+          placeholder={placeholder}
         />
       );
     default:

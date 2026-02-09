@@ -1,5 +1,5 @@
 export { DataGrid } from './DataGrid/DataGrid';
-export { defaultTranslations } from './localization/defaultTranslations';
+export { defaultTranslations, hebrewTranslations } from './localization/defaultTranslations';
 
 // Export constants for user configuration
 export {
