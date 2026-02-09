@@ -4,7 +4,7 @@ import { DEFAULT_FIELD_TYPE } from './schema';
 
 export const defaultGridConfig = {
   editable: false,
-  selectable: false,
+  multiSelectable: false,
   pagination: false,
   pageSize: 10,
   pageSizeOptions: [10, 25, 50],

@@ -17,7 +17,7 @@ export const DataGridContext = createContext(null);
  * @param {Function} [value.onPageChange]
  * @param {Function} [value.onPageSizeChange]
  * @param {boolean} value.editable
- * @param {boolean} value.selectable
+ * @param {boolean} value.multiSelectable
  * @param {Object} value.theme
  */
 export function DataGridProvider({ value, children }) {

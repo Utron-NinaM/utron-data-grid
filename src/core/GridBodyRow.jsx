@@ -1,13 +1,12 @@
 import React from 'react';
 import { TableRow, TableCell, Checkbox } from '@mui/material';
+import { useDataGridContext } from '../DataGrid/useDataGridContext';
 import { GridCell } from './GridCell';
 
 /**
  * @param {Object} props
  * @param {Object} props.row
- * @param {Object[]} props.columns
  * @param {string|number} props.rowId
- * @param {boolean} props.selectable
  * @param {boolean} props.selected
  * @param {Function} props.onSelect
  * @param {string|number|null} props.editRowId
@@ -15,12 +14,11 @@ import { GridCell } from './GridCell';
  * @param {Function} props.getEditor
  * @param {Set<string>} props.validationErrors
  * @param {Function} [props.onRowDoubleClick]
+ * @param {Object} [props.rowSx]
  */
 export function GridBodyRow({
   row,
-  columns,
   rowId,
-  selectable,
   selected,
   onSelect,
   editRowId,
@@ -30,6 +28,8 @@ export function GridBodyRow({
   onRowDoubleClick,
   rowSx,
 }) {
+  const ctx = useDataGridContext();
+  const { columns, multiSelectable } = ctx;
   const isEditing = editRowId === rowId;
 
   return (
@@ -39,7 +39,7 @@ export function GridBodyRow({
       sx={rowSx}
       onDoubleClick={onRowDoubleClick ? () => onRowDoubleClick(row) : undefined}
     >
-      {selectable && (
+      {multiSelectable && (
         <TableCell padding="checkbox">
           <Checkbox
             checked={selected}

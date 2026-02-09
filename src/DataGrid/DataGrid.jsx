@@ -42,7 +42,7 @@ function EditToolbar({ onSave, onCancel }) {
  * @param {Function} [props.onSelectionChange]
  * @param {Function} props.getRowId
  * @param {boolean} [props.editable]
- * @param {boolean} [props.selectable]
+ * @param {boolean} [props.multiSelectable]
  * @param {boolean} [props.pagination]
  * @param {number} [props.pageSize]
  * @param {number[]} [props.pageSizeOptions]
@@ -69,7 +69,7 @@ export function DataGrid(props) {
     onSelectionChange,
     getRowId,
     editable = defaultGridConfig.editable,
-    selectable = defaultGridConfig.selectable,
+    multiSelectable = defaultGridConfig.multiSelectable,
     pagination = defaultGridConfig.pagination,
     pageSize: initialPageSize = defaultGridConfig.pageSize,
     pageSizeOptions = defaultGridConfig.pageSizeOptions,
@@ -242,7 +242,7 @@ export function DataGrid(props) {
       onPageChange,
       onPageSizeChange,
       editable,
-      selectable,
+      multiSelectable,
     }),
     [
       columns,
@@ -256,7 +256,7 @@ export function DataGrid(props) {
       onPageChange,
       onPageSizeChange,
       editable,
-      selectable,
+      multiSelectable,
     ]
   );
 
@@ -290,10 +290,7 @@ export function DataGrid(props) {
         <Box sx={{ ...sx }} dir={direction}>
         <ValidationAlert errors={validationErrors} />
           <GridTable
-            columns={columns}
             rows={displayRows}
-            getRowId={getRowId}
-            selectable={selectable}
             selection={selection}
             onSelect={handleSelect}
             sortModel={sortModel}

@@ -1,16 +1,14 @@
 import React from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
+import { useDataGridContext } from '../DataGrid/useDataGridContext';
 import { GridHeaderCell, GridHeaderCellFilter } from './GridHeaderCell';
 import { GridBodyRow } from './GridBodyRow';
 import { ALIGN_CENTER } from '../config/schema';
 
 /**
  * @param {Object} props
- * @param {Object[]} props.columns
  * @param {Object[]} props.rows
- * @param {Function} props.getRowId
- * @param {boolean} props.selectable
  * @param {Set<string|number>} props.selection
  * @param {Function} props.onSelect
  * @param {Array<{ field: string, order: string }>} props.sortModel
@@ -28,10 +26,7 @@ import { ALIGN_CENTER } from '../config/schema';
  * @param {Function} [props.onRowDoubleClick]
  */
 export function GridTable({
-  columns,
   rows,
-  getRowId,
-  selectable,
   selection,
   onSelect,
   sortModel,
@@ -48,7 +43,9 @@ export function GridTable({
   getFilterToInputSlot,
   onRowDoubleClick,
 }) {
-  const translations = useTranslations();  
+  const translations = useTranslations();
+  const ctx = useDataGridContext();
+  const { columns, getRowId, multiSelectable } = ctx;
   const sortModelLength = sortModel?.length ?? 0;
 
   return (
@@ -71,7 +68,7 @@ export function GridTable({
         <Table size="small" stickyHeader aria-label="Data grid" sx={{ width: '100%' }}>
           <TableHead>
             <TableRow>
-              {selectable && <TableCell padding="checkbox" />}
+              {multiSelectable && <TableCell padding="checkbox" />}
               {columns.map((col, idx) => (
                 <GridHeaderCell
                   key={col.field}
@@ -92,7 +89,7 @@ export function GridTable({
             </TableRow>
             {getFilterInputSlot && getFilterToInputSlot && (
               <TableRow>
-                {selectable && <TableCell padding="checkbox" variant="head" />}
+                {multiSelectable && <TableCell padding="checkbox" variant="head" />}
                 {columns.map((col) => (
                   <GridHeaderCellFilter
                     key={col.field}
@@ -104,7 +101,7 @@ export function GridTable({
             )}
             {getFilterToInputSlot && (
               <TableRow>
-                {selectable && <TableCell padding="checkbox" variant="head" />}
+                {multiSelectable && <TableCell padding="checkbox" variant="head" />}
                 {columns.map((col) => (
                   <GridHeaderCellFilter
                     key={col.field}
@@ -118,7 +115,7 @@ export function GridTable({
         <TableBody>
           {rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align={ALIGN_CENTER}>
+              <TableCell colSpan={columns.length + (multiSelectable ? 1 : 0)} align={ALIGN_CENTER}>
                 {translations('noRows')}
               </TableCell>
             </TableRow>
@@ -134,9 +131,7 @@ export function GridTable({
                 <GridBodyRow
                   key={rowId}
                   row={row}
-                  columns={columns}
                   rowId={rowId}
-                  selectable={selectable}
                   selected={selection?.has(rowId)}
                   onSelect={onSelect}
                   editRowId={editRowId}

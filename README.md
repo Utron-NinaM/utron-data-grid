@@ -52,7 +52,7 @@ const rows = [
 | `onEditCommit` | `(rowId, row) => void` | Commit edited row (enables inline edit when provided) |
 | `onSelectionChange` | `(selectedIds) => void` | Selection change |
 | `editable` | `boolean` | Master switch for inline edit (default false) |
-| `selectable` | `boolean` | Show checkboxes and selection (default false) |
+| `multiSelectable` | `boolean` | Show checkboxes and selection (default false) |
 | `pagination` | `boolean` | Enable client-side pagination (default false) |
 | `pageSize` | `number` | Rows per page (default 10) |
 | `pageSizeOptions` | `number[]` | Page size dropdown options (e.g. [10, 25, 50]) |

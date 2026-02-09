@@ -38,7 +38,7 @@ export function DataGridExample() {
           getRowId={(row) => row.id}
           translations={en}
           direction={direction}
-          selectable
+          multiSelectable
           editable
           pagination
           pageSize={10}
