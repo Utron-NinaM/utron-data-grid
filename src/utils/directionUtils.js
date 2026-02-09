@@ -1,7 +1,6 @@
 import { ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
 
 /**
- * LTR → MM-DD-YYYY, RTL → DD-MM-YYYY for display/input
  * @param {'ltr'|'rtl'} direction
  * @returns {string} format for dayjs
  */
@@ -10,7 +9,7 @@ export function getDateFormat(direction) {
 }
 
 export function getDateTimeFormat(direction) {
-  return direction === 'rtl' ? 'DD-MM-YYYY HH:mm' : 'MM-DD-YYYY HH:mm';
+  return direction === 'rtl' ? 'DD-MM-YYYY HH:mm:ss' : 'MM-DD-YYYY HH:mm:ss';
 }
 
 /** Default cell align by direction */
