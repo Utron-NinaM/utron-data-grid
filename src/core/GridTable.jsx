@@ -23,7 +23,9 @@ import { ALIGN_CENTER } from '../config/schema';
  * @param {Function} [props.getHeaderComboSlot]
  * @param {Function} [props.getFilterInputSlot]
  * @param {Function} [props.getFilterToInputSlot]
+ * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
+ * @param {string|number|null} [props.selectedRowId]
  */
 export function GridTable({
   rows,
@@ -41,7 +43,9 @@ export function GridTable({
   getHeaderComboSlot,
   getFilterInputSlot,
   getFilterToInputSlot,
+  onRowClick,
   onRowDoubleClick,
+  selectedRowId,
 }) {
   const translations = useTranslations();
   const ctx = useDataGridContext();
@@ -138,7 +142,9 @@ export function GridTable({
                   editValues={editValues}
                   getEditor={getEditor}
                   validationErrors={validationErrors}
+                  onRowClick={onRowClick}
                   onRowDoubleClick={onRowDoubleClick}
+                  selectedRowId={selectedRowId}
                   rowSx={Object.keys(rowSx).length ? rowSx : undefined}
                 />
               );

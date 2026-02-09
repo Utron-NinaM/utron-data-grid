@@ -40,6 +40,7 @@ function EditToolbar({ onSave, onCancel }) {
  * @param {Function} [props.onValidationFail] (rowId, errors) when Save fails validation
  * @param {Function} [props.isRowEditable] (row) => boolean – only these rows are editable
  * @param {Function} [props.onSelectionChange]
+ * @param {Function} [props.onRowSelect] (rowId, row) when a row is clicked
  * @param {Function} props.getRowId
  * @param {boolean} [props.editable]
  * @param {boolean} [props.multiSelectable]
@@ -67,6 +68,7 @@ export function DataGrid(props) {
     onValidationFail,
     isRowEditable,
     onSelectionChange,
+    onRowSelect,
     getRowId,
     editable = defaultGridConfig.editable,
     multiSelectable = defaultGridConfig.multiSelectable,
@@ -87,6 +89,7 @@ export function DataGrid(props) {
   const [validationErrors, setValidationErrors] = useState([]);
   const [internalPage, setInternalPage] = useState(0);
   const [internalPageSize, setInternalPageSize] = useState(initialPageSize);
+  const [selectedRowId, setSelectedRowId] = useState(null);
 
   const sortModel = controlledSort !== undefined ? controlledSort : internalSort;
   const filterModel = controlledFilter !== undefined ? controlledFilter : internalFilter;
@@ -167,6 +170,17 @@ export function DataGrid(props) {
       onPageSizeChange?.(size);
     },
     [controlledPage, onPageChange, onPageSizeChange]
+  );
+
+  const handleRowClick = useCallback(
+    (row) => {
+      if (onRowSelect) {
+        const id = getRowId(row);
+        setSelectedRowId(id);
+        onRowSelect(id, row);
+      }
+    },
+    [onRowSelect, getRowId]
   );
 
   const handleRowDoubleClick = useCallback(
@@ -305,7 +319,9 @@ export function DataGrid(props) {
             getHeaderComboSlot={getHeaderComboSlotForColumn}
             getFilterInputSlot={getFilterInputSlotForColumn}
             getFilterToInputSlot={getFilterToInputSlotForColumn}
+            onRowClick={handleRowClick}
             onRowDoubleClick={handleRowDoubleClick}
+            selectedRowId={selectedRowId}
           />
           {editable && editRowId != null && (
             <EditToolbar onSave={handleEditSave} onCancel={handleEditCancel} />

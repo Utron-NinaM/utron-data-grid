@@ -3,10 +3,12 @@ import { DataGrid } from '../src/DataGrid/DataGrid';
 import { columnsConfig, columnsConfigHebrew } from './columnsConfig';
 import { sampleData } from './sampleData';
 import { en } from './translations';
+import { Button } from '@mui/material';
 
 export function DataGridExample() {
   const [direction, setDirection] = useState('ltr');
   const [data, setData] = useState(sampleData);
+  const [selectedRow, setSelectedRow] = useState(null);
 
   const columns = useMemo(() => {
     return direction === 'rtl' ? columnsConfigHebrew : columnsConfig;
@@ -14,6 +16,17 @@ export function DataGridExample() {
 
   const handleEditCommit = (rowId, row) => {
     setData((prev) => prev.map((r) => (r.id === rowId ? { ...r, ...row } : r)));
+  };
+
+  const handleRowSelect = (rowId, row) => {
+    setSelectedRow(row);
+  };
+
+  const handleCancelOrder = () => {
+    if (selectedRow) {
+      setData((prev) => prev.filter((r) => r.id !== selectedRow.id));
+      setSelectedRow(null);
+    }
   };
 
   return (
@@ -31,6 +44,16 @@ export function DataGridExample() {
           <option value="rtl">RTL</option>
         </select>
       </label>
+      <div style={{ marginTop: 16, marginBottom: 16 }}>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={handleCancelOrder}
+          disabled={!selectedRow}
+        >
+          Cancel Order
+        </Button>
+      </div>
       <div style={{ marginTop: 16 }}>
         <DataGrid
           rows={data}
@@ -44,6 +67,7 @@ export function DataGridExample() {
           pageSize={10}
           pageSizeOptions={[5, 10, 25, 50]}
           onEditCommit={handleEditCommit}
+          onRowSelect={handleRowSelect}
         />
       </div>
     </div>

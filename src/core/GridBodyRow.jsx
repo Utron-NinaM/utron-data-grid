@@ -13,7 +13,9 @@ import { GridCell } from './GridCell';
  * @param {Object} props.editValues
  * @param {Function} props.getEditor
  * @param {Set<string>} props.validationErrors
+ * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
+ * @param {string|number|null} [props.selectedRowId]
  * @param {Object} [props.rowSx]
  */
 export function GridBodyRow({
@@ -25,18 +27,22 @@ export function GridBodyRow({
   editValues,
   getEditor,
   validationErrors,
+  onRowClick,
   onRowDoubleClick,
+  selectedRowId,
   rowSx,
 }) {
   const ctx = useDataGridContext();
   const { columns, multiSelectable } = ctx;
   const isEditing = editRowId === rowId;
+  const isSelected = selectedRowId === rowId;
 
   return (
     <TableRow
       hover
-      selected={selected}
+      selected={selected || isSelected}
       sx={rowSx}
+      onClick={onRowClick ? () => onRowClick(row) : undefined}
       onDoubleClick={onRowDoubleClick ? () => onRowDoubleClick(row) : undefined}
     >
       {multiSelectable && (

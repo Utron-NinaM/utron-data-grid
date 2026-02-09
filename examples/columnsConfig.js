@@ -35,7 +35,7 @@ export const columnsConfig = [
     width: 100,
     options: ['Active', 'Inactive', 'Pending'],
     filterOptions: { listValues: ['Active', 'Inactive', 'Pending'] },
-    rowStyle: (row) => (row.status === 'Pending' ? { backgroundColor: '#fff3e0' } : {}),
+    rowStyle: (row) => (row.status === 'Pending' ? { backgroundColor: '#fff3e0' } : {}),    
   },
   { field: 'date', headerName: 'Date', type: 'date', filter: 'date', editable: true, width: 120 },
 ];
