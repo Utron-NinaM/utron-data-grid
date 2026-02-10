@@ -97,14 +97,12 @@ export function GridTable({
                   }}
                 />
               )}
-              {columns.map((col, idx) => (
+              {columns.map((col) => (
                 <GridHeaderCell
                   key={col.field}
                   column={col}
                   sortModel={sortModel}
                   onSort={onSort}
-                  showClearSort={idx === 0 && sortModelLength > 0}
-                  onClearSort={onClearSort}
                   headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
                   filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations) : null}
                   sortOrderIndex={

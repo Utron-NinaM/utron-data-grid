@@ -1,8 +1,8 @@
 import React from 'react';
-import { TableCell, TableSortLabel, IconButton, Box } from '@mui/material';
-import ClearIcon from '@mui/icons-material/Clear';
+import { TableCell, TableSortLabel, Box, Tooltip } from '@mui/material';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
 import { useDataGridContext } from '../DataGrid/useDataGridContext';
+import { useTranslations } from '../localization/useTranslations';
 
 const getFilterRowBoxSx = (filterInputHeight) => ({
   width: '100%',
@@ -71,8 +71,6 @@ export function GridHeaderCell({
   column,
   sortModel,
   onSort,
-  showClearSort,
-  onClearSort,
   headerComboSlot,
   filterSlot,
   sortOrderIndex,
@@ -80,6 +78,7 @@ export function GridHeaderCell({
   headerConfig,
 }) {
   const ctx = useDataGridContext();
+  const t = useTranslations();
   const direction = ctx?.direction ?? 'ltr';
   const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
   const sortDir = sortModel?.find((s) => s.field === column.field);
@@ -96,29 +95,32 @@ export function GridHeaderCell({
     ...(mainRowHeight && { height: mainRowHeight, maxHeight: mainRowHeight }),
     ...headerStyle,
   };
+  const multiColumn = sortModel?.length > 1;
+
+  const handleSortClick = (event) => {
+    const multiColumn = event.ctrlKey || event.metaKey;
+    onSort(column.field, multiColumn);
+  };
 
   return (
     <TableCell align={align} padding="none" variant="head" sx={cellSx}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', py: mainRowHeight ? 0 : 0.5, boxSizing: 'border-box', height: '100%' }}>
-        <TableSortLabel
-          active={!!sortDir}
-          direction={order}
-          onClick={() => onSort(column.field)}
-          sx={{ minHeight: 20 }}
-        >
-          {column.headerName}
-          {sortOrderIndex != null && (
-            <Box component="span" sx={{ ml: 0.25, fontSize: '0.75rem', opacity: 0.8 }}>
-              {sortOrderIndex}
-            </Box>
-          )}
-        </TableSortLabel>
-        {headerComboSlot != null && headerComboSlot}
-        {showClearSort && sortModel?.length > 0 && (
-          <IconButton size="small" onClick={onClearSort} aria-label="Clear sort">
-            <ClearIcon fontSize="small" />
-          </IconButton>
-        )}
+        <Tooltip title={t('sortMultiColumnHint')}>
+          <TableSortLabel
+            active={!!sortDir}
+            direction={order}
+            onClick={handleSortClick}
+            sx={{ minHeight: 20 }}
+          >
+            {column.headerName}          
+          </TableSortLabel>
+        </Tooltip>
+        {sortOrderIndex != null && multiColumn && (
+              <Box component="span" sx={{ ml: 0.25, fontSize: '0.75rem', opacity: 0.8 }}>
+                {`(${sortOrderIndex})`}
+              </Box>
+            )}
+        {headerComboSlot != null && headerComboSlot}        
       </Box>
       {filterSlot != null && <Box sx={FILTER_ROW_BOX_SX}>{filterSlot}</Box>}
     </TableCell>

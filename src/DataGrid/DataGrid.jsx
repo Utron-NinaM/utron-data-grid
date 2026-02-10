@@ -129,12 +129,25 @@ export function DataGrid(props) {
   );
 
   const handleSort = useCallback(
-    (field) => {
+    (field, multiColumn = false) => {
       const current = sortModel.find((s) => s.field === field);
       let next;
-      if (!current) next = [...sortModel, { field, order: SORT_ORDER_ASC }];
-      else if (current.order === SORT_ORDER_ASC) next = sortModel.map((s) => (s.field === field ? { ...s, order: SORT_ORDER_DESC } : s));
-      else next = sortModel.filter((s) => s.field !== field);
+      
+      if (!multiColumn) {
+        // Single click: replace entire sortModel with only this column
+        if (!current) {
+          next = [{ field, order: SORT_ORDER_ASC }];
+        } else if (current.order === SORT_ORDER_ASC) {
+          next = [{ field, order: SORT_ORDER_DESC }];
+        } else {
+          next = [];
+        }
+      } else {
+        // Ctrl+click: add/update column in multi-column sort
+        if (!current) next = [...sortModel, { field, order: SORT_ORDER_ASC }];
+        else if (current.order === SORT_ORDER_ASC) next = sortModel.map((s) => (s.field === field ? { ...s, order: SORT_ORDER_DESC } : s));
+        else next = sortModel.filter((s) => s.field !== field);
+      }
       setSortModel(next);
     },
     [sortModel, setSortModel]
