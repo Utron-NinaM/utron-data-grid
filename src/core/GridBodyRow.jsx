@@ -1,4 +1,4 @@
-import React, { useRef, memo, useCallback, useMemo } from 'react';
+import React, { memo } from 'react';
 import { TableRow, TableCell, Checkbox } from '@mui/material';
 import { GridCell } from './GridCell';
 
@@ -40,35 +40,16 @@ function GridBodyRowComponent({
   const isEditing = editRowId === rowId;
   const isRowSelected = selected || isSelected;
   
-  // Use refs for callbacks to avoid comparing them in memo (they may change but handlers stay stable)
-  const onRowClickRef = useRef(onRowClick);
-  onRowClickRef.current = onRowClick;
-  
-  const onRowDoubleClickRef = useRef(onRowDoubleClick);
-  onRowDoubleClickRef.current = onRowDoubleClick;
-  
-  const rowRef = useRef(row);
-  rowRef.current = row;
-  
-  const handleClick = useCallback(() => {
-    if (onRowClickRef.current) onRowClickRef.current(rowRef.current);
-  }, []);
-  
-  const handleDoubleClick = useCallback(() => {
-    if (onRowDoubleClickRef.current) onRowDoubleClickRef.current(rowRef.current);
-  }, []);
-  
-  const computedRowSx = useMemo(() => {
-    return columns.reduce(
-      (acc, col) =>
-        typeof col.rowStyle === 'function' ? { ...acc, ...col.rowStyle(row) } : acc,
-      {}
-    );
-  }, [columns, row]);
+  // Compute row styles inline - optimize later if profiling shows it's a bottleneck
+  const computedRowSx = columns.reduce(
+    (acc, col) =>
+      typeof col.rowStyle === 'function' ? { ...acc, ...col.rowStyle(row) } : acc,
+    {}
+  );
   
   const finalRowSx = rowSx || (Object.keys(computedRowSx).length ? computedRowSx : undefined);
   
-  const mergedSx = useMemo(() => [
+  const mergedSx = [
     finalRowSx,
     {
       '&.Mui-selected': {
@@ -78,21 +59,15 @@ function GridBodyRowComponent({
         ...selectedRowStyle,
       },      
     },
-  ], [finalRowSx, selectedRowStyle]);
+  ];
   
-  const renderCount = useRef(0);
-  renderCount.current++;
-  if (renderCount.current <= 3 || renderCount.current % 10 === 0) {
-    console.log('[GridBodyRow]', rowId, 'rendered (#', renderCount.current, ') - isSelected:', isSelected, 'selected:', selected, 'isEditing:', isEditing);
-  }
-
   return (
     <TableRow
       hover
       selected={isRowSelected}
       sx={mergedSx}
-      onClick={onRowClick ? handleClick : undefined}
-      onDoubleClick={onRowDoubleClick ? handleDoubleClick : undefined}
+      onClick={onRowClick ? () => onRowClick(row) : undefined}
+      onDoubleClick={onRowDoubleClick ? () => onRowDoubleClick(row) : undefined}
     >
       {multiSelectable && (
         <TableCell padding="checkbox">
@@ -121,65 +96,6 @@ function GridBodyRowComponent({
   );
 }
 
-// Helper function for shallow object comparison
-function shallowEqualObjects(obj1, obj2) {
-  if (obj1 === obj2) return true;
-  if (!obj1 || !obj2) return false;
-  if (typeof obj1 !== 'object' || typeof obj2 !== 'object') return obj1 === obj2;
-  
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-  if (keys1.length !== keys2.length) return false;
-  
-  for (const key of keys1) {
-    if (obj1[key] !== obj2[key]) return false;
-  }
-  return true;
-}
-
-// Memoized component - no context usage, so React.memo can properly prevent rerenders
-const MemoizedGridBodyRow = memo(GridBodyRowComponent, (prevProps, nextProps) => {
-  // Compare all props (skip onRowClick and onRowDoubleClick - they're in refs)
-  if (prevProps.rowId !== nextProps.rowId) return false;
-  if (prevProps.selected !== nextProps.selected) return false;
-  if (prevProps.isSelected !== nextProps.isSelected) return false;
-  if (prevProps.editRowId !== nextProps.editRowId) return false;
-  if (prevProps.editValues !== nextProps.editValues) return false;
-  if (prevProps.validationErrors !== nextProps.validationErrors) return false;
-  if (prevProps.rowSx !== nextProps.rowSx) return false;
-  if (prevProps.onSelect !== nextProps.onSelect) return false;
-  if (prevProps.columns !== nextProps.columns) return false;
-  if (prevProps.multiSelectable !== nextProps.multiSelectable) return false;
-  if (prevProps.getEditor !== nextProps.getEditor) return false;
-  if (!shallowEqualObjects(prevProps.selectedRowStyle, nextProps.selectedRowStyle)) return false;
-  if (prevProps.row !== nextProps.row) return false;
-  // Skip onRowClick and onRowDoubleClick - they're stored in refs, handlers always use latest via refs
-  
-  // Debug: Log what changed when props differ (only for same rowId to avoid spam)
-  if (prevProps.rowId === nextProps.rowId) {
-    const changed = [];
-    if (prevProps.selected !== nextProps.selected) changed.push('selected');
-    if (prevProps.isSelected !== nextProps.isSelected) changed.push('isSelected');
-    if (prevProps.editRowId !== nextProps.editRowId) changed.push('editRowId');
-    if (prevProps.editValues !== nextProps.editValues) changed.push('editValues');
-    if (prevProps.validationErrors !== nextProps.validationErrors) changed.push('validationErrors');
-    if (prevProps.rowSx !== nextProps.rowSx) changed.push('rowSx');
-    if (prevProps.onSelect !== nextProps.onSelect) changed.push('onSelect');
-    if (prevProps.columns !== nextProps.columns) changed.push('columns');
-    if (prevProps.multiSelectable !== nextProps.multiSelectable) changed.push('multiSelectable');
-    if (prevProps.getEditor !== nextProps.getEditor) changed.push('getEditor');
-    if (!shallowEqualObjects(prevProps.selectedRowStyle, nextProps.selectedRowStyle)) changed.push('selectedRowStyle');
-    if (prevProps.row !== nextProps.row) changed.push('row');
-    
-    if (changed.length > 0) {
-      console.log(`[GridBodyRow] ${nextProps.rowId} ⚠️ Props changed, allowing rerender:`, changed);
-      return false; // Props changed, allow rerender
-    }
-  }
-  
-  // All props are the same, prevent rerender
-  return true;
-});
-
-// Export the memoized component directly - context values are passed as props from GridTable
-export const GridBodyRow = MemoizedGridBodyRow;
+// Memoized component - React.memo with default shallow comparison
+// Props are stabilized upstream via context, so default comparison is sufficient
+export const GridBodyRow = memo(GridBodyRowComponent);

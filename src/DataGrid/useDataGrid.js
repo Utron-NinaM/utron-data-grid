@@ -54,28 +54,10 @@ export function useDataGrid(props) {
   const [internalPageSize, setInternalPageSize] = useState(initialPageSize);
   const [selectedRowId, setSelectedRowId] = useState(null);
 
-  // Refs for editValues and validationErrors to avoid prop changes triggering rerenders
-  const editValuesRef = useRef({});
-  const validationErrorsRef = useRef([]);
-  const editValuesVersionRef = useRef(0);
-  
-  // Update refs when values change and increment version for editValues
-  if (editValuesRef.current !== editValues) {
-    editValuesRef.current = editValues;
-    editValuesVersionRef.current += 1;
-  }
-  validationErrorsRef.current = validationErrors;
-
   const sortModel = controlledSort !== undefined ? controlledSort : internalSort;
   const filterModel = controlledFilter !== undefined ? controlledFilter : internalFilter;
   const page = controlledPage !== undefined ? controlledPage : internalPage;
   const pageSize = internalPageSize;
-
-  const renderCount = useRef(0);
-  renderCount.current++;
-  if (renderCount.current === 1 || renderCount.current % 10 === 0) {
-    console.log('[useDataGrid] Render #', renderCount.current);
-  }
 
   const setSortModel = useCallback(
     (next) => {
@@ -168,7 +150,6 @@ export function useDataGrid(props) {
 
   const handleRowClick = useCallback(
     (row) => {
-      console.log('[useDataGrid] handleRowClick called for row:', getRowId(row));
       if (onRowSelect) {
         const id = getRowId(row);        
         setSelectedRowId(id);
@@ -177,20 +158,12 @@ export function useDataGrid(props) {
     },
     [onRowSelect, getRowId]
   );
-  
-  // Debug: Track callback recreation
-  const handleRowClickRef = useRef(handleRowClick);
-  if (handleRowClickRef.current !== handleRowClick) {
-    console.log('[useDataGrid] ⚠️ handleRowClick callback RECREATED (dependency changed)');
-    handleRowClickRef.current = handleRowClick;
-  }
 
   const handleRowDoubleClick = useCallback(
     (row) => {
       if (!editable || !onEditCommit) return;
       if (isRowEditable && !isRowEditable(row)) return;
       const id = getRowId(row);
-      console.log('[useDataGrid] handleRowDoubleClick called for row:', id);
       setEditRowId(id);
       setEditValues({ ...row });
       setValidationErrors([]);
@@ -198,13 +171,6 @@ export function useDataGrid(props) {
     },
     [editable, onEditCommit, getRowId, isRowEditable, onEditStart]
   );
-  
-  // Debug: Track callback recreation
-  const handleRowDoubleClickRef = useRef(handleRowDoubleClick);
-  if (handleRowDoubleClickRef.current !== handleRowDoubleClick) {
-    console.log('[useDataGrid] ⚠️ handleRowDoubleClick callback RECREATED (dependency changed)');
-    handleRowDoubleClickRef.current = handleRowDoubleClick;
-  }
 
   const handleEditChange = useCallback((field, value) => {
     setEditValues((prev) => ({ ...prev, [field]: value }));
@@ -348,11 +314,6 @@ export function useDataGrid(props) {
     page,
     pageSize,
     pageSizeOptions,
-    
-    // Refs (for GridTable to avoid prop changes)
-    editValuesRef,
-    validationErrorsRef,
-    editValuesVersion: editValuesVersionRef.current,
     
     // Computed values
     displayRows,

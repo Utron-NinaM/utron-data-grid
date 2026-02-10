@@ -1,4 +1,4 @@
-import React , {useContext, useMemo, useRef} from 'react';
+import React , {useContext} from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext } from '../DataGrid/DataGridContext';
@@ -8,7 +8,6 @@ import { GridBodyRow } from './GridBodyRow';
 import { ALIGN_CENTER } from '../config/schema';
 
 const EMPTY_ERROR_SET = new Set();
-const EMPTY_EDIT_VALUES = {};
 
 /**
  * @param {Object} props
@@ -19,8 +18,8 @@ const EMPTY_EDIT_VALUES = {};
  * @param {Function} props.onSort
  * @param {boolean} [props.hasActiveFilters]
  * @param {string|number|null} props.editRowId
- * @param {Object} props.editValuesRef
- * @param {Object} props.validationErrorsRef
+ * @param {Object} props.editValues
+ * @param {Array} props.validationErrors
  * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
  * @param {string|number|null} [props.selectedRowId]
@@ -34,9 +33,8 @@ export function GridTable({
   onSort,
   hasActiveFilters,
   editRowId,
-  editValuesRef,
-  validationErrorsRef,
-  editValuesVersion,
+  editValues,
+  validationErrors,
   onRowClick,
   onRowDoubleClick,
   selectedRowId,
@@ -48,29 +46,21 @@ export function GridTable({
   const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, headerStyle, headerConfig, getEditor, selectedRowStyle } = ctx;
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
-
-  // Debug: Track bodyRows useMemo execution
-  const bodyRowsMemoCount = useRef(0);
   
-  // Memoize the body rows to prevent unnecessary recreations when only selectedRowId or editRowId changes
-  const bodyRows = useMemo(() => {
-    bodyRowsMemoCount.current++;
-    console.log('[GridTable] bodyRows useMemo executed (#', bodyRowsMemoCount.current, ') - selectedRowId:', selectedRowId, 'editRowId:', editRowId);
-    if (rows.length === 0) {
-      return (
-        <TableRow>
-          <TableCell colSpan={columns.length + (multiSelectable ? 1 : 0)} align={ALIGN_CENTER}>
-            {translations('noRows')}
-          </TableCell>
-        </TableRow>
-      );
-    }
+  // Compute body rows inline - React reconciliation handles optimization efficiently
+  let bodyRows;
+  if (rows.length === 0) {
+    bodyRows = (
+      <TableRow>
+        <TableCell colSpan={columns.length + (multiSelectable ? 1 : 0)} align={ALIGN_CENTER}>
+          {translations('noRows')}
+        </TableCell>
+      </TableRow>
+    );
+  } else {
+    const errorSet = new Set((validationErrors || []).map((e) => e.field));
     
-    const currentEditValues = editValuesRef?.current || EMPTY_EDIT_VALUES;
-    const currentValidationErrors = validationErrorsRef?.current || [];
-    const errorSet = new Set(currentValidationErrors.map((e) => e.field));
-    
-    return rows.map((row) => {
+    bodyRows = rows.map((row) => {
       const rowId = getRowId(row);
       const isSelected = selectedRowId === rowId;
       const isEditing = editRowId === rowId;
@@ -83,7 +73,7 @@ export function GridTable({
           selected={selection?.has(rowId)}
           onSelect={onSelect}
           editRowId={isEditing ? editRowId : null}
-          editValues={isEditing ? currentEditValues : undefined}
+          editValues={isEditing ? editValues : undefined}
           validationErrors={isEditing ? errorSet : EMPTY_ERROR_SET}
           onRowClick={onRowClick}
           onRowDoubleClick={onRowDoubleClick}
@@ -96,20 +86,8 @@ export function GridTable({
         />
       );
     });
-  }, [rows, columns, multiSelectable, getRowId, selectedRowId, selection, onSelect, editRowId, editValuesVersion, onRowClick, editValuesRef, validationErrorsRef, onRowDoubleClick, translations, getEditor, selectedRowStyle]);
+  }
   
-  // Debug: Track callback prop changes
-  const onRowClickRef = useRef(onRowClick);
-  const onRowDoubleClickRef = useRef(onRowDoubleClick);
-  if (onRowClickRef.current !== onRowClick) {
-    console.log('[GridTable] ⚠️ onRowClick prop CHANGED (new function reference)');
-    onRowClickRef.current = onRowClick;
-  }
-  if (onRowDoubleClickRef.current !== onRowDoubleClick) {
-    console.log('[GridTable] ⚠️ onRowDoubleClick prop CHANGED (new function reference)');
-    onRowDoubleClickRef.current = onRowDoubleClick;
-  }
-
   return (
     <>
       {(onClearSort || onClearAllFilters) && (
