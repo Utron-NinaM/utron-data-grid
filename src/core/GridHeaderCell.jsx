@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { TableCell, TableSortLabel, Box, Tooltip } from '@mui/material';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
-import { DataGridContext } from '../DataGrid/DataGridContext';
+import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { useTranslations } from '../localization/useTranslations';
 
 
@@ -22,7 +22,7 @@ export function GridHeaderCell({
   filterSlot,
   sortOrderIndex,
 }) {
-  const ctx = useContext(DataGridContext);
+  const ctx = useContext(DataGridStableContext);
   const t = useTranslations();
   const direction = ctx?.direction ?? 'ltr';
   const headerStyle = ctx?.headerStyle;

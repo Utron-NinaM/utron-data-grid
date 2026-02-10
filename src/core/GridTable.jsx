@@ -1,11 +1,14 @@
-import React , {useContext} from 'react';
+import React , {useContext, useMemo, useRef} from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
-import { DataGridContext } from '../DataGrid/DataGridContext';
+import { DataGridStableContext, DataGridFilterContext } from '../DataGrid/DataGridContext';
 import { GridHeaderCell } from './GridHeaderCell';
 import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBodyRow } from './GridBodyRow';
 import { ALIGN_CENTER } from '../config/schema';
+
+const EMPTY_ERROR_SET = new Set();
+const EMPTY_EDIT_VALUES = {};
 
 /**
  * @param {Object} props
@@ -16,8 +19,8 @@ import { ALIGN_CENTER } from '../config/schema';
  * @param {Function} props.onSort
  * @param {boolean} [props.hasActiveFilters]
  * @param {string|number|null} props.editRowId
- * @param {Object} props.editValues
- * @param {Set<string>} props.validationErrors
+ * @param {Object} props.editValuesRef
+ * @param {Object} props.validationErrorsRef
  * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
  * @param {string|number|null} [props.selectedRowId]
@@ -31,19 +34,81 @@ export function GridTable({
   onSort,
   hasActiveFilters,
   editRowId,
-  editValues,
-  validationErrors,
+  editValuesRef,
+  validationErrorsRef,
+  editValuesVersion,
   onRowClick,
   onRowDoubleClick,
   selectedRowId,
   hasActiveRangeFilter,
 }) {
   const translations = useTranslations();
-  const ctx = useContext(DataGridContext);
-  const { columns, getRowId, multiSelectable, getHeaderComboSlot, 
-    getFilterInputSlot, getFilterToInputSlot, onClearSort, onClearAllFilters, 
-    headerStyle, headerConfig } = ctx;
+  const ctx = useContext(DataGridStableContext);
+  const filterCtx = useContext(DataGridFilterContext);
+  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, headerStyle, headerConfig, getEditor, selectedRowStyle } = ctx;
+  const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
+
+  // Debug: Track bodyRows useMemo execution
+  const bodyRowsMemoCount = useRef(0);
+  
+  // Memoize the body rows to prevent unnecessary recreations when only selectedRowId or editRowId changes
+  const bodyRows = useMemo(() => {
+    bodyRowsMemoCount.current++;
+    console.log('[GridTable] bodyRows useMemo executed (#', bodyRowsMemoCount.current, ') - selectedRowId:', selectedRowId, 'editRowId:', editRowId);
+    if (rows.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={columns.length + (multiSelectable ? 1 : 0)} align={ALIGN_CENTER}>
+            {translations('noRows')}
+          </TableCell>
+        </TableRow>
+      );
+    }
+    
+    const currentEditValues = editValuesRef?.current || EMPTY_EDIT_VALUES;
+    const currentValidationErrors = validationErrorsRef?.current || [];
+    const errorSet = new Set(currentValidationErrors.map((e) => e.field));
+    
+    return rows.map((row) => {
+      const rowId = getRowId(row);
+      const isSelected = selectedRowId === rowId;
+      const isEditing = editRowId === rowId;
+      
+      return (
+        <GridBodyRow
+          key={rowId}
+          row={row}
+          rowId={rowId}
+          selected={selection?.has(rowId)}
+          onSelect={onSelect}
+          editRowId={isEditing ? editRowId : null}
+          editValues={isEditing ? currentEditValues : undefined}
+          validationErrors={isEditing ? errorSet : EMPTY_ERROR_SET}
+          onRowClick={onRowClick}
+          onRowDoubleClick={onRowDoubleClick}
+          isSelected={isSelected}
+          rowSx={undefined}
+          columns={columns}
+          multiSelectable={multiSelectable}
+          getEditor={getEditor}
+          selectedRowStyle={selectedRowStyle}
+        />
+      );
+    });
+  }, [rows, columns, multiSelectable, getRowId, selectedRowId, selection, onSelect, editRowId, editValuesVersion, onRowClick, editValuesRef, validationErrorsRef, onRowDoubleClick, translations, getEditor, selectedRowStyle]);
+  
+  // Debug: Track callback prop changes
+  const onRowClickRef = useRef(onRowClick);
+  const onRowDoubleClickRef = useRef(onRowDoubleClick);
+  if (onRowClickRef.current !== onRowClick) {
+    console.log('[GridTable] ⚠️ onRowClick prop CHANGED (new function reference)');
+    onRowClickRef.current = onRowClick;
+  }
+  if (onRowDoubleClickRef.current !== onRowDoubleClick) {
+    console.log('[GridTable] ⚠️ onRowDoubleClick prop CHANGED (new function reference)');
+    onRowDoubleClickRef.current = onRowDoubleClick;
+  }
 
   return (
     <>
@@ -150,42 +215,23 @@ export function GridTable({
             )}
           </TableHead>
         <TableBody>
-          {rows.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={columns.length + (multiSelectable ? 1 : 0)} align={ALIGN_CENTER}>
-                {translations('noRows')}
-              </TableCell>
-            </TableRow>
-          ) : (
-            rows.map((row) => {
-              const rowId = getRowId(row);
-              const rowSx = columns.reduce(
-                (acc, col) =>
-                  typeof col.rowStyle === 'function' ? { ...acc, ...col.rowStyle(row) } : acc,
-                {}
-              );
-              return (
-                <GridBodyRow
-                  key={rowId}
-                  row={row}
-                  rowId={rowId}
-                  selected={selection?.has(rowId)}
-                  onSelect={onSelect}
-                  editRowId={editRowId}
-                  editValues={editValues}
-                  validationErrors={validationErrors}
-                  onRowClick={onRowClick}
-                  onRowDoubleClick={onRowDoubleClick}
-                  selectedRowId={selectedRowId}
-                  rowSx={Object.keys(rowSx).length ? rowSx : undefined}
-
-                />
-              );
-            })
-          )}
+          {bodyRows}
         </TableBody>
       </Table>
     </TableContainer>
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

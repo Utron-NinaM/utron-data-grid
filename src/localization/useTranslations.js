@@ -1,12 +1,12 @@
 import { useContext } from 'react';
-import { DataGridContext } from '../DataGrid/DataGridContext';
+import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { defaultTranslations, hebrewTranslations } from './defaultTranslations';
 
 /**
  * @returns {(key: string, params?: Record<string, string|number>) => string}
  */
 export function useTranslations() {
-  const ctx = useContext(DataGridContext);
+  const ctx = useContext(DataGridStableContext);
   if (!ctx) {
     return (key, params) => {
       const str = defaultTranslations[key] ?? key;

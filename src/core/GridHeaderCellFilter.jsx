@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { DataGridContext } from '../DataGrid/DataGridContext';
+import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { TableCell, Box } from '@mui/material';
 import { ALIGN_RIGHT, ALIGN_LEFT } from '../config/schema';
 
@@ -21,7 +21,7 @@ const getFilterRowBoxSx = (filterInputHeight) => ({
  * Filter or "to" row cell: full width slot with consistent padding/alignment.
  */
 export function GridHeaderCellFilter({ column, slot }) {
-    const ctx = useContext(DataGridContext);
+    const ctx = useContext(DataGridStableContext);
     const direction = ctx?.direction ?? 'ltr';
     const headerStyle = ctx?.headerStyle;
     const headerConfig = ctx?.headerConfig;

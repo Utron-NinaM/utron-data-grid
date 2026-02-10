@@ -76,7 +76,7 @@ export function DataGrid(props) {
 
   return (
     <ThemeProvider theme={theme}>
-      <DataGridProvider value={grid.contextValue}>
+      <DataGridProvider stableValue={grid.stableContextValue} filterValue={grid.filterContextValue}>
         <Box sx={{ ...sx }} dir={direction}>
           <ValidationAlert errors={grid.validationErrors} />
           <GridTable
@@ -87,8 +87,9 @@ export function DataGrid(props) {
             onSort={grid.handleSort}
             hasActiveFilters={grid.hasActiveFilters}
             editRowId={grid.editRowId}
-            editValues={grid.editValues}
-            validationErrors={grid.errorSet}
+            editValuesRef={grid.editValuesRef}
+            validationErrorsRef={grid.validationErrorsRef}
+            editValuesVersion={grid.editValuesVersion}
             onRowClick={grid.handleRowClick}
             onRowDoubleClick={grid.handleRowDoubleClick}
             selectedRowId={grid.selectedRowId}
