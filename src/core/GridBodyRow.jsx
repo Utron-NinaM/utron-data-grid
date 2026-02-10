@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef, useContext } from 'react';
 import { TableRow, TableCell, Checkbox } from '@mui/material';
-import { useDataGridContext } from '../DataGrid/useDataGridContext';
+import { DataGridContext } from '../DataGrid/DataGridContext';
 import { GridCell } from './GridCell';
 
 /**
@@ -11,13 +11,11 @@ import { GridCell } from './GridCell';
  * @param {Function} props.onSelect
  * @param {string|number|null} props.editRowId
  * @param {Object} props.editValues
- * @param {Function} props.getEditor
  * @param {Set<string>} props.validationErrors
  * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
  * @param {string|number|null} [props.selectedRowId]
  * @param {Object} [props.rowSx]
- * @param {Object} [props.selectedRowStyle] MUI sx object for selected rows
  */
 export function GridBodyRow({
   row,
@@ -26,16 +24,19 @@ export function GridBodyRow({
   onSelect,
   editRowId,
   editValues,
-  getEditor,
   validationErrors,
   onRowClick,
   onRowDoubleClick,
   selectedRowId,
   rowSx,
-  selectedRowStyle,  
 }) {
-  const ctx = useDataGridContext();
-  const { columns, multiSelectable } = ctx;
+  const ctx = useContext(DataGridContext);
+  const { 
+    columns, 
+    multiSelectable, 
+    getEditor, 
+    selectedRowStyle,
+  } = ctx;
   const isEditing = editRowId === rowId;
   const isSelected = selectedRowId === rowId;
   const isRowSelected = selected || isSelected;
@@ -51,6 +52,10 @@ export function GridBodyRow({
     },
   ];
   
+  const renderCount = useRef(0);
+  renderCount.current++;
+  console.log('GridBodyRow',rowId, 'render count:', renderCount.current);
+
   return (
     <TableRow
       hover

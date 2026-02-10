@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Autocomplete, TextField, Checkbox, Box } from '@mui/material';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { useTranslations } from '../../localization/useTranslations';
-import { useDataGridContext } from '../../DataGrid/useDataGridContext';
+import { DataGridContext } from '../../DataGrid/DataGridContext';
 import { ClearButton } from './ClearButton';
 import { getOptionLabel } from '../../utils/optionUtils';
 
@@ -12,7 +12,7 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ListFilter({ value, onChange, options, placeholder }) {
   const t = useTranslations();
-  const ctx = useDataGridContext();
+  const ctx = useContext(DataGridContext);
   const direction = ctx?.direction ?? 'ltr';
   const isRtl = direction === 'rtl';
   const [inputValue, setInputValue] = React.useState('');

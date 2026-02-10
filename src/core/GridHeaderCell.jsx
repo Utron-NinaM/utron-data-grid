@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { TableCell, TableSortLabel, Box, Tooltip } from '@mui/material';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
-import { useDataGridContext } from '../DataGrid/useDataGridContext';
+import { DataGridContext } from '../DataGrid/DataGridContext';
 import { useTranslations } from '../localization/useTranslations';
 
 const getFilterRowBoxSx = (filterInputHeight) => ({
@@ -20,13 +20,12 @@ const getFilterRowBoxSx = (filterInputHeight) => ({
 
 /**
  * Filter or "to" row cell: full width slot with consistent padding/alignment.
- * @param {Object} [props.headerStyle] MUI sx object for header styling
- * @param {Object} [props.headerConfig] Header configuration object
- * @param {Object} [props.headerConfig.filterCells] Filter cells styles { backgroundColor?: string, height?: string|number }
  */
-export function GridHeaderCellFilter({ column, slot, headerStyle, headerConfig }) {
-  const ctx = useDataGridContext();
+export function GridHeaderCellFilter({ column, slot }) {
+  const ctx = useContext(DataGridContext);
   const direction = ctx?.direction ?? 'ltr';
+  const headerStyle = ctx?.headerStyle;
+  const headerConfig = ctx?.headerConfig;
   const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
   const filterRowHeight = headerConfig?.filterRows?.height || headerConfig?.filterCells?.height;
   const filterInputHeight = ctx?.filterInputHeight;
@@ -58,14 +57,9 @@ export function GridHeaderCellFilter({ column, slot, headerStyle, headerConfig }
  * @param {Object} props.column
  * @param {Array<{ field: string, order: string }>} props.sortModel
  * @param {Function} props.onSort
- * @param {boolean} [props.showClearSort]
- * @param {Function} props.onClearSort
  * @param {React.ReactNode} [props.headerComboSlot] Combo/operator next to label
  * @param {React.ReactNode} [props.filterSlot] Filter inputs row (below)
  * @param {number} [props.sortOrderIndex] 1-based index in sort order
- * @param {Object} [props.headerStyle] MUI sx object for header styling
- * @param {Object} [props.headerConfig] Header configuration object
- * @param {Object} [props.headerConfig.mainRow] Main row styles { backgroundColor?: string, height?: string|number }
  */
 export function GridHeaderCell({
   column,
@@ -74,12 +68,12 @@ export function GridHeaderCell({
   headerComboSlot,
   filterSlot,
   sortOrderIndex,
-  headerStyle,
-  headerConfig,
 }) {
-  const ctx = useDataGridContext();
+  const ctx = useContext(DataGridContext);
   const t = useTranslations();
   const direction = ctx?.direction ?? 'ltr';
+  const headerStyle = ctx?.headerStyle;
+  const headerConfig = ctx?.headerConfig;
   const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
   const sortDir = sortModel?.find((s) => s.field === column.field);
   const order = sortDir?.order === SORT_ORDER_ASC ? SORT_ORDER_ASC : SORT_ORDER_DESC;

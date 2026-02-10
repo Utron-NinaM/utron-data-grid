@@ -1,7 +1,7 @@
-import React from 'react';
+import React , {useContext} from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
-import { useDataGridContext } from '../DataGrid/useDataGridContext';
+import { DataGridContext } from '../DataGrid/DataGridContext';
 import { GridHeaderCell, GridHeaderCellFilter } from './GridHeaderCell';
 import { GridBodyRow } from './GridBodyRow';
 import { ALIGN_CENTER } from '../config/schema';
@@ -40,27 +40,18 @@ export function GridTable({
   onSelect,
   sortModel,
   onSort,
-  onClearSort,
-  onClearAllFilters,
   hasActiveFilters,
   editRowId,
   editValues,
-  getEditor,
   validationErrors,
-  getHeaderComboSlot,
-  getFilterInputSlot,
-  getFilterToInputSlot,
   onRowClick,
   onRowDoubleClick,
   selectedRowId,
-  selectedRowStyle,
-  headerStyle,
-  headerConfig,
   hasActiveRangeFilter,
 }) {
   const translations = useTranslations();
-  const ctx = useDataGridContext();
-  const { columns, getRowId, multiSelectable } = ctx;
+  const ctx = useContext(DataGridContext);
+  const { columns, getRowId, multiSelectable, getEditor, getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot, onClearSort, onClearAllFilters, selectedRowStyle, headerStyle, headerConfig } = ctx;
   const sortModelLength = sortModel?.length ?? 0;
 
   return (
@@ -110,8 +101,7 @@ export function GridTable({
                       ? sortModel.findIndex((s) => s.field === col.field) + 1
                       : undefined
                   }
-                  headerStyle={headerStyle}
-                  headerConfig={headerConfig}
+
                 />
               ))}
             </TableRow>
@@ -136,8 +126,7 @@ export function GridTable({
                     key={col.field}
                     column={col}
                     slot={getFilterInputSlot(col, translations)}
-                    headerStyle={headerStyle}
-                    headerConfig={headerConfig}
+  
                   />
                 ))}
               </TableRow>
@@ -163,8 +152,7 @@ export function GridTable({
                     key={col.field}
                     column={col}
                     slot={getFilterToInputSlot(col)}
-                    headerStyle={headerStyle}
-                    headerConfig={headerConfig}
+  
                   />
                 ))}
               </TableRow>
@@ -194,13 +182,12 @@ export function GridTable({
                   onSelect={onSelect}
                   editRowId={editRowId}
                   editValues={editValues}
-                  getEditor={getEditor}
                   validationErrors={validationErrors}
                   onRowClick={onRowClick}
                   onRowDoubleClick={onRowDoubleClick}
                   selectedRowId={selectedRowId}
                   rowSx={Object.keys(rowSx).length ? rowSx : undefined}
-                  selectedRowStyle={selectedRowStyle}
+
                 />
               );
             })

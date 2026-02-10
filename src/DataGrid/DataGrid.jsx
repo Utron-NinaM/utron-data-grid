@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useState, useRef } from 'react';
 import { ThemeProvider, createTheme, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridProvider } from './DataGridContext';
@@ -104,6 +104,11 @@ export function DataGrid(props) {
   const filterModel = controlledFilter !== undefined ? controlledFilter : internalFilter;
   const page = controlledPage !== undefined ? controlledPage : internalPage;
   const pageSize = internalPageSize;
+
+  const renderCount = useRef(0);
+  renderCount.current++;
+  console.log('Grid render count:', renderCount.current);
+
 
   const setSortModel = useCallback(
     (next) => {
@@ -267,39 +272,6 @@ export function DataGrid(props) {
 
   const filterInputHeight = headerConfig?.filterCells?.height || headerConfig?.filterRows?.height;
 
-  const contextValue = useMemo(
-    () => ({
-      columns,
-      translations,
-      direction,
-      getRowId,
-      onSortChange,
-      onFilterChange,
-      onEditCommit,
-      onSelectionChange,
-      onPageChange,
-      onPageSizeChange,
-      editable,
-      multiSelectable,
-      filterInputHeight,
-    }),
-    [
-      columns,
-      translations,
-      direction,
-      getRowId,
-      onSortChange,
-      onFilterChange,
-      onEditCommit,
-      onSelectionChange,
-      onPageChange,
-      onPageSizeChange,
-      editable,
-      multiSelectable,
-      filterInputHeight,
-    ]
-  );
-
   const getEditorForCell = useCallback(
     (col, row, values) => getEditor(col, row, values, handleEditChange, direction),
     [handleEditChange, direction]
@@ -318,6 +290,59 @@ export function DataGrid(props) {
   const getFilterToInputSlotForColumn = useCallback(
     (col) => getFilterToInputSlot(col, filterModel, handleFilterChange, direction),
     [filterModel, handleFilterChange, direction]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      columns,
+      translations,
+      direction,
+      getRowId,
+      onSortChange,
+      onFilterChange,
+      onEditCommit,
+      onSelectionChange,
+      onPageChange,
+      onPageSizeChange,
+      editable,
+      multiSelectable,
+      filterInputHeight,
+      onRowSelect,
+      getEditor: getEditorForCell,
+      getHeaderComboSlot: getHeaderComboSlotForColumn,
+      getFilterInputSlot: getFilterInputSlotForColumn,
+      getFilterToInputSlot: getFilterToInputSlotForColumn,
+      onClearSort: handleClearSort,
+      onClearAllFilters: handleClearAllFilters,
+      selectedRowStyle,
+      headerStyle,
+      headerConfig,
+    }),
+    [
+      columns,
+      translations,
+      direction,
+      getRowId,
+      onSortChange,
+      onFilterChange,
+      onEditCommit,
+      onSelectionChange,
+      onPageChange,
+      onPageSizeChange,
+      editable,
+      multiSelectable,
+      filterInputHeight,
+      onRowSelect,
+      getEditorForCell,
+      getHeaderComboSlotForColumn,
+      getFilterInputSlotForColumn,
+      getFilterToInputSlotForColumn,
+      handleClearSort,
+      handleClearAllFilters,
+      selectedRowStyle,
+      headerStyle,
+      headerConfig,
+    ]
   );
 
   const hasActiveFilters = Object.keys(filterModel).length > 0;
@@ -341,22 +366,13 @@ export function DataGrid(props) {
             onSelect={handleSelect}
             sortModel={sortModel}
             onSort={handleSort}
-            onClearSort={handleClearSort}
-            onClearAllFilters={handleClearAllFilters}
             hasActiveFilters={hasActiveFilters}
             editRowId={editRowId}
             editValues={editValues}
-            getEditor={getEditorForCell}
             validationErrors={errorSet}
-            getHeaderComboSlot={getHeaderComboSlotForColumn}
-            getFilterInputSlot={getFilterInputSlotForColumn}
-            getFilterToInputSlot={getFilterToInputSlotForColumn}
             onRowClick={handleRowClick}
             onRowDoubleClick={handleRowDoubleClick}
             selectedRowId={selectedRowId}
-            selectedRowStyle={selectedRowStyle}
-            headerStyle={headerStyle}
-            headerConfig={headerConfig}
             hasActiveRangeFilter={hasActiveRangeFilter}
           />
           {editable && editRowId != null && (
