@@ -2,7 +2,8 @@ import React , {useContext} from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridContext } from '../DataGrid/DataGridContext';
-import { GridHeaderCell, GridHeaderCellFilter } from './GridHeaderCell';
+import { GridHeaderCell } from './GridHeaderCell';
+import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBodyRow } from './GridBodyRow';
 import { ALIGN_CENTER } from '../config/schema';
 
@@ -13,25 +14,13 @@ import { ALIGN_CENTER } from '../config/schema';
  * @param {Function} props.onSelect
  * @param {Array<{ field: string, order: string }>} props.sortModel
  * @param {Function} props.onSort
- * @param {Function} props.onClearSort
- * @param {Function} [props.onClearAllFilters]
  * @param {boolean} [props.hasActiveFilters]
  * @param {string|number|null} props.editRowId
  * @param {Object} props.editValues
- * @param {Function} props.getEditor
  * @param {Set<string>} props.validationErrors
- * @param {Function} [props.getHeaderComboSlot]
- * @param {Function} [props.getFilterInputSlot]
- * @param {Function} [props.getFilterToInputSlot]
  * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
  * @param {string|number|null} [props.selectedRowId]
- * @param {Object} [props.selectedRowStyle] MUI sx object for selected rows
- * @param {Object} [props.headerStyle] MUI sx object for TableHead
- * @param {Object} [props.headerConfig] Header configuration object
- * @param {Object} [props.headerConfig.mainRow] Main row styles { backgroundColor?: string, height?: string|number }
- * @param {Object} [props.headerConfig.filterRows] Filter rows styles { backgroundColor?: string, height?: string|number }
- * @param {Object} [props.headerConfig.filterCells] Filter cells styles { backgroundColor?: string, height?: string|number }
  * @param {boolean} [props.hasActiveRangeFilter] Whether any column has an active range filter
  */
 export function GridTable({
@@ -51,7 +40,9 @@ export function GridTable({
 }) {
   const translations = useTranslations();
   const ctx = useContext(DataGridContext);
-  const { columns, getRowId, multiSelectable, getEditor, getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot, onClearSort, onClearAllFilters, selectedRowStyle, headerStyle, headerConfig } = ctx;
+  const { columns, getRowId, multiSelectable, getHeaderComboSlot, 
+    getFilterInputSlot, getFilterToInputSlot, onClearSort, onClearAllFilters, 
+    headerStyle, headerConfig } = ctx;
   const sortModelLength = sortModel?.length ?? 0;
 
   return (

@@ -79,12 +79,4 @@ export function NumberFilterToInput({ value, onChange }) {
   );
 }
 
-export function NumberFilter({ value, onChange, placeholder }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
-      <OperatorDropdown value={value} onChange={onChange} />
-      <NumberFilterInputs value={value} onChange={onChange} placeholder={placeholder} />
-    </Box>
-  );
-}
 
