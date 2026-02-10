@@ -89,6 +89,7 @@ export function DataGrid(props) {
             editRowId={grid.editRowId}
             editValues={grid.editValues}
             validationErrors={grid.validationErrors}
+            errorSet={grid.errorSet}
             onRowClick={grid.handleRowClick}
             onRowDoubleClick={grid.handleRowDoubleClick}
             selectedRowId={grid.selectedRowId}

@@ -4,6 +4,20 @@ import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, ALIGN_RIGHT } from '../con
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { useTranslations } from '../localization/useTranslations';
 
+const getFilterRowBoxSx = (filterInputHeight) => ({
+  width: '100%',
+  maxWidth: '100%',
+  boxSizing: 'border-box',
+  px: 0.5,
+  minHeight: 20,
+  display: 'flex',
+  alignItems: 'center',
+  overflow: 'hidden',
+  ...(filterInputHeight && { height: filterInputHeight, maxHeight: filterInputHeight }),
+  '& .MuiInputBase-root': filterInputHeight ? { height: filterInputHeight, minHeight: filterInputHeight, maxHeight: filterInputHeight } : {},
+  '& .MuiInputBase-input': filterInputHeight ? { height: '100%', padding: '4px 8px' } : {},
+});
+
 
 /**
  * @param {Object} props
@@ -24,25 +38,21 @@ export function GridHeaderCell({
 }) {
   const ctx = useContext(DataGridStableContext);
   const t = useTranslations();
-  const direction = ctx?.direction ?? 'ltr';
-  const headerStyle = ctx?.headerStyle;
   const headerConfig = ctx?.headerConfig;
-  const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
-  const sortDir = sortModel?.find((s) => s.field === column.field);
-  const order = sortDir?.order === SORT_ORDER_ASC ? SORT_ORDER_ASC : SORT_ORDER_DESC;
+  const filterInputHeight = ctx?.filterInputHeight;
+  const columnAlignMap = ctx?.columnAlignMap;
+  const columnSortDirMap = ctx?.columnSortDirMap;
+  const headerCellSxMap = ctx?.headerCellSxMap;
+  
+  // Use pre-computed values from context
+  const align = columnAlignMap?.get(column.field) ?? (column.align ?? ALIGN_LEFT);
+  const sortOrder = columnSortDirMap?.get(column.field);
+  const sortDir = sortOrder ? { field: column.field, order: sortOrder } : null;
+  const order = sortOrder === SORT_ORDER_ASC ? SORT_ORDER_ASC : SORT_ORDER_DESC;
+  const cellSx = headerCellSxMap?.get(column.field);
   const mainRowHeight = headerConfig?.mainRow?.height;
-  const cellSx = {
-    verticalAlign: 'top',
-    padding: mainRowHeight ? '2px' : '4px',
-    width: 'inherit',
-    maxWidth: 'inherit',
-    overflow: 'hidden',
-    boxSizing: 'border-box',
-    ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
-    ...(mainRowHeight && { height: mainRowHeight, maxHeight: mainRowHeight }),
-    ...headerStyle,
-  };
   const multiColumn = sortModel?.length > 1;
+  const filterBoxSx = getFilterRowBoxSx(filterInputHeight);
 
   const handleSortClick = (event) => {
     const multiColumn = event.ctrlKey || event.metaKey;
@@ -69,7 +79,7 @@ export function GridHeaderCell({
             )}
         {headerComboSlot != null && headerComboSlot}        
       </Box>
-      {filterSlot != null && <Box sx={FILTER_ROW_BOX_SX}>{filterSlot}</Box>}
+      {filterSlot != null && <Box sx={filterBoxSx}>{filterSlot}</Box>}
     </TableCell>
   );
 }

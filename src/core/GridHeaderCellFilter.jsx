@@ -22,23 +22,13 @@ const getFilterRowBoxSx = (filterInputHeight) => ({
  */
 export function GridHeaderCellFilter({ column, slot }) {
     const ctx = useContext(DataGridStableContext);
-    const direction = ctx?.direction ?? 'ltr';
-    const headerStyle = ctx?.headerStyle;
-    const headerConfig = ctx?.headerConfig;
-    const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
-    const filterRowHeight = headerConfig?.filterRows?.height || headerConfig?.filterCells?.height;
     const filterInputHeight = ctx?.filterInputHeight;
-    const cellSx = {
-      verticalAlign: 'top',
-      padding: filterRowHeight ? '2px' : '4px',
-      width: 'inherit',
-      maxWidth: 'inherit',
-      overflow: 'hidden',
-      boxSizing: 'border-box',
-      ...(headerConfig?.filterCells?.backgroundColor && { backgroundColor: headerConfig.filterCells.backgroundColor }),
-      ...(filterRowHeight && { height: filterRowHeight, maxHeight: filterRowHeight }),
-      ...headerStyle,
-    };
+    const columnAlignMap = ctx?.columnAlignMap;
+    const filterCellSxMap = ctx?.filterCellSxMap;
+    
+    // Use pre-computed values from context
+    const align = columnAlignMap?.get(column.field) ?? (column.align ?? ALIGN_LEFT);
+    const cellSx = filterCellSxMap?.get(column.field);
     const filterBoxSx = getFilterRowBoxSx(filterInputHeight);
     return (
       <TableCell align={align} padding="none" variant="head" sx={cellSx}>

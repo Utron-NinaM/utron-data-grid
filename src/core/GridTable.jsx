@@ -20,6 +20,7 @@ const EMPTY_ERROR_SET = new Set();
  * @param {string|number|null} props.editRowId
  * @param {Object} props.editValues
  * @param {Array} props.validationErrors
+ * @param {Set<string>} props.errorSet
  * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
  * @param {string|number|null} [props.selectedRowId]
@@ -34,7 +35,7 @@ export function GridTable({
   hasActiveFilters,
   editRowId,
   editValues,
-  validationErrors,
+  errorSet,
   onRowClick,
   onRowDoubleClick,
   selectedRowId,
@@ -43,7 +44,8 @@ export function GridTable({
   const translations = useTranslations();
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
-  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, headerStyle, headerConfig, getEditor, selectedRowStyle, rowStylesMap } = ctx;
+  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, headerStyle,
+     headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap } = ctx;
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
     
@@ -78,7 +80,7 @@ export function GridTable({
       </TableRow>
     );
   } else {
-    const errorSet = new Set((validationErrors || []).map((e) => e.field));
+    const errorSetToUse = errorSet || EMPTY_ERROR_SET;
     
     bodyRows = rows.map((row) => {
       const rowId = getRowId(row);
@@ -94,7 +96,7 @@ export function GridTable({
           onSelect={onSelect}
           editRowId={isEditing ? editRowId : null}
           editValues={isEditing ? editValues : undefined}
-          validationErrors={isEditing ? errorSet : EMPTY_ERROR_SET}
+          validationErrors={isEditing ? errorSetToUse : EMPTY_ERROR_SET}
           onRowClick={onRowClick}
           onRowDoubleClick={onRowDoubleClick}
           isSelected={isSelected}
@@ -149,11 +151,7 @@ export function GridTable({
                   onSort={onSort}
                   headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
                   filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations) : null}
-                  sortOrderIndex={
-                    sortModel?.findIndex((s) => s.field === col.field) >= 0
-                      ? sortModel.findIndex((s) => s.field === col.field) + 1
-                      : undefined
-                  }
+                  sortOrderIndex={sortOrderIndexMap?.get(col.field)}
 
                 />
               ))}

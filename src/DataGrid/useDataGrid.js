@@ -244,6 +244,72 @@ export function useDataGrid(props) {
     (col) => getFilterToInputSlot(col, filterModel, handleFilterChange, direction),
     [filterModel, handleFilterChange, direction]
   );
+  
+  const sortOrderIndexMap = useMemo(() => {
+    const map = new Map();
+    if (sortModel?.length > 0) {
+      sortModel.forEach((sort, index) => {
+        map.set(sort.field, index + 1);
+      });
+    }
+    return map;
+  }, [sortModel]);
+
+  const columnSortDirMap = useMemo(() => {
+    const map = new Map();
+    if (sortModel?.length > 0) {
+      sortModel.forEach((sort) => {
+        map.set(sort.field, sort.order);
+      });
+    }
+    return map;
+  }, [sortModel]);
+
+  const columnAlignMap = useMemo(() => {
+    const map = new Map();
+    columns.forEach((col) => {
+      map.set(col.field, col.align ?? (direction === 'rtl' ? 'right' : 'left'));
+    });
+    return map;
+  }, [columns, direction]);
+
+  const headerCellSxMap = useMemo(() => {    
+    const map = new Map();
+    const mainRowHeight = headerConfig?.mainRow?.height;
+    columns.forEach((col) => {
+      map.set(col.field, {
+        verticalAlign: 'top',
+        padding: mainRowHeight ? '2px' : '4px',
+        width: 'inherit',
+        maxWidth: 'inherit',
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
+        ...(mainRowHeight && { height: mainRowHeight, maxHeight: mainRowHeight }),
+        ...headerStyle,
+      });
+    });
+    return map;
+  }, [columns, headerConfig, headerStyle]);
+
+  const filterCellSxMap = useMemo(() => {
+    const map = new Map();
+    const filterRowHeight = headerConfig?.filterRows?.height || headerConfig?.filterCells?.height;
+    columns.forEach((col) => {
+      map.set(col.field, {
+        verticalAlign: 'top',
+        padding: filterRowHeight ? '2px' : '4px',
+        width: 'inherit',
+        maxWidth: 'inherit',
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        ...(headerConfig?.filterCells?.backgroundColor && { backgroundColor: headerConfig.filterCells.backgroundColor }),
+        ...(filterRowHeight && { height: filterRowHeight, maxHeight: filterRowHeight }),
+        ...headerStyle,
+      });
+    });
+    return map;
+  }, [columns, headerConfig, headerStyle]);
 
   // Stable context - values that rarely change
   const stableContextValue = useMemo(
@@ -269,6 +335,11 @@ export function useDataGrid(props) {
       headerStyle,
       headerConfig,
       rowStylesMap,
+      sortOrderIndexMap,
+      columnSortDirMap,
+      columnAlignMap,
+      headerCellSxMap,
+      filterCellSxMap,
     }),
     [
       columns,
@@ -292,6 +363,12 @@ export function useDataGrid(props) {
       headerStyle,
       headerConfig,
       rowStylesMap,
+      sortOrderIndexMap,
+      columnSortDirMap,
+      columnAlignMap,
+      headerCellSxMap,
+      filterCellSxMap,
+      sortModel,
     ]
   );
 

@@ -14,8 +14,10 @@ import { DataGridStableContext } from '../DataGrid/DataGridContext';
  */
 export function GridCell({ value, row, column, isEditing, editor, hasError }) {
   const ctx = useContext(DataGridStableContext);
-  const direction = ctx?.direction ?? 'ltr';
-  const align = column.align ?? (direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT);
+  const columnAlignMap = ctx?.columnAlignMap;
+  
+  // Use pre-computed align from context
+  const align = columnAlignMap?.get(column.field) ?? (column.align ?? ALIGN_LEFT);
   const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : undefined;
   const sx = {
     ...(hasError && { border: '1px solid', borderColor: 'error.light' }),
