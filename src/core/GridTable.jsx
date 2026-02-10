@@ -1,4 +1,4 @@
-import React , {useContext} from 'react';
+import React , {useContext, useMemo} from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext } from '../DataGrid/DataGridContext';
@@ -43,9 +43,29 @@ export function GridTable({
   const translations = useTranslations();
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
-  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, headerStyle, headerConfig, getEditor, selectedRowStyle } = ctx;
+  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, headerStyle, headerConfig, getEditor, selectedRowStyle, rowStylesMap } = ctx;
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
+    
+  const mergedRowStylesMap = useMemo(() => {
+    const map = new Map();
+    rows.forEach((row) => {
+      const rowId = getRowId(row);
+      const baseRowSx = rowStylesMap?.get(rowId);
+      map.set(rowId, [
+        baseRowSx,
+        {
+          '&.Mui-selected': {
+            ...selectedRowStyle,
+          },
+          '&.Mui-selected:hover': {
+            ...selectedRowStyle,
+          },      
+        },
+      ]);
+    });
+    return map;
+  }, [rows, rowStylesMap, selectedRowStyle, getRowId]);
   
   // Compute body rows inline - React reconciliation handles optimization efficiently
   let bodyRows;
@@ -78,11 +98,10 @@ export function GridTable({
           onRowClick={onRowClick}
           onRowDoubleClick={onRowDoubleClick}
           isSelected={isSelected}
-          rowSx={undefined}
+          rowSx={mergedRowStylesMap.get(rowId)}
           columns={columns}
           multiSelectable={multiSelectable}
           getEditor={getEditor}
-          selectedRowStyle={selectedRowStyle}
         />
       );
     });

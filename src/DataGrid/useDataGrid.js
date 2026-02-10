@@ -207,6 +207,21 @@ export function useDataGrid(props) {
     [sortedRows, page, pageSize, pagination]
   );
   const displayRows = paginationResult.rows;
+  
+  const rowStylesMap = useMemo(() => {    
+    const map = new Map();
+    displayRows.forEach((row) => {
+      const rowId = getRowId(row);
+      const computedRowSx = columns.reduce(
+        (acc, col) =>
+          typeof col.rowStyle === 'function' ? { ...acc, ...col.rowStyle(row) } : acc,
+        {}
+      );
+      const finalRowSx = Object.keys(computedRowSx).length ? computedRowSx : undefined;
+      map.set(rowId, finalRowSx);
+    });
+    return map;
+  }, [displayRows, columns, getRowId]);
 
   const filterInputHeight = headerConfig?.filterCells?.height || headerConfig?.filterRows?.height;
 
@@ -253,6 +268,7 @@ export function useDataGrid(props) {
       selectedRowStyle,
       headerStyle,
       headerConfig,
+      rowStylesMap,
     }),
     [
       columns,
@@ -275,6 +291,7 @@ export function useDataGrid(props) {
       selectedRowStyle,
       headerStyle,
       headerConfig,
+      rowStylesMap,
     ]
   );
 

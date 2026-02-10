@@ -14,11 +14,10 @@ import { GridCell } from './GridCell';
  * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
  * @param {boolean} [props.isSelected]
- * @param {Object} [props.rowSx]
+ * @param {Array} [props.rowSx] Pre-computed merged row styles (base styles + selected styles)
  * @param {Array} props.columns
  * @param {boolean} props.multiSelectable
  * @param {Function} props.getEditor
- * @param {Object} props.selectedRowStyle
  */
 function GridBodyRowComponent({
   row,
@@ -35,37 +34,15 @@ function GridBodyRowComponent({
   columns,
   multiSelectable,
   getEditor,
-  selectedRowStyle,
 }) {
   const isEditing = editRowId === rowId;
   const isRowSelected = selected || isSelected;
-  
-  // Compute row styles inline - optimize later if profiling shows it's a bottleneck
-  const computedRowSx = columns.reduce(
-    (acc, col) =>
-      typeof col.rowStyle === 'function' ? { ...acc, ...col.rowStyle(row) } : acc,
-    {}
-  );
-  
-  const finalRowSx = rowSx || (Object.keys(computedRowSx).length ? computedRowSx : undefined);
-  
-  const mergedSx = [
-    finalRowSx,
-    {
-      '&.Mui-selected': {
-        ...selectedRowStyle,
-      },
-      '&.Mui-selected:hover': {
-        ...selectedRowStyle,
-      },      
-    },
-  ];
   
   return (
     <TableRow
       hover
       selected={isRowSelected}
-      sx={mergedSx}
+      sx={rowSx}
       onClick={onRowClick ? () => onRowClick(row) : undefined}
       onDoubleClick={onRowDoubleClick ? () => onRowDoubleClick(row) : undefined}
     >
