@@ -4,7 +4,16 @@ import {
   FIELD_TYPE_DATETIME,
   FIELD_TYPE_LIST,
   OPERATOR_MAP,
-} from '../config/schema';
+  OPERATOR_EQUALS,
+  OPERATOR_NOT_EQUAL,
+  OPERATOR_GREATER_THAN,
+  OPERATOR_LESS_THAN,
+  OPERATOR_GREATER_OR_EQUAL,
+  OPERATOR_LESS_OR_EQUAL,
+  OPERATOR_IN_RANGE,
+  OPERATOR_EMPTY,
+  OPERATOR_NOT_EMPTY,
+  } from '../config/schema';
 
 /**
  * Apply filter model to rows. AND across columns.
@@ -26,61 +35,46 @@ export function applyFilters(rows, filterModel, columns) {
 }
 
 function matchFilter(cellValue, state, type) {
-  const { operator = OPERATOR_MAP.OPERATOR_EQUALS, value, valueTo } = state;
+  const { operator = OPERATOR_EQUALS, value, valueTo } = state;
+  
   const v = cellValue;
+  let val = null;
+  let val1 = null;
+  let val2 = null;
 
   if (type === FIELD_TYPE_NUMBER || typeof v === 'number') {
-    const n = Number(v);
-    const a = Number(value);
-    const b = valueTo != null ? Number(valueTo) : null;
-    switch (operator) {
-      case OPERATOR_MAP.OPERATOR_EQUALS:
-        return n === a;
-      case OPERATOR_MAP.OPERATOR_NOT_EQUAL:
-        return n !== a;
-      case OPERATOR_MAP.OPERATOR_GREATER_THAN:
-        return n > a;
-      case OPERATOR_MAP.OPERATOR_LESS_THAN:
-        return n < a;
-      case OPERATOR_MAP.OPERATOR_GREATER_OR_EQUAL:
-        return n >= a;
-      case OPERATOR_MAP.OPERATOR_LESS_OR_EQUAL:
-        return n <= a;
-      case OPERATOR_MAP.OPERATOR_IN_RANGE:
-        return b != null && n >= Math.min(a, b) && n <= Math.max(a, b);
-      case OPERATOR_MAP.OPERATOR_EMPTY:
-        return v == null || v === '';
-      case OPERATOR_MAP.OPERATOR_NOT_EMPTY:
-        return v != null && v !== '';
-      default:
-        return true;
-    }
+    val = Number(v);
+    val1 = Number(value);
+    val2 = valueTo != null ? Number(valueTo) : null;
   }
 
   if (type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME || (v && (v instanceof Date || typeof v === 'string' && isDateLike(v)))) {
-    const t = toTime(v);
-    const t1 = toTime(value);
-    const t2 = valueTo != null ? toTime(valueTo) : null;
-    if (t == null) return false;
+    val = toTime(v);
+    val1 = toTime(value);
+    val2 = valueTo != null ? toTime(valueTo) : null;
+    if (val == null) return false;
+  }
+
+  if (type === FIELD_TYPE_NUMBER || typeof v === 'number' || type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME || (v && (v instanceof Date || typeof v === 'string' && isDateLike(v)))) {
     switch (operator) {
-      case OPERATOR_MAP.OPERATOR_EQUALS:
-        return t === t1;
-      case OPERATOR_MAP.OPERATOR_NOT_EQUAL:
-        return t !== t1;
-      case OPERATOR_MAP.OPERATOR_GREATER_THAN:
-        return t > t1;
-      case OPERATOR_MAP.OPERATOR_LESS_THAN:
-        return t < t1;
-      case OPERATOR_MAP.OPERATOR_GREATER_OR_EQUAL:
-        return t >= t1;
-      case OPERATOR_MAP.OPERATOR_LESS_OR_EQUAL:
-        return t <= t1;
-      case OPERATOR_MAP.OPERATOR_IN_RANGE:
-        return t2 != null && t >= Math.min(t1, t2) && t <= Math.max(t1, t2);
-      case OPERATOR_MAP.OPERATOR_EMPTY:
-        return v == null || v === '';
-      case OPERATOR_MAP.OPERATOR_NOT_EMPTY:
-        return v != null && v !== '';
+      case OPERATOR_EQUALS:
+        return val === val1;
+      case OPERATOR_NOT_EQUAL:
+        return val !== val1;
+      case OPERATOR_GREATER_THAN:
+        return val > val1;
+      case OPERATOR_LESS_THAN:
+        return val < val1;
+      case OPERATOR_GREATER_OR_EQUAL:
+        return val >= val1;
+      case OPERATOR_LESS_OR_EQUAL:
+        return val <= val1;
+      case OPERATOR_IN_RANGE:
+        return val2 != null && val >= Math.min(val1, val2) && val <= Math.max(val1, val2);
+      case OPERATOR_EMPTY:
+        return val == null || val === '';
+      case OPERATOR_NOT_EMPTY:
+        return val != null && val !== '';
       default:
         return true;
     }

@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
-import { IconButton, Menu, MenuItem } from '@mui/material';
+import { IconButton, Menu, MenuItem, Box } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useTranslations } from '../../localization/useTranslations';
-import { OPERATOR_MAP } from '../../config/schema';
+import { OPERATOR_MAP, OPERATOR_EQUALS } from '../../config/schema';
 
 /** Operator dropdown only (for header row next to column label) */
 export function OperatorDropdown({ value, onChange }) {
   const t = useTranslations();
-  const [anchor, setAnchor] = useState(null);  
+  const [anchor, setAnchor] = useState(null);
+  const operator = value?.operator ?? OPERATOR_EQUALS;
 
   return (
     <>
       <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} aria-label="Operator">
         <ArrowDropDownIcon />
-      </IconButton>     
+        <Box component="span" sx={{ fontSize: '0.875rem', minWidth: 20 }}>
+          {operator}
+        </Box>
+      </IconButton>
       <Menu
         anchorEl={anchor}
         open={!!anchor}
