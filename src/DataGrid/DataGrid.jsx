@@ -9,54 +9,61 @@ import { useDataGrid } from './useDataGrid';
 import { EditToolbar } from './EditToolbar';
 
 /**
- * @param {Object} props
- * @param {Object[]} props.rows
- * @param {Object[]} props.columns
- * @param {Object} [props.translations]
- * @param {'ltr'|'rtl'} [props.direction='ltr']
- * @param {Array<{ field: string, order: string }>} [props.sortModel] controlled
- * @param {Object} [props.filterModel] controlled
- * @param {Function} [props.onSortChange]
- * @param {Function} [props.onFilterChange]
- * @param {Function} [props.onEditCommit]
- * @param {Function} [props.onEditStart] (rowId, row) when entering edit
- * @param {Function} [props.onEditCancel] (rowId) when user cancels edit
- * @param {Function} [props.onValidationFail] (rowId, errors) when Save fails validation
- * @param {Function} [props.isRowEditable] (row) => boolean – only these rows are editable
- * @param {Function} [props.onSelectionChange]
- * @param {Function} [props.onRowSelect] (rowId, row) when a row is clicked
- * @param {Function} props.getRowId
- * @param {boolean} [props.editable]
- * @param {boolean} [props.multiSelectable]
- * @param {boolean} [props.pagination]
- * @param {number} [props.pageSize]
- * @param {number[]} [props.pageSizeOptions]
- * @param {number} [props.page] controlled
- * @param {Function} [props.onPageChange]
- * @param {Function} [props.onPageSizeChange]
- * @param {Object} [props.sx]
- * @param {Object} [props.headerStyle] MUI sx object for TableHead
- * @param {Object} [props.headerConfig] Header configuration object
- * @param {Object} [props.headerConfig.mainRow] Main row styles { backgroundColor?: string, height?: string|number }
- * @param {Object} [props.headerConfig.filterRows] Filter rows styles { backgroundColor?: string, height?: string|number }
- * @param {Object} [props.headerConfig.filterCells] Filter cells styles { backgroundColor?: string, height?: string|number }
- * @param {Object} [props.selectedRowStyle] MUI sx object for selected rows
+ * @typedef {Object} DataGridOptions
+ * @property {Object} [translations] - i18n map
+ * @property {'ltr'|'rtl'} [direction='ltr'] - Layout direction
+ * @property {Array<{ field: string, order: string }>} [sortModel] - Controlled sort
+ * @property {Object} [filterModel] - Controlled filters
+ * @property {Function} [onSortChange] - (sortModel) => void
+ * @property {Function} [onFilterChange] - (filterModel) => void
+ * @property {Function} [onEditCommit] - (rowId, row) => void
+ * @property {Function} [onEditStart] - (rowId, row) => void when entering edit
+ * @property {Function} [onEditCancel] - (rowId) => void when user cancels edit
+ * @property {Function} [onValidationFail] - (rowId, errors) => void when Save fails validation
+ * @property {Function} [isRowEditable] - (row) => boolean
+ * @property {Function} [onSelectionChange] - (selectedIds) => void
+ * @property {Function} [onRowSelect] - (rowId, row) => void when a row is clicked
+ * @property {boolean} [editable] - Enable row editing
+ * @property {boolean} [multiSelectable] - Allow multiple row selection
+ * @property {boolean} [pagination] - Show pagination bar
+ * @property {number} [pageSize] - Rows per page
+ * @property {number[]} [pageSizeOptions] - Page size dropdown options
+ * @property {number} [page] - Controlled current page (0-based)
+ * @property {Function} [onPageChange] - (page) => void
+ * @property {Function} [onPageSizeChange] - (pageSize) => void
+ * @property {Object} [sx] - MUI sx for root container
+ * @property {Object} [headerStyle] - MUI sx for TableHead
+ * @property {Object} [headerConfig] - mainRow, filterRows, filterCells (backgroundColor?, height?)
+ * @property {Object} [selectedRowStyle] - MUI sx for selected rows
+ */
+
+/**
+ * DataGrid – sortable, filterable table with optional editing, selection, and pagination.
  *
- * **Performance:** For best performance, pass stable callback references (e.g. `useCallback`) for
- * onSortChange, onFilterChange, onEditCommit, onSelectionChange, onPageChange, onPageSizeChange,
- * onRowSelect, onEditStart, onEditCancel, and onValidationFail. Stable `columns` and `getRowId`
- * references also help avoid unnecessary context updates and re-renders.
+ * @param {Object} props
+ * @param {Object[]} props.rows - Data rows
+ * @param {import('../config/schema').ColumnDef[]} props.columns - Column definitions
+ * @param {Function} props.getRowId - (row) => string|number; required for selection/edit
+ * @param {DataGridOptions} [props.options] - Callbacks, controlled state, and styling overrides
+ * @param {Object} [props.sx] - MUI sx for root container (overridden by options.sx if both set)
+ *
+ * @example
+ * <DataGrid rows={rows} columns={columns} getRowId={(r) => r.id} options={{ editable: true }} />
+ *
+ * **Performance:** Use stable callbacks (e.g. useCallback) for options handlers and stable columns/getRowId to reduce re-renders.
  */
 export function DataGrid(props) {
-  const {
-    direction = 'ltr',
-    editable = defaultGridConfig.editable,
-    pagination = defaultGridConfig.pagination,
-    pageSizeOptions = defaultGridConfig.pageSizeOptions,
-    sx,
-  } = props;
+  const { rows, columns, getRowId, options = {}, sx } = props;
+  const flatProps = useMemo(
+    () => ({ rows, columns, getRowId, ...options, sx: options.sx ?? sx }),
+    [rows, columns, getRowId, options, sx]
+  );
 
-  const grid = useDataGrid(props);
+  const grid = useDataGrid(flatProps);
+  const direction = flatProps.direction ?? 'ltr';
+  const editable = flatProps.editable ?? defaultGridConfig.editable;
+  const pagination = flatProps.pagination ?? defaultGridConfig.pagination;
+  const pageSizeOptions = flatProps.pageSizeOptions ?? defaultGridConfig.pageSizeOptions;
 
   const theme = useMemo(
     () =>
@@ -72,7 +79,7 @@ export function DataGrid(props) {
   return (
     <ThemeProvider theme={theme}>
       <DataGridProvider stableValue={grid.stableContextValue} filterValue={grid.filterContextValue}>
-        <Box sx={{ ...sx }} dir={direction}>
+        <Box sx={{ ...flatProps.sx }} dir={direction}>
           <ValidationAlert errors={grid.validationErrors} />
           <GridTable
             rows={grid.displayRows}

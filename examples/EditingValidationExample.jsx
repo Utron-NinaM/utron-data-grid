@@ -49,16 +49,18 @@ export function EditingValidationExample() {
           rows={data}
           columns={editingValidationColumns}
           getRowId={(row) => row.id}
-          translations={en}
-          direction="ltr"
-          editable
-          pagination
-          pageSize={10}
-          pageSizeOptions={[5, 10, 25]}
-          onEditCommit={handleEditCommit}
-          onEditStart={handleEditStart}
-          onEditCancel={handleEditCancel}
-          onValidationFail={handleValidationFail}          
+          options={{
+            translations: en,
+            direction: 'ltr',
+            editable: true,
+            pagination: true,
+            pageSize: 10,
+            pageSizeOptions: [5, 10, 25],
+            onEditCommit: handleEditCommit,
+            onEditStart: handleEditStart,
+            onEditCancel: handleEditCancel,
+            onValidationFail: handleValidationFail,
+          }}
         />
       </div>
     </div>

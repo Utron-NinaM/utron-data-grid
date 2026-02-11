@@ -38,30 +38,50 @@ const rows = [
 
 ## Props (API)
 
+**Required (top-level):**
+
 | Prop | Type | Description |
 |------|------|-------------|
 | `rows` | `Array<Object>` | Data rows |
 | `columns` | `ColumnDef[]` | Column definitions (see Configuration) |
 | `getRowId` | `(row) => string \| number` | Required for selection/edit; returns unique id |
-| `translations` | `Object` | Optional i18n map (see Translations) |
-| `direction` | `'ltr' \| 'rtl'` | Layout direction; affects alignment and date format |
-| `sortModel` | `Array<{ field, order }>` | Controlled sort (optional) |
-| `filterModel` | `Object` | Controlled filters (optional) |
+
+**Optional:**
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `options` | `DataGridOptions` | All optional overrides (see below). New features add keys here to keep the API stable. |
+| `sx` | `object` | MUI sx for root container (can also be passed as `options.sx`) |
+
+**`options` (DataGridOptions) – all optional:**
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `translations` | `Object` | i18n map (see Translations) |
+| `direction` | `'ltr' \| 'rtl'` | Layout direction (default `'ltr'`) |
+| `sortModel` | `Array<{ field, order }>` | Controlled sort |
+| `filterModel` | `Object` | Controlled filters |
 | `onSortChange` | `(sortModel) => void` | Sort change callback |
 | `onFilterChange` | `(filterModel) => void` | Filter change callback |
 | `onEditCommit` | `(rowId, row) => void` | Commit edited row (enables inline edit when provided) |
+| `onEditStart` | `(rowId, row) => void` | When entering edit |
+| `onEditCancel` | `(rowId) => void` | When user cancels edit |
+| `onValidationFail` | `(rowId, errors) => void` | When Save fails validation |
+| `isRowEditable` | `(row) => boolean` | Only these rows are editable |
 | `onSelectionChange` | `(selectedIds) => void` | Selection change |
+| `onRowSelect` | `(rowId, row) => void` | When a row is clicked |
 | `editable` | `boolean` | Master switch for inline edit (default false) |
 | `multiSelectable` | `boolean` | Show checkboxes and selection (default false) |
 | `pagination` | `boolean` | Enable client-side pagination (default false) |
 | `pageSize` | `number` | Rows per page (default 10) |
 | `pageSizeOptions` | `number[]` | Page size dropdown options (e.g. [10, 25, 50]) |
-| `page` | `number` | Controlled current page (0-based, optional) |
+| `page` | `number` | Controlled current page (0-based) |
 | `onPageChange` | `(page) => void` | Page change callback |
 | `onPageSizeChange` | `(pageSize) => void` | Page size change callback |
 | `sx` | `object` | MUI sx for root container |
-| `headerStyle` | `object` | MUI sx object for TableHead |
-| `selectedRowStyle` | `object` | MUI sx object for selected rows |
+| `headerStyle` | `object` | MUI sx for TableHead |
+| `headerConfig` | `object` | `mainRow`, `filterRows`, `filterCells` (e.g. `backgroundColor`, `height`) |
+| `selectedRowStyle` | `object` | MUI sx for selected rows |
 
 ## Configuration (columns)
 
@@ -89,7 +109,7 @@ Example:
 
 ## Translations
 
-Pass a `translations` object with keys overriding defaults. Main keys:
+Pass `options={{ translations: { ... } }}` with keys overriding defaults. Main keys:
 
 - Sort: `clearSort`, `sortAsc`, `sortDesc`
 - Filter: `filterPlaceholder`, `selectOption`
@@ -103,11 +123,11 @@ Pass a `translations` object with keys overriding defaults. Main keys:
 
 ## RTL / LTR
 
-Set `direction="rtl"` for right-to-left. Date format: LTR uses MM-DD-YYYY, RTL uses DD-MM-YYYY. Column alignment and pagination controls follow direction.
+Pass `options={{ direction: 'rtl' }}` for right-to-left. Date format: LTR uses MM-DD-YYYY, RTL uses DD-MM-YYYY. Column alignment and pagination controls follow direction.
 
 ## Pagination
 
-Set `pagination` to enable client-side pagination. Use `pageSize` and `pageSizeOptions` (e.g. `[10, 25, 50, 100]`). Optionally control `page` and use `onPageChange` / `onPageSizeChange`.
+Pass `options={{ pagination: true, pageSize: 10, pageSizeOptions: [10, 25, 50, 100] }}`. Optionally control `page` and use `onPageChange` / `onPageSizeChange` in options.
 
 ## Building / consuming the library
 

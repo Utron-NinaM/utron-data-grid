@@ -59,21 +59,23 @@ export function DataGridExample() {
           rows={data}
           columns={columns}
           getRowId={(row) => row.id}
-          translations={en}
-          direction={direction}
-          multiSelectable
-          editable
-          pagination
-          pageSize={10}
-          pageSizeOptions={[5, 10, 25, 50, 100]}
-          onEditCommit={handleEditCommit}
-          onRowSelect={handleRowSelect}
-          headerConfig={{
-            mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30 },
-            filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
-            filterCells: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
+          options={{
+            translations: en,
+            direction,
+            multiSelectable: true,
+            editable: true,
+            pagination: true,
+            pageSize: 10,
+            pageSizeOptions: [5, 10, 25, 50, 100],
+            onEditCommit: handleEditCommit,
+            onRowSelect: handleRowSelect,
+            headerConfig: {
+              mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30 },
+              filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
+              filterCells: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
+            },
+            selectedRowStyle: { backgroundColor: 'rgb(129, 124, 124)' },
           }}
-          selectedRowStyle={{ backgroundColor: 'rgb(129, 124, 124)' }}
         />
       </div>
     </div>
