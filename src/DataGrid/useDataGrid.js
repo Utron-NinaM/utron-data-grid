@@ -1,12 +1,14 @@
-import { useMemo, useCallback,  useState, useRef } from 'react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
 import { applySort } from '../utils/sortUtils';
-import { applyFilters } from '../filters/filterUtils';
+import debounce from 'lodash/debounce';
+import { applyFilters, FILTER_DEBOUNCE_MS } from '../filters/filterUtils';
 import { slicePage } from '../pagination/paginationUtils';
 import { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } from '../filters/FilterBar';
 import { getEditor } from '../editors/CellEditors';
 import { validateRow } from '../validation/validateRow';
 import { defaultGridConfig } from '../config/defaultConfig';
-import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE } from '../config/schema';
+import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, DIRECTION_RTL } from '../config/schema';
+import { DIRECTION_LTR } from '../config/schema';
 
 /**
  * Custom hook for DataGrid state management and business logic
@@ -18,7 +20,7 @@ export function useDataGrid(props) {
     rows = [],
     columns = [],
     translations,
-    direction = 'ltr',
+    direction = DIRECTION_LTR,
     sortModel: controlledSort,
     filterModel: controlledFilter,
     onSortChange,
@@ -58,6 +60,19 @@ export function useDataGrid(props) {
   const filterModel = controlledFilter !== undefined ? controlledFilter : internalFilter;
   const page = controlledPage !== undefined ? controlledPage : internalPage;
   const pageSize = internalPageSize;
+
+  const [debouncedFilterModel, setDebouncedFilterModel] = useState(filterModel);
+  
+  useEffect(() => {
+    const isEmpty = !filterModel || Object.keys(filterModel).length === 0;
+    if (isEmpty) {
+      setDebouncedFilterModel(filterModel);
+      return;
+    }
+    const apply = debounce(() => setDebouncedFilterModel(filterModel), FILTER_DEBOUNCE_MS);
+    apply();
+    return () => apply.cancel();
+  }, [filterModel]);
 
   const setSortModel = useCallback(
     (next) => {
@@ -198,8 +213,8 @@ export function useDataGrid(props) {
   }, [editValues, editRowId, columns, onEditCommit, onValidationFail]);
 
   const filteredRows = useMemo(
-    () => applyFilters(rows, filterModel, columns),
-    [rows, filterModel, columns]
+    () => applyFilters(rows, debouncedFilterModel, columns),
+    [rows, debouncedFilterModel, columns]
   );
   const sortedRows = useMemo(() => applySort(filteredRows, sortModel), [filteredRows, sortModel]);
   const paginationResult = useMemo(
@@ -268,7 +283,7 @@ export function useDataGrid(props) {
   const columnAlignMap = useMemo(() => {
     const map = new Map();
     columns.forEach((col) => {
-      map.set(col.field, col.align ?? (direction === 'rtl' ? 'right' : 'left'));
+      map.set(col.field, col.align ?? (direction === DIRECTION_RTL ? 'right' : 'left'));
     });
     return map;
   }, [columns, direction]);

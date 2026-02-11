@@ -6,6 +6,7 @@ import { useTranslations } from '../../localization/useTranslations';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
 import { ClearButton } from './ClearButton';
 import { getOptionLabel } from '../../utils/optionUtils';
+import { DIRECTION_RTL, DIRECTION_LTR } from '../../config/schema';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -13,8 +14,8 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 export function ListFilter({ value, onChange, options, placeholder }) {
   const t = useTranslations();
   const ctx = useContext(DataGridStableContext);
-  const direction = ctx?.direction ?? 'ltr';
-  const isRtl = direction === 'rtl';
+  const direction = ctx?.direction ?? DIRECTION_LTR;
+  const isRtl = direction === DIRECTION_RTL;
   const [inputValue, setInputValue] = React.useState('');
   const selected = Array.isArray(value) ? value : value != null ? [value] : [];
   const listOptions = options ?? [];

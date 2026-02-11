@@ -3,7 +3,6 @@ import {
   FIELD_TYPE_DATE,
   FIELD_TYPE_DATETIME,
   FIELD_TYPE_LIST,
-  OPERATOR_MAP,
   OPERATOR_EQUALS,
   OPERATOR_NOT_EQUAL,
   OPERATOR_GREATER_THAN,
@@ -14,6 +13,9 @@ import {
   OPERATOR_EMPTY,
   OPERATOR_NOT_EMPTY,
   } from '../config/schema';
+
+
+export const FILTER_DEBOUNCE_MS = 200;
 
 /**
  * Apply filter model to rows. AND across columns.

@@ -1,18 +1,18 @@
-import { ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
+import { ALIGN_LEFT, ALIGN_RIGHT, DIRECTION_RTL, DIRECTION_LTR } from '../config/schema';
 
 /**
- * @param {'ltr'|'rtl'} direction
+ * @param {DIRECTION_LTR|DIRECTION_RTL} direction
  * @returns {string} format for dayjs
  */
 export function getDateFormat(direction) {
-  return direction === 'rtl' ? 'DD-MM-YYYY' : 'MM-DD-YYYY';
+  return direction === DIRECTION_RTL ? 'DD-MM-YYYY' : 'MM-DD-YYYY';
 }
 
 export function getDateTimeFormat(direction) {
-  return direction === 'rtl' ? 'DD-MM-YYYY HH:mm:ss' : 'MM-DD-YYYY HH:mm:ss';
+  return direction === DIRECTION_RTL ? 'DD-MM-YYYY HH:mm:ss' : 'MM-DD-YYYY HH:mm:ss';
 }
 
 /** Default cell align by direction */
 export function getDefaultAlign(direction) {
-  return direction === 'rtl' ? ALIGN_RIGHT : ALIGN_LEFT;
+  return direction === DIRECTION_RTL ? ALIGN_RIGHT : ALIGN_LEFT;
 }

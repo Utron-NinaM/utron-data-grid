@@ -7,11 +7,12 @@ import { ValidationAlert } from '../validation/ValidationAlert';
 import { defaultGridConfig } from '../config/defaultConfig';
 import { useDataGrid } from './useDataGrid';
 import { EditToolbar } from './EditToolbar';
+import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
 
 /**
  * @typedef {Object} DataGridOptions
  * @property {Object} [translations] - i18n map
- * @property {'ltr'|'rtl'} [direction='ltr'] - Layout direction
+ * @property {DIRECTION_LTR|DIRECTION_RTL} [direction=DIRECTION_LTR] - Layout direction
  * @property {Array<{ field: string, order: string }>} [sortModel] - Controlled sort
  * @property {Object} [filterModel] - Controlled filters
  * @property {Function} [onSortChange] - (sortModel) => void
@@ -60,7 +61,7 @@ export function DataGrid(props) {
   );
 
   const grid = useDataGrid(flatProps);
-  const direction = flatProps.direction ?? 'ltr';
+  const direction = flatProps.direction ?? DIRECTION_LTR;
   const editable = flatProps.editable ?? defaultGridConfig.editable;
   const pagination = flatProps.pagination ?? defaultGridConfig.pagination;
   const pageSizeOptions = flatProps.pageSizeOptions ?? defaultGridConfig.pageSizeOptions;

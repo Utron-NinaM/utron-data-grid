@@ -11,6 +11,7 @@ import {
   FIELD_TYPE_DATETIME,
   FIELD_TYPE_LIST,
   OPERATOR_IN_RANGE,
+  DIRECTION_LTR,
 } from '../config/schema';
 
 /**
@@ -43,7 +44,7 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
 /**
  * Filter input slot: value inputs only (filter row below). No operator, no list combo.
  */
-export function getFilterInputSlot(column, filterModel, onFilterChange, direction = 'ltr', translations) {
+export function getFilterInputSlot(column, filterModel, onFilterChange, direction = DIRECTION_LTR, translations) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
@@ -93,7 +94,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
 /**
  * "To" input slot only (for in-range second header row). Returns null when column is not number/date or operator is not inRange.
  */
-export function getFilterToInputSlot(column, filterModel, onFilterChange, direction = 'ltr') {
+export function getFilterToInputSlot(column, filterModel, onFilterChange, direction = DIRECTION_LTR) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;

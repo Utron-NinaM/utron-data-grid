@@ -62,3 +62,9 @@ export const SORT_ORDER_DESC = 'desc';
 export const ALIGN_LEFT = 'left';
 export const ALIGN_RIGHT = 'right';
 export const ALIGN_CENTER = 'center';
+
+export const DIRECTION_LTR = 'ltr';
+export const DIRECTION_RTL = 'rtl';
+
+export const LOCALE_EN = 'en';
+export const LOCALE_HE = 'he';

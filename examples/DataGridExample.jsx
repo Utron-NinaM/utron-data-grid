@@ -4,14 +4,15 @@ import { columnsConfig, columnsConfigHebrew } from './columnsConfig';
 import { sampleData } from './sampleData';
 import { en } from './translations';
 import { Button } from '@mui/material';
+import { DIRECTION_RTL, DIRECTION_LTR } from '../src/config/schema';
 
 export function DataGridExample() {
-  const [direction, setDirection] = useState('ltr');
+  const [direction, setDirection] = useState(DIRECTION_LTR);
   const [data, setData] = useState(sampleData);
   const [selectedRow, setSelectedRow] = useState(null);
 
   const columns = useMemo(() => {
-    return direction === 'rtl' ? columnsConfigHebrew : columnsConfig;
+    return direction === DIRECTION_RTL ? columnsConfigHebrew : columnsConfig;
   }, [direction]);
 
   const handleEditCommit = (rowId, row) => {
@@ -40,8 +41,8 @@ export function DataGridExample() {
       <label>
         Direction:{' '}
         <select value={direction} onChange={(e) => setDirection(e.target.value)}>
-          <option value="ltr">LTR</option>
-          <option value="rtl">RTL</option>
+          <option value={DIRECTION_LTR}>LTR</option>
+          <option value={DIRECTION_RTL}>RTL</option>
         </select>
       </label>
       <div style={{ marginTop: 16, marginBottom: 16 }}>

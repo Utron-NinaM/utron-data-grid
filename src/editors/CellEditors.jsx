@@ -14,9 +14,13 @@ import {
   FIELD_TYPE_DATE,
   FIELD_TYPE_DATETIME,
   FIELD_TYPE_LIST,
+  DIRECTION_RTL,
+  DIRECTION_LTR,
+  LOCALE_HE,
+  LOCALE_EN,
 } from '../config/schema';
 
-export function getEditor(column, row, editValues, onChange, direction = 'ltr') {
+export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR) {
   const value = editValues[column.field];
   const type = column.type ?? DEFAULT_FIELD_TYPE;
   const format = getDateFormat(direction);
@@ -36,7 +40,7 @@ export function getEditor(column, row, editValues, onChange, direction = 'ltr') 
     case FIELD_TYPE_DATE:
     case FIELD_TYPE_DATETIME:
       return (
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'he' : 'en'}>
+        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === DIRECTION_RTL ? LOCALE_HE : LOCALE_EN}>
           <DatePicker
             value={value != null ? dayjs(value) : null}
             onChange={(d) => onChange(column.field, d ? d.toISOString() : null)}

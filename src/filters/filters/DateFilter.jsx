@@ -9,6 +9,7 @@ import { getDateFormat } from '../../utils/directionUtils';
 import { useTranslations } from '../../localization/useTranslations';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
+import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN } from '../../config/schema';
 
 function getSlotProps(direction) {
   const slotProps = {
@@ -22,7 +23,7 @@ function getSlotProps(direction) {
       }
     }
   };
-  if (direction === 'rtl') {
+  if (direction === DIRECTION_RTL) {
     slotProps.textField.sx['& .MuiInputLabel-root'] = {
       right: 20,
     };
@@ -31,7 +32,7 @@ function getSlotProps(direction) {
 }
 
 /** Date picker (from only) + clear. "To" is rendered in separate header row when inRange. */
-export function DateFilterInputs({ value, onChange, placeholder, direction }) {
+export function DateFilterInputs({ value, onChange, placeholder, direction = DIRECTION_LTR }) {
   const format = getDateFormat(direction);
   const dateVal = value?.value != null ? dayjs(value.value) : null;
 
@@ -44,7 +45,7 @@ export function DateFilterInputs({ value, onChange, placeholder, direction }) {
   const hasValue = value != null && (value.value != null || value.valueTo != null);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'he' : 'en'}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === DIRECTION_RTL ? LOCALE_HE : LOCALE_EN}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <DatePicker
           label={placeholder}
@@ -75,7 +76,7 @@ export function DateFilterToInput({ value, onChange, direction }) {
   const hasValue = value != null && value.valueTo != null;
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === 'rtl' ? 'he' : 'en'}>
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === DIRECTION_RTL ? LOCALE_HE : LOCALE_EN}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <DatePicker
           label={t('filterTo')}

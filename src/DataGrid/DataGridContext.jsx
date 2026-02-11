@@ -1,5 +1,6 @@
 import { createContext } from 'react';
 import { defaultTranslations } from '../localization/defaultTranslations';
+import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
 
 // Stable context - contains values that rarely change (config, callbacks, styles)
 export const DataGridStableContext = createContext(null);
@@ -11,7 +12,7 @@ export const DataGridFilterContext = createContext(null);
  * @param {Object} stableValue Stable values that rarely change
  * @param {import('../config/schema').ColumnDef[]} stableValue.columns
  * @param {Object} stableValue.translations
- * @param {'ltr'|'rtl'} stableValue.direction
+ * @param {DIRECTION_LTR|DIRECTION_RTL} stableValue.direction
  * @param {Function} stableValue.getRowId
  * @param {Function} [stableValue.onSortChange]
  * @param {Function} [stableValue.onFilterChange]
