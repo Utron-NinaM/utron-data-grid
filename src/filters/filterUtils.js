@@ -12,7 +12,11 @@ import {
   OPERATOR_IN_RANGE,
   OPERATOR_EMPTY,
   OPERATOR_NOT_EMPTY,
-  } from '../config/schema';
+  OPERATOR_CONTAINS,
+  OPERATOR_NOT_CONTAINS,
+  OPERATOR_STARTS_WITH,
+  OPERATOR_ENDS_WITH,
+} from '../config/schema';
 
 
 export const FILTER_DEBOUNCE_MS = 200;
@@ -29,7 +33,10 @@ export function applyFilters(rows, filterModel, columns) {
   const colMap = new Map(columns.map((c) => [c.field, c]));
   return rows.filter((row) => {
     return Object.entries(filterModel).every(([field, state]) => {
-      if (!state || (state.value === undefined && state.valueTo === undefined)) return true;
+      if (!state) return true;
+      const isEmptyNotEmpty = state.operator === OPERATOR_EMPTY || state.operator === OPERATOR_NOT_EMPTY;
+      const hasValue = state.value !== undefined || state.valueTo !== undefined;
+      if (!hasValue && !isEmptyNotEmpty) return true;
       const col = colMap.get(field);
       return matchFilter(row[field], state, col?.type);
     });
@@ -88,10 +95,30 @@ function matchFilter(cellValue, state, type) {
     return selected.some((s) => String(v) === String(s) || v === s);
   }
 
-  // text contains
+  // text operators
   const str = String(v ?? '').toLowerCase();
   const search = String(value ?? '').toLowerCase();
-  return search === '' || str.includes(search);
+
+  switch (operator) {
+    case OPERATOR_EMPTY:
+      return str === '';
+    case OPERATOR_NOT_EMPTY:
+      return str !== '';
+    case OPERATOR_EQUALS:
+      return search === '' || str === search;
+    case OPERATOR_NOT_EQUAL:
+      return search === '' || str !== search;
+    case OPERATOR_CONTAINS:
+      return search === '' || str.includes(search);
+    case OPERATOR_NOT_CONTAINS:
+      return search === '' || !str.includes(search);
+    case OPERATOR_STARTS_WITH:
+      return search === '' || str.startsWith(search);
+    case OPERATOR_ENDS_WITH:
+      return search === '' || str.endsWith(search);
+    default:
+      return search === '' || str.includes(search);
+  }
 }
 
 function toTime(x) {

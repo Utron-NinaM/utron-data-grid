@@ -25,6 +25,10 @@ export const defaultTranslations = {
   operatorInRange: 'In Range',
   operatorEmpty: 'Empty',
   operatorNotEmpty: 'Not Empty',
+  operatorContains: 'Contains',
+  operatorNotContains: 'Does Not Contain',
+  operatorStartsWith: 'Starts With',
+  operatorEndsWith: 'Ends With',
 
   // Pagination
   rowsPerPage: 'Rows per page',
@@ -75,6 +79,10 @@ export const hebrewTranslations = {
   operatorInRange: 'בטווח',
   operatorEmpty: 'ריק',
   operatorNotEmpty: 'לא ריק',
+  operatorContains: 'מכיל',
+  operatorNotContains: 'לא מכיל',
+  operatorStartsWith: 'מתחיל ב',
+  operatorEndsWith: 'מסתיים ב',
   // Pagination
   rowsPerPage: 'שורות לדף',
   paginationRange: '{{from}}–{{to}} מתוך {{count}}',

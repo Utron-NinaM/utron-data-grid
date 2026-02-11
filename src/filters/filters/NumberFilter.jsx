@@ -1,6 +1,5 @@
 import React from 'react';
 import { TextField, Box } from '@mui/material';
-import { OperatorDropdown } from './OperatorDropdown';
 import { ClearButton } from './ClearButton';
 import { useTranslations } from '../../localization/useTranslations';
 

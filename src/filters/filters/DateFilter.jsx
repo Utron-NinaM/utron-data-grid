@@ -3,7 +3,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Box } from '@mui/material';
-import { OperatorDropdown } from './OperatorDropdown';
 import { ClearButton } from './ClearButton';
 import { getDateFormat } from '../../utils/directionUtils';
 import { useTranslations } from '../../localization/useTranslations';
@@ -47,8 +46,7 @@ export function DateFilterInputs({ value, onChange, placeholder, direction = DIR
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === DIRECTION_RTL ? LOCALE_HE : LOCALE_EN}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
-        <DatePicker
-          label={placeholder}
+        <DatePicker          
           value={dateVal}
           onChange={(d) => handleChange({ value: d ? d.toISOString() : null })}
           slotProps={getSlotProps(direction)}
@@ -92,11 +90,3 @@ export function DateFilterToInput({ value, onChange, direction }) {
   );
 }
 
-export function DateFilter({ value, onChange, placeholder, direction }) {
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
-      <OperatorDropdown value={value} onChange={onChange} operatorMap={DATE_OPERATOR_MAP} />
-      <DateFilterInputs value={value} onChange={onChange} placeholder={placeholder} direction={direction} />
-    </Box>
-  );
-}

@@ -44,6 +44,7 @@ export const OPERATOR_CONTAINS = '~';
 export const OPERATOR_NOT_CONTAINS = '!~';
 export const OPERATOR_STARTS_WITH = '^';
 export const OPERATOR_ENDS_WITH = '$';
+export const OPERATOR_PERIOD = '..';
 
 
 const DEFAULT_OPERATOR_MAP = {

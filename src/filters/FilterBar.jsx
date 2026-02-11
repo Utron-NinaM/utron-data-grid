@@ -42,7 +42,13 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
     case FIELD_TYPE_LIST:
       return null;
     default:
-      return null;
+      return (
+        <OperatorDropdown
+          value={state}
+          onChange={(v) => onFilterChange(field, v)}
+          operatorMap={operatorMap}
+        />
+      );
   }
 }
 
@@ -89,7 +95,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
       return (
         <TextFilter
           value={typeof state === 'object' ? state?.value : state}
-          onChange={(v) => onFilterChange(field, v === '' ? null : { value: v })}
+          onChange={(v) => onFilterChange(field, v === '' ? null : { ...state, value: v })}
           placeholder={placeholder}
         />
       );
