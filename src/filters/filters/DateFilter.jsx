@@ -8,13 +8,14 @@ import { getDateFormat } from '../../utils/directionUtils';
 import { useTranslations } from '../../localization/useTranslations';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
-import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN, DATE_OPERATOR_MAP } from '../../config/schema';
+import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN } from '../../config/schema';
 
 function getSlotProps(direction) {
   const slotProps = {
     textField: {
       size: 'small',
       dir: direction,
+      readOnly: false,
       sx: {
         flex: 1,
         minWidth: 0,
@@ -48,7 +49,7 @@ export function DateFilterInputs({ value, onChange, placeholder, direction = DIR
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <DatePicker          
           value={dateVal}
-          onChange={(d) => handleChange({ value: d ? d.toISOString() : null })}
+          onChange={(d) => handleChange({ value: d && d.isValid() ? d.toISOString() : null })}
           slotProps={getSlotProps(direction)}
           dir={direction}
           format={format}
@@ -79,7 +80,7 @@ export function DateFilterToInput({ value, onChange, direction }) {
         <DatePicker
           label={t('filterTo')}
           value={dateTo}
-          onChange={(d) => handleChange({ valueTo: d ? d.toISOString() : null })}
+          onChange={(d) => handleChange({ valueTo: d && d.isValid() ? d.toISOString() : null })}
           slotProps={getSlotProps(direction)}
           dir={direction}
           format={format}
