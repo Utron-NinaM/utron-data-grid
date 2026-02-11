@@ -1,10 +1,11 @@
-import React , {useContext, useMemo} from 'react';
+import React, { memo, useContext, useMemo } from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext } from '../DataGrid/DataGridContext';
 import { GridHeaderCell } from './GridHeaderCell';
 import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBodyRow } from './GridBodyRow';
+import { GridErrorBoundary } from './GridErrorBoundary';
 import { ALIGN_CENTER } from '../config/schema';
 
 const EMPTY_ERROR_SET = new Set();
@@ -26,7 +27,7 @@ const EMPTY_ERROR_SET = new Set();
  * @param {string|number|null} [props.selectedRowId]
  * @param {boolean} [props.hasActiveRangeFilter] Whether any column has an active range filter
  */
-export function GridTable({
+function GridTableInner({
   rows,
   selection,
   onSelect,
@@ -69,6 +70,35 @@ export function GridTable({
     return map;
   }, [rows, rowStylesMap, selectedRowStyle, getRowId]);
   
+  // Event delegation handlers for row clicks - single handler for all rows
+  const handleTableBodyClick = useMemo(() => {
+    if (!onRowClick) return undefined;
+    return (event) => {
+      const rowElement = event.target.closest('[data-row-id]');
+      if (!rowElement) return;
+      const rowId = rowElement.getAttribute('data-row-id');
+      const row = rows.find(r => String(getRowId(r)) === rowId);
+      if (row) onRowClick(row);
+    };
+  }, [onRowClick, rows, getRowId]);
+
+  const handleTableBodyDoubleClick = useMemo(() => {
+    if (!onRowDoubleClick) return undefined;
+    return (event) => {
+      const rowElement = event.target.closest('[data-row-id]');
+      if (!rowElement) return;
+      const rowId = rowElement.getAttribute('data-row-id');
+      const row = rows.find(r => String(getRowId(r)) === rowId);
+      if (row) onRowDoubleClick(row);
+    };
+  }, [onRowDoubleClick, rows, getRowId]);
+
+  // Stable callback for checkbox selection - takes (rowId, checked)
+  const handleSelectRow = useMemo(() => {
+    if (!onSelect) return undefined;
+    return (rowId, checked) => onSelect(rowId, checked);
+  }, [onSelect]);
+  
   // Compute body rows inline - React reconciliation handles optimization efficiently
   let bodyRows;
   if (rows.length === 0) {
@@ -93,12 +123,10 @@ export function GridTable({
           row={row}
           rowId={rowId}
           selected={selection?.has(rowId)}
-          onSelect={onSelect}
+          onSelectRow={handleSelectRow}
           editRowId={isEditing ? editRowId : null}
           editValues={isEditing ? editValues : undefined}
           validationErrors={isEditing ? errorSetToUse : EMPTY_ERROR_SET}
-          onRowClick={onRowClick}
-          onRowDoubleClick={onRowDoubleClick}
           isSelected={isSelected}
           rowSx={mergedRowStylesMap.get(rowId)}
           columns={columns}
@@ -125,102 +153,105 @@ export function GridTable({
           )}
         </Box>
       )}
-      <TableContainer component={Paper} variant="outlined" sx={{ overflowX: 'auto', width: '100%' }}>
-        <Table size="small" stickyHeader aria-label="Data grid" sx={{ width: '100%' }}>
-          <TableHead sx={headerStyle}>
-            <TableRow
-              sx={{
-                ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
-              }}
-            >
-              {multiSelectable && (
-                <TableCell
-                  padding="checkbox"
-                  variant="head"
-                  sx={{
-                    ...headerStyle,
-                    backgroundColor: headerConfig?.mainRow?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
-                  }}
-                />
-              )}
-              {columns.map((col) => (
-                <GridHeaderCell
-                  key={col.field}
-                  column={col}
-                  sortModel={sortModel}
-                  onSort={onSort}
-                  headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
-                  filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations) : null}
-                  sortOrderIndex={sortOrderIndexMap?.get(col.field)}
+      <GridErrorBoundary>
+        <TableContainer component={Paper} variant="outlined" sx={{ overflowX: 'auto', width: '100%' }}>
+          <Table size="small" stickyHeader aria-label="Data grid" sx={{ width: '100%' }}>
+            <TableHead sx={headerStyle}>
+              <TableRow
+                sx={{
+                  ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
+                }}
+              >
+                {multiSelectable && (
+                  <TableCell
+                    padding="checkbox"
+                    variant="head"
+                    sx={{
+                      ...headerStyle,
+                      backgroundColor: headerConfig?.mainRow?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
+                    }}
+                  />
+                )}
+                {columns.map((col) => (
+                  <GridHeaderCell
+                    key={col.field}
+                    column={col}
+                    sortModel={sortModel}
+                    onSort={onSort}
+                    headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
+                    filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations) : null}
+                    sortOrderIndex={sortOrderIndexMap?.get(col.field)}
 
-                />
-              ))}
-            </TableRow>
-            {getFilterInputSlot && getFilterToInputSlot && (
-              <TableRow
-                sx={{
-                  ...(headerConfig?.filterRows?.backgroundColor && { backgroundColor: headerConfig.filterRows.backgroundColor }),
-                }}
-              >
-                {multiSelectable && (
-                  <TableCell
-                    padding="checkbox"
-                    variant="head"
-                    sx={{
-                      ...headerStyle,
-                      backgroundColor: headerConfig?.filterRows?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
-                    }}
-                  />
-                )}
-                {columns.map((col) => (
-                  <GridHeaderCellFilter
-                    key={col.field}
-                    column={col}
-                    slot={getFilterInputSlot(col, translations)}
-  
                   />
                 ))}
               </TableRow>
-            )}
-            {getFilterToInputSlot && hasActiveRangeFilter && (
-              <TableRow
-                sx={{
-                  ...(headerConfig?.filterRows?.backgroundColor && { backgroundColor: headerConfig.filterRows.backgroundColor }),
-                }}
-              >
-                {multiSelectable && (
-                  <TableCell
-                    padding="checkbox"
-                    variant="head"
-                    sx={{
-                      ...headerStyle,
-                      backgroundColor: headerConfig?.filterRows?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
-                    }}
-                  />
-                )}
-                {columns.map((col) => (
-                  <GridHeaderCellFilter
-                    key={col.field}
-                    column={col}
-                    slot={getFilterToInputSlot(col)}
+              {getFilterInputSlot && getFilterToInputSlot && (
+                <TableRow
+                  sx={{
+                    ...(headerConfig?.filterRows?.backgroundColor && { backgroundColor: headerConfig.filterRows.backgroundColor }),
+                  }}
+                >
+                  {multiSelectable && (
+                    <TableCell
+                      padding="checkbox"
+                      variant="head"
+                      sx={{
+                        ...headerStyle,
+                        backgroundColor: headerConfig?.filterRows?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
+                      }}
+                    />
+                  )}
+                  {columns.map((col) => (
+                    <GridHeaderCellFilter
+                      key={col.field}
+                      column={col}
+                      slot={getFilterInputSlot(col, translations)}
   
-                  />
-                ))}
-              </TableRow>
-            )}
-          </TableHead>
-        <TableBody>
-          {bodyRows}
-        </TableBody>
-      </Table>
-    </TableContainer>
+                    />
+                  ))}
+                </TableRow>
+              )}
+              {getFilterToInputSlot && hasActiveRangeFilter && (
+                <TableRow
+                  sx={{
+                    ...(headerConfig?.filterRows?.backgroundColor && { backgroundColor: headerConfig.filterRows.backgroundColor }),
+                  }}
+                >
+                  {multiSelectable && (
+                    <TableCell
+                      padding="checkbox"
+                      variant="head"
+                      sx={{
+                        ...headerStyle,
+                        backgroundColor: headerConfig?.filterRows?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
+                      }}
+                    />
+                  )}
+                  {columns.map((col) => (
+                    <GridHeaderCellFilter
+                      key={col.field}
+                      column={col}
+                      slot={getFilterToInputSlot(col)}
+  
+                    />
+                  ))}
+                </TableRow>
+              )}
+            </TableHead>
+          <TableBody
+            onClick={handleTableBodyClick}
+            onDoubleClick={handleTableBodyDoubleClick}
+          >
+            {bodyRows}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      </GridErrorBoundary>
     </>
   );
 }
 
-
-
-
+export const GridTable = memo(GridTableInner);
 
 
 

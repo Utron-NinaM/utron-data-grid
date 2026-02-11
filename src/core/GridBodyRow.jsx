@@ -7,12 +7,10 @@ import { GridCell } from './GridCell';
  * @param {Object} props.row
  * @param {string|number} props.rowId
  * @param {boolean} props.selected
- * @param {Function} props.onSelect
+ * @param {Function} props.onSelectRow Stable callback: (rowId, checked) => void
  * @param {string|number|null} props.editRowId
  * @param {Object} props.editValues
  * @param {Set<string>} props.validationErrors
- * @param {Function} [props.onRowClick]
- * @param {Function} [props.onRowDoubleClick]
  * @param {boolean} [props.isSelected]
  * @param {Array} [props.rowSx] Pre-computed merged row styles (base styles + selected styles)
  * @param {Array} props.columns
@@ -23,12 +21,10 @@ function GridBodyRowComponent({
   row,
   rowId,
   selected,
-  onSelect,
+  onSelectRow,
   editRowId,
   editValues,
   validationErrors,
-  onRowClick,
-  onRowDoubleClick,
   isSelected,
   rowSx,
   columns,
@@ -43,14 +39,13 @@ function GridBodyRowComponent({
       hover
       selected={isRowSelected}
       sx={rowSx}
-      onClick={onRowClick ? () => onRowClick(row) : undefined}
-      onDoubleClick={onRowDoubleClick ? () => onRowDoubleClick(row) : undefined}
+      data-row-id={rowId}
     >
       {multiSelectable && (
         <TableCell padding="checkbox">
           <Checkbox
             checked={selected}
-            onChange={(e) => onSelect(rowId, e.target.checked)}
+            onChange={(e) => onSelectRow(rowId, e.target.checked)}
             inputProps={{ 'aria-label': 'Select row' }}
           />
         </TableCell>

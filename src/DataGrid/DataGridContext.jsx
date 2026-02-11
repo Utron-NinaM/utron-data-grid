@@ -7,9 +7,6 @@ export const DataGridStableContext = createContext(null);
 // Filter context - contains filter-related functions that change when filterModel changes
 export const DataGridFilterContext = createContext(null);
 
-// Legacy context for backward compatibility (deprecated, use StableContext + FilterContext)
-export const DataGridContext = createContext(null);
-
 /**
  * @param {Object} stableValue Stable values that rarely change
  * @param {import('../config/schema').ColumnDef[]} stableValue.columns

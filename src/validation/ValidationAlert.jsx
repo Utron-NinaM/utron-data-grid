@@ -13,7 +13,7 @@ export function ValidationAlert({ errors }) {
       <AlertTitle>{t('validationErrors')}</AlertTitle>
       <ul style={{ margin: 0, paddingLeft: 20 }}>
         {errors.map((e, i) => (
-          <li key={i}>{e.message ? `${e.field}: ${e.message}` : e.field}</li>
+          <li key={`${e.field}-${i}`}>{e.message ? `${e.field}: ${e.message}` : e.field}</li>
         ))}
       </ul>
     </Alert>

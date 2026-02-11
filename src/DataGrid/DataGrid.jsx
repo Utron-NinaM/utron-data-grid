@@ -1,22 +1,12 @@
 import React, { useMemo } from 'react';
-import { ThemeProvider, createTheme, Box, Button } from '@mui/material';
-import { useTranslations } from '../localization/useTranslations';
+import { ThemeProvider, createTheme, Box } from '@mui/material';
 import { DataGridProvider } from './DataGridContext';
 import { GridTable } from '../core/GridTable';
 import { PaginationBar } from '../pagination/PaginationBar';
 import { ValidationAlert } from '../validation/ValidationAlert';
 import { defaultGridConfig } from '../config/defaultConfig';
 import { useDataGrid } from './useDataGrid';
-
-function EditToolbar({ onSave, onCancel }) {
-  const t = useTranslations();
-  return (
-    <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-      <Button size="small" variant="contained" onClick={onSave}>{t('save')}</Button>
-      <Button size="small" onClick={onCancel}>{t('cancel')}</Button>
-    </Box>
-  );
-}
+import { EditToolbar } from './EditToolbar';
 
 /**
  * @param {Object} props
@@ -51,6 +41,11 @@ function EditToolbar({ onSave, onCancel }) {
  * @param {Object} [props.headerConfig.filterRows] Filter rows styles { backgroundColor?: string, height?: string|number }
  * @param {Object} [props.headerConfig.filterCells] Filter cells styles { backgroundColor?: string, height?: string|number }
  * @param {Object} [props.selectedRowStyle] MUI sx object for selected rows
+ *
+ * **Performance:** For best performance, pass stable callback references (e.g. `useCallback`) for
+ * onSortChange, onFilterChange, onEditCommit, onSelectionChange, onPageChange, onPageSizeChange,
+ * onRowSelect, onEditStart, onEditCancel, and onValidationFail. Stable `columns` and `getRowId`
+ * references also help avoid unnecessary context updates and re-renders.
  */
 export function DataGrid(props) {
   const {

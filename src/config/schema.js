@@ -10,7 +10,7 @@
  * editable?: boolean | ((row) => boolean)
  * validators?: Array<{ validate: (value, row) => boolean|string, message?: string }>
  * options?: any[] (for list)
- * render?: (value, row) => ReactNode
+ * render?: (value, row) => ReactNode — must not return unsanitized HTML or use dangerouslySetInnerHTML with user/API data (React escapes by default).
  * rowStyle?: (row) => sx
  * cellStyle?: (value, row) => sx
  * align?: 'left' | 'right' | 'center'

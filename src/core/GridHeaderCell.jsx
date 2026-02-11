@@ -1,23 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { TableCell, TableSortLabel, Box, Tooltip } from '@mui/material';
-import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
+import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT } from '../config/schema';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { useTranslations } from '../localization/useTranslations';
-
-const getFilterRowBoxSx = (filterInputHeight) => ({
-  width: '100%',
-  maxWidth: '100%',
-  boxSizing: 'border-box',
-  px: 0.5,
-  minHeight: 20,
-  display: 'flex',
-  alignItems: 'center',
-  overflow: 'hidden',
-  ...(filterInputHeight && { height: filterInputHeight, maxHeight: filterInputHeight }),
-  '& .MuiInputBase-root': filterInputHeight ? { height: filterInputHeight, minHeight: filterInputHeight, maxHeight: filterInputHeight } : {},
-  '& .MuiInputBase-input': filterInputHeight ? { height: '100%', padding: '4px 8px' } : {},
-});
-
+import { getFilterRowBoxSx } from '../utils/filterBoxStyles';
 
 /**
  * @param {Object} props
@@ -31,7 +17,7 @@ const getFilterRowBoxSx = (filterInputHeight) => ({
 export function GridHeaderCell({
   column,
   sortModel,
-  onSort,
+  onSort, 
   headerComboSlot,
   filterSlot,
   sortOrderIndex,
@@ -52,7 +38,7 @@ export function GridHeaderCell({
   const cellSx = headerCellSxMap?.get(column.field);
   const mainRowHeight = headerConfig?.mainRow?.height;
   const multiColumn = sortModel?.length > 1;
-  const filterBoxSx = getFilterRowBoxSx(filterInputHeight);
+  const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight), [filterInputHeight]);
 
   const handleSortClick = (event) => {
     const multiColumn = event.ctrlKey || event.metaKey;
