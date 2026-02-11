@@ -1,8 +1,10 @@
 import React, { memo, useContext, useMemo } from 'react';
 import { TableCell } from '@mui/material';
-import { ALIGN_LEFT, ALIGN_RIGHT } from '../config/schema';
+import dayjs from 'dayjs';
+import { ALIGN_LEFT, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME } from '../config/schema';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
-
+import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
+import { DIRECTION_LTR } from '../config/schema';
 /**
  * @param {Object} props
  * @param {*} props.value
@@ -15,6 +17,7 @@ import { DataGridStableContext } from '../DataGrid/DataGridContext';
 function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
   const ctx = useContext(DataGridStableContext);
   const columnAlignMap = ctx?.columnAlignMap;
+  const direction = ctx?.direction ?? DIRECTION_LTR ;
 
   const align = columnAlignMap?.get(column.field) ?? (column.align ?? ALIGN_LEFT);
   const sx = useMemo(() => {
@@ -25,9 +28,23 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
     };
   }, [hasError, column, value, row]);
 
+  const displayValue = useMemo(() => {
+    if (isEditing && editor != null) return null;
+    if (column.render) return column.render(value, row);
+    const type = column.type;
+    if ((type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME) && value != null) {
+      const d = dayjs(value);
+      if (d.isValid()) {
+        const format = type === FIELD_TYPE_DATETIME ? getDateTimeFormat(direction) : getDateFormat(direction);
+        return d.format(format);
+      }
+    }
+    return String(value ?? '');
+  }, [isEditing, editor, column, value, row, direction]);
+
   return (
     <TableCell align={align} sx={sx} padding="none" variant="body">
-      {isEditing && editor != null ? editor : column.render ? column.render(value, row) : String(value ?? '')}
+      {isEditing && editor != null ? editor : displayValue}
     </TableCell>
   );
 }
