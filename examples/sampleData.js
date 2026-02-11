@@ -20,7 +20,7 @@ function randomDate() {
   return `${y}-${m}-${d}`;
 }
 
-export const sampleData = Array.from({ length: 272 }, (_, i) => ({
+export const sampleData = Array.from({ length: 10005 }, (_, i) => ({
   id: i + 1,
   make: randomItem(makes),
   model: randomItem(models),

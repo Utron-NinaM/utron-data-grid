@@ -107,7 +107,7 @@ Set `direction="rtl"` for right-to-left. Date format: LTR uses MM-DD-YYYY, RTL u
 
 ## Pagination
 
-Set `pagination` to enable client-side pagination. Use `pageSize` and `pageSizeOptions` (e.g. `[10, 25, 50]`). Optionally control `page` and use `onPageChange` / `onPageSizeChange`.
+Set `pagination` to enable client-side pagination. Use `pageSize` and `pageSizeOptions` (e.g. `[10, 25, 50, 100]`). Optionally control `page` and use `onPageChange` / `onPageSizeChange`.
 
 ## Building / consuming the library
 

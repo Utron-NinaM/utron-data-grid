@@ -237,7 +237,7 @@ export function useDataGrid(props) {
 
   const getFilterInputSlotForColumn = useCallback(
     (col, translations) => getFilterInputSlot(col, filterModel, handleFilterChange, direction, translations),
-    [filterModel, handleFilterChange, direction]
+    [filterModel, handleFilterChange, direction, translations]
   );
 
   const getFilterToInputSlotForColumn = useCallback(
@@ -368,7 +368,6 @@ export function useDataGrid(props) {
       columnAlignMap,
       headerCellSxMap,
       filterCellSxMap,
-      sortModel,
     ]
   );
 
