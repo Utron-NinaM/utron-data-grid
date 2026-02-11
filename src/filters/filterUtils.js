@@ -3,13 +3,7 @@ import {
   FIELD_TYPE_DATE,
   FIELD_TYPE_DATETIME,
   FIELD_TYPE_LIST,
-  OPERATOR_EQUALS,
-  OPERATOR_NOT_EQUAL,
-  OPERATOR_GREATER_THAN,
-  OPERATOR_LESS_THAN,
-  OPERATOR_GREATER_OR_EQUAL,
-  OPERATOR_LESS_OR_EQUAL,
-  OPERATOR_IN_RANGE,
+  OPERATOR_MAP,
 } from '../config/schema';
 
 /**
@@ -32,7 +26,7 @@ export function applyFilters(rows, filterModel, columns) {
 }
 
 function matchFilter(cellValue, state, type) {
-  const { operator = OPERATOR_EQUALS, value, valueTo } = state;
+  const { operator = OPERATOR_MAP.OPERATOR_EQUALS, value, valueTo } = state;
   const v = cellValue;
 
   if (type === FIELD_TYPE_NUMBER || typeof v === 'number') {
@@ -40,20 +34,24 @@ function matchFilter(cellValue, state, type) {
     const a = Number(value);
     const b = valueTo != null ? Number(valueTo) : null;
     switch (operator) {
-      case OPERATOR_EQUALS:
+      case OPERATOR_MAP.OPERATOR_EQUALS:
         return n === a;
-      case OPERATOR_NOT_EQUAL:
+      case OPERATOR_MAP.OPERATOR_NOT_EQUAL:
         return n !== a;
-      case OPERATOR_GREATER_THAN:
+      case OPERATOR_MAP.OPERATOR_GREATER_THAN:
         return n > a;
-      case OPERATOR_LESS_THAN:
+      case OPERATOR_MAP.OPERATOR_LESS_THAN:
         return n < a;
-      case OPERATOR_GREATER_OR_EQUAL:
+      case OPERATOR_MAP.OPERATOR_GREATER_OR_EQUAL:
         return n >= a;
-      case OPERATOR_LESS_OR_EQUAL:
+      case OPERATOR_MAP.OPERATOR_LESS_OR_EQUAL:
         return n <= a;
-      case OPERATOR_IN_RANGE:
+      case OPERATOR_MAP.OPERATOR_IN_RANGE:
         return b != null && n >= Math.min(a, b) && n <= Math.max(a, b);
+      case OPERATOR_MAP.OPERATOR_EMPTY:
+        return v == null || v === '';
+      case OPERATOR_MAP.OPERATOR_NOT_EMPTY:
+        return v != null && v !== '';
       default:
         return true;
     }
@@ -65,20 +63,24 @@ function matchFilter(cellValue, state, type) {
     const t2 = valueTo != null ? toTime(valueTo) : null;
     if (t == null) return false;
     switch (operator) {
-      case OPERATOR_EQUALS:
+      case OPERATOR_MAP.OPERATOR_EQUALS:
         return t === t1;
-      case OPERATOR_NOT_EQUAL:
+      case OPERATOR_MAP.OPERATOR_NOT_EQUAL:
         return t !== t1;
-      case OPERATOR_GREATER_THAN:
+      case OPERATOR_MAP.OPERATOR_GREATER_THAN:
         return t > t1;
-      case OPERATOR_LESS_THAN:
+      case OPERATOR_MAP.OPERATOR_LESS_THAN:
         return t < t1;
-      case OPERATOR_GREATER_OR_EQUAL:
+      case OPERATOR_MAP.OPERATOR_GREATER_OR_EQUAL:
         return t >= t1;
-      case OPERATOR_LESS_OR_EQUAL:
+      case OPERATOR_MAP.OPERATOR_LESS_OR_EQUAL:
         return t <= t1;
-      case OPERATOR_IN_RANGE:
+      case OPERATOR_MAP.OPERATOR_IN_RANGE:
         return t2 != null && t >= Math.min(t1, t2) && t <= Math.max(t1, t2);
+      case OPERATOR_MAP.OPERATOR_EMPTY:
+        return v == null || v === '';
+      case OPERATOR_MAP.OPERATOR_NOT_EMPTY:
+        return v != null && v !== '';
       default:
         return true;
     }

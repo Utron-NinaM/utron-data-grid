@@ -22,9 +22,10 @@ export const FIELD_TYPE_NUMBER = 'number';
 export const FIELD_TYPE_DATE = 'date';
 export const FIELD_TYPE_DATETIME = 'datetime';
 export const FIELD_TYPE_LIST = 'list';
+export const NONE = 'none';
 
 export const COLUMN_TYPES = [FIELD_TYPE_TEXT, FIELD_TYPE_NUMBER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST];
-export const FILTER_TYPES = [FIELD_TYPE_TEXT, FIELD_TYPE_NUMBER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST];
+export const FILTER_TYPES = [FIELD_TYPE_TEXT, FIELD_TYPE_NUMBER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST, NONE];
 
 // Default field type
 export const DEFAULT_FIELD_TYPE = FIELD_TYPE_TEXT;
@@ -36,17 +37,10 @@ export const OPERATOR_GREATER_THAN = '>';
 export const OPERATOR_LESS_THAN = '<';
 export const OPERATOR_GREATER_OR_EQUAL = '>=';
 export const OPERATOR_LESS_OR_EQUAL = '<=';
-export const OPERATOR_IN_RANGE = 'inRange';
+export const OPERATOR_IN_RANGE = '...';
+export const OPERATOR_EMPTY = '{}';
+export const OPERATOR_NOT_EMPTY = '!{}';
 
-export const OPERATORS = [
-  OPERATOR_EQUALS,
-  OPERATOR_NOT_EQUAL,
-  OPERATOR_GREATER_THAN,
-  OPERATOR_LESS_THAN,
-  OPERATOR_GREATER_OR_EQUAL,
-  OPERATOR_LESS_OR_EQUAL,
-  OPERATOR_IN_RANGE,
-];
 
 export const OPERATOR_MAP = {
   [OPERATOR_EQUALS]: 'operatorEquals',
@@ -56,6 +50,8 @@ export const OPERATOR_MAP = {
   [OPERATOR_GREATER_OR_EQUAL]: 'operatorGreaterOrEqual',
   [OPERATOR_LESS_OR_EQUAL]: 'operatorLessOrEqual',
   [OPERATOR_IN_RANGE]: 'operatorInRange',
+  [OPERATOR_EMPTY]: 'operatorEmpty',
+  [OPERATOR_NOT_EMPTY]: 'operatorNotEmpty',
 };
 
 // Sort Orders

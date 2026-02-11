@@ -23,6 +23,8 @@ export const defaultTranslations = {
   operatorGreaterOrEqual: 'Greater Or Equal',
   operatorLessOrEqual: 'Less Or Equal',
   operatorInRange: 'In Range',
+  operatorEmpty: 'Empty',
+  operatorNotEmpty: 'Not Empty',
 
   // Pagination
   rowsPerPage: 'Rows per page',
@@ -71,7 +73,8 @@ export const hebrewTranslations = {
   operatorGreaterOrEqual: 'גדול או שווה',
   operatorLessOrEqual: 'קטן או שווה',
   operatorInRange: 'בטווח',
-
+  operatorEmpty: 'ריק',
+  operatorNotEmpty: 'לא ריק',
   // Pagination
   rowsPerPage: 'שורות לדף',
   paginationRange: '{{from}}–{{to}} מתוך {{count}}',
