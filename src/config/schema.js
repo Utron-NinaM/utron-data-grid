@@ -40,18 +40,43 @@ export const OPERATOR_LESS_OR_EQUAL = '<=';
 export const OPERATOR_IN_RANGE = '...';
 export const OPERATOR_EMPTY = '{}';
 export const OPERATOR_NOT_EMPTY = '!{}';
+export const OPERATOR_CONTAINS = '~';
+export const OPERATOR_NOT_CONTAINS = '!~';
+export const OPERATOR_STARTS_WITH = '^';
+export const OPERATOR_ENDS_WITH = '$';
 
 
-export const OPERATOR_MAP = {
+const DEFAULT_OPERATOR_MAP = {
   [OPERATOR_EQUALS]: 'operatorEquals',
-  [OPERATOR_NOT_EQUAL]: 'operatorNotEqual',
+  [OPERATOR_NOT_EQUAL]: 'operatorNotEqual',  
+  [OPERATOR_EMPTY]: 'operatorEmpty',
+  [OPERATOR_NOT_EMPTY]: 'operatorNotEmpty',
+};
+
+export const NUMBER_OPERATOR_MAP = {
+  ...DEFAULT_OPERATOR_MAP,
   [OPERATOR_GREATER_THAN]: 'operatorGreaterThan',
   [OPERATOR_LESS_THAN]: 'operatorLessThan',
   [OPERATOR_GREATER_OR_EQUAL]: 'operatorGreaterOrEqual',
   [OPERATOR_LESS_OR_EQUAL]: 'operatorLessOrEqual',
   [OPERATOR_IN_RANGE]: 'operatorInRange',
-  [OPERATOR_EMPTY]: 'operatorEmpty',
-  [OPERATOR_NOT_EMPTY]: 'operatorNotEmpty',
+};
+
+export const TEXT_OPERATOR_MAP = {
+  ...DEFAULT_OPERATOR_MAP,
+  [OPERATOR_CONTAINS]: 'operatorContains',
+  [OPERATOR_NOT_CONTAINS]: 'operatorNotContains',
+  [OPERATOR_STARTS_WITH]: 'operatorStartsWith',
+  [OPERATOR_ENDS_WITH]: 'operatorEndsWith',
+};
+
+export const DATE_OPERATOR_MAP = {
+  ...DEFAULT_OPERATOR_MAP,
+  [OPERATOR_GREATER_THAN]: 'operatorGreaterThan',
+  [OPERATOR_LESS_THAN]: 'operatorLessThan',
+  [OPERATOR_GREATER_OR_EQUAL]: 'operatorGreaterOrEqual',
+  [OPERATOR_LESS_OR_EQUAL]: 'operatorLessOrEqual',
+  [OPERATOR_IN_RANGE]: 'operatorInRange',
 };
 
 // Sort Orders

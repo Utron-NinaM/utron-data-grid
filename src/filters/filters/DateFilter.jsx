@@ -9,7 +9,7 @@ import { getDateFormat } from '../../utils/directionUtils';
 import { useTranslations } from '../../localization/useTranslations';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
-import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN } from '../../config/schema';
+import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN, DATE_OPERATOR_MAP } from '../../config/schema';
 
 function getSlotProps(direction) {
   const slotProps = {
@@ -95,7 +95,7 @@ export function DateFilterToInput({ value, onChange, direction }) {
 export function DateFilter({ value, onChange, placeholder, direction }) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0 }}>
-      <OperatorDropdown value={value} onChange={onChange} />
+      <OperatorDropdown value={value} onChange={onChange} operatorMap={DATE_OPERATOR_MAP} />
       <DateFilterInputs value={value} onChange={onChange} placeholder={placeholder} direction={direction} />
     </Box>
   );

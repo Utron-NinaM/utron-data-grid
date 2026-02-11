@@ -12,6 +12,9 @@ import {
   FIELD_TYPE_LIST,
   OPERATOR_IN_RANGE,
   DIRECTION_LTR,
+  NUMBER_OPERATOR_MAP,
+  DATE_OPERATOR_MAP,
+  TEXT_OPERATOR_MAP,
 } from '../config/schema';
 
 /**
@@ -21,6 +24,7 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
+  const operatorMap = filterType === FIELD_TYPE_NUMBER ? NUMBER_OPERATOR_MAP : filterType === FIELD_TYPE_DATE ? DATE_OPERATOR_MAP : TEXT_OPERATOR_MAP;
 
   if (filterType === false) return null;
 
@@ -32,6 +36,7 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
         <OperatorDropdown
           value={state}
           onChange={(v) => onFilterChange(field, v)}
+          operatorMap={operatorMap}
         />
       );
     case FIELD_TYPE_LIST:
