@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { IconButton, Menu, MenuItem, Box } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslations } from '../../localization/useTranslations';
-import { OPERATOR_EQUALS, DIRECTION_LTR, DIRECTION_RTL } from '../../config/schema';
+import { OPERATOR_EQUALS, OPERATOR_ICONS, DIRECTION_LTR, DIRECTION_RTL } from '../../config/schema';
 import { useContext } from 'react';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
 
@@ -13,13 +14,15 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
   const [anchor, setAnchor] = useState(null);
   const operator = value?.operator ?? OPERATOR_EQUALS;
   const menuItemStyle = { display: 'flex', justifyContent: 'flex-start', flexDirection: direction === DIRECTION_RTL ? 'row-reverse' : 'row', width: '100%' };
-  
+
+  const renderOperator = (op) => <FontAwesomeIcon icon={OPERATOR_ICONS[op]} fontSize="small" />;
+
   return (
     <>
       <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} aria-label="Operator">
         <ArrowDropDownIcon />
         <Box component="span" sx={{ fontSize: '0.875rem', minWidth: 20 }}>
-          {operator}
+          {renderOperator(operator)}
         </Box>
       </IconButton>
       <Menu
@@ -28,7 +31,7 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
         onClose={() => setAnchor(null)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
-        {Object.keys(operatorMap).map((op) => (
+        {operatorMap.map((op) => (
           <MenuItem
             key={op}
             onClick={() => {
@@ -38,10 +41,10 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
           >
             <Box sx={menuItemStyle}>
               <Box component="span" sx={{ direction: direction }}>
-                {op}
+                {renderOperator(op)}
               </Box>
               <Box component="span" sx={{ alignItems: 'start', paddingLeft: 1, paddingRight: 1 }}>
-                {t(operatorMap[op])}
+                {t(op)}
               </Box>
             </Box>
           </MenuItem>

@@ -29,6 +29,7 @@ export const defaultTranslations = {
   operatorNotContains: 'Does Not Contain',
   operatorStartsWith: 'Starts With',
   operatorEndsWith: 'Ends With',
+  operatorPeriod: 'Period',
 
   // Pagination
   rowsPerPage: 'Rows per page',
@@ -83,6 +84,7 @@ export const hebrewTranslations = {
   operatorNotContains: 'לא מכיל',
   operatorStartsWith: 'מתחיל ב',
   operatorEndsWith: 'מסתיים ב',
+  operatorPeriod: 'תקופה',
   // Pagination
   rowsPerPage: 'שורות לדף',
   paginationRange: '{{from}}–{{to}} מתוך {{count}}',

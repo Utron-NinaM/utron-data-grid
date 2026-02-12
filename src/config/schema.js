@@ -1,3 +1,19 @@
+import {
+  faEquals,
+  faNotEqual,
+  faGreaterThan,
+  faLessThan,
+  faGreaterThanEqual,
+  faLessThanEqual,
+  faArrowsLeftRight,
+  faMagnifyingGlass,
+  faMagnifyingGlassMinus,
+  faPlay,
+  faStop, 
+} from '@fortawesome/free-solid-svg-icons';
+
+import { faClock, faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
+
 /**
  * Column definition shape (JSDoc for consumers).
  * field: string (key in row object)
@@ -30,55 +46,44 @@ export const FILTER_TYPES = [FIELD_TYPE_TEXT, FIELD_TYPE_NUMBER, FIELD_TYPE_DATE
 // Default field type
 export const DEFAULT_FIELD_TYPE = FIELD_TYPE_TEXT;
 
-// Operators
-export const OPERATOR_EQUALS = '=';
-export const OPERATOR_NOT_EQUAL = '!=';
-export const OPERATOR_GREATER_THAN = '>';
-export const OPERATOR_LESS_THAN = '<';
-export const OPERATOR_GREATER_OR_EQUAL = '>=';
-export const OPERATOR_LESS_OR_EQUAL = '<=';
-export const OPERATOR_IN_RANGE = '...';
-export const OPERATOR_EMPTY = '{}';
-export const OPERATOR_NOT_EMPTY = '!{}';
-export const OPERATOR_CONTAINS = '~';
-export const OPERATOR_NOT_CONTAINS = '!~';
-export const OPERATOR_STARTS_WITH = '^';
-export const OPERATOR_ENDS_WITH = '$';
-export const OPERATOR_PERIOD = '..';
+export const OPERATOR_EQUALS = 'operatorEquals';
+export const OPERATOR_NOT_EQUAL = 'operatorNotEqual';
+export const OPERATOR_GREATER_THAN = 'operatorGreaterThan';
+export const OPERATOR_LESS_THAN = 'operatorLessThan';
+export const OPERATOR_GREATER_OR_EQUAL = 'operatorGreaterOrEqual';
+export const OPERATOR_LESS_OR_EQUAL = 'operatorLessOrEqual';
+export const OPERATOR_IN_RANGE = 'operatorInRange';
+export const OPERATOR_EMPTY = 'operatorEmpty';
+export const OPERATOR_NOT_EMPTY = 'operatorNotEmpty';
+export const OPERATOR_CONTAINS = 'operatorContains';
+export const OPERATOR_NOT_CONTAINS = 'operatorNotContains';
+export const OPERATOR_STARTS_WITH = 'operatorStartsWith';
+export const OPERATOR_ENDS_WITH = 'operatorEndsWith';
+export const OPERATOR_PERIOD = 'operatorPeriod';
 
 
-const DEFAULT_OPERATOR_MAP = {
-  [OPERATOR_EQUALS]: 'operatorEquals',
-  [OPERATOR_NOT_EQUAL]: 'operatorNotEqual',  
-  [OPERATOR_EMPTY]: 'operatorEmpty',
-  [OPERATOR_NOT_EMPTY]: 'operatorNotEmpty',
+/** Operator id → FontAwesome icon definition (for rendering). */
+export const OPERATOR_ICONS = {
+  [OPERATOR_EQUALS]: faEquals,
+  [OPERATOR_NOT_EQUAL]: faNotEqual,
+  [OPERATOR_GREATER_THAN]: faGreaterThan,
+  [OPERATOR_LESS_THAN]: faLessThan,
+  [OPERATOR_GREATER_OR_EQUAL]: faGreaterThanEqual,
+  [OPERATOR_LESS_OR_EQUAL]: faLessThanEqual,
+  [OPERATOR_IN_RANGE]: faArrowsLeftRight,
+  [OPERATOR_EMPTY]: faCircle,
+  [OPERATOR_NOT_EMPTY]: faCircleCheck,
+  [OPERATOR_CONTAINS]: faMagnifyingGlass,
+  [OPERATOR_NOT_CONTAINS]: faMagnifyingGlassMinus,
+  [OPERATOR_STARTS_WITH]: faPlay,
+  [OPERATOR_ENDS_WITH]: faStop,
+  [OPERATOR_PERIOD]: faClock,
 };
 
-export const NUMBER_OPERATOR_MAP = {
-  ...DEFAULT_OPERATOR_MAP,
-  [OPERATOR_GREATER_THAN]: 'operatorGreaterThan',
-  [OPERATOR_LESS_THAN]: 'operatorLessThan',
-  [OPERATOR_GREATER_OR_EQUAL]: 'operatorGreaterOrEqual',
-  [OPERATOR_LESS_OR_EQUAL]: 'operatorLessOrEqual',
-  [OPERATOR_IN_RANGE]: 'operatorInRange',
-};
-
-export const TEXT_OPERATOR_MAP = {
-  ...DEFAULT_OPERATOR_MAP,
-  [OPERATOR_CONTAINS]: 'operatorContains',
-  [OPERATOR_NOT_CONTAINS]: 'operatorNotContains',
-  [OPERATOR_STARTS_WITH]: 'operatorStartsWith',
-  [OPERATOR_ENDS_WITH]: 'operatorEndsWith',
-};
-
-export const DATE_OPERATOR_MAP = {
-  ...DEFAULT_OPERATOR_MAP,
-  [OPERATOR_GREATER_THAN]: 'operatorGreaterThan',
-  [OPERATOR_LESS_THAN]: 'operatorLessThan',
-  [OPERATOR_GREATER_OR_EQUAL]: 'operatorGreaterOrEqual',
-  [OPERATOR_LESS_OR_EQUAL]: 'operatorLessOrEqual',
-  [OPERATOR_IN_RANGE]: 'operatorInRange',
-};
+const DEFAULT_OP_IDS = [OPERATOR_EQUALS, OPERATOR_NOT_EQUAL, OPERATOR_EMPTY, OPERATOR_NOT_EMPTY];
+export const NUMBER_OP_IDS = [...DEFAULT_OP_IDS, OPERATOR_GREATER_THAN, OPERATOR_LESS_THAN, OPERATOR_GREATER_OR_EQUAL, OPERATOR_LESS_OR_EQUAL, OPERATOR_IN_RANGE];
+export const TEXT_OP_IDS = [...DEFAULT_OP_IDS, OPERATOR_CONTAINS, OPERATOR_NOT_CONTAINS, OPERATOR_STARTS_WITH, OPERATOR_ENDS_WITH];
+export const DATE_OP_IDS = [...NUMBER_OP_IDS, OPERATOR_PERIOD];
 
 // Sort Orders
 export const SORT_ORDER_ASC = 'asc';

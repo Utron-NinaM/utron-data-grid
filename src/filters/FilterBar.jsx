@@ -12,9 +12,9 @@ import {
   FIELD_TYPE_LIST,
   OPERATOR_IN_RANGE,
   DIRECTION_LTR,
-  NUMBER_OPERATOR_MAP,
-  DATE_OPERATOR_MAP,
-  TEXT_OPERATOR_MAP,
+  NUMBER_OP_IDS,
+  DATE_OP_IDS,
+  TEXT_OP_IDS,
 } from '../config/schema';
 
 /**
@@ -24,7 +24,7 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
-  const operatorMap = filterType === FIELD_TYPE_NUMBER ? NUMBER_OPERATOR_MAP : filterType === FIELD_TYPE_DATE ? DATE_OPERATOR_MAP : TEXT_OPERATOR_MAP;
+  const operatorMap = filterType === FIELD_TYPE_NUMBER ? NUMBER_OP_IDS : filterType === FIELD_TYPE_DATE ? DATE_OP_IDS : TEXT_OP_IDS;
 
   if (filterType === false) return null;
 
