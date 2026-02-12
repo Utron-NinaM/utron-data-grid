@@ -7,7 +7,7 @@ import { Button } from '@mui/material';
 import { DIRECTION_RTL, DIRECTION_LTR } from '../src/config/schema';
 
 export function DataGridExample() {
-  const [direction, setDirection] = useState(DIRECTION_LTR);
+  const [direction, setDirection] = useState(DIRECTION_RTL);
   const [data, setData] = useState(sampleData);
   const [selectedRow, setSelectedRow] = useState(null);
 

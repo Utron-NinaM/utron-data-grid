@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { applySort } from '../../src/utils/sortUtils';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { applySort, getStoredSortModel, saveSortModel } from '../../src/utils/sortUtils';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC } from '../../src/config/schema';
+
+const SORT_STORAGE_KEY_PREFIX = 'utron-datagrid-sort-';
 
 describe('applySort', () => {
   describe('no sort', () => {
@@ -177,5 +179,133 @@ describe('applySort', () => {
       const result = applySort(rows, [{ field: 'id', order: SORT_ORDER_ASC }]);
       expect(result).not.toBe(rows);
     });
+  });
+});
+
+describe('getStoredSortModel', () => {
+  let getItemSpy;
+
+  beforeEach(() => {
+    getItemSpy = vi.fn();
+    vi.stubGlobal('localStorage', { getItem: getItemSpy, setItem: vi.fn() });
+  });
+
+  it('returns [] when gridId is empty', () => {
+    expect(getStoredSortModel('', [])).toEqual([]);
+    expect(getItemSpy).not.toHaveBeenCalled();
+  });
+
+  it('returns [] when gridId is null', () => {
+    expect(getStoredSortModel(null, [])).toEqual([]);
+  });
+
+  it('returns [] when gridId is undefined', () => {
+    expect(getStoredSortModel(undefined, [])).toEqual([]);
+  });
+
+  it('returns [] when localStorage returns null', () => {
+    getItemSpy.mockReturnValue(null);
+    expect(getStoredSortModel('myGrid', [])).toEqual([]);
+  });
+
+  it('returns [] when localStorage returns invalid JSON', () => {
+    getItemSpy.mockReturnValue('not json');
+    expect(getStoredSortModel('myGrid', [])).toEqual([]);
+  });
+
+  it('returns [] when stored value is not an array', () => {
+    getItemSpy.mockReturnValue('{}');
+    expect(getStoredSortModel('myGrid', [])).toEqual([]);
+  });
+
+  it('filters out entries for unknown columns', () => {
+    const columns = [{ field: 'a' }];
+    getItemSpy.mockReturnValue(JSON.stringify([
+      { field: 'a', order: SORT_ORDER_ASC },
+      { field: 'unknown', order: SORT_ORDER_DESC },
+    ]));
+    expect(getStoredSortModel('myGrid', columns)).toEqual([
+      { field: 'a', order: SORT_ORDER_ASC },
+    ]);
+  });
+
+  it('filters out entries with invalid order', () => {
+    const columns = [{ field: 'a' }, { field: 'b' }];
+    getItemSpy.mockReturnValue(JSON.stringify([
+      { field: 'a', order: 'asc' },
+      { field: 'b', order: 'invalid' },
+    ]));
+    expect(getStoredSortModel('myGrid', columns)).toEqual([
+      { field: 'a', order: SORT_ORDER_ASC },
+    ]);
+  });
+
+  it('returns valid sort model for known columns', () => {
+    const columns = [{ field: 'name' }, { field: 'id' }];
+    const stored = [
+      { field: 'name', order: SORT_ORDER_DESC },
+      { field: 'id', order: SORT_ORDER_ASC },
+    ];
+    getItemSpy.mockReturnValue(JSON.stringify(stored));
+    expect(getStoredSortModel('myGrid', columns)).toEqual(stored);
+  });
+
+  it('uses correct storage key', () => {
+    getItemSpy.mockReturnValue('[]');
+    getStoredSortModel('abc', []);
+    expect(getItemSpy).toHaveBeenCalledWith(SORT_STORAGE_KEY_PREFIX + 'abc');
+  });
+});
+
+describe('getStoredSortModel (no localStorage)', () => {
+  let originalLocalStorage;
+
+  beforeEach(() => {
+    originalLocalStorage = globalThis.localStorage;
+    Object.defineProperty(globalThis, 'localStorage', { value: undefined, configurable: true });
+  });
+
+  afterEach(() => {
+    Object.defineProperty(globalThis, 'localStorage', { value: originalLocalStorage, configurable: true });
+  });
+
+  it('returns [] when localStorage is undefined (SSR)', () => {
+    expect(getStoredSortModel('grid', [])).toEqual([]);
+  });
+});
+
+describe('saveSortModel', () => {
+  let setItemSpy;
+
+  beforeEach(() => {
+    setItemSpy = vi.fn();
+    vi.stubGlobal('localStorage', { getItem: vi.fn(), setItem: setItemSpy });
+  });
+
+  it('does not call setItem when gridId is empty', () => {
+    saveSortModel('', [{ field: 'a', order: SORT_ORDER_ASC }]);
+    expect(setItemSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not call setItem when gridId is null', () => {
+    saveSortModel(null, [{ field: 'a', order: SORT_ORDER_ASC }]);
+    expect(setItemSpy).not.toHaveBeenCalled();
+  });
+
+  it('calls setItem with key and stringified sortModel when gridId and localStorage present', () => {
+    const sortModel = [
+      { field: 'name', order: SORT_ORDER_DESC },
+      { field: 'id', order: SORT_ORDER_ASC },
+    ];
+    saveSortModel('myGrid', sortModel);
+    expect(setItemSpy).toHaveBeenCalledWith(SORT_STORAGE_KEY_PREFIX + 'myGrid', JSON.stringify(sortModel));
+  });
+
+  it('saves [] when sortModel is null or undefined', () => {
+    saveSortModel('myGrid', null);
+    expect(setItemSpy).toHaveBeenCalledWith(SORT_STORAGE_KEY_PREFIX + 'myGrid', '[]');
+    setItemSpy.mockClear();
+    saveSortModel('myGrid', undefined);
+    expect(setItemSpy).toHaveBeenCalledWith(SORT_STORAGE_KEY_PREFIX + 'myGrid', '[]');
   });
 });

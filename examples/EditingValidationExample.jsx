@@ -3,7 +3,7 @@ import { DataGrid } from '../src/DataGrid/DataGrid';
 import { editingValidationColumns } from './editingValidationColumns';
 import { editingValidationData } from './editingValidationData';
 import { en } from './translations';
-import { DIRECTION_LTR } from '../src/config/schema';
+import { DIRECTION_RTL } from '../src/config/schema';
 
 export function EditingValidationExample() {
   const [data, setData] = useState(editingValidationData);
@@ -53,7 +53,7 @@ export function EditingValidationExample() {
           options={{
             gridId: 'editing-validation-grid',
             translations: en,
-            direction: DIRECTION_LTR,
+            direction: DIRECTION_RTL,
             editable: true,
             pagination: true,
             pageSize: 10,

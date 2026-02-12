@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useState, useEffect } from 'react';
-import { applySort } from '../utils/sortUtils';
+import { applySort, getStoredSortModel, saveSortModel } from '../utils/sortUtils';
 import debounce from 'lodash/debounce';
 import { applyFilters, FILTER_DEBOUNCE_MS, getStoredFilterModel, saveFilterModel } from '../filters/filterUtils';
 import { slicePage } from '../pagination/paginationUtils';
@@ -44,7 +44,7 @@ export function useDataGrid(props) {
     gridId,
   } = props;
 
-  const [internalSort, setInternalSort] = useState([]);
+  const [internalSort, setInternalSort] = useState(() => getStoredSortModel(props.gridId, props.columns));
   const [internalFilter, setInternalFilter] = useState(() => getStoredFilterModel(props.gridId, props.columns));
   const [selection, setSelection] = useState(new Set());
   const [internalPage, setInternalPage] = useState(0);
@@ -91,6 +91,10 @@ export function useDataGrid(props) {
   useEffect(() => {
     saveFilterModel(gridId, filterModel);
   }, [filterModel, gridId]);
+
+  useEffect(() => {
+    saveSortModel(gridId, sortModel);
+  }, [sortModel, gridId]);
 
   const setSortModel = useCallback(
     (next) => {

@@ -33,7 +33,7 @@ import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
  * @property {Object} [headerStyle] - MUI sx for TableHead
  * @property {Object} [headerConfig] - mainRow, filterRows, filterCells (backgroundColor?, height?)
  * @property {Object} [selectedRowStyle] - MUI sx for selected rows
- * @property {string} [gridId] - Unique id for this grid; when set, filter state is persisted in localStorage and restored on mount or refresh. Use a different id per grid when multiple grids exist.
+ * @property {string} [gridId] - Unique id for this grid; when set, filter and sort state are persisted in localStorage and restored on mount or refresh. Use a different id per grid when multiple grids exist.
  */
 
 /**
