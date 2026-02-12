@@ -6,7 +6,14 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    include: ['tests/**/*.test.js'],
+    environment: 'jsdom',
+    include: ['tests/**/*.test.js', 'tests/**/*.test.jsx'],
+    setupFiles: ['tests/setup.js'],
+    server: {
+      deps: {
+        inline: ['@mui/material', '@mui/icons-material'],
+      },
+    },
   },
   resolve: {
     alias: {

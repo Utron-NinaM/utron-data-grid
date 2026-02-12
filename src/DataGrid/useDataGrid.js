@@ -355,11 +355,14 @@ export function useDataGrid(props) {
     // Handlers
     handleSelect,
     handleSort,
+    handleFilterChange,
     handlePageChange,
     handlePageSizeChange,
     handleRowClick,
     handleRowDoubleClick,
     handleEditSave,
     handleEditCancel,
+    handleClearSort,
+    handleClearAllFilters,
   };
 }
