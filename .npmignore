@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Source code (only dist is needed)
+src/
+tests/
+examples/
+
+# Build config
+vite.config.js
+index.html
+
+# Test files
+*.test.js
+*.test.jsx
+
+# Development files
+.gitignore
+package-lock.json
+README.md
+docs/
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.*
+
+# Coverage
+coverage/
+
+# Package files
+utron-data-grid-*.tgz
