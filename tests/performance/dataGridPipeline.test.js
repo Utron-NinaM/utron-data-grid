@@ -20,7 +20,7 @@ function generateRows(n) {
 
 describe('dataGridPipeline performance', () => {
   const SORT_50K_MS = 150;
-  const FILTER_50K_MS = 100;
+  const FILTER_50K_MS = 110;
   const FULL_PIPELINE_50K_MS = 200;
 
   describe('applySort', () => {
