@@ -16,7 +16,9 @@ import {
   OPERATOR_NOT_CONTAINS,
   OPERATOR_STARTS_WITH,
   OPERATOR_ENDS_WITH,
+  OPERATOR_PERIOD,
 } from '../config/schema';
+import dayjs from 'dayjs';
 
 
 export const FILTER_DEBOUNCE_MS = 200;
@@ -35,7 +37,9 @@ export function applyFilters(rows, filterModel, columns) {
     return Object.entries(filterModel).every(([field, state]) => {
       if (!state) return true;
       const isEmptyNotEmpty = state.operator === OPERATOR_EMPTY || state.operator === OPERATOR_NOT_EMPTY;
-      const hasValue = state.value !== undefined || state.valueTo !== undefined;
+      const hasValue = state.operator === OPERATOR_PERIOD
+        ? (state.value !== undefined && state.value !== '' && state.periodUnit != null)
+        : (state.value !== undefined || state.valueTo !== undefined);
       if (!hasValue && !isEmptyNotEmpty) return true;
       const col = colMap.get(field);
       return matchFilter(row[field], state, col?.type);
@@ -80,6 +84,15 @@ function matchFilter(cellValue, state, type) {
         return val <= val1;
       case OPERATOR_IN_RANGE:
         return val2 != null && val >= Math.min(val1, val2) && val <= Math.max(val1, val2);
+      case OPERATOR_PERIOD: {
+        const amount = Number(state.value);
+        const periodUnit = state.periodUnit;
+        if (periodUnit == null || amount == null || isNaN(amount) || amount <= 0) return false;
+        const unit = periodUnit.endsWith('s') ? periodUnit.slice(0, -1) : periodUnit;
+        const start = dayjs().subtract(amount, unit).valueOf();
+        const now = dayjs().valueOf();
+        return val >= start && val <= now;
+      }
       case OPERATOR_EMPTY:
         return val == null || val === '';
       case OPERATOR_NOT_EMPTY:

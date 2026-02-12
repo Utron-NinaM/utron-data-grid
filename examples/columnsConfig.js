@@ -27,6 +27,7 @@ export const columnsConfig = [
     filterOptions: { listValues: ['Yes', 'No'] },
     cellStyle: (value, row) => (value === 'Yes' ? { backgroundColor: '#e8f5e9' } : {}),
   },
+  { field: 'date', headerName: 'Date', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
   {
     field: 'status',
     headerName: 'Status',
@@ -38,7 +39,6 @@ export const columnsConfig = [
     filterOptions: { listValues: ['Active', 'Inactive', 'Pending'] },
     rowStyle: (row) => (row.status === 'Pending' ? { backgroundColor: '#fff3e0' } : {}),    
   },
-  { field: 'date', headerName: 'Date', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
 ];
 
 export const columnsConfigHebrew = [
@@ -78,6 +78,6 @@ export const columnsConfigHebrew = [
     filterOptions: { listValues: ['פעיל', 'לא פעיל', 'ממתין'] },
     rowStyle: (row) => (row.statusHebrew === 'ממתין' ? { backgroundColor: '#fff3e0' } : {}),
   },
-  { field: 'descriptionHebrew', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 150 },
   { field: 'date', headerName: 'תאריך', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
+  { field: 'descriptionHebrew', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 150 },  
 ];

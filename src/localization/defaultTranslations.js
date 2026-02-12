@@ -29,7 +29,12 @@ export const defaultTranslations = {
   operatorNotContains: 'Does Not Contain',
   operatorStartsWith: 'Starts With',
   operatorEndsWith: 'Ends With',
-  operatorPeriod: 'Period',
+  operatorPeriod: 'Last Period',  
+  periodHours: 'Hours',
+  periodDays: 'Days',
+  periodWeeks: 'Weeks',
+  periodMonths: 'Months',
+  periodYears: 'Years',
 
   // Pagination
   rowsPerPage: 'Rows per page',
@@ -84,7 +89,12 @@ export const hebrewTranslations = {
   operatorNotContains: 'לא מכיל',
   operatorStartsWith: 'מתחיל ב',
   operatorEndsWith: 'מסתיים ב',
-  operatorPeriod: 'תקופה',
+  operatorPeriod: 'תקופה אחרונה',  
+  periodHours: 'שעות',
+  periodDays: 'ימים',
+  periodWeeks: 'שבועות',
+  periodMonths: 'חודשים',
+  periodYears: 'שנים',
   // Pagination
   rowsPerPage: 'שורות לדף',
   paginationRange: '{{from}}–{{to}} מתוך {{count}}',
