@@ -4,6 +4,10 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  test: {
+    globals: true,
+    include: ['tests/**/*.test.js'],
+  },
   resolve: {
     alias: {
       '@emotion/react': resolve(__dirname, 'node_modules/@emotion/react'),
