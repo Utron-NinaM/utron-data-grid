@@ -19,9 +19,9 @@ function generateRows(n) {
 }
 
 describe('dataGridPipeline performance', () => {
-  const SORT_50K_MS = 200;
-  const FILTER_50K_MS = 200;
-  const FULL_PIPELINE_50K_MS = 400;
+  const SORT_50K_MS = 150;
+  const FILTER_50K_MS = 100;
+  const FULL_PIPELINE_50K_MS = 200;
 
   describe('applySort', () => {
     it('sorts 10k rows within threshold', () => {
