@@ -1,34 +1,14 @@
 import { useMemo, useCallback, useState, useEffect } from 'react';
 import { applySort } from '../utils/sortUtils';
 import debounce from 'lodash/debounce';
-import { applyFilters, FILTER_DEBOUNCE_MS } from '../filters/filterUtils';
+import { applyFilters, FILTER_DEBOUNCE_MS, getStoredFilterModel, saveFilterModel } from '../filters/filterUtils';
 import { slicePage } from '../pagination/paginationUtils';
 import { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } from '../filters/FilterBar';
 import { getEditor } from '../editors/CellEditors';
-import { validateRow } from '../validation/validateRow';
 import { defaultGridConfig } from '../config/defaultConfig';
-import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, DIRECTION_RTL } from '../config/schema';
-import { DIRECTION_LTR } from '../config/schema';
-
-const FILTER_STORAGE_KEY_PREFIX = 'utron-datagrid-filters-';
-
-function getStoredFilterModel(gridId, columns) {
-  if (!gridId || typeof localStorage === 'undefined') return {};
-  try {
-    const raw = localStorage.getItem(FILTER_STORAGE_KEY_PREFIX + gridId);
-    if (raw == null) return {};
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
-    const fieldSet = new Set((columns || []).map((c) => c.field));
-    const filtered = {};
-    for (const [key, val] of Object.entries(parsed)) {
-      if (fieldSet.has(key) && val != null && typeof val === 'object') filtered[key] = val;
-    }
-    return filtered;
-  } catch {
-    return {};
-  }
-}
+import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, DIRECTION_LTR } from '../config/schema';
+import { useDataGridMaps } from './useDataGridMaps';
+import { useDataGridEdit } from './useDataGridEdit';
 
 /**
  * Custom hook for DataGrid state management and business logic
@@ -67,12 +47,28 @@ export function useDataGrid(props) {
   const [internalSort, setInternalSort] = useState([]);
   const [internalFilter, setInternalFilter] = useState(() => getStoredFilterModel(props.gridId, props.columns));
   const [selection, setSelection] = useState(new Set());
-  const [editRowId, setEditRowId] = useState(null);
-  const [editValues, setEditValues] = useState({});
-  const [validationErrors, setValidationErrors] = useState([]);
   const [internalPage, setInternalPage] = useState(0);
   const [internalPageSize, setInternalPageSize] = useState(initialPageSize);
   const [selectedRowId, setSelectedRowId] = useState(null);
+
+  const {
+    editRowId,
+    editValues,
+    validationErrors,
+    handleRowDoubleClick,
+    handleEditChange,
+    handleEditCancel,
+    handleEditSave,
+  } = useDataGridEdit({
+    editable,
+    onEditCommit,
+    onEditStart,
+    onEditCancel: onEditCancelProp,
+    onValidationFail,
+    isRowEditable,
+    getRowId,
+    columns,
+  });
 
   const sortModel = internalSort;
   const filterModel = internalFilter;
@@ -93,9 +89,7 @@ export function useDataGrid(props) {
   }, [filterModel]);
 
   useEffect(() => {
-    if (gridId && typeof localStorage !== 'undefined') {
-      localStorage.setItem(FILTER_STORAGE_KEY_PREFIX + gridId, JSON.stringify(filterModel));
-    }
+    saveFilterModel(gridId, filterModel);
   }, [filterModel, gridId]);
 
   const setSortModel = useCallback(
@@ -198,44 +192,6 @@ export function useDataGrid(props) {
     [onRowSelect, getRowId]
   );
 
-  const handleRowDoubleClick = useCallback(
-    (row) => {
-      if (!editable || !onEditCommit) return;
-      if (isRowEditable && !isRowEditable(row)) return;
-      const id = getRowId(row);
-      setEditRowId(id);
-      setEditValues({ ...row });
-      setValidationErrors([]);
-      onEditStart?.(id, row);
-    },
-    [editable, onEditCommit, getRowId, isRowEditable, onEditStart]
-  );
-
-  const handleEditChange = useCallback((field, value) => {
-    setEditValues((prev) => ({ ...prev, [field]: value }));
-  }, []);
-
-  const handleEditCancel = useCallback(() => {
-    const id = editRowId;
-    setEditRowId(null);
-    setEditValues({});
-    setValidationErrors([]);
-    onEditCancelProp?.(id);
-  }, [editRowId, onEditCancelProp]);
-
-  const handleEditSave = useCallback(() => {
-    const errors = validateRow(editValues, columns);
-    if (errors.length > 0) {
-      onValidationFail?.(editRowId, errors);
-      setValidationErrors(errors);
-      return;
-    }
-    setValidationErrors([]);
-    onEditCommit?.(editRowId, editValues);
-    setEditRowId(null);
-    setEditValues({});
-  }, [editValues, editRowId, columns, onEditCommit, onValidationFail]);
-
   const filteredRows = useMemo(
     () => applyFilters(rows, debouncedFilterModel, columns),
     [rows, debouncedFilterModel, columns]
@@ -246,21 +202,23 @@ export function useDataGrid(props) {
     [sortedRows, page, pageSize, pagination]
   );
   const displayRows = paginationResult.rows;
-  
-  const rowStylesMap = useMemo(() => {    
-    const map = new Map();
-    displayRows.forEach((row) => {
-      const rowId = getRowId(row);
-      const computedRowSx = columns.reduce(
-        (acc, col) =>
-          typeof col.rowStyle === 'function' ? { ...acc, ...col.rowStyle(row) } : acc,
-        {}
-      );
-      const finalRowSx = Object.keys(computedRowSx).length ? computedRowSx : undefined;
-      map.set(rowId, finalRowSx);
-    });
-    return map;
-  }, [displayRows, columns, getRowId]);
+
+  const {
+    sortOrderIndexMap,
+    columnSortDirMap,
+    columnAlignMap,
+    headerCellSxMap,
+    filterCellSxMap,
+    rowStylesMap,
+  } = useDataGridMaps({
+    columns,
+    sortModel,
+    direction,
+    headerConfig,
+    headerStyle,
+    displayRows,
+    getRowId,
+  });
 
   const filterInputHeight = headerConfig?.filterCells?.height || headerConfig?.filterRows?.height;
 
@@ -283,72 +241,6 @@ export function useDataGrid(props) {
     (col) => getFilterToInputSlot(col, filterModel, handleFilterChange, direction),
     [filterModel, handleFilterChange, direction]
   );
-  
-  const sortOrderIndexMap = useMemo(() => {
-    const map = new Map();
-    if (sortModel?.length > 0) {
-      sortModel.forEach((sort, index) => {
-        map.set(sort.field, index + 1);
-      });
-    }
-    return map;
-  }, [sortModel]);
-
-  const columnSortDirMap = useMemo(() => {
-    const map = new Map();
-    if (sortModel?.length > 0) {
-      sortModel.forEach((sort) => {
-        map.set(sort.field, sort.order);
-      });
-    }
-    return map;
-  }, [sortModel]);
-
-  const columnAlignMap = useMemo(() => {
-    const map = new Map();
-    columns.forEach((col) => {
-      map.set(col.field, col.align ?? (direction === DIRECTION_RTL ? 'right' : 'left'));
-    });
-    return map;
-  }, [columns, direction]);
-
-  const headerCellSxMap = useMemo(() => {    
-    const map = new Map();
-    const mainRowHeight = headerConfig?.mainRow?.height;
-    columns.forEach((col) => {
-      map.set(col.field, {
-        verticalAlign: 'top',
-        padding: mainRowHeight ? '2px' : '4px',
-        width: 'inherit',
-        maxWidth: 'inherit',
-        overflow: 'hidden',
-        boxSizing: 'border-box',
-        ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
-        ...(mainRowHeight && { height: mainRowHeight, maxHeight: mainRowHeight }),
-        ...headerStyle,
-      });
-    });
-    return map;
-  }, [columns, headerConfig, headerStyle]);
-
-  const filterCellSxMap = useMemo(() => {
-    const map = new Map();
-    const filterRowHeight = headerConfig?.filterRows?.height || headerConfig?.filterCells?.height;
-    columns.forEach((col) => {
-      map.set(col.field, {
-        verticalAlign: 'top',
-        padding: filterRowHeight ? '2px' : '4px',
-        width: 'inherit',
-        maxWidth: 'inherit',
-        overflow: 'hidden',
-        boxSizing: 'border-box',
-        ...(headerConfig?.filterCells?.backgroundColor && { backgroundColor: headerConfig.filterCells.backgroundColor }),
-        ...(filterRowHeight && { height: filterRowHeight, maxHeight: filterRowHeight }),
-        ...headerStyle,
-      });
-    });
-    return map;
-  }, [columns, headerConfig, headerStyle]);
 
   // Stable context - values that rarely change
   const stableContextValue = useMemo(

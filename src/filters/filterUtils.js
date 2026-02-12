@@ -23,6 +23,43 @@ import dayjs from 'dayjs';
 
 export const FILTER_DEBOUNCE_MS = 200;
 
+const FILTER_STORAGE_KEY_PREFIX = 'utron-datagrid-filters-';
+
+/**
+ * Load persisted filter model from localStorage. Returns only entries for known column fields.
+ * @param {string} gridId
+ * @param {Object[]} columns
+ * @returns {Object}
+ */
+export function getStoredFilterModel(gridId, columns) {
+  if (!gridId || typeof localStorage === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(FILTER_STORAGE_KEY_PREFIX + gridId);
+    if (raw == null) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const fieldSet = new Set((columns || []).map((c) => c.field));
+    const filtered = {};
+    for (const [key, val] of Object.entries(parsed)) {
+      if (fieldSet.has(key) && val != null && typeof val === 'object') filtered[key] = val;
+    }
+    return filtered;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Persist filter model to localStorage.
+ * @param {string} gridId
+ * @param {Object} filterModel
+ */
+export function saveFilterModel(gridId, filterModel) {
+  if (gridId && typeof localStorage !== 'undefined') {
+    localStorage.setItem(FILTER_STORAGE_KEY_PREFIX + gridId, JSON.stringify(filterModel));
+  }
+}
+
 /**
  * Apply filter model to rows. AND across columns.
  * @param {Object[]} rows
