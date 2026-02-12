@@ -26,3 +26,5 @@ vite.config.js.timestamp-*
 
 # Coverage
 coverage/
+
+utron-data-grid-*.tgz
