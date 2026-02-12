@@ -34,7 +34,6 @@ describe('useDataGridEdit', () => {
 
   describe('handleRowDoubleClick', () => {
     it('does not change state when editable is false', () => {
-      const onEditStart = vi.fn();
       const { result } = renderHook(useDataGridEdit, {
         initialProps: {
           editable: false,
@@ -49,7 +48,6 @@ describe('useDataGridEdit', () => {
       });
       expect(result.current.editRowId).toBeNull();
       expect(result.current.editValues).toEqual({});
-      expect(onEditStart).not.toHaveBeenCalled();
     });
 
     it('does not change state when onEditCommit is missing', () => {

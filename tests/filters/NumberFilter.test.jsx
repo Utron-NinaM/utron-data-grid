@@ -267,13 +267,13 @@ describe('NumberFilter Component', () => {
         const input = screen.getByRole('spinbutton');
         fireEvent.change(input, { target: { value: '' } });
         
-        // If value still exists, should not clear
-        if (onChange.mock.calls.length > 0) {
-          const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
-          if (lastCall[0] !== null) {
-            expect(lastCall[0]).toHaveProperty('value', '10');
-          }
-        }
+        // onChange should be called when input changes
+        expect(onChange).toHaveBeenCalled();
+        const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+        // When valueTo is cleared but value still exists, should preserve value
+        expect(lastCall[0]).not.toBeNull();
+        expect(lastCall[0]).toHaveProperty('value', '10');
+        expect(lastCall[0]).toHaveProperty('valueTo', '');
       });
     });
   });

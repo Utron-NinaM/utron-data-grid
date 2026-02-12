@@ -78,18 +78,15 @@ describe('TextFilter Component', () => {
   });
 
   describe('Test placeholder', () => {
-    it('should display placeholder text', () => {
-      renderWithTheme({ placeholder: 'Enter search text' });
+    it('should display placeholder text when provided', () => {
+      const testCases = ['Enter search text', 'Filter here'];
       
-      const input = screen.getByPlaceholderText('Enter search text');
-      expect(input).toBeInTheDocument();
-    });
-
-    it('should display default placeholder when provided', () => {
-      renderWithTheme({ placeholder: 'Filter here' });
-      
-      const input = screen.getByPlaceholderText('Filter here');
-      expect(input).toBeInTheDocument();
+      testCases.forEach((placeholder) => {
+        const { unmount } = renderWithTheme({ placeholder });
+        const input = screen.getByPlaceholderText(placeholder);
+        expect(input).toBeInTheDocument();
+        unmount();
+      });
     });
 
     it('should handle empty placeholder', () => {

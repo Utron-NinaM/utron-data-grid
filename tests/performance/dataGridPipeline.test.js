@@ -32,6 +32,10 @@ describe('dataGridPipeline performance', () => {
       const duration = performance.now() - start;
       expect(result.length).toBe(10_000);
       expect(duration).toBeLessThan(SORT_50K_MS);
+      // Verify results are actually sorted
+      for (let i = 1; i < result.length; i++) {
+        expect(result[i].value).toBeGreaterThanOrEqual(result[i - 1].value);
+      }
     });
 
     it('sorts 50k rows within threshold', () => {
@@ -42,6 +46,15 @@ describe('dataGridPipeline performance', () => {
       const duration = performance.now() - start;
       expect(result.length).toBe(50_000);
       expect(duration).toBeLessThan(SORT_50K_MS);
+      // Verify results are actually sorted (sample check for performance)
+      for (let i = 1; i < Math.min(100, result.length); i++) {
+        expect(result[i].value).toBeGreaterThanOrEqual(result[i - 1].value);
+      }
+      // Check a few random positions
+      for (let i = 0; i < 10; i++) {
+        const idx = Math.floor(Math.random() * (result.length - 1));
+        expect(result[idx + 1].value).toBeGreaterThanOrEqual(result[idx].value);
+      }
     });
   });
 
@@ -56,6 +69,10 @@ describe('dataGridPipeline performance', () => {
       const duration = performance.now() - start;
       expect(result.length).toBeLessThanOrEqual(10_000);
       expect(duration).toBeLessThan(FILTER_50K_MS);
+      // Verify all results match filter criteria
+      result.forEach((row) => {
+        expect(row.value).toBeGreaterThanOrEqual(100_000);
+      });
     });
 
     it('filters 50k rows within threshold', () => {
@@ -68,6 +85,11 @@ describe('dataGridPipeline performance', () => {
       const duration = performance.now() - start;
       expect(result.length).toBeLessThanOrEqual(50_000);
       expect(duration).toBeLessThan(FILTER_50K_MS);
+      // Verify all results match filter criteria (sample check for performance)
+      const sampleSize = Math.min(100, result.length);
+      for (let i = 0; i < sampleSize; i++) {
+        expect(result[i].value).toBeGreaterThanOrEqual(500_000);
+      }
     });
   });
 
@@ -85,6 +107,21 @@ describe('dataGridPipeline performance', () => {
       const duration = performance.now() - start;
       expect(pageRows.length).toBeLessThanOrEqual(25);
       expect(duration).toBeLessThan(FULL_PIPELINE_50K_MS);
+      // Verify filtered results match criteria
+      filtered.forEach((row) => {
+        expect(row.value).toBeGreaterThanOrEqual(0);
+      });
+      // Verify sorted results are actually sorted
+      for (let i = 1; i < Math.min(100, sorted.length); i++) {
+        expect(sorted[i].value).toBeGreaterThanOrEqual(sorted[i - 1].value);
+      }
+      // Verify page rows are from the sorted results
+      expect(pageRows.length).toBeGreaterThan(0);
+      if (pageRows.length > 1) {
+        for (let i = 1; i < pageRows.length; i++) {
+          expect(pageRows[i].value).toBeGreaterThanOrEqual(pageRows[i - 1].value);
+        }
+      }
     });
   });
 });

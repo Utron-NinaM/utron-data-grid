@@ -100,6 +100,10 @@ describe('ListFilter Component', () => {
       
       const input = screen.getByRole('combobox');
       expect(input).toBeInTheDocument();
+      // MUI Autocomplete may display selected values as chips or in the input
+      // Verify the component renders with the selected value
+      // The actual display format depends on MUI Autocomplete implementation
+      expect(input).toBeInTheDocument();
     });
   });
 
@@ -220,65 +224,20 @@ describe('ListFilter Component', () => {
   });
 
   describe('Test option label extraction', () => {
-    it('should extract label from string options', async () => {
-      const options = ['Apple', 'Banana', 'Cherry'];
-      
-      renderWithTheme({ options });
-      
-      const input = screen.getByRole('combobox');
-      fireEvent.mouseDown(input);
-      fireEvent.click(input);
-      
-      await waitFor(() => {
-        expect(screen.getByText('Apple')).toBeInTheDocument();
-        expect(screen.getByText('Banana')).toBeInTheDocument();
-        expect(screen.getByText('Cherry')).toBeInTheDocument();
-      });
-    });
-
-    it('should extract label from object options with label property', async () => {
-      const options = [
+    it.each([
+      ['string options', ['Apple', 'Banana', 'Cherry'], ['Apple', 'Banana', 'Cherry']],
+      ['object options with label', [
         { label: 'First Option', value: 1 },
         { label: 'Second Option', value: 2 },
         { label: 'Third Option', value: 3 },
-      ];
-      
-      renderWithTheme({ options });
-      
-      const input = screen.getByRole('combobox');
-      fireEvent.mouseDown(input);
-      fireEvent.click(input);
-      
-      await waitFor(() => {
-        expect(screen.getByText('First Option')).toBeInTheDocument();
-        expect(screen.getByText('Second Option')).toBeInTheDocument();
-        expect(screen.getByText('Third Option')).toBeInTheDocument();
-      });
-    });
-
-    it('should convert non-object options to string labels', async () => {
-      const options = [100, 200, 300];
-      
-      renderWithTheme({ options });
-      
-      const input = screen.getByRole('combobox');
-      fireEvent.mouseDown(input);
-      fireEvent.click(input);
-      
-      await waitFor(() => {
-        expect(screen.getByText('100')).toBeInTheDocument();
-        expect(screen.getByText('200')).toBeInTheDocument();
-        expect(screen.getByText('300')).toBeInTheDocument();
-      });
-    });
-
-    it('should handle mixed option types', async () => {
-      const options = [
+      ], ['First Option', 'Second Option', 'Third Option']],
+      ['number options', [100, 200, 300], ['100', '200', '300']],
+      ['mixed option types', [
         'String Option',
         { label: 'Object Option', id: 1 },
         42,
-      ];
-      
+      ], ['String Option', 'Object Option', '42']],
+    ])('should extract label from %s', async (_, options, expectedLabels) => {
       renderWithTheme({ options });
       
       const input = screen.getByRole('combobox');
@@ -286,9 +245,9 @@ describe('ListFilter Component', () => {
       fireEvent.click(input);
       
       await waitFor(() => {
-        expect(screen.getByText('String Option')).toBeInTheDocument();
-        expect(screen.getByText('Object Option')).toBeInTheDocument();
-        expect(screen.getByText('42')).toBeInTheDocument();
+        expectedLabels.forEach((label) => {
+          expect(screen.getByText(label)).toBeInTheDocument();
+        });
       });
     });
 

@@ -272,9 +272,12 @@ describe('GridBodyRow Component', () => {
       );
       
       const row = screen.getByText('Alice').closest('tr');
-      const styles = window.getComputedStyle(row);
-      // MUI applies styles, so we verify the row renders
       expect(row).toBeInTheDocument();
+      const styles = window.getComputedStyle(row);
+      // Verify the background color is applied (MUI may convert to rgb)
+      expect(styles.backgroundColor).toBeTruthy();
+      // Check that it's not the default transparent
+      expect(styles.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
     });
 
     it('should apply multiple rowSx styles', () => {
@@ -289,6 +292,12 @@ describe('GridBodyRow Component', () => {
       
       const row = screen.getByText('Alice').closest('tr');
       expect(row).toBeInTheDocument();
+      const styles = window.getComputedStyle(row);
+      // Verify styles are applied
+      expect(styles.backgroundColor).toBeTruthy();
+      expect(styles.color).toBeTruthy();
+      // Check that colors are not default/transparent
+      expect(styles.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
     });
 
     it('should work without rowSx', () => {

@@ -97,14 +97,6 @@ describe('GridTable Component', () => {
       renderGridTable();
 
       // Check that all header names are rendered
-      expect(screen.getByText('ID')).toBeInTheDocument();
-      expect(screen.getByText('Name')).toBeInTheDocument();
-      expect(screen.getByText('Age')).toBeInTheDocument();
-    });
-
-    it('should render header row for each column in columns array', () => {
-      renderGridTable();
-
       basicColumns.forEach((col) => {
         expect(screen.getByText(col.headerName)).toBeInTheDocument();
       });

@@ -170,31 +170,13 @@ describe('GridCell Component', () => {
   });
 
   describe('Render cell with null/undefined', () => {
-    it('should render empty string for null value', () => {
+    it.each([
+      ['null', null, defaultColumn],
+      ['undefined', undefined, defaultColumn],
+      ['null date', null, { ...defaultColumn, type: FIELD_TYPE_DATE }],
+    ])('should render empty string for %s value', (_, value, column) => {
       renderWithContext(
-        <GridCell value={null} row={mockRow} column={defaultColumn} />
-      );
-      
-      const cell = screen.getByRole('cell');
-      expect(cell).toBeInTheDocument();
-      expect(cell.textContent).toBe('');
-    });
-
-    it('should render empty string for undefined value', () => {
-      renderWithContext(
-        <GridCell value={undefined} row={mockRow} column={defaultColumn} />
-      );
-      
-      const cell = screen.getByRole('cell');
-      expect(cell).toBeInTheDocument();
-      expect(cell.textContent).toBe('');
-    });
-
-    it('should render empty string for null date value', () => {
-      const column = { ...defaultColumn, type: FIELD_TYPE_DATE };
-      
-      renderWithContext(
-        <GridCell value={null} row={mockRow} column={column} />
+        <GridCell value={value} row={mockRow} column={column} />
       );
       
       const cell = screen.getByRole('cell');
@@ -418,11 +400,15 @@ describe('GridCell Component', () => {
       );
 
       const cell = screen.getByRole('cell');
-      // Error border should not be present
-      const styles = window.getComputedStyle(cell);
-      // We can't easily test the absence of error border without theme access,
-      // but we can verify the cell renders correctly
       expect(cell).toBeInTheDocument();
+      // Error border should not be present - verify border is not error color
+      const styles = window.getComputedStyle(cell);
+      // Error border typically has a red color, so we check border color is not red
+      // If borderWidth is 0 or borderStyle is none, there's no border (which is fine)
+      if (styles.borderWidth !== '0px' && styles.borderStyle !== 'none') {
+        // If there is a border, it should not be red (error color)
+        expect(styles.borderColor).not.toBe('rgb(211, 47, 47)'); // MUI error red
+      }
     });
 
     it('should combine error border with cellStyle', () => {

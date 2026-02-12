@@ -47,17 +47,21 @@ describe('OperatorDropdown Component', () => {
       expect(button.tagName).toBe('BUTTON');
     });
 
-    it('should render with default operator when value is null', () => {
-      renderWithTheme();
-      
-      const button = screen.getByLabelText('Operator');
+    it('should render with default or provided operator value', () => {
+      // Test with null value (default)
+      const { rerender } = renderWithTheme();
+      let button = screen.getByLabelText('Operator');
       expect(button).toBeInTheDocument();
-    });
-
-    it('should render with provided operator value', () => {
-      renderWithTheme({ value: { operator: OPERATOR_CONTAINS } });
       
-      const button = screen.getByLabelText('Operator');
+      // Test with provided operator value
+      rerender(
+        <ThemeProvider theme={createTheme()}>
+          <DataGridStableContext.Provider value={defaultContextValue}>
+            <OperatorDropdown {...defaultProps} value={{ operator: OPERATOR_CONTAINS }} />
+          </DataGridStableContext.Provider>
+        </ThemeProvider>
+      );
+      button = screen.getByLabelText('Operator');
       expect(button).toBeInTheDocument();
     });
   });
@@ -87,13 +91,12 @@ describe('OperatorDropdown Component', () => {
       });
       
       const menuItems = screen.getAllByRole('menuitem');
-      if (menuItems.length > 0) {
-        fireEvent.click(menuItems[0]);
-        
-        await waitFor(() => {
-          expect(screen.queryByRole('menu')).not.toBeInTheDocument();
-        });
-      }
+      expect(menuItems.length).toBeGreaterThan(0);
+      fireEvent.click(menuItems[0]);
+      
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      });
     });
 
     it('should call onChange when operator is selected', async () => {
@@ -110,14 +113,13 @@ describe('OperatorDropdown Component', () => {
       });
       
       const menuItems = screen.getAllByRole('menuitem');
-      if (menuItems.length > 1) {
-        fireEvent.click(menuItems[1]);
-        
-        expect(onChange).toHaveBeenCalled();
-        const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
-        expect(lastCall[0]).toHaveProperty('operator');
-        expect(lastCall[0]).toHaveProperty('value', 'test');
-      }
+      expect(menuItems.length).toBeGreaterThan(1);
+      fireEvent.click(menuItems[1]);
+      
+      expect(onChange).toHaveBeenCalled();
+      const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+      expect(lastCall[0]).toHaveProperty('operator');
+      expect(lastCall[0]).toHaveProperty('value', 'test');
     });
 
     it('should preserve existing value properties when operator changes', async () => {
@@ -134,14 +136,13 @@ describe('OperatorDropdown Component', () => {
       });
       
       const menuItems = screen.getAllByRole('menuitem');
-      if (menuItems.length > 1) {
-        fireEvent.click(menuItems[1]);
-        
-        expect(onChange).toHaveBeenCalled();
-        const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
-        expect(lastCall[0]).toHaveProperty('value', 'existing');
-        expect(lastCall[0]).toHaveProperty('otherProp', 'preserved');
-      }
+      expect(menuItems.length).toBeGreaterThan(1);
+      fireEvent.click(menuItems[1]);
+      
+      expect(onChange).toHaveBeenCalled();
+      const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+      expect(lastCall[0]).toHaveProperty('value', 'existing');
+      expect(lastCall[0]).toHaveProperty('otherProp', 'preserved');
     });
   });
 
@@ -191,50 +192,6 @@ describe('OperatorDropdown Component', () => {
       expect(menuItems.length).toBe(DATE_OP_IDS.length);
     });
 
-    it('should display correct operators for text field type', async () => {
-      renderWithTheme({ operatorMap: TEXT_OP_IDS });
-      
-      const button = screen.getByLabelText('Operator');
-      fireEvent.click(button);
-      
-      await waitFor(() => {
-        expect(screen.getByRole('menu')).toBeInTheDocument();
-      });
-      
-      // Text operators should include CONTAINS
-      const menuItems = screen.getAllByRole('menuitem');
-      expect(menuItems.length).toBe(TEXT_OP_IDS.length);
-    });
-
-    it('should display correct operators for number field type', async () => {
-      renderWithTheme({ operatorMap: NUMBER_OP_IDS });
-      
-      const button = screen.getByLabelText('Operator');
-      fireEvent.click(button);
-      
-      await waitFor(() => {
-        expect(screen.getByRole('menu')).toBeInTheDocument();
-      });
-      
-      // Number operators should include GREATER_THAN
-      const menuItems = screen.getAllByRole('menuitem');
-      expect(menuItems.length).toBe(NUMBER_OP_IDS.length);
-    });
-
-    it('should display correct operators for date field type', async () => {
-      renderWithTheme({ operatorMap: DATE_OP_IDS });
-      
-      const button = screen.getByLabelText('Operator');
-      fireEvent.click(button);
-      
-      await waitFor(() => {
-        expect(screen.getByRole('menu')).toBeInTheDocument();
-      });
-      
-      // Date operators should include PERIOD
-      const menuItems = screen.getAllByRole('menuitem');
-      expect(menuItems.length).toBe(DATE_OP_IDS.length);
-    });
   });
 
   describe('Test onChange callback', () => {
@@ -251,13 +208,12 @@ describe('OperatorDropdown Component', () => {
       });
       
       const menuItems = screen.getAllByRole('menuitem');
-      if (menuItems.length > 0) {
-        fireEvent.click(menuItems[0]);
-        
-        expect(onChange).toHaveBeenCalled();
-        const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
-        expect(lastCall[0]).toHaveProperty('operator');
-      }
+      expect(menuItems.length).toBeGreaterThan(0);
+      fireEvent.click(menuItems[0]);
+      
+      expect(onChange).toHaveBeenCalled();
+      const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+      expect(lastCall[0]).toHaveProperty('operator');
     });
 
     it('should call onChange with updated operator when different operator is selected', async () => {
@@ -274,13 +230,12 @@ describe('OperatorDropdown Component', () => {
       });
       
       const menuItems = screen.getAllByRole('menuitem');
-      if (menuItems.length > 1) {
-        fireEvent.click(menuItems[1]);
-        
-        expect(onChange).toHaveBeenCalled();
-        const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
-        expect(lastCall[0].operator).not.toBe(OPERATOR_EQUALS);
-      }
+      expect(menuItems.length).toBeGreaterThan(1);
+      fireEvent.click(menuItems[1]);
+      
+      expect(onChange).toHaveBeenCalled();
+      const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+      expect(lastCall[0].operator).not.toBe(OPERATOR_EQUALS);
     });
 
     it('should not call onChange on initial render', () => {
@@ -298,6 +253,9 @@ describe('OperatorDropdown Component', () => {
       
       const button = screen.getByLabelText('Operator');
       expect(button).toBeInTheDocument();
+      // Verify icon is rendered (FontAwesome icons render as SVG)
+      const icon = button.querySelector('svg');
+      expect(icon).toBeInTheDocument();
     });
 
     it('should display operator icon for current operator', () => {
@@ -305,6 +263,9 @@ describe('OperatorDropdown Component', () => {
       
       const button = screen.getByLabelText('Operator');
       expect(button).toBeInTheDocument();
+      // Verify icon is rendered
+      const icon = button.querySelector('svg');
+      expect(icon).toBeInTheDocument();
     });
 
     it('should update displayed operator when value changes', () => {
@@ -312,6 +273,8 @@ describe('OperatorDropdown Component', () => {
       
       let button = screen.getByLabelText('Operator');
       expect(button).toBeInTheDocument();
+      let icon = button.querySelector('svg');
+      expect(icon).toBeInTheDocument();
       
       rerender(
         <ThemeProvider theme={createTheme()}>
@@ -323,6 +286,9 @@ describe('OperatorDropdown Component', () => {
       
       button = screen.getByLabelText('Operator');
       expect(button).toBeInTheDocument();
+      // Verify icon is still present after update
+      icon = button.querySelector('svg');
+      expect(icon).toBeInTheDocument();
     });
   });
 });

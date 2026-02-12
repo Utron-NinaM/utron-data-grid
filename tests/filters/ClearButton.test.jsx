@@ -19,25 +19,12 @@ describe('ClearButton Component', () => {
   };
 
   describe('Render clear button', () => {
-    it('should render clear button', () => {
+    it('should render clear button with correct attributes', () => {
       renderWithTheme();
       
       const button = screen.getByLabelText('Clear');
       expect(button).toBeInTheDocument();
       expect(button.tagName).toBe('BUTTON');
-    });
-
-    it('should render with IconButton component', () => {
-      renderWithTheme();
-      
-      const button = screen.getByLabelText('Clear');
-      expect(button).toBeInTheDocument();
-    });
-
-    it('should have correct aria-label', () => {
-      renderWithTheme();
-      
-      const button = screen.getByLabelText('Clear');
       expect(button).toHaveAttribute('aria-label', 'Clear');
     });
   });
@@ -131,11 +118,9 @@ describe('ClearButton Component', () => {
       
       const button = screen.getByLabelText('Clear');
       expect(button).toBeInTheDocument();
-      // When visible is undefined, it should default to visible (based on component logic)
       // The component uses: visibility: visible ? 'visible' : 'hidden'
-      // So undefined would be falsy, making it hidden
+      // When visible is undefined, it's falsy, so visibility becomes 'hidden'
       const styles = window.getComputedStyle(button);
-      // Actually, let's check the actual behavior - undefined is falsy so it would be hidden
       expect(styles.visibility).toBe('hidden');
     });
 

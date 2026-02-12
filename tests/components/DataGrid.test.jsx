@@ -46,7 +46,7 @@ describe('DataGrid Component Integration', () => {
       expect(screen.getByText('Charlie')).toBeInTheDocument();
     });
 
-    it('should render all column headers correctly', () => {
+    it('should render all column headers and data rows correctly', () => {
       render(
         <DataGrid
           rows={basicRows}
@@ -55,20 +55,12 @@ describe('DataGrid Component Integration', () => {
         />
       );
 
+      // Check all headers are rendered
       basicColumns.forEach((col) => {
         expect(screen.getByText(col.headerName)).toBeInTheDocument();
       });
-    });
 
-    it('should render all data rows correctly', () => {
-      render(
-        <DataGrid
-          rows={basicRows}
-          columns={basicColumns}
-          getRowId={getRowId}
-        />
-      );
-
+      // Check all data rows are rendered
       basicRows.forEach((row) => {
         expect(screen.getByText(row.name)).toBeInTheDocument();
         expect(screen.getByText(String(row.age))).toBeInTheDocument();
@@ -188,12 +180,10 @@ describe('DataGrid Component Integration', () => {
 
       // Double-click should enter edit mode
       const aliceRow = screen.getByText('Alice').closest('[data-row-id]');
-      if (aliceRow) {
-        fireEvent.doubleClick(aliceRow);
-        // Edit toolbar should appear
-        expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
-      }
+      expect(aliceRow).toBeInTheDocument();      
+      fireEvent.doubleClick(aliceRow);
+      expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();      
     });
   });
 
@@ -211,8 +201,9 @@ describe('DataGrid Component Integration', () => {
       expect(screen.getByText(/no rows/i)).toBeInTheDocument();
     });
 
-    it('should still render headers when rows are empty', () => {
-      render(
+    it('should handle empty state correctly with and without features', () => {
+      // Test basic empty state
+      const { rerender } = render(
         <DataGrid
           rows={[]}
           columns={basicColumns}
@@ -220,13 +211,14 @@ describe('DataGrid Component Integration', () => {
         />
       );
 
+      expect(screen.getByText(/no rows/i)).toBeInTheDocument();
+      // Headers should still be present
       basicColumns.forEach((col) => {
         expect(screen.getByText(col.headerName)).toBeInTheDocument();
       });
-    });
 
-    it('should handle empty state with all features enabled', () => {
-      render(
+      // Test empty state with all features enabled
+      rerender(
         <DataGrid
           rows={[]}
           columns={basicColumns}
@@ -241,7 +233,9 @@ describe('DataGrid Component Integration', () => {
 
       expect(screen.getByText(/no rows/i)).toBeInTheDocument();
       // Headers should still be present
-      expect(screen.getByText('Name')).toBeInTheDocument();
+      basicColumns.forEach((col) => {
+        expect(screen.getByText(col.headerName)).toBeInTheDocument();
+      });
     });
   });
 
@@ -286,10 +280,9 @@ describe('DataGrid Component Integration', () => {
         return row !== null;
       });
       
-      if (dataRowCheckbox) {
-        fireEvent.click(dataRowCheckbox);
-        expect(onSelectionChange).toHaveBeenCalled();
-      }
+      expect(dataRowCheckbox).toBeInTheDocument();
+      fireEvent.click(dataRowCheckbox);
+      expect(onSelectionChange).toHaveBeenCalled();
     });
 
     it('should handle single row with pagination', () => {
@@ -454,15 +447,27 @@ describe('DataGrid Component Integration', () => {
       );
 
       const checkboxes = screen.getAllByRole('checkbox', { name: /select row/i });
-      fireEvent.click(checkboxes[1]); // Select first row
+      // Find the checkbox for the first data row (Alice, id: 1)
+      const firstRowCheckbox = checkboxes.find(cb => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '1';
+      });
+      expect(firstRowCheckbox).toBeDefined();
+      fireEvent.click(firstRowCheckbox);
 
       // Verify selection callback was called with correct row IDs
       expect(onSelectionChange).toHaveBeenCalled();
       const selectedIds = onSelectionChange.mock.calls[0][0];
       expect(Array.isArray(selectedIds) || selectedIds instanceof Set).toBe(true);
+      // Add actual value verification
+      if (Array.isArray(selectedIds)) {
+        expect(selectedIds).toContain(1);
+      } else {
+        expect(selectedIds.has(1)).toBe(true);
+      }
     });
 
-    it('should use getRowId for editing when editable is enabled', () => {
+    it('should use getRowId for editing when editable is enabled', async () => {
       const onEditCommit = vi.fn();
 
       render(
@@ -478,20 +483,25 @@ describe('DataGrid Component Integration', () => {
       );
 
       const aliceRow = screen.getByText('Alice').closest('[data-row-id]');
-      if (aliceRow) {
-        fireEvent.doubleClick(aliceRow);
+      expect(aliceRow).toBeInTheDocument();
+      
+      fireEvent.doubleClick(aliceRow);
+      
+      // Wait for edit mode
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
+      });
         
-        // Wait for edit mode
-        waitFor(() => {
-          const saveButton = screen.getByRole('button', { name: /save/i });
-          fireEvent.click(saveButton);
-          
-          // Verify onEditCommit was called with correct rowId
-          expect(onEditCommit).toHaveBeenCalled();
-          const [rowId] = onEditCommit.mock.calls[0];
-          expect(rowId).toBe(1); // Alice's ID
-        });
-      }
+      const saveButton = screen.getByRole('button', { name: /save/i });
+      fireEvent.click(saveButton);
+      
+      // Verify onEditCommit was called with correct rowId and edited row data
+      expect(onEditCommit).toHaveBeenCalled();
+      const [rowId, editedRow] = onEditCommit.mock.calls[0];
+      expect(rowId).toBe(1); // Alice's ID
+      expect(editedRow).toMatchObject({ id: 1, name: 'Alice', age: 30 });
+      
     });
   });
 });
+

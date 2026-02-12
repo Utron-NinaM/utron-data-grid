@@ -57,7 +57,22 @@ describe('DataGrid re-render efficiency', () => {
 
     const countAfterSort = getRenderCount();
     const extraRenders = countAfterSort - countAfterMount;
-    expect(extraRenders).toBeLessThanOrEqual(PAGE_SIZE * 2);    
+    expect(extraRenders).toBeLessThanOrEqual(PAGE_SIZE * 2);
+    
+    // Verify component still works correctly after re-renders
+    // Data should still be displayed
+    expect(screen.getByText('name-0')).toBeInTheDocument();
+    // Verify sort actually worked - values should be sorted
+    const valueCells = screen.getAllByText(/^\d+$/).filter(el => {
+      const row = el.closest('[data-row-id]');
+      return row !== null;
+    });
+    if (valueCells.length > 1) {
+      const values = valueCells.map(cell => parseInt(cell.textContent, 10));
+      for (let i = 1; i < values.length; i++) {
+        expect(values[i]).toBeGreaterThanOrEqual(values[i - 1]);
+      }
+    }
   });
 
   it('limits body row re-renders on selection change', async () => {
@@ -82,5 +97,17 @@ describe('DataGrid re-render efficiency', () => {
     const countAfterSelect = getRenderCount();
     const extraRenders = countAfterSelect - countAfterMount;
     expect(extraRenders).toBeLessThanOrEqual(PAGE_SIZE * 2);
+    
+    // Verify component still works correctly after re-renders
+    // Data should still be displayed
+    expect(screen.getByText('name-0')).toBeInTheDocument();
+    // Selection should still work - checkbox should be checked
+    const clickedCheckbox = checkboxes[1];
+    expect(clickedCheckbox).toBeChecked();
+    // Can still interact - click another checkbox
+    if (checkboxes.length > 2) {
+      fireEvent.click(checkboxes[2]);
+      expect(checkboxes[2]).toBeChecked();
+    }
   });
 });
