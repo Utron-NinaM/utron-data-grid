@@ -51,6 +51,7 @@ export function EditingValidationExample() {
           columns={editingValidationColumns}
           getRowId={(row) => row.id}
           options={{
+            gridId: 'editing-validation-grid',
             translations: en,
             direction: DIRECTION_LTR,
             editable: true,

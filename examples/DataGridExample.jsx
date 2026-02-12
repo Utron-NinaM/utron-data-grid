@@ -61,6 +61,7 @@ export function DataGridExample() {
           columns={columns}
           getRowId={(row) => row.id}
           options={{
+            gridId: 'orders-grid',
             translations: en,
             direction,
             multiSelectable: true,

@@ -10,6 +10,26 @@ import { defaultGridConfig } from '../config/defaultConfig';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, DIRECTION_RTL } from '../config/schema';
 import { DIRECTION_LTR } from '../config/schema';
 
+const FILTER_STORAGE_KEY_PREFIX = 'utron-datagrid-filters-';
+
+function getStoredFilterModel(gridId, columns) {
+  if (!gridId || typeof localStorage === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(FILTER_STORAGE_KEY_PREFIX + gridId);
+    if (raw == null) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const fieldSet = new Set((columns || []).map((c) => c.field));
+    const filtered = {};
+    for (const [key, val] of Object.entries(parsed)) {
+      if (fieldSet.has(key) && val != null && typeof val === 'object') filtered[key] = val;
+    }
+    return filtered;
+  } catch {
+    return {};
+  }
+}
+
 /**
  * Custom hook for DataGrid state management and business logic
  * @param {Object} props
@@ -21,8 +41,6 @@ export function useDataGrid(props) {
     columns = [],
     translations,
     direction = DIRECTION_LTR,
-    sortModel: controlledSort,
-    filterModel: controlledFilter,
     onSortChange,
     onFilterChange,
     onEditCommit,
@@ -38,16 +56,16 @@ export function useDataGrid(props) {
     pagination = defaultGridConfig.pagination,
     pageSize: initialPageSize = defaultGridConfig.pageSize,
     pageSizeOptions = defaultGridConfig.pageSizeOptions,
-    page: controlledPage,
     onPageChange,
     onPageSizeChange,
     headerStyle,
     headerConfig,
     selectedRowStyle,
+    gridId,
   } = props;
 
   const [internalSort, setInternalSort] = useState([]);
-  const [internalFilter, setInternalFilter] = useState({});
+  const [internalFilter, setInternalFilter] = useState(() => getStoredFilterModel(props.gridId, props.columns));
   const [selection, setSelection] = useState(new Set());
   const [editRowId, setEditRowId] = useState(null);
   const [editValues, setEditValues] = useState({});
@@ -56,9 +74,9 @@ export function useDataGrid(props) {
   const [internalPageSize, setInternalPageSize] = useState(initialPageSize);
   const [selectedRowId, setSelectedRowId] = useState(null);
 
-  const sortModel = controlledSort !== undefined ? controlledSort : internalSort;
-  const filterModel = controlledFilter !== undefined ? controlledFilter : internalFilter;
-  const page = controlledPage !== undefined ? controlledPage : internalPage;
+  const sortModel = internalSort;
+  const filterModel = internalFilter;
+  const page = internalPage;
   const pageSize = internalPageSize;
 
   const [debouncedFilterModel, setDebouncedFilterModel] = useState(filterModel);
@@ -74,14 +92,20 @@ export function useDataGrid(props) {
     return () => apply.cancel();
   }, [filterModel]);
 
+  useEffect(() => {
+    if (gridId && typeof localStorage !== 'undefined') {
+      localStorage.setItem(FILTER_STORAGE_KEY_PREFIX + gridId, JSON.stringify(filterModel));
+    }
+  }, [filterModel, gridId]);
+
   const setSortModel = useCallback(
     (next) => {
-      if (controlledSort === undefined) setInternalSort(next);
+      setInternalSort(next);
       onSortChange?.(next);
-      if (controlledPage === undefined) setInternalPage(0);
+      setInternalPage(0);
       onPageChange?.(0);
     },
-    [controlledSort, onSortChange, controlledPage, onPageChange]
+    [onSortChange, onPageChange]
   );
 
   const handleFilterChange = useCallback(
@@ -89,12 +113,12 @@ export function useDataGrid(props) {
       const next = { ...filterModel };
       if (value == null) delete next[field];
       else next[field] = value;
-      if (controlledFilter === undefined) setInternalFilter(next);
+      setInternalFilter(next);
       onFilterChange?.(next);
-      if (controlledPage === undefined) setInternalPage(0);
+      setInternalPage(0);
       onPageChange?.(0);
     },
-    [filterModel, controlledFilter, controlledPage, onFilterChange, onPageChange]
+    [filterModel, onFilterChange, onPageChange]
   );
 
   const handleSort = useCallback(
@@ -126,11 +150,11 @@ export function useDataGrid(props) {
 
   const handleClearAllFilters = useCallback(() => {
     const next = {};
-    if (controlledFilter === undefined) setInternalFilter(next);
+    setInternalFilter(next);
     onFilterChange?.(next);
-    if (controlledPage === undefined) setInternalPage(0);
+    setInternalPage(0);
     onPageChange?.(0);
-  }, [controlledFilter, onFilterChange, controlledPage, onPageChange]);
+  }, [onFilterChange, onPageChange]);
 
   const handleSelect = useCallback(
     (rowId, checked) => {
@@ -147,20 +171,20 @@ export function useDataGrid(props) {
 
   const handlePageChange = useCallback(
     (p) => {
-      if (controlledPage === undefined) setInternalPage(p);
+      setInternalPage(p);
       onPageChange?.(p);
     },
-    [controlledPage, onPageChange]
+    [onPageChange]
   );
 
   const handlePageSizeChange = useCallback(
     (size) => {
       setInternalPageSize(size);
-      if (controlledPage === undefined) setInternalPage(0);
+      setInternalPage(0);
       onPageChange?.(0);
       onPageSizeChange?.(size);
     },
-    [controlledPage, onPageChange, onPageSizeChange]
+    [onPageChange, onPageSizeChange]
   );
 
   const handleRowClick = useCallback(
