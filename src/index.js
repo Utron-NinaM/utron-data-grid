@@ -13,8 +13,10 @@ export {
   DEFAULT_FIELD_TYPE,
   COLUMN_TYPES,
   FILTER_TYPES,
-  // Operators
-  OPERATOR_MAP,
+  // Operators  
+  NUMBER_OP_IDS,
+  TEXT_OP_IDS,
+  DATE_OP_IDS,  
   // Sort Orders
   SORT_ORDER_ASC,
   SORT_ORDER_DESC,

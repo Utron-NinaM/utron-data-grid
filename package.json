@@ -2,13 +2,12 @@
   "name": "utron-data-grid",
   "version": "1.0.0",
   "description": "Reusable React Data Grid with MUI – sorting, filtering, inline editing, pagination, RTL",
-  "main": "dist/utron-data-grid.umd.cjs",
+  "main": "dist/utron-data-grid.umd.js",
   "module": "dist/utron-data-grid.js",
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/utron-data-grid.js",
-      "require": "./dist/utron-data-grid.umd.cjs"
+      "require": "./dist/utron-data-grid.umd.js"
     }
   },
   "files": [
