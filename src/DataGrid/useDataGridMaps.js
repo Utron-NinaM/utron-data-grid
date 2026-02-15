@@ -8,7 +8,6 @@ import { DIRECTION_RTL } from '../config/schema';
  * @param {Object[]} params.sortModel
  * @param {string} params.direction
  * @param {Object} params.headerConfig
- * @param {Object} params.headerStyle
  * @param {Object[]} params.displayRows
  * @param {Function} params.getRowId
  * @returns {{ sortOrderIndexMap: Map, columnSortDirMap: Map, columnAlignMap: Map, headerCellSxMap: Map, filterCellSxMap: Map, rowStylesMap: Map }}
@@ -18,7 +17,6 @@ export function useDataGridMaps({
   sortModel,
   direction,
   headerConfig,
-  headerStyle,
   displayRows,
   getRowId,
 }) {
@@ -63,11 +61,11 @@ export function useDataGridMaps({
         boxSizing: 'border-box',
         ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
         ...(mainRowHeight && { height: mainRowHeight, maxHeight: mainRowHeight }),
-        ...headerStyle,
+        ...headerConfig?.base,
       });
     });
     return map;
-  }, [columns, headerConfig, headerStyle]);
+  }, [columns, headerConfig]);
 
   const filterCellSxMap = useMemo(() => {
     const map = new Map();
@@ -82,11 +80,11 @@ export function useDataGridMaps({
         boxSizing: 'border-box',
         ...(headerConfig?.filterCells?.backgroundColor && { backgroundColor: headerConfig.filterCells.backgroundColor }),
         ...(filterRowHeight && { height: filterRowHeight, maxHeight: filterRowHeight }),
-        ...headerStyle,
+        ...headerConfig?.base,
       });
     });
     return map;
-  }, [columns, headerConfig, headerStyle]);
+  }, [columns, headerConfig]);
 
   const rowStylesMap = useMemo(() => {
     const map = new Map();

@@ -23,7 +23,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
   const sx = useMemo(() => {
     const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : undefined;
     return {
-      ...(hasError && { border: '1px solid', borderColor: 'error.light' }),
+      ...(hasError && { border: '1px solid', borderColor: 'error.light', paddingLeft: '4px', paddingRight: '4px' }),
       ...cellStyle,
     };
   }, [hasError, column, value, row]);

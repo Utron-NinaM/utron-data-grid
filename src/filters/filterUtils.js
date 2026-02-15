@@ -1,4 +1,5 @@
 import {
+  FIELD_TYPE_TEXT,
   FIELD_TYPE_NUMBER,
   FIELD_TYPE_DATE,
   FIELD_TYPE_DATETIME,
@@ -84,8 +85,9 @@ export function applyFilters(rows, filterModel, columns) {
   });
 }
 
-function matchFilter(cellValue, state, type) {
-  const { operator = OPERATOR_EQUALS, value, valueTo } = state;
+function matchFilter(cellValue, state, type) {  
+  const defaultOperator = type === FIELD_TYPE_TEXT ? OPERATOR_CONTAINS : OPERATOR_EQUALS;
+  const { operator = defaultOperator, value, valueTo } = state;
   
   const v = cellValue;
   let val = null;

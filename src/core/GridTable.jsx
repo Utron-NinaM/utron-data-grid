@@ -45,7 +45,7 @@ function GridTableInner({
   const translations = useTranslations();
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
-  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, headerStyle,
+  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters,
      headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap } = ctx;
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
@@ -156,7 +156,7 @@ function GridTableInner({
       <GridErrorBoundary>
         <TableContainer component={Paper} variant="outlined" sx={{ overflowX: 'auto', width: '100%' }}>
           <Table size="small" stickyHeader aria-label="Data grid" sx={{ width: '100%' }}>
-            <TableHead sx={headerStyle}>
+            <TableHead sx={headerConfig?.base}>
               <TableRow
                 sx={{
                   ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
@@ -167,8 +167,8 @@ function GridTableInner({
                     padding="checkbox"
                     variant="head"
                     sx={{
-                      ...headerStyle,
-                      backgroundColor: headerConfig?.mainRow?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
+                      ...headerConfig?.base,
+                      backgroundColor: headerConfig?.mainRow?.backgroundColor || headerConfig?.base?.backgroundColor || 'inherit',
                     }}
                   />
                 )}
@@ -196,8 +196,8 @@ function GridTableInner({
                       padding="checkbox"
                       variant="head"
                       sx={{
-                        ...headerStyle,
-                        backgroundColor: headerConfig?.filterRows?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
+                        ...headerConfig?.base,
+                        backgroundColor: headerConfig?.filterRows?.backgroundColor || headerConfig?.base?.backgroundColor || 'inherit',
                       }}
                     />
                   )}
@@ -222,8 +222,8 @@ function GridTableInner({
                       padding="checkbox"
                       variant="head"
                       sx={{
-                        ...headerStyle,
-                        backgroundColor: headerConfig?.filterRows?.backgroundColor || headerStyle?.backgroundColor || 'inherit',
+                        ...headerConfig?.base,
+                        backgroundColor: headerConfig?.filterRows?.backgroundColor || headerConfig?.base?.backgroundColor || 'inherit',
                       }}
                     />
                   )}

@@ -79,8 +79,7 @@ const rows = [
 | `onPageChange` | `(page) => void` | Page change callback |
 | `onPageSizeChange` | `(pageSize) => void` | Page size change callback |
 | `sx` | `object` | MUI sx for root container |
-| `headerStyle` | `object` | MUI sx for TableHead |
-| `headerConfig` | `object` | `mainRow`, `filterRows`, `filterCells` (e.g. `backgroundColor`, `height`) |
+| `headerConfig` | `object` | `base` (MUI sx for TableHead), `mainRow`, `filterRows`, `filterCells` (e.g. `backgroundColor`, `height`) |
 | `selectedRowStyle` | `object` | MUI sx for selected rows |
 
 ## Configuration (columns)

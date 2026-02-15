@@ -11,6 +11,7 @@ import {
   FIELD_TYPE_DATETIME,
   FIELD_TYPE_LIST,
   OPERATOR_IN_RANGE,
+  OPERATOR_CONTAINS,
   DIRECTION_LTR,
   NUMBER_OP_IDS,
   DATE_OP_IDS,
@@ -95,7 +96,17 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
       return (
         <TextFilter
           value={typeof state === 'object' ? state?.value : state}
-          onChange={(v) => onFilterChange(field, v === '' ? null : { ...state, value: v })}
+          onChange={(v) => {
+            if (v === '') {
+              onFilterChange(field, null);
+            } else {
+              const newState = { ...state, value: v };
+              if (!newState.operator) {
+                newState.operator = OPERATOR_CONTAINS;
+              }
+              onFilterChange(field, newState);
+            }
+          }}
           placeholder={placeholder}
         />
       );

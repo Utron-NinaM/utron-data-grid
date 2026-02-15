@@ -27,8 +27,7 @@ export const DataGridFilterContext = createContext(null);
  * @param {Function} [stableValue.onClearSort]
  * @param {Function} [stableValue.onClearAllFilters]
  * @param {Object} [stableValue.selectedRowStyle] MUI sx object for selected rows
- * @param {Object} [stableValue.headerStyle] MUI sx object for TableHead
- * @param {Object} [stableValue.headerConfig] Header configuration object
+ * @param {Object} [stableValue.headerConfig] Header configuration object (base, mainRow, filterRows, filterCells)
  * @param {number|string} [stableValue.filterInputHeight]
  * @param {Object} filterValue Filter-related functions that change with filterModel
  * @param {Function} [filterValue.getHeaderComboSlot]
