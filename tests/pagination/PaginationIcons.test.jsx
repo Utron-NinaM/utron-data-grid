@@ -29,16 +29,7 @@ describe('PaginationIcons Component', () => {
   };
 
   describe('Render pagination icons', () => {
-    it('should render all four icon buttons', () => {
-      renderWithProviders();
-      
-      expect(screen.getByLabelText('First page')).toBeInTheDocument();
-      expect(screen.getByLabelText('Previous page')).toBeInTheDocument();
-      expect(screen.getByLabelText('Next page')).toBeInTheDocument();
-      expect(screen.getByLabelText('Last page')).toBeInTheDocument();
-    });
-
-    it('should render with correct aria labels', () => {
+    it('should render all four icon buttons with correct aria labels', () => {
       renderWithProviders();
       
       expect(screen.getByLabelText('First page')).toBeInTheDocument();
