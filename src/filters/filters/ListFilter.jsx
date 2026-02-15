@@ -81,7 +81,7 @@ export function ListFilter({ value, onChange, options, placeholder }) {
           popper: {
             disablePortal: false,
             sx: { minWidth: 'max-content', direction },
-            modifiers: [{ name: 'sameWidth', enabled: false }],
+            modifiers: [{ name: 'sameWidth', enabled: false, phase: 'read' }],
           },
           listbox: {
             sx: { direction },
