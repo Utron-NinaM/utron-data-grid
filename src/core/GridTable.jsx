@@ -155,7 +155,7 @@ function GridTableInner({
       )}
       <GridErrorBoundary>
         <TableContainer component={Paper} variant="outlined" sx={{ overflowX: 'auto', width: '100%' }}>
-          <Table size="small" stickyHeader aria-label="Data grid" sx={{ width: '100%' }}>
+          <Table size="small" stickyHeader aria-label="Data grid" sx={{ width: '100%', tableLayout: 'fixed' }}>
             <TableHead sx={headerConfig?.base}>
               <TableRow
                 sx={{

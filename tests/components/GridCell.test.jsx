@@ -519,4 +519,154 @@ describe('GridCell Component', () => {
       expect(screen.getByText('Custom Editor')).toBeInTheDocument();
     });
   });
+
+  describe('Test text truncation and tooltip', () => {
+    it('should apply truncation styles to cell content', () => {
+      const longText = 'This is a very long text that should be truncated with ellipsis when it exceeds the available space in the cell';
+      renderWithContext(
+        <GridCell value={longText} row={mockRow} column={defaultColumn} />
+      );
+
+      const cell = screen.getByRole('cell');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(contentBox).toBeInTheDocument();
+      const styles = window.getComputedStyle(contentBox);
+      expect(styles.overflow).toBe('hidden');
+      expect(styles.textOverflow).toBe('ellipsis');
+      expect(styles.whiteSpace).toBe('nowrap');
+    });
+
+    it('should always show tooltip', () => {
+      renderWithContext(
+        <GridCell value="test" row={mockRow} column={defaultColumn} />
+      );
+      // Tooltip always wraps content - verify content is present
+      expect(screen.getByText('test')).toBeInTheDocument();
+      const cell = screen.getByRole('cell');
+      // Content should be wrapped in Box with truncation styles
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(contentBox).toBeInTheDocument();
+      // Tooltip is always present (wraps the content), but MUI Tooltip doesn't add queryable DOM elements
+      // We verify the content structure is correct
+      expect(contentBox.textContent).toBe('test');
+    });
+
+    it('should truncate number values', () => {
+      const longNumber = 12345678901234567890;
+      renderWithContext(
+        <GridCell value={longNumber} row={mockRow} column={defaultColumn} />
+      );
+
+      const cell = screen.getByRole('cell');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(contentBox).toBeInTheDocument();
+      const styles = window.getComputedStyle(contentBox);
+      expect(styles.overflow).toBe('hidden');
+      expect(styles.textOverflow).toBe('ellipsis');
+    });
+
+    it('should truncate date values', () => {
+      const dateValue = '2024-01-15';
+      const column = { ...defaultColumn, type: FIELD_TYPE_DATE };
+      renderWithContext(
+        <GridCell value={dateValue} row={mockRow} column={column} />
+      );
+
+      const cell = screen.getByRole('cell');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(contentBox).toBeInTheDocument();
+      const styles = window.getComputedStyle(contentBox);
+      expect(styles.overflow).toBe('hidden');
+      expect(styles.textOverflow).toBe('ellipsis');
+    });
+
+    it('should truncate datetime values', () => {
+      const dateTimeValue = '2024-01-15T14:30:00';
+      const column = { ...defaultColumn, type: FIELD_TYPE_DATETIME };
+      renderWithContext(
+        <GridCell value={dateTimeValue} row={mockRow} column={column} />
+      );
+
+      const cell = screen.getByRole('cell');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(contentBox).toBeInTheDocument();
+      const styles = window.getComputedStyle(contentBox);
+      expect(styles.overflow).toBe('hidden');
+      expect(styles.textOverflow).toBe('ellipsis');
+    });
+
+    it('should truncate custom render function results', () => {
+      const customRender = vi.fn((value) => `Custom: ${value} - This is a very long text that should be truncated`);
+      const column = { ...defaultColumn, render: customRender };
+      renderWithContext(
+        <GridCell value="test" row={mockRow} column={column} />
+      );
+
+      const cell = screen.getByRole('cell');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(contentBox).toBeInTheDocument();
+      const styles = window.getComputedStyle(contentBox);
+      expect(styles.overflow).toBe('hidden');
+      expect(styles.textOverflow).toBe('ellipsis');
+    });
+
+    it('should not apply truncation in editing mode', () => {
+      const longText = 'This is a very long text that should not be truncated when editing';
+      const editor = <input data-testid="editor" defaultValue="edited" />;
+
+      renderWithContext(
+        <GridCell 
+          value={longText} 
+          row={mockRow} 
+          column={defaultColumn}
+          isEditing={true}
+          editor={editor}
+        />
+      );
+
+      // When editing, editor is returned directly without truncation Box or Tooltip
+      const editorElement = screen.getByTestId('editor');
+      expect(editorElement).toBeInTheDocument();
+      const cell = screen.getByRole('cell');
+      // Editor should be directly in the cell, not wrapped in truncation Box
+      expect(cell.contains(editorElement)).toBe(true);
+      // Check that there's no Box with truncation styles
+      const truncationBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(truncationBox).toBeNull();
+    });
+
+    it('should preserve alignment with truncation', () => {
+      const longText = 'This is a very long text';
+      const column = { ...defaultColumn, align: 'right' };
+      renderWithContext(
+        <GridCell value={longText} row={mockRow} column={column} />
+      );
+
+      const cell = screen.getByRole('cell');
+      const styles = window.getComputedStyle(cell);
+      expect(styles.textAlign).toBe('right');
+      
+      // Truncation box should still be present
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(contentBox).toBeInTheDocument();
+    });
+
+    it('should preserve cell styling with truncation', () => {
+      const longText = 'This is a very long text';
+      const cellStyle = vi.fn(() => ({ backgroundColor: 'red', color: 'white' }));
+      const column = { ...defaultColumn, cellStyle };
+      renderWithContext(
+        <GridCell value={longText} row={mockRow} column={column} />
+      );
+
+      const cell = screen.getByRole('cell');
+      const styles = window.getComputedStyle(cell);
+      expect(styles.backgroundColor).toBe('rgb(255, 0, 0)');
+      expect(styles.color).toBe('rgb(255, 255, 255)');
+      
+      // Truncation should still work
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(contentBox).toBeInTheDocument();
+    });
+  });
 });

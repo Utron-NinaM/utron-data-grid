@@ -80,8 +80,7 @@ export function ListFilter({ value, onChange, options, placeholder }) {
         slotProps={{
           popper: {
             disablePortal: false,
-            sx: { minWidth: 'max-content', direction },
-            modifiers: [{ name: 'sameWidth', enabled: false, phase: 'read' }],
+            sx: { minWidth: 'max-content', direction },            
           },
           listbox: {
             sx: { direction },

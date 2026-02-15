@@ -39,6 +39,7 @@ export const columnsConfig = [
     filterOptions: { listValues: ['Active', 'Inactive', 'Pending'] },
     rowStyle: (row) => (row.status === 'Pending' ? { backgroundColor: '#fff3e0' } : {}),    
   },
+  { field: 'description', headerName: 'Description', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 150 },
 ];
 
 export const columnsConfigHebrew = [
