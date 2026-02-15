@@ -46,7 +46,7 @@ export function GridHeaderCell({
   };
 
   return (
-    <TableCell align={align} padding="none" variant="head" sx={cellSx}>
+    <TableCell align={align} padding="none" variant="head" sx={{ paddingLeft: '4px', paddingRight: '4px', ...cellSx }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', py: mainRowHeight ? 0 : 0.5, boxSizing: 'border-box', height: '100%' }}>
         <Tooltip title={t('sortMultiColumnHint')}>
           <TableSortLabel
