@@ -104,7 +104,7 @@ describe('Selection + Edit Integration', () => {
       }
     });
 
-    it('should maintain selection state when entering edit mode', async () => {
+    it('should clear selection when entering edit mode', async () => {
       const onSelectionChange = vi.fn();
 
       render(
@@ -143,9 +143,21 @@ describe('Selection + Edit Integration', () => {
         expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
       });
 
-      // Selection checkbox should still be checked
-      if (aliceCheckbox) {
-        expect(aliceCheckbox).toBeChecked();
+      // Selection should be cleared when edit mode starts (best practice for UX clarity)
+      await waitFor(() => {
+        const selectedIds = onSelectionChange.mock.calls[onSelectionChange.mock.calls.length - 1][0];
+        expect(selectedIds.length).toBe(0);
+      });
+
+      // Selection checkbox should be unchecked
+      const checkboxesAfterEdit = screen.getAllByRole('checkbox', { name: /select row/i });
+      const aliceCheckboxAfterEdit = checkboxesAfterEdit.find(cb => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '1';
+      });
+      
+      if (aliceCheckboxAfterEdit) {
+        expect(aliceCheckboxAfterEdit).not.toBeChecked();
       }
     });
   });
@@ -198,12 +210,15 @@ describe('Selection + Edit Integration', () => {
         expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
       });
 
-      // Selection might be cleared or maintained - depends on implementation
-      // The key is that edit mode is active
+      // Selection is cleared when entering edit mode (best practice for UX clarity)
+      await waitFor(() => {
+        const selectedIds = onSelectionChange.mock.calls[onSelectionChange.mock.calls.length - 1][0];
+        expect(selectedIds.length).toBe(0);
+      });
       expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
     });
 
-    it('should restore selection after canceling edit', async () => {
+    it('should clear selection when editing and keep it cleared after canceling', async () => {
       const onSelectionChange = vi.fn();
 
       render(
@@ -242,6 +257,12 @@ describe('Selection + Edit Integration', () => {
         expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
       });
 
+      // Selection should be cleared when edit starts
+      await waitFor(() => {
+        const selectedIds = onSelectionChange.mock.calls[onSelectionChange.mock.calls.length - 1][0];
+        expect(selectedIds.length).toBe(0);
+      });
+
       // Cancel edit
       const cancelButton = screen.getByRole('button', { name: /cancel/i });
       fireEvent.click(cancelButton);
@@ -250,8 +271,16 @@ describe('Selection + Edit Integration', () => {
         expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
       });
 
-      // Selection state should be maintained or restored
-      // The implementation may vary, but edit should be canceled
+      // Selection should remain cleared after canceling (not restored)
+      const checkboxesAfterCancel = screen.getAllByRole('checkbox', { name: /select row/i });
+      const bobCheckboxAfterCancel = checkboxesAfterCancel.find(cb => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '2';
+      });
+
+      if (bobCheckboxAfterCancel) {
+        expect(bobCheckboxAfterCancel).not.toBeChecked();
+      }
       expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
     });
   });
@@ -374,7 +403,7 @@ describe('Selection + Edit Integration', () => {
   });
 
   describe('Test selection state persistence', () => {
-    it('should persist selection across edit operations', async () => {
+    it('should clear selection when editing and keep it cleared after saving', async () => {
       const onSelectionChange = vi.fn();
 
       render(
@@ -413,6 +442,12 @@ describe('Selection + Edit Integration', () => {
         expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
       });
 
+      // Selection should be cleared when edit starts
+      await waitFor(() => {
+        const selectedIds = onSelectionChange.mock.calls[onSelectionChange.mock.calls.length - 1][0];
+        expect(selectedIds.length).toBe(0);
+      });
+
       // Save edit
       const saveButton = screen.getByRole('button', { name: /save/i });
       fireEvent.click(saveButton);
@@ -421,14 +456,20 @@ describe('Selection + Edit Integration', () => {
         expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
       });
 
-      // Selection should still be maintained
-      if (davidCheckbox) {
-        // Checkbox state might be maintained
-        expect(screen.getByText('David')).toBeInTheDocument();
+      // Selection should remain cleared after saving (not restored)
+      const checkboxesAfterSave = screen.getAllByRole('checkbox', { name: /select row/i });
+      const davidCheckboxAfterSave = checkboxesAfterSave.find(cb => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '4';
+      });
+
+      if (davidCheckboxAfterSave) {
+        expect(davidCheckboxAfterSave).not.toBeChecked();
       }
+      expect(screen.getByText('David')).toBeInTheDocument();
     });
 
-    it('should maintain selection when editing and canceling', async () => {
+    it('should clear selection when editing and keep it cleared after canceling', async () => {
       const onSelectionChange = vi.fn();
 
       render(
@@ -475,6 +516,12 @@ describe('Selection + Edit Integration', () => {
         expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
       });
 
+      // Selection should be cleared when edit starts
+      await waitFor(() => {
+        const selectedIds = onSelectionChange.mock.calls[onSelectionChange.mock.calls.length - 1][0];
+        expect(selectedIds.length).toBe(0);
+      });
+
       // Cancel edit
       const cancelButton = screen.getByRole('button', { name: /cancel/i });
       fireEvent.click(cancelButton);
@@ -483,12 +530,22 @@ describe('Selection + Edit Integration', () => {
         expect(screen.queryByRole('button', { name: /save/i })).not.toBeInTheDocument();
       });
 
-      // Selection should be maintained
-      if (bobCheckbox) {
-        expect(bobCheckbox).toBeChecked();
+      // Selection should remain cleared after canceling (not restored)
+      const checkboxesAfterCancel = screen.getAllByRole('checkbox', { name: /select row/i });
+      const bobCheckboxAfterCancel = checkboxesAfterCancel.find(cb => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '2';
+      });
+      const charlieCheckboxAfterCancel = checkboxesAfterCancel.find(cb => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '3';
+      });
+
+      if (bobCheckboxAfterCancel) {
+        expect(bobCheckboxAfterCancel).not.toBeChecked();
       }
-      if (charlieCheckbox) {
-        expect(charlieCheckbox).toBeChecked();
+      if (charlieCheckboxAfterCancel) {
+        expect(charlieCheckboxAfterCancel).not.toBeChecked();
       }
     });
 

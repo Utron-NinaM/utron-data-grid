@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { applySort, getStoredSortModel, saveSortModel } from '../utils/sortUtils';
 import debounce from 'lodash/debounce';
 import { applyFilters, FILTER_DEBOUNCE_MS, getStoredFilterModel, saveFilterModel } from '../filters/filterUtils';
@@ -95,6 +95,19 @@ export function useDataGrid(props) {
   useEffect(() => {
     saveSortModel(gridId, sortModel);
   }, [sortModel, gridId]);
+
+  // Clear selection when edit mode starts
+  const prevEditRowIdRef = useRef(null);
+  useEffect(() => {
+    // Clear selection when editRowId transitions from null to a value (edit starts)
+    if (editRowId && !prevEditRowIdRef.current) {
+      if (selection.size > 0) {
+        setSelection(new Set());
+        onSelectionChange?.([]);
+      }
+    }
+    prevEditRowIdRef.current = editRowId;
+  }, [editRowId, onSelectionChange]);
 
   const setSortModel = useCallback(
     (next) => {
