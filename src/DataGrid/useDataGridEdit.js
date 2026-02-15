@@ -26,6 +26,7 @@ export function useDataGridEdit({
 }) {
   const [editRowId, setEditRowId] = useState(null);
   const [editValues, setEditValues] = useState({});
+  const [originalRow, setOriginalRow] = useState(null);
   const [validationErrors, setValidationErrors] = useState([]);
 
   const handleRowDoubleClick = useCallback(
@@ -35,6 +36,7 @@ export function useDataGridEdit({
       const id = getRowId(row);
       setEditRowId(id);
       setEditValues({ ...row });
+      setOriginalRow(row);
       setValidationErrors([]);
       onEditStart?.(id, row);
     },
@@ -49,12 +51,13 @@ export function useDataGridEdit({
     const id = editRowId;
     setEditRowId(null);
     setEditValues({});
+    setOriginalRow(null);
     setValidationErrors([]);
     onEditCancel?.(id);
   }, [editRowId, onEditCancel]);
 
   const handleEditSave = useCallback(() => {
-    const errors = validateRow(editValues, columns);
+    const errors = validateRow(editValues, columns, originalRow);
     if (errors.length > 0) {
       onValidationFail?.(editRowId, errors);
       setValidationErrors(errors);
@@ -64,7 +67,8 @@ export function useDataGridEdit({
     onEditCommit?.(editRowId, editValues);
     setEditRowId(null);
     setEditValues({});
-  }, [editValues, editRowId, columns, onEditCommit, onValidationFail]);
+    setOriginalRow(null);
+  }, [editValues, editRowId, columns, originalRow, onEditCommit, onValidationFail]);
 
   return {
     editRowId,

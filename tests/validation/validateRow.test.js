@@ -6,19 +6,19 @@ describe('validateRow', () => {
     it('returns [] when columns have no validators', () => {
       const row = { id: 1, name: 'Alice' };
       const columns = [{ field: 'name', headerName: 'Name' }];
-      expect(validateRow(row, columns)).toEqual([]);
+      expect(validateRow(row, columns, row)).toEqual([]);
     });
 
     it('returns [] when validators is empty array', () => {
       const row = { id: 1, name: 'Alice' };
       const columns = [{ field: 'name', headerName: 'Name', validators: [] }];
-      expect(validateRow(row, columns)).toEqual([]);
+      expect(validateRow(row, columns, row)).toEqual([]);
     });
 
     it('skips column when validators is missing', () => {
       const row = { id: 1, name: 'Alice' };
       const columns = [{ field: 'name', headerName: 'Name' }];
-      expect(validateRow(row, columns)).toEqual([]);
+      expect(validateRow(row, columns, row)).toEqual([]);
     });
   });
 
@@ -31,7 +31,7 @@ describe('validateRow', () => {
           validators: [{ validate: () => false, message: 'Score must be positive' }],
         },
       ];
-      expect(validateRow(row, columns)).toEqual([
+      expect(validateRow(row, columns, row)).toEqual([
         { field: 'score', message: 'Score must be positive' },
       ]);
     });
@@ -44,7 +44,7 @@ describe('validateRow', () => {
           validators: [{ validate: () => false }],
         },
       ];
-      expect(validateRow(row, columns)).toEqual([
+      expect(validateRow(row, columns, row)).toEqual([
         { field: 'score', message: 'Invalid' },
       ]);
     });
@@ -62,7 +62,7 @@ describe('validateRow', () => {
           ],
         },
       ];
-      expect(validateRow(row, columns)).toEqual([
+      expect(validateRow(row, columns, row)).toEqual([
         { field: 'email', message: 'Enter a valid email' },
       ]);
     });
@@ -75,7 +75,7 @@ describe('validateRow', () => {
           validators: [{ validate: (v) => v > 0, message: 'Must be positive' }],
         },
       ];
-      expect(validateRow(row, columns)).toEqual([]);
+      expect(validateRow(row, columns, row)).toEqual([]);
     });
 
     it('returns [] when validator returns empty string', () => {
@@ -86,7 +86,7 @@ describe('validateRow', () => {
           validators: [{ validate: () => '', message: 'Required' }],
         },
       ];
-      expect(validateRow(row, columns)).toEqual([]);
+      expect(validateRow(row, columns, row)).toEqual([]);
     });
   });
 
@@ -102,7 +102,7 @@ describe('validateRow', () => {
           ],
         },
       ];
-      const result = validateRow(row, columns);
+      const result = validateRow(row, columns, row);
       expect(result).toHaveLength(1);
       expect(result[0].message).toBe('Non-negative');
     });
@@ -118,7 +118,7 @@ describe('validateRow', () => {
           ],
         },
       ];
-      const result = validateRow(row, columns);
+      const result = validateRow(row, columns, row);
       expect(result).toHaveLength(1);
       expect(result[0].message).toBe('At most 100');
     });
@@ -137,13 +137,13 @@ describe('validateRow', () => {
           validators: [{ validate: (v) => v >= 0, message: 'Score must be >= 0' }],
         },
       ];
-      expect(validateRow(row, columns)).toEqual(
+      expect(validateRow(row, columns, row)).toEqual(
         expect.arrayContaining([
           { field: 'name', message: 'Name required' },
           { field: 'score', message: 'Score must be >= 0' },
         ])
       );
-      expect(validateRow(row, columns)).toHaveLength(2);
+      expect(validateRow(row, columns, row)).toHaveLength(2);
     });
 
     it('skips columns without validators and validates others', () => {
@@ -155,7 +155,7 @@ describe('validateRow', () => {
           validators: [{ validate: (v) => v >= 0, message: 'Invalid score' }],
         },
       ];
-      expect(validateRow(row, columns)).toEqual([
+      expect(validateRow(row, columns, row)).toEqual([
         { field: 'score', message: 'Invalid score' },
       ]);
     });
@@ -175,10 +175,89 @@ describe('validateRow', () => {
           ],
         },
       ];
-      expect(validateRow(row, columns)).toEqual([]);
+      expect(validateRow(row, columns, row)).toEqual([]);
       const badRow = { id: 2, min: 20, max: 10 };
-      expect(validateRow(badRow, columns)).toEqual([
+      expect(validateRow(badRow, columns, badRow)).toEqual([
         { field: 'max', message: 'Max must be >= min' },
+      ]);
+    });
+  });
+
+  describe('conditional editing', () => {
+    it('skips validation for non-editable columns', () => {
+      const row = { id: 1, name: '', status: 'Completed' };
+      const originalRow = { id: 1, name: '', status: 'Completed' };
+      const columns = [
+        {
+          field: 'name',
+          editable: true,
+          validators: [{ validate: (v) => v.length > 0 || 'Name required' }],
+        },
+        {
+          field: 'status',
+          editable: false,
+          validators: [{ validate: (v) => v === 'Pending' || 'Must be Pending' }],
+        },
+      ];
+      const result = validateRow(row, columns, originalRow);
+      // Only name should be validated (status is not editable)
+      expect(result).toEqual([{ field: 'name', message: 'Name required' }]);
+    });
+
+    it('validates conditionally editable columns when function returns true', () => {
+      const row = { id: 1, notes: '', status: 'Pending' };
+      const originalRow = { id: 1, notes: '', status: 'Pending' };
+      const columns = [
+        {
+          field: 'notes',
+          editable: (r) => r.status === 'Pending',
+          validators: [{ validate: (v) => v.length > 0 || 'Notes required' }],
+        },
+      ];
+      const result = validateRow(row, columns, originalRow);
+      expect(result).toEqual([{ field: 'notes', message: 'Notes required' }]);
+    });
+
+    it('skips validation for conditionally editable columns when function returns false', () => {
+      const row = { id: 1, notes: '', status: 'Completed' };
+      const originalRow = { id: 1, notes: '', status: 'Completed' };
+      const columns = [
+        {
+          field: 'notes',
+          editable: (r) => r.status === 'Pending',
+          validators: [{ validate: (v) => v.length > 0 || 'Notes required' }],
+        },
+      ];
+      const result = validateRow(row, columns, originalRow);
+      // Notes should not be validated (not editable for Completed status)
+      expect(result).toEqual([]);
+    });
+
+    it('handles mixed editable types (boolean and function)', () => {
+      const row = { id: 1, name: '', priority: 'Low', status: 'Pending' };
+      const originalRow = { id: 1, name: '', priority: 'Low', status: 'Pending' };
+      const columns = [
+        {
+          field: 'name',
+          editable: true,
+          validators: [{ validate: (v) => v.length > 0 || 'Name required' }],
+        },
+        {
+          field: 'priority',
+          editable: (r) => r.status === 'Pending',
+          validators: [{ validate: (v) => v !== 'Low' || 'Priority too low' }],
+        },
+        {
+          field: 'status',
+          editable: false,
+          validators: [{ validate: () => false || 'Should not validate' }],
+        },
+      ];
+      const result = validateRow(row, columns, originalRow);
+      // name and priority should be validated, status should not
+      expect(result).toEqual([
+        { field: 'name', message: 'Name required' },
+        { field: 'priority', message: 'Priority too low' },
       ]);
     });
   });

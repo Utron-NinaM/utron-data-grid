@@ -92,12 +92,12 @@ Each column can define:
 - `type` – `'text' | 'number' | 'date' | 'datetime' | 'list'`
 - `filter` – same as type or `false` to disable
 - `filterOptions.listValues` – for list filter options
-- `editable` (boolean)
+- `editable` – `boolean | ((row) => boolean)` – enables editing. Use a function for conditional editing based on row data
 - `width` – number (px) or string (e.g. `"20%"`)
 - `validators` – `[{ validate: (value, row) => boolean|string, message? }]`
 - `options` – for list type (dropdown options)
 - `render(value, row)` – custom display (not used when editing)
-- `rowStyle(row)` – sx for the row (when this column’s condition applies)
+- `rowStyle(row)` – sx for the row (when this column's condition applies)
 - `cellStyle(value, row)` – sx for the cell
 - `align` – `'left' | 'right' | 'center'`
 
@@ -105,6 +105,17 @@ Example:
 
 ```js
 { field: 'price', headerName: 'Price', type: 'number', filter: 'number', editable: true, width: 100 }
+```
+
+Conditional editing example:
+
+```js
+{ 
+  field: 'notes', 
+  headerName: 'Notes', 
+  type: 'text', 
+  editable: (row) => row.status === 'Pending'  // Only editable for pending rows
+}
 ```
 
 ## Translations

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { DataGridExample } from './DataGridExample';
 import { EditingValidationExample } from './EditingValidationExample';
+import { ConditionalEditingExample } from './ConditionalEditingExample';
 
 const examples = [
   { id: 'all-features', name: 'All Features', component: DataGridExample },
   { id: 'editing-validation', name: 'Editing & Validation', component: EditingValidationExample },
+  { id: 'conditional-editing', name: 'Conditional Editing', component: ConditionalEditingExample },
 ];
 
 export function ExampleMenu() {
