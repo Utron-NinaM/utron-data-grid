@@ -46,14 +46,14 @@ function GridTableInner({
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
   const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters,
-     headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap } = ctx;
+    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap } = ctx;
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
-  
+
   // Ref to track pending click timeout and prevent click handler from firing on double-click
   const clickTimeoutRef = useRef(null);
   const DOUBLE_CLICK_DELAY = 300; // ms
-    
+
   const mergedRowStylesMap = useMemo(() => {
     const map = new Map();
     rows.forEach((row) => {
@@ -67,30 +67,30 @@ function GridTableInner({
           },
           '&.Mui-selected:hover': {
             ...selectedRowStyle,
-          },      
+          },
         },
       ]);
     });
     return map;
   }, [rows, rowStylesMap, selectedRowStyle, getRowId]);
-  
+
   // Event delegation handlers for row clicks - single handler for all rows
   const handleTableBodyClick = useMemo(() => {
     if (!onRowClick) return undefined;
     return (event) => {
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
-      
+
       // Clear any pending click timeout
       if (clickTimeoutRef.current) {
         clearTimeout(clickTimeoutRef.current);
         clickTimeoutRef.current = null;
       }
-      
+
       // Schedule the click handler with a delay to allow double-click to cancel it
       const rowId = rowElement.getAttribute('data-row-id');
       const row = rows.find(r => String(getRowId(r)) === rowId);
-      
+
       if (row) {
         clickTimeoutRef.current = setTimeout(() => {
           clickTimeoutRef.current = null;
@@ -108,7 +108,7 @@ function GridTableInner({
         clearTimeout(clickTimeoutRef.current);
         clickTimeoutRef.current = null;
       }
-      
+
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
       const rowId = rowElement.getAttribute('data-row-id');
@@ -122,7 +122,7 @@ function GridTableInner({
     if (!onSelect) return undefined;
     return (rowId, checked) => onSelect(rowId, checked);
   }, [onSelect]);
-  
+
   // Compute body rows inline - React reconciliation handles optimization efficiently
   let bodyRows;
   if (rows.length === 0) {
@@ -135,12 +135,12 @@ function GridTableInner({
     );
   } else {
     const errorSetToUse = errorSet || EMPTY_ERROR_SET;
-    
+
     bodyRows = rows.map((row) => {
       const rowId = getRowId(row);
       const isSelected = selectedRowId === rowId;
       const isEditing = editRowId === rowId;
-      
+
       return (
         <GridBodyRow
           key={rowId}
@@ -160,7 +160,7 @@ function GridTableInner({
       );
     });
   }
-  
+
   return (
     <>
       {(onClearSort || onClearAllFilters) && (
@@ -230,7 +230,7 @@ function GridTableInner({
                       key={col.field}
                       column={col}
                       slot={getFilterInputSlot(col, translations)}
-  
+
                     />
                   ))}
                 </TableRow>
@@ -256,20 +256,20 @@ function GridTableInner({
                       key={col.field}
                       column={col}
                       slot={getFilterToInputSlot(col)}
-  
+
                     />
                   ))}
                 </TableRow>
               )}
             </TableHead>
-          <TableBody
-            onClick={handleTableBodyClick}
-            onDoubleClick={handleTableBodyDoubleClick}
-          >
-            {bodyRows}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            <TableBody
+              onClick={handleTableBodyClick}
+              onDoubleClick={handleTableBodyDoubleClick}
+            >
+              {bodyRows}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </GridErrorBoundary>
     </>
   );

@@ -217,9 +217,12 @@ export function useDataGrid(props) {
         onRowDoubleClick(row);
       }
       // Then call the edit handler (which handles entering edit mode)
-      handleRowDoubleClick(row);
+      // Only call if editable is enabled to avoid unnecessary calls
+      if (editable && onEditCommit) {
+        handleRowDoubleClick(row);
+      }
     },
-    [onRowDoubleClick, handleRowDoubleClick]
+    [onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit]
   );
 
   const filteredRows = useMemo(

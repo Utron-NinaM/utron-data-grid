@@ -21,8 +21,7 @@ export function DataGridExample() {
     setData((prev) => prev.map((r) => (r.id === rowId ? { ...r, ...row } : r)));
   };
 
-  const handleRowSelect = (rowId, row) => {
-    console.log('row selected', row);
+  const handleRowSelect = (rowId, row) => {   
     setSelectedRow(row);
   };
 
