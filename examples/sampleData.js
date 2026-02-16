@@ -53,5 +53,5 @@ export const sampleData = Array.from({ length: 10005 }, (_, i) => ({
   statusHebrew: randomItem(statusesHebrew),
   description: randomItem(descriptions),
   descriptionHebrew: randomItem(descriptionsHebrew),
-  date: randomDateTime(),
+  createdAt: randomDateTime(),
 }));
