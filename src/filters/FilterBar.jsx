@@ -6,16 +6,16 @@ import { ListFilter } from './filters/ListFilter';
 import { OperatorDropdown } from './filters/OperatorDropdown';
 import {
   DEFAULT_FIELD_TYPE,
-  FIELD_TYPE_NUMBER,
-  FIELD_TYPE_DATE,
-  FIELD_TYPE_DATETIME,
-  FIELD_TYPE_LIST,
   OPERATOR_IN_RANGE,
   OPERATOR_CONTAINS,
   DIRECTION_LTR,
   NUMBER_OP_IDS,
   DATE_OP_IDS,
   TEXT_OP_IDS,
+  FILTER_TYPE_TEXT,
+  FILTER_TYPE_NUMBER,
+  FILTER_TYPE_DATE,
+  FILTER_TYPE_LIST,
 } from '../config/schema';
 
 /**
@@ -25,22 +25,26 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
-  const operatorMap = filterType === FIELD_TYPE_NUMBER ? NUMBER_OP_IDS : filterType === FIELD_TYPE_DATE ? DATE_OP_IDS : TEXT_OP_IDS;
-
   if (filterType === false) return null;
+  let operatorMap = null;
 
   switch (filterType) {
-    case FIELD_TYPE_NUMBER:
-    case FIELD_TYPE_DATE:
-    case FIELD_TYPE_DATETIME:
-      return (
-        <OperatorDropdown
-          value={state}
-          onChange={(v) => onFilterChange(field, v)}
-          operatorMap={operatorMap}
-        />
-      );
-    case FIELD_TYPE_LIST:
+    case FILTER_TYPE_NUMBER:
+      operatorMap = NUMBER_OP_IDS;
+      break;
+    case FILTER_TYPE_DATE:
+      operatorMap = DATE_OP_IDS;
+      break;
+    case FILTER_TYPE_TEXT:
+      operatorMap = TEXT_OP_IDS;
+      break;
+    default:
+      operatorMap = TEXT_OP_IDS;
+      break;
+  }
+
+  switch (filterType) {   
+    case FILTER_TYPE_LIST:
       return null;
     default:
       return (
@@ -65,7 +69,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
   if (filterType === false) return null;
 
   switch (filterType) {
-    case FIELD_TYPE_NUMBER:
+    case FILTER_TYPE_NUMBER:
       return (
         <NumberFilterInputs
           value={state}
@@ -73,8 +77,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
           placeholder={placeholder}
         />
       );
-    case FIELD_TYPE_DATE:
-    case FIELD_TYPE_DATETIME:
+    case FILTER_TYPE_DATE:    
       return (
         <DateFilterInputs
           value={state}
@@ -83,7 +86,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
           direction={direction}
         />
       );
-    case FIELD_TYPE_LIST:
+    case FILTER_TYPE_LIST:
       return (
         <ListFilter
           value={state?.value ?? state}
@@ -125,15 +128,14 @@ export function getFilterToInputSlot(column, filterModel, onFilterChange, direct
   if (state?.operator !== OPERATOR_IN_RANGE) return null;
 
   switch (filterType) {
-    case FIELD_TYPE_NUMBER:
+    case FILTER_TYPE_NUMBER:
       return (
         <NumberFilterToInput
           value={state}
           onChange={(v) => onFilterChange(field, v)}
         />
       );
-    case FIELD_TYPE_DATE:
-    case FIELD_TYPE_DATETIME:
+    case FILTER_TYPE_DATE:    
       return (
         <DateFilterToInput
           value={state}

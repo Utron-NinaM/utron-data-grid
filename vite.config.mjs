@@ -36,24 +36,38 @@ export default defineConfig({
       formats: ['es', 'umd'],
     },
     rollupOptions: {
-      external: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        '@mui/material',
-        '@mui/icons-material',
-        '@mui/x-date-pickers',
-        '@emotion/react',
-        '@emotion/styled',
-        'dayjs',
-      ],
+      external: (id) => {
+        return (
+          id === 'react' ||
+          id === 'react-dom' ||
+          id === 'react/jsx-runtime' ||
+          id.startsWith('@mui/material') ||
+          id.startsWith('@mui/icons-material') ||
+          id.startsWith('@mui/x-date-pickers') ||
+          id.startsWith('@emotion/react') ||
+          id.startsWith('@emotion/styled') ||
+          id === 'dayjs'
+        );
+      },
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'React.jsxRuntime',
           '@mui/material': 'MaterialUI',
           '@mui/icons-material': 'MaterialUIIcons',
+          '@mui/icons-material/FirstPage': 'MaterialUIIcons.FirstPage',
+          '@mui/icons-material/LastPage': 'MaterialUIIcons.LastPage',
+          '@mui/icons-material/ChevronLeft': 'MaterialUIIcons.ChevronLeft',
+          '@mui/icons-material/ChevronRight': 'MaterialUIIcons.ChevronRight',
+          '@mui/icons-material/Clear': 'MaterialUIIcons.Clear',
+          '@mui/icons-material/CheckBoxOutlineBlank': 'MaterialUIIcons.CheckBoxOutlineBlank',
+          '@mui/icons-material/CheckBox': 'MaterialUIIcons.CheckBox',
+          '@mui/icons-material/ArrowDropDown': 'MaterialUIIcons.ArrowDropDown',
           '@mui/x-date-pickers': 'MuiXDatePickers',
+          '@mui/x-date-pickers/DatePicker': 'MuiXDatePickers.DatePicker',
+          '@mui/x-date-pickers/LocalizationProvider': 'MuiXDatePickers.LocalizationProvider',
+          '@mui/x-date-pickers/AdapterDayjs': 'MuiXDatePickers.AdapterDayjs',
           '@emotion/react': 'emotionReact',
           '@emotion/styled': 'emotionStyled',
           dayjs: 'dayjs',

@@ -29,6 +29,15 @@ function randomDate() {
   const d = String(1 + Math.floor(Math.random() * 28)).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+function randomDateTime() {
+  const y = 2019 + Math.floor(Math.random() * 5);
+  const m = String(1 + Math.floor(Math.random() * 12)).padStart(2, '0');
+  const d = String(1 + Math.floor(Math.random() * 28)).padStart(2, '0');
+  const h = String(Math.floor(Math.random() * 24)).padStart(2, '0');
+  const min = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+  const s = String(Math.floor(Math.random() * 60)).padStart(2, '0');
+  return `${y}-${m}-${d} ${h}:${min}:${s}`;
+}
 
 export const sampleData = Array.from({ length: 10005 }, (_, i) => ({
   id: i + 1,
@@ -44,5 +53,5 @@ export const sampleData = Array.from({ length: 10005 }, (_, i) => ({
   statusHebrew: randomItem(statusesHebrew),
   description: randomItem(descriptions),
   descriptionHebrew: randomItem(descriptionsHebrew),
-  date: randomDate(),
+  date: randomDateTime(),
 }));

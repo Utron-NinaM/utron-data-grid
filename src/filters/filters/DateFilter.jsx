@@ -2,13 +2,14 @@ import React from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { Box, TextField, Typography } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import { ClearButton } from './ClearButton';
 import { getDateFormat } from '../../utils/directionUtils';
 import { useTranslations } from '../../localization/useTranslations';
+
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
-import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN, OPERATOR_PERIOD } from '../../config/schema';
+import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN, OPERATOR_PERIOD , DIRECTION_LTR} from '../../config/schema';
 
 const PERIOD_UNITS = ['hours', 'days', 'weeks', 'months', 'years'];
 
@@ -34,7 +35,7 @@ function getSlotProps(direction) {
 }
 
 /** Date picker (from only) + clear. "To" is rendered in separate header row when inRange. For OPERATOR_PERIOD: "Last" label + number input + unit combo. */
-export function DateFilterInputs({ value, onChange, placeholder, direction = DIRECTION_LTR }) {
+export function DateFilterInputs({ value, onChange, direction = DIRECTION_LTR }) {
   const t = useTranslations();
   const format = getDateFormat(direction);
   const dateVal = value?.value != null ? dayjs(value.value) : null;

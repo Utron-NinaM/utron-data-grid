@@ -1,5 +1,5 @@
 /** Example column config: cars (Make, Model, Price, Year, Color, Electric, Status, Date) */
-import { FIELD_TYPE_TEXT, FIELD_TYPE_NUMBER, FIELD_TYPE_DATE, FIELD_TYPE_LIST } from '../src/config/schema';
+import { FIELD_TYPE_TEXT, FIELD_TYPE_NUMBER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST } from '../src/config/schema';
 
 export const columnsConfig = [
   { field: 'make', headerName: 'Make', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 120 },
@@ -27,7 +27,7 @@ export const columnsConfig = [
     filterOptions: { listValues: ['Yes', 'No'] },
     cellStyle: (value, row) => (value === 'Yes' ? { backgroundColor: '#e8f5e9' } : {}),
   },
-  { field: 'date', headerName: 'Date', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
+  { field: 'createdAt', headerName: 'Date', type: FIELD_TYPE_DATETIME, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
   {
     field: 'status',
     headerName: 'Status',
@@ -79,6 +79,6 @@ export const columnsConfigHebrew = [
     filterOptions: { listValues: ['פעיל', 'לא פעיל', 'ממתין'] },
     rowStyle: (row) => (row.statusHebrew === 'ממתין' ? { backgroundColor: '#fff3e0' } : {}),
   },
-  { field: 'date', headerName: 'תאריך', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
+  { field: 'createdAt', headerName: 'תאריך', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
   { field: 'descriptionHebrew', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 150 },  
 ];

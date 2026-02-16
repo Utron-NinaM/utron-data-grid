@@ -21,7 +21,7 @@ import { faClock, faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-
  * width?: number | string (px or "20%")
  * minWidth?: number
  * type?: 'text' | 'number' | 'date' | 'datetime' | 'list'
- * filter?: 'text' | 'number' | 'date' | 'datetime' | 'list' | false
+ * filter?: 'text' | 'number' | 'date' | 'list' | 'none'
  * filterOptions?: { listValues?: any[] }
  * editable?: boolean | ((row) => boolean)
  * validators?: Array<{ validate: (value, row) => boolean|string, message?: string }>
@@ -38,10 +38,12 @@ export const FIELD_TYPE_NUMBER = 'number';
 export const FIELD_TYPE_DATE = 'date';
 export const FIELD_TYPE_DATETIME = 'datetime';
 export const FIELD_TYPE_LIST = 'list';
-export const NONE = 'none';
 
-export const COLUMN_TYPES = [FIELD_TYPE_TEXT, FIELD_TYPE_NUMBER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST];
-export const FILTER_TYPES = [FIELD_TYPE_TEXT, FIELD_TYPE_NUMBER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST, NONE];
+export const FILTER_TYPE_NONE = 'none';
+export const FILTER_TYPE_TEXT = FIELD_TYPE_TEXT;
+export const FILTER_TYPE_NUMBER = FIELD_TYPE_NUMBER;
+export const FILTER_TYPE_DATE = FIELD_TYPE_DATE;
+export const FILTER_TYPE_LIST = FIELD_TYPE_LIST;
 
 // Default field type
 export const DEFAULT_FIELD_TYPE = FIELD_TYPE_TEXT;
