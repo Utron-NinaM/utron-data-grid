@@ -3,13 +3,15 @@ import { DataGrid } from '../src/DataGrid/DataGrid';
 import { columnsConfig, columnsConfigHebrew } from './columnsConfig';
 import { sampleData } from './sampleData';
 import { en } from './translations';
-import { Button } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import { DIRECTION_RTL, DIRECTION_LTR } from '../src/config/schema';
 
 export function DataGridExample() {
   const [direction, setDirection] = useState(DIRECTION_RTL);
   const [data, setData] = useState(sampleData);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [doubleClickedRow, setDoubleClickedRow] = useState(null);
 
   const columns = useMemo(() => {
     return direction === DIRECTION_RTL ? columnsConfigHebrew : columnsConfig;
@@ -20,6 +22,7 @@ export function DataGridExample() {
   };
 
   const handleRowSelect = (rowId, row) => {
+    console.log('row selected', row);
     setSelectedRow(row);
   };
 
@@ -28,6 +31,16 @@ export function DataGridExample() {
       setData((prev) => prev.filter((r) => r.id !== selectedRow.id));
       setSelectedRow(null);
     }
+  };
+
+  const handleRowDoubleClick = (row) => {
+    setDoubleClickedRow(row);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setDoubleClickedRow(null);
   };
 
   return (
@@ -71,6 +84,7 @@ export function DataGridExample() {
             pageSizeOptions: [5, 10, 25, 50, 100],
             onEditCommit: handleEditCommit,
             onRowSelect: handleRowSelect,
+            onRowDoubleClick: handleRowDoubleClick,
             headerConfig: {
               mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30 },
               filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
@@ -80,6 +94,41 @@ export function DataGridExample() {
           }}
         />
       </div>
+      <Dialog open={modalOpen} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+        <DialogTitle>Row Details</DialogTitle>
+        <DialogContent>
+          {doubleClickedRow && (
+            <DialogContentText component="div">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div><strong>ID:</strong> {doubleClickedRow.id}</div>
+                <div><strong>Make:</strong> {doubleClickedRow.make}</div>
+                <div><strong>Model:</strong> {doubleClickedRow.model}</div>
+                <div><strong>Year:</strong> {doubleClickedRow.year}</div>
+                <div><strong>Price:</strong> ${doubleClickedRow.price?.toLocaleString()}</div>
+                <div><strong>Color:</strong> {doubleClickedRow.color}</div>
+                <div><strong>Electric:</strong> {doubleClickedRow.electric}</div>
+                <div><strong>Status:</strong> {doubleClickedRow.status}</div>
+                {doubleClickedRow.description && (
+                  <div style={{ marginTop: 8 }}>
+                    <strong>Description:</strong>
+                    <div style={{ marginTop: 4, padding: 8, backgroundColor: '#f5f5f5', borderRadius: 4 }}>
+                      {doubleClickedRow.description}
+                    </div>
+                  </div>
+                )}
+                {doubleClickedRow.createdAt && (
+                  <div><strong>Created At:</strong> {doubleClickedRow.createdAt}</div>
+                )}
+              </div>
+            </DialogContentText>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal} variant="contained">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

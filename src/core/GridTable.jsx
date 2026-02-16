@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo } from 'react';
+import React, { memo, useContext, useMemo, useRef } from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext } from '../DataGrid/DataGridContext';
@@ -49,6 +49,10 @@ function GridTableInner({
      headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap } = ctx;
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
+  
+  // Ref to track pending click timeout and prevent click handler from firing on double-click
+  const clickTimeoutRef = useRef(null);
+  const DOUBLE_CLICK_DELAY = 300; // ms
     
   const mergedRowStylesMap = useMemo(() => {
     const map = new Map();
@@ -76,15 +80,35 @@ function GridTableInner({
     return (event) => {
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
+      
+      // Clear any pending click timeout
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+      
+      // Schedule the click handler with a delay to allow double-click to cancel it
       const rowId = rowElement.getAttribute('data-row-id');
       const row = rows.find(r => String(getRowId(r)) === rowId);
-      if (row) onRowClick(row);
+      
+      if (row) {
+        clickTimeoutRef.current = setTimeout(() => {
+          clickTimeoutRef.current = null;
+          onRowClick(row);
+        }, DOUBLE_CLICK_DELAY);
+      }
     };
   }, [onRowClick, rows, getRowId]);
 
   const handleTableBodyDoubleClick = useMemo(() => {
     if (!onRowDoubleClick) return undefined;
     return (event) => {
+      // Cancel any pending click handler
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = null;
+      }
+      
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
       const rowId = rowElement.getAttribute('data-row-id');

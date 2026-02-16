@@ -30,6 +30,7 @@ export function useDataGrid(props) {
     isRowEditable,
     onSelectionChange,
     onRowSelect,
+    onRowDoubleClick,
     getRowId,
     editable = defaultGridConfig.editable,
     multiSelectable = defaultGridConfig.multiSelectable,
@@ -75,7 +76,7 @@ export function useDataGrid(props) {
   const pageSize = internalPageSize;
 
   const [debouncedFilterModel, setDebouncedFilterModel] = useState(filterModel);
-  
+
   useEffect(() => {
     const isEmpty = !filterModel || Object.keys(filterModel).length === 0;
     if (isEmpty) {
@@ -135,7 +136,7 @@ export function useDataGrid(props) {
     (field, multiColumn = false) => {
       const current = sortModel.find((s) => s.field === field);
       let next;
-      
+
       if (!multiColumn) {
         // Single click: replace entire sortModel with only this column
         if (!current) {
@@ -200,12 +201,25 @@ export function useDataGrid(props) {
   const handleRowClick = useCallback(
     (row) => {
       if (onRowSelect) {
-        const id = getRowId(row);        
+        const id = getRowId(row);
         setSelectedRowId(id);
         onRowSelect(id, row);
       }
     },
     [onRowSelect, getRowId]
+  );
+
+  // Wrapper that calls user's onRowDoubleClick callback, then the edit handler
+  const handleRowDoubleClickWrapper = useCallback(
+    (row) => {
+      // First call the user's callback if provided
+      if (onRowDoubleClick) {
+        onRowDoubleClick(row);
+      }
+      // Then call the edit handler (which handles entering edit mode)
+      handleRowDoubleClick(row);
+    },
+    [onRowDoubleClick, handleRowDoubleClick]
   );
 
   const filteredRows = useMemo(
@@ -274,6 +288,7 @@ export function useDataGrid(props) {
       multiSelectable,
       filterInputHeight,
       onRowSelect,
+      onRowDoubleClick,
       getEditor: getEditorForCell,
       onClearSort: handleClearSort,
       onClearAllFilters: handleClearAllFilters,
@@ -301,6 +316,7 @@ export function useDataGrid(props) {
       multiSelectable,
       filterInputHeight,
       onRowSelect,
+      onRowDoubleClick,
       getEditorForCell,
       handleClearSort,
       handleClearAllFilters,
@@ -351,7 +367,7 @@ export function useDataGrid(props) {
     page,
     pageSize,
     pageSizeOptions,
-    
+
     // Computed values
     displayRows,
     paginationResult,
@@ -360,7 +376,7 @@ export function useDataGrid(props) {
     hasActiveFilters,
     hasActiveRangeFilter,
     errorSet,
-    
+
     // Handlers
     handleSelect,
     handleSort,
@@ -368,7 +384,7 @@ export function useDataGrid(props) {
     handlePageChange,
     handlePageSizeChange,
     handleRowClick,
-    handleRowDoubleClick,
+    handleRowDoubleClick: handleRowDoubleClickWrapper,
     handleEditSave,
     handleEditCancel,
     handleClearSort,

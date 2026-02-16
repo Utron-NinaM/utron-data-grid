@@ -26,17 +26,17 @@ const truncationSx = {
 function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
   const ctx = useContext(DataGridStableContext);
   const columnAlignMap = ctx?.columnAlignMap;
-  const direction = ctx?.direction ?? DIRECTION_LTR ;
+  const direction = ctx?.direction ?? DIRECTION_LTR;
 
   const align = columnAlignMap?.get(column.field) ?? (column.align ?? ALIGN_LEFT);
   const sx = useMemo(() => {
-    const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : undefined;
+    const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : column.cellStyle;
     return {
       paddingLeft: '4px',
       paddingRight: '4px',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      ...(hasError && { border: '1px solid', borderColor: 'error.light'}),
+      ...(hasError && { border: '1px solid', borderColor: 'error.light' }),
       ...cellStyle,
     };
   }, [hasError, column, value, row]);
@@ -72,7 +72,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
     );
 
     return (
-      <Tooltip title={tooltipText} arrow slotProps={{tooltip: {sx: {fontSize: '13px'}}  }}>
+      <Tooltip title={tooltipText} arrow slotProps={{ tooltip: { sx: { fontSize: '13px' } } }}>
         <Box component="span" sx={{ display: 'block', width: '100%', minWidth: 0 }}>
           {content}
         </Box>

@@ -305,7 +305,7 @@ describe('DataGrid Component Integration', () => {
   });
 
   describe('Row click handler', () => {
-    it('should call onRowSelect when a row is clicked', () => {
+    it('should call onRowSelect when a row is clicked', async () => {
       const onRowSelect = vi.fn();
 
       render(
@@ -323,7 +323,12 @@ describe('DataGrid Component Integration', () => {
       expect(aliceRow).toBeInTheDocument();
 
       fireEvent.click(aliceRow);
-      expect(onRowSelect).toHaveBeenCalledTimes(1);
+      
+      // Wait for the delayed click handler (300ms delay)
+      await waitFor(() => {
+        expect(onRowSelect).toHaveBeenCalledTimes(1);
+      }, { timeout: 500 });
+      
       expect(onRowSelect).toHaveBeenCalledWith(
         1,
         expect.objectContaining({ id: 1, name: 'Alice', age: 30 })
@@ -347,7 +352,7 @@ describe('DataGrid Component Integration', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
 
-    it('should handle row click with multiple rows', () => {
+    it('should handle row click with multiple rows', async () => {
       const onRowSelect = vi.fn();
 
       render(
@@ -363,19 +368,26 @@ describe('DataGrid Component Integration', () => {
 
       const bobRow = screen.getByText('Bob').closest('[data-row-id]');
       fireEvent.click(bobRow);
-      expect(onRowSelect).toHaveBeenCalledWith(
-        2,
-        expect.objectContaining({ id: 2, name: 'Bob', age: 25 })
-      );
+      
+      // Wait for the delayed click handler
+      await waitFor(() => {
+        expect(onRowSelect).toHaveBeenCalledWith(
+          2,
+          expect.objectContaining({ id: 2, name: 'Bob', age: 25 })
+        );
+      }, { timeout: 500 });
 
       const charlieRow = screen.getByText('Charlie').closest('[data-row-id]');
       fireEvent.click(charlieRow);
-      expect(onRowSelect).toHaveBeenCalledWith(
-        3,
-        expect.objectContaining({ id: 3, name: 'Charlie', age: 35 })
-      );
-
-      expect(onRowSelect).toHaveBeenCalledTimes(2);
+      
+      // Wait for the delayed click handler
+      await waitFor(() => {
+        expect(onRowSelect).toHaveBeenCalledWith(
+          3,
+          expect.objectContaining({ id: 3, name: 'Charlie', age: 35 })
+        );
+        expect(onRowSelect).toHaveBeenCalledTimes(2);
+      }, { timeout: 500 });
     });
   });
 
