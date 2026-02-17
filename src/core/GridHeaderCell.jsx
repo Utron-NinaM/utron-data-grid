@@ -38,7 +38,7 @@ export function GridHeaderCell({
   const cellSx = headerCellSxMap?.get(column.field);
   const mainRowHeight = headerConfig?.mainRow?.height;
   const multiColumn = sortModel?.length > 1;
-  const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight), [filterInputHeight]);
+  const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight), [filterInputHeight]); 
 
   const handleSortClick = (event) => {
     const multiColumn = event.ctrlKey || event.metaKey;
@@ -47,23 +47,34 @@ export function GridHeaderCell({
 
   return (
     <TableCell align={align} padding="none" variant="head" sx={{ paddingLeft: '4px', paddingRight: '4px', ...cellSx }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap', py: mainRowHeight ? 0 : 0.5, boxSizing: 'border-box', height: '100%' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: headerComboSlot ? 'nowrap' : 'wrap', py: mainRowHeight ? 0 : 0.5, boxSizing: 'border-box', height: '100%' }}>
         <Tooltip title={t('sortMultiColumnHint')}>
           <TableSortLabel
             active={!!sortDir}
             direction={order}
             onClick={handleSortClick}
-            sx={{ minHeight: 20 }}
+            sx={{ minHeight: 20, flex: headerComboSlot ? 1 : 'none', minWidth: 0, overflow: 'hidden' }}
           >
-            {column.headerName}          
+            <Box
+              component="span"
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                display: 'block',
+                width: '100%',
+              }}
+            >
+              {column.headerName}
+            </Box>
           </TableSortLabel>
         </Tooltip>
         {sortOrderIndex != null && multiColumn && (
-              <Box component="span" sx={{ ml: 0.25, fontSize: '0.75rem', opacity: 0.8 }}>
+              <Box component="span" sx={{ ml: 0.25, fontSize: '0.75rem', opacity: 0.8, flexShrink: 0 }}>
                 {`(${sortOrderIndex})`}
               </Box>
             )}
-        {headerComboSlot != null && headerComboSlot}        
+        {headerComboSlot != null && <Box sx={{ flexShrink: 0 }}>{headerComboSlot}</Box>}        
       </Box>
       {filterSlot != null && <Box sx={filterBoxSx}>{filterSlot}</Box>}
     </TableCell>

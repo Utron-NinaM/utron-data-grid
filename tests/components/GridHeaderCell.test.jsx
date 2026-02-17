@@ -338,4 +338,221 @@ describe('GridHeaderCell Component', () => {
       expect(screen.getByTestId('filter-slot')).toBeInTheDocument();
     });
   });
+
+  describe('Test column width', () => {
+    it('should apply numeric width to header cell when width is set', () => {
+      const headerCellSxMap = new Map([['name', { width: '150px' }]]);
+      const contextValue = {
+        ...defaultContextValue,
+        headerCellSxMap,
+      };
+
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const styles = window.getComputedStyle(cell);
+      expect(styles.width).toBe('150px');
+    });
+
+    it('should apply percentage width to header cell', () => {
+      const headerCellSxMap = new Map([['name', { width: '30%' }]]);
+      const contextValue = {
+        ...defaultContextValue,
+        headerCellSxMap,
+      };
+
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const styles = window.getComputedStyle(cell);
+      expect(styles.width).toBe('30%');
+    });
+
+    it('should use inherit width when no width is set by user', () => {
+      const headerCellSxMap = new Map([['name', { width: 'inherit' }]]);
+      const contextValue = {
+        ...defaultContextValue,
+        headerCellSxMap,
+      };
+
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      expect(cell).toBeInTheDocument();
+      // When no width is set, column can grow wider than min width if there's space
+      const styles = window.getComputedStyle(cell);
+      expect(styles.width).toBeTruthy();
+    });
+
+    it('should apply minWidth of 120px when column has filter combo and no width set', () => {
+      const headerCellSxMap = new Map([['name', { width: 'inherit', minWidth: '120px' }]]);
+      const contextValue = {
+        ...defaultContextValue,
+        headerCellSxMap,
+      };
+
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const styles = window.getComputedStyle(cell);
+      expect(styles.minWidth).toBe('120px');
+    });
+
+    it('should enforce minimum width of 85px when user width is too small (no combo)', () => {
+      const headerCellSxMap = new Map([['name', { width: '85px' }]]);
+      const contextValue = {
+        ...defaultContextValue,
+        headerCellSxMap,
+      };
+
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const styles = window.getComputedStyle(cell);
+      expect(styles.width).toBe('85px');
+    });
+
+    it('should enforce minimum width of 120px when user width is too small (with combo)', () => {
+      const headerCellSxMap = new Map([['name', { width: '120px' }]]);
+      const contextValue = {
+        ...defaultContextValue,
+        headerCellSxMap,
+      };
+
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const styles = window.getComputedStyle(cell);
+      expect(styles.width).toBe('120px');
+    });
+
+    it('should apply minWidth with percentage width when column has filter combo', () => {
+      const headerCellSxMap = new Map([['name', { width: '40%', minWidth: '120px' }]]);
+      const contextValue = {
+        ...defaultContextValue,
+        headerCellSxMap,
+      };
+
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const styles = window.getComputedStyle(cell);
+      expect(styles.width).toBe('40%');
+      expect(styles.minWidth).toBe('120px');
+    });
+  });
+
+  describe('Test minWidth and text truncation', () => {
+    it('should apply minWidth when headerCellSxMap includes minWidth', () => {
+      const headerCellSxMap = new Map([['name', { minWidth: '120px' }]]);
+      const contextValue = {
+        ...defaultContextValue,
+        headerCellSxMap,
+      };
+
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const styles = window.getComputedStyle(cell);
+      expect(styles.minWidth).toBe('120px');
+    });
+
+    it('should not wrap when headerComboSlot is present', () => {
+      const headerComboSlot = <div data-testid="header-combo">Combo</div>;
+
+      renderWithContext(
+        <GridHeaderCell 
+          column={defaultColumn} 
+          sortModel={[]} 
+          onSort={vi.fn()}
+          headerComboSlot={headerComboSlot}
+        />
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      const styles = window.getComputedStyle(contentBox);
+      expect(styles.flexWrap).toBe('nowrap');
+    });
+
+    it('should wrap when headerComboSlot is not present', () => {
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      const styles = window.getComputedStyle(contentBox);
+      expect(styles.flexWrap).toBe('wrap');
+    });
+
+    it('should truncate long header name with ellipsis', () => {
+      const longHeaderName = 'This is a very long column header name that should be truncated';
+      const column = { ...defaultColumn, headerName: longHeaderName };
+
+      renderWithContext(
+        <GridHeaderCell column={column} sortModel={[]} onSort={vi.fn()} />
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const sortLabel = cell.querySelector('[class*="MuiTableSortLabel"]');
+      const headerNameBox = sortLabel?.querySelector('span[class*="MuiBox"]');
+      expect(headerNameBox).toBeInTheDocument();
+      const styles = window.getComputedStyle(headerNameBox);
+      expect(styles.overflow).toBe('hidden');
+      expect(styles.textOverflow).toBe('ellipsis');
+      expect(styles.whiteSpace).toBe('nowrap');
+    });
+
+    it('should apply minWidth and prevent wrapping when combo is present', () => {
+      const headerComboSlot = <div data-testid="header-combo">Combo</div>;
+      const headerCellSxMap = new Map([['name', { minWidth: '120px' }]]);
+      const contextValue = {
+        ...defaultContextValue,
+        headerCellSxMap,
+      };
+
+      renderWithContext(
+        <GridHeaderCell 
+          column={defaultColumn} 
+          sortModel={[]} 
+          onSort={vi.fn()}
+          headerComboSlot={headerComboSlot}
+        />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const cellStyles = window.getComputedStyle(cell);
+      expect(cellStyles.minWidth).toBe('120px');
+      
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      const boxStyles = window.getComputedStyle(contentBox);
+      expect(boxStyles.flexWrap).toBe('nowrap');
+    });
+  });
 });

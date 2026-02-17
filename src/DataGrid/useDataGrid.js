@@ -243,6 +243,7 @@ export function useDataGrid(props) {
     headerCellSxMap,
     filterCellSxMap,
     rowStylesMap,
+    columnWidthMap,
   } = useDataGridMaps({
     columns,
     sortModel,
@@ -303,6 +304,7 @@ export function useDataGrid(props) {
       columnAlignMap,
       headerCellSxMap,
       filterCellSxMap,
+      columnWidthMap,
     }),
     [
       columns,
@@ -331,6 +333,7 @@ export function useDataGrid(props) {
       columnAlignMap,
       headerCellSxMap,
       filterCellSxMap,
+      columnWidthMap,
     ]
   );
 

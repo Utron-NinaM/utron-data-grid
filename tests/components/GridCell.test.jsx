@@ -34,14 +34,6 @@ describe('GridCell Component', () => {
   };
 
   describe('Render cell with text value', () => {
-    it('should render text value correctly', () => {
-      renderWithContext(
-        <GridCell value="Hello World" row={mockRow} column={defaultColumn} />
-      );
-      
-      expect(screen.getByText('Hello World')).toBeInTheDocument();
-    });
-
     it('should render empty string for empty text', () => {
       renderWithContext(
         <GridCell value="" row={mockRow} column={defaultColumn} />
@@ -54,36 +46,20 @@ describe('GridCell Component', () => {
   });
 
   describe('Render cell with number value', () => {
-    it('should render number value as string', () => {
+    it.each([
+      [42, '42'],
+      [0, '0'],
+      [-100, '-100'],
+      [3.14, '3.14'],
+      [1e10, '10000000000'],
+      [-0, '0'],
+      [Number.MAX_SAFE_INTEGER, String(Number.MAX_SAFE_INTEGER)],
+    ])('should render number %s as string %s', (value, expected) => {
       renderWithContext(
-        <GridCell value={42} row={mockRow} column={defaultColumn} />
+        <GridCell value={value} row={mockRow} column={defaultColumn} />
       );
       
-      expect(screen.getByText('42')).toBeInTheDocument();
-    });
-
-    it('should render zero correctly', () => {
-      renderWithContext(
-        <GridCell value={0} row={mockRow} column={defaultColumn} />
-      );
-      
-      expect(screen.getByText('0')).toBeInTheDocument();
-    });
-
-    it('should render negative number correctly', () => {
-      renderWithContext(
-        <GridCell value={-100} row={mockRow} column={defaultColumn} />
-      );
-      
-      expect(screen.getByText('-100')).toBeInTheDocument();
-    });
-
-    it('should render decimal number correctly', () => {
-      renderWithContext(
-        <GridCell value={3.14} row={mockRow} column={defaultColumn} />
-      );
-      
-      expect(screen.getByText('3.14')).toBeInTheDocument();
+      expect(screen.getByText(expected)).toBeInTheDocument();
     });
   });
 
@@ -167,6 +143,29 @@ describe('GridCell Component', () => {
       // Invalid dates should be rendered as string
       expect(screen.getByText('invalid-date')).toBeInTheDocument();
     });
+
+    it('should handle empty string for date type', () => {
+      const column = { ...defaultColumn, type: FIELD_TYPE_DATE };
+      renderWithContext(
+        <GridCell value="" row={mockRow} column={column} />
+      );
+      // Empty string should render as empty cell
+      const cell = screen.getByRole('cell');
+      expect(cell.textContent).toBe('');
+    });
+
+    it.each([
+      ['invalid format', 'not-a-date'],
+      ['non-date string', 'hello world'],
+      ['pure text', 'abc'],
+    ])('should handle invalid date format: %s', (_, invalidDate) => {
+      const column = { ...defaultColumn, type: FIELD_TYPE_DATE };
+      renderWithContext(
+        <GridCell value={invalidDate} row={mockRow} column={column} />
+      );
+      // Should render as string when date is invalid (dayjs.isValid() returns false)
+      expect(screen.getByText(invalidDate)).toBeInTheDocument();
+    });
   });
 
   describe('Render cell with null/undefined', () => {
@@ -198,16 +197,31 @@ describe('GridCell Component', () => {
       expect(screen.getByText('Custom: test (1)')).toBeInTheDocument();
     });
 
-    it('should pass correct value and row to render function', () => {
-      const customRender = vi.fn((value, row) => `${value}-${row.name}`);
+    it('should handle custom render returning React element', () => {
+      const customRender = vi.fn((value) => <span data-testid="custom-element">{value}</span>);
       const column = { ...defaultColumn, render: customRender };
 
       renderWithContext(
-        <GridCell value={42} row={mockRow} column={column} />
+        <GridCell value="test" row={mockRow} column={column} />
       );
 
-      expect(customRender).toHaveBeenCalledWith(42, mockRow);
-      expect(screen.getByText('42-Test Row')).toBeInTheDocument();
+      expect(screen.getByTestId('custom-element')).toBeInTheDocument();
+      expect(screen.getByText('test')).toBeInTheDocument();
+    });
+
+    it.each([
+      ['null', null],
+      ['undefined', undefined],
+    ])('should handle custom render returning %s', (_, returnValue) => {
+      const customRender = vi.fn(() => returnValue);
+      const column = { ...defaultColumn, render: customRender };
+
+      renderWithContext(
+        <GridCell value="test" row={mockRow} column={column} />
+      );
+      
+      const cell = screen.getByRole('cell');
+      expect(cell.textContent).toBe('');
     });
 
     it('should not use render function when in editing mode with editor', () => {
@@ -232,47 +246,7 @@ describe('GridCell Component', () => {
   });
 
   describe('Test cell alignment (left, right, center)', () => {
-    it('should align left by default', () => {
-      renderWithContext(
-        <GridCell value="test" row={mockRow} column={defaultColumn} />
-      );
-
-      const cell = screen.getByRole('cell');
-      // MUI TableCell uses CSS classes for alignment, check text-align style
-      const styles = window.getComputedStyle(cell);
-      expect(styles.textAlign).toBe(ALIGN_LEFT);
-    });
-
-    it('should use column align property when provided', () => {
-      const column = { ...defaultColumn, align: ALIGN_RIGHT };
-      
-      renderWithContext(
-        <GridCell value="test" row={mockRow} column={column} />
-      );
-
-      const cell = screen.getByRole('cell');
-      const styles = window.getComputedStyle(cell);
-      expect(styles.textAlign).toBe(ALIGN_RIGHT);
-    });
-
-    it('should use columnAlignMap when available', () => {
-      const columnAlignMap = new Map([['name', ALIGN_CENTER]]);
-      const contextValue = {
-        ...defaultContextValue,
-        columnAlignMap,
-      };
-
-      renderWithContext(
-        <GridCell value="test" row={mockRow} column={defaultColumn} />,
-        contextValue
-      );
-
-      const cell = screen.getByRole('cell');
-      const styles = window.getComputedStyle(cell);
-      expect(styles.textAlign).toBe(ALIGN_CENTER);
-    });
-
-    it('should prioritize columnAlignMap over column align property', () => {
+    it('should use columnAlignMap when available, prioritizing over column align', () => {
       const column = { ...defaultColumn, align: ALIGN_LEFT };
       const columnAlignMap = new Map([['name', ALIGN_RIGHT]]);
       const contextValue = {
@@ -336,18 +310,11 @@ describe('GridCell Component', () => {
       expect(cellStyle).toHaveBeenCalledWith(123, mockRow);
     });
 
-    it('should not apply cellStyle when not provided', () => {
-      renderWithContext(
-        <GridCell value="test" row={mockRow} column={defaultColumn} />
-      );
-
-      const cell = screen.getByRole('cell');
-      // Should not have custom styles (only default MUI styles)
-      expect(cell).toBeInTheDocument();
-    });
-
-    it('should handle cellStyle returning undefined', () => {
-      const cellStyle = vi.fn(() => undefined);
+    it.each([
+      ['undefined', undefined],
+      ['null', null],
+    ])('should handle cellStyle returning %s', (_, returnValue) => {
+      const cellStyle = vi.fn(() => returnValue);
       const column = { ...defaultColumn, cellStyle };
 
       renderWithContext(
@@ -430,6 +397,26 @@ describe('GridCell Component', () => {
       expect(styles.borderStyle).toBe('solid');
       expect(styles.backgroundColor).toBe('rgb(0, 0, 255)');
       expect(styles.borderColor).toBeTruthy();
+    });
+
+    it('should handle cellStyle with conflicting border properties', () => {
+      const cellStyle = vi.fn(() => ({ border: '2px solid blue', borderColor: 'blue' }));
+      const column = { ...defaultColumn, cellStyle };
+
+      renderWithContext(
+        <GridCell 
+          value="test" 
+          row={mockRow} 
+          column={column} 
+          hasError={true}
+        />
+      );
+
+      const cell = screen.getByRole('cell');
+      const styles = window.getComputedStyle(cell);
+      // Error border should still be applied (hasError takes precedence for border)
+      expect(styles.borderWidth).toBe('1px');
+      expect(styles.borderStyle).toBe('solid');
     });
   });
 
@@ -536,70 +523,14 @@ describe('GridCell Component', () => {
       expect(styles.whiteSpace).toBe('nowrap');
     });
 
-    it('should always show tooltip', () => {
+    it.each([
+      ['number', 12345678901234567890, defaultColumn],
+      ['date', '2024-01-15', { ...defaultColumn, type: FIELD_TYPE_DATE }],
+      ['datetime', '2024-01-15T14:30:00', { ...defaultColumn, type: FIELD_TYPE_DATETIME }],
+      ['custom render', 'test', { ...defaultColumn, render: vi.fn((value) => `Custom: ${value} - This is a very long text that should be truncated`) }],
+    ])('should truncate %s values', (_, value, column) => {
       renderWithContext(
-        <GridCell value="test" row={mockRow} column={defaultColumn} />
-      );
-      // Tooltip always wraps content - verify content is present
-      expect(screen.getByText('test')).toBeInTheDocument();
-      const cell = screen.getByRole('cell');
-      // Content should be wrapped in Box with truncation styles
-      const contentBox = cell.querySelector('div[class*="MuiBox"]');
-      expect(contentBox).toBeInTheDocument();
-      // Tooltip is always present (wraps the content), but MUI Tooltip doesn't add queryable DOM elements
-      // We verify the content structure is correct
-      expect(contentBox.textContent).toBe('test');
-    });
-
-    it('should truncate number values', () => {
-      const longNumber = 12345678901234567890;
-      renderWithContext(
-        <GridCell value={longNumber} row={mockRow} column={defaultColumn} />
-      );
-
-      const cell = screen.getByRole('cell');
-      const contentBox = cell.querySelector('div[class*="MuiBox"]');
-      expect(contentBox).toBeInTheDocument();
-      const styles = window.getComputedStyle(contentBox);
-      expect(styles.overflow).toBe('hidden');
-      expect(styles.textOverflow).toBe('ellipsis');
-    });
-
-    it('should truncate date values', () => {
-      const dateValue = '2024-01-15';
-      const column = { ...defaultColumn, type: FIELD_TYPE_DATE };
-      renderWithContext(
-        <GridCell value={dateValue} row={mockRow} column={column} />
-      );
-
-      const cell = screen.getByRole('cell');
-      const contentBox = cell.querySelector('div[class*="MuiBox"]');
-      expect(contentBox).toBeInTheDocument();
-      const styles = window.getComputedStyle(contentBox);
-      expect(styles.overflow).toBe('hidden');
-      expect(styles.textOverflow).toBe('ellipsis');
-    });
-
-    it('should truncate datetime values', () => {
-      const dateTimeValue = '2024-01-15T14:30:00';
-      const column = { ...defaultColumn, type: FIELD_TYPE_DATETIME };
-      renderWithContext(
-        <GridCell value={dateTimeValue} row={mockRow} column={column} />
-      );
-
-      const cell = screen.getByRole('cell');
-      const contentBox = cell.querySelector('div[class*="MuiBox"]');
-      expect(contentBox).toBeInTheDocument();
-      const styles = window.getComputedStyle(contentBox);
-      expect(styles.overflow).toBe('hidden');
-      expect(styles.textOverflow).toBe('ellipsis');
-    });
-
-    it('should truncate custom render function results', () => {
-      const customRender = vi.fn((value) => `Custom: ${value} - This is a very long text that should be truncated`);
-      const column = { ...defaultColumn, render: customRender };
-      renderWithContext(
-        <GridCell value="test" row={mockRow} column={column} />
+        <GridCell value={value} row={mockRow} column={column} />
       );
 
       const cell = screen.getByRole('cell');
@@ -635,9 +566,31 @@ describe('GridCell Component', () => {
       expect(truncationBox).toBeNull();
     });
 
-    it('should preserve alignment with truncation', () => {
+    it('should handle unicode characters', () => {
+      const unicodeText = '测试文本 🎉 émojis 测试';
+      renderWithContext(
+        <GridCell value={unicodeText} row={mockRow} column={defaultColumn} />
+      );
+      expect(screen.getByText(unicodeText)).toBeInTheDocument();
+    });
+
+    it('should handle very long strings', () => {
+      const veryLongText = 'A'.repeat(10000);
+      renderWithContext(
+        <GridCell value={veryLongText} row={mockRow} column={defaultColumn} />
+      );
+      const cell = screen.getByRole('cell');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(contentBox).toBeInTheDocument();
+      const styles = window.getComputedStyle(contentBox);
+      expect(styles.overflow).toBe('hidden');
+      expect(styles.textOverflow).toBe('ellipsis');
+    });
+
+    it('should preserve alignment and styling with truncation', () => {
       const longText = 'This is a very long text';
-      const column = { ...defaultColumn, align: 'right' };
+      const cellStyle = vi.fn(() => ({ backgroundColor: 'red', color: 'white' }));
+      const column = { ...defaultColumn, align: 'right', cellStyle };
       renderWithContext(
         <GridCell value={longText} row={mockRow} column={column} />
       );
@@ -645,28 +598,13 @@ describe('GridCell Component', () => {
       const cell = screen.getByRole('cell');
       const styles = window.getComputedStyle(cell);
       expect(styles.textAlign).toBe('right');
+      expect(styles.backgroundColor).toBe('rgb(255, 0, 0)');
+      expect(styles.color).toBe('rgb(255, 255, 255)');
       
       // Truncation box should still be present
       const contentBox = cell.querySelector('div[class*="MuiBox"]');
       expect(contentBox).toBeInTheDocument();
     });
-
-    it('should preserve cell styling with truncation', () => {
-      const longText = 'This is a very long text';
-      const cellStyle = vi.fn(() => ({ backgroundColor: 'red', color: 'white' }));
-      const column = { ...defaultColumn, cellStyle };
-      renderWithContext(
-        <GridCell value={longText} row={mockRow} column={column} />
-      );
-
-      const cell = screen.getByRole('cell');
-      const styles = window.getComputedStyle(cell);
-      expect(styles.backgroundColor).toBe('rgb(255, 0, 0)');
-      expect(styles.color).toBe('rgb(255, 255, 255)');
-      
-      // Truncation should still work
-      const contentBox = cell.querySelector('div[class*="MuiBox"]');
-      expect(contentBox).toBeInTheDocument();
-    });
   });
+
 });

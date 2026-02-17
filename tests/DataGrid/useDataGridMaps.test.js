@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useDataGridMaps } from '../../src/DataGrid/useDataGridMaps';
-import { DIRECTION_RTL } from '../../src/config/schema';
+import { DIRECTION_RTL, FILTER_TYPE_NONE, FILTER_TYPE_NUMBER, FILTER_TYPE_TEXT } from '../../src/config/schema';
 
 describe('useDataGridMaps', () => {
   const defaultColumns = [
@@ -25,11 +25,14 @@ describe('useDataGridMaps', () => {
       expect(result.current.sortOrderIndexMap.size).toBe(0);
     });
 
-    it('returns empty Map when sortModel is null/undefined', () => {
+    it.each([
+      ['null', null],
+      ['undefined', undefined],
+    ])('returns empty Map when sortModel is %s', (_, sortModel) => {
       const { result } = renderHook(useDataGridMaps, {
         initialProps: {
           columns: defaultColumns,
-          sortModel: null,
+          sortModel,
           direction: 'ltr',
           headerConfig: {},
           displayRows: [],
@@ -37,6 +40,46 @@ describe('useDataGridMaps', () => {
         },
       });
       expect(result.current.sortOrderIndexMap.size).toBe(0);
+    });
+
+    it('handles sortModel with invalid fields not in columns', () => {
+      const sortModel = [
+        { field: 'nonexistent', order: 'asc' },
+        { field: 'a', order: 'desc' },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns: defaultColumns,
+          sortModel,
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      // Should still map valid fields
+      expect(result.current.sortOrderIndexMap.get('nonexistent')).toBe(1);
+      expect(result.current.sortOrderIndexMap.get('a')).toBe(2);
+    });
+
+    it('handles sortModel with duplicate fields', () => {
+      const sortModel = [
+        { field: 'a', order: 'asc' },
+        { field: 'a', order: 'desc' },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns: defaultColumns,
+          sortModel,
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      // Last occurrence should win
+      expect(result.current.sortOrderIndexMap.get('a')).toBe(2);
+      expect(result.current.columnSortDirMap.get('a')).toBe('desc');
     });
 
     it('maps field to 1-based sort index for multi-column sort', () => {
@@ -96,6 +139,37 @@ describe('useDataGridMaps', () => {
       expect(result.current.columnAlignMap.get('a')).toBe('center');
     });
 
+    it('handles empty columns array', () => {
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns: [],
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      expect(result.current.columnAlignMap.size).toBe(0);
+    });
+
+    it('handles columns with missing field property', () => {
+      const columns = [{ headerName: 'A' }, { field: 'b', headerName: 'B' }];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      // Column without field should still be processed (field will be undefined)
+      expect(result.current.columnAlignMap.has(undefined)).toBe(true);
+      expect(result.current.columnAlignMap.get('b')).toBe('left');
+    });
+
     it('defaults to left when direction is ltr and no align', () => {
       const { result } = renderHook(useDataGridMaps, {
         initialProps: {
@@ -127,6 +201,104 @@ describe('useDataGridMaps', () => {
     });
   });
 
+  describe('columnWidthMap', () => {
+    it('returns empty Map when no columns have width set', () => {
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns: defaultColumns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      expect(result.current.columnWidthMap.size).toBe(0);
+    });
+
+    it('maps field to normalized width string for numeric width >= min', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', width: 100, filter: FILTER_TYPE_NONE },
+        { field: 'b', headerName: 'B', width: 200, filter: FILTER_TYPE_NONE },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      expect(result.current.columnWidthMap.get('a')).toBe('100px');
+      expect(result.current.columnWidthMap.get('b')).toBe('200px');
+    });
+
+    it.each([
+      ['no combo', 50, FILTER_TYPE_NONE, '85px'],
+      ['no combo', 80, FILTER_TYPE_NONE, '85px'],
+      ['with combo', 50, FILTER_TYPE_NUMBER, '120px'],
+      ['with combo', 100, FILTER_TYPE_TEXT, '120px'],
+    ])('enforces minimum width when user width is too small (%s)', (_, width, filter, expected) => {
+      const columns = [
+        { field: 'a', headerName: 'A', width, filter },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      expect(result.current.columnWidthMap.get('a')).toBe(expected);
+    });
+
+    it('maps field to normalized width string for percentage width', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', width: '20%' },
+        { field: 'b', headerName: 'B', width: '50%' },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      expect(result.current.columnWidthMap.get('a')).toBe('20%');
+      expect(result.current.columnWidthMap.get('b')).toBe('50%');
+    });
+
+    it('only includes columns with width set in the map', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', width: 100, filter: FILTER_TYPE_NONE },
+        { field: 'b', headerName: 'B', filter: FILTER_TYPE_NONE },
+        { field: 'c', headerName: 'C', width: '30%', filter: FILTER_TYPE_NONE },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      expect(result.current.columnWidthMap.size).toBe(2);
+      expect(result.current.columnWidthMap.get('a')).toBe('100px');
+      expect(result.current.columnWidthMap.get('b')).toBeUndefined();
+      expect(result.current.columnWidthMap.get('c')).toBe('30%');
+    });
+  });
+
   describe('headerCellSxMap and filterCellSxMap', () => {
     it('has one entry per column with base sx', () => {
       const { result } = renderHook(useDataGridMaps, {
@@ -148,6 +320,164 @@ describe('useDataGridMaps', () => {
         boxSizing: 'border-box',
       });
       expect(result.current.headerCellSxMap.get('b')).toBeDefined();
+    });
+
+    it('applies width to headerCellSxMap when column has numeric width >= min', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', width: 150 },
+        { field: 'b', headerName: 'B' },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      const headerSx = result.current.headerCellSxMap.get('a');
+      expect(headerSx.width).toBe('150px');
+      const headerSxB = result.current.headerCellSxMap.get('b');
+      expect(headerSxB.width).toBe('inherit');
+    });
+
+    it.each([
+      ['no combo', 50, FILTER_TYPE_NONE, '85px'],
+      ['with combo', 50, FILTER_TYPE_NUMBER, '120px'],
+    ])('enforces minimum width in headerCellSxMap when user width is too small (%s)', (_, width, filter, expected) => {
+      const columns = [
+        { field: 'a', headerName: 'A', width, filter },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      const headerSx = result.current.headerCellSxMap.get('a');
+      expect(headerSx.width).toBe(expected);
+    });
+
+    it('applies width to headerCellSxMap when column has percentage width', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', width: '25%' },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      const headerSx = result.current.headerCellSxMap.get('a');
+      expect(headerSx.width).toBe('25%');
+    });
+
+    it('applies minWidth to headerCellSxMap when column has percentage width and filter combo', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', width: '25%', filter: FILTER_TYPE_TEXT },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      const headerSx = result.current.headerCellSxMap.get('a');
+      expect(headerSx.width).toBe('25%');
+      expect(headerSx.minWidth).toBe('120px');
+    });
+
+    it('applies minWidth to headerCellSxMap when no width is set but column has filter combo', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', filter: FILTER_TYPE_NUMBER },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      const headerSx = result.current.headerCellSxMap.get('a');
+      expect(headerSx.width).toBe('inherit');
+      expect(headerSx.minWidth).toBe('120px');
+    });
+
+    it('applies width to filterCellSxMap when column has width', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', width: 200 },
+        { field: 'b', headerName: 'B', width: '40%' },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      const filterSx = result.current.filterCellSxMap.get('a');
+      expect(filterSx.width).toBe('200px');
+      const filterSxB = result.current.filterCellSxMap.get('b');
+      expect(filterSxB.width).toBe('40%');
+    });
+
+    it('applies minWidth of 120px to headerCellSxMap when column has filter combo', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', filter: FILTER_TYPE_NUMBER },
+        { field: 'b', headerName: 'B', filter: FILTER_TYPE_NONE },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      const headerSx = result.current.headerCellSxMap.get('a');
+      expect(headerSx.minWidth).toBe('120px');
+      const headerSxB = result.current.headerCellSxMap.get('b');
+      expect(headerSxB.minWidth).toBeUndefined();
+    });
+
+    it('applies minWidth to filterCellSxMap when column has filter combo', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', filter: FILTER_TYPE_TEXT },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      const filterSx = result.current.filterCellSxMap.get('a');
+      expect(filterSx.minWidth).toBe('120px');
     });
 
     it('merges mainRow height and backgroundColor into headerCellSxMap', () => {
@@ -229,6 +559,29 @@ describe('useDataGridMaps', () => {
       expect(result.current.headerCellSxMap.get('a').borderBottom).toBe('1px solid #ccc');
       expect(result.current.filterCellSxMap.get('a').borderBottom).toBe('1px solid #ccc');
     });
+
+    it('handles headerConfig with conflicting properties', () => {
+      const headerConfig = {
+        mainRow: { height: 40, backgroundColor: '#eee' },
+        filterCells: { height: 32, backgroundColor: '#f5f5f5' },
+        base: { padding: '8px' },
+      };
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns: defaultColumns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig,
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      const headerSx = result.current.headerCellSxMap.get('a');
+      // mainRow.height should override base padding
+      expect(headerSx.height).toBe(40);
+      expect(headerSx.padding).toBe('2px'); 
+      expect(headerSx.backgroundColor).toBe('#eee');
+    });
   });
 
   describe('rowStylesMap', () => {
@@ -288,6 +641,40 @@ describe('useDataGridMaps', () => {
         },
       });
       expect(result.current.rowStylesMap.has('r1')).toBe(true);
+    });
+
+    it('handles multiple columns with rowStyle functions', () => {
+      const displayRows = [{ id: 'r1', priority: 'high', status: 'active' }];
+      const columns = [
+        { field: 'a', headerName: 'A', rowStyle: (row) => (row.priority === 'high' ? { fontWeight: 'bold' } : {}) },
+        { field: 'b', headerName: 'B', rowStyle: (row) => (row.status === 'active' ? { color: 'green' } : {}) },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows,
+          getRowId: defaultGetRowId,
+        },
+      });
+      const rowSx = result.current.rowStylesMap.get('r1');
+      expect(rowSx).toEqual({ fontWeight: 'bold', color: 'green' });
+    });
+
+    it('handles empty displayRows array', () => {
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns: defaultColumns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+        },
+      });
+      expect(result.current.rowStylesMap.size).toBe(0);
     });
   });
 });

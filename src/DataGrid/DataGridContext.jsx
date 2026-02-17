@@ -29,6 +29,7 @@ export const DataGridFilterContext = createContext(null);
  * @param {Object} [stableValue.selectedRowStyle] MUI sx object for selected rows
  * @param {Object} [stableValue.headerConfig] Header configuration object (base, mainRow, filterRows, filterCells)
  * @param {number|string} [stableValue.filterInputHeight]
+ * @param {Map<string, string>} [stableValue.columnWidthMap] Map of field -> normalized width string
  * @param {Object} filterValue Filter-related functions that change with filterModel
  * @param {Function} [filterValue.getHeaderComboSlot]
  * @param {Function} [filterValue.getFilterInputSlot]
