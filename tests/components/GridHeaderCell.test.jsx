@@ -6,6 +6,7 @@ import { Table, TableHead, TableRow } from '@mui/material';
 import { GridHeaderCell } from '../../src/core/GridHeaderCell';
 import { DataGridStableContext } from '../../src/DataGrid/DataGridContext';
 import { ALIGN_LEFT, ALIGN_RIGHT, ALIGN_CENTER, SORT_ORDER_ASC, SORT_ORDER_DESC, DIRECTION_LTR } from '../../src/config/schema';
+import { MIN_WIDTH_WITH_FILTER_COMBO_PX } from '../../src/utils/columnWidthUtils';
 
 describe('GridHeaderCell Component', () => {
   const defaultColumn = { field: 'name', headerName: 'Name' };
@@ -356,24 +357,7 @@ describe('GridHeaderCell Component', () => {
       const styles = window.getComputedStyle(cell);
       expect(styles.width).toBe('150px');
     });
-
-    it('should apply percentage width to header cell', () => {
-      const headerCellSxMap = new Map([['name', { width: '30%' }]]);
-      const contextValue = {
-        ...defaultContextValue,
-        headerCellSxMap,
-      };
-
-      renderWithContext(
-        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
-        contextValue
-      );
-
-      const cell = screen.getByRole('columnheader');
-      const styles = window.getComputedStyle(cell);
-      expect(styles.width).toBe('30%');
-    });
-
+  
     it('should use inherit width when no width is set by user', () => {
       const headerCellSxMap = new Map([['name', { width: 'inherit' }]]);
       const contextValue = {
@@ -391,24 +375,7 @@ describe('GridHeaderCell Component', () => {
       // When no width is set, column can grow wider than min width if there's space
       const styles = window.getComputedStyle(cell);
       expect(styles.width).toBeTruthy();
-    });
-
-    it('should apply minWidth of 120px when column has filter combo and no width set', () => {
-      const headerCellSxMap = new Map([['name', { width: 'inherit', minWidth: '120px' }]]);
-      const contextValue = {
-        ...defaultContextValue,
-        headerCellSxMap,
-      };
-
-      renderWithContext(
-        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
-        contextValue
-      );
-
-      const cell = screen.getByRole('columnheader');
-      const styles = window.getComputedStyle(cell);
-      expect(styles.minWidth).toBe('120px');
-    });
+    });   
 
     it('should enforce minimum width of 85px when user width is too small (no combo)', () => {
       const headerCellSxMap = new Map([['name', { width: '85px' }]]);
@@ -425,47 +392,12 @@ describe('GridHeaderCell Component', () => {
       const cell = screen.getByRole('columnheader');
       const styles = window.getComputedStyle(cell);
       expect(styles.width).toBe('85px');
-    });
-
-    it('should enforce minimum width of 120px when user width is too small (with combo)', () => {
-      const headerCellSxMap = new Map([['name', { width: '120px' }]]);
-      const contextValue = {
-        ...defaultContextValue,
-        headerCellSxMap,
-      };
-
-      renderWithContext(
-        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
-        contextValue
-      );
-
-      const cell = screen.getByRole('columnheader');
-      const styles = window.getComputedStyle(cell);
-      expect(styles.width).toBe('120px');
-    });
-
-    it('should apply minWidth with percentage width when column has filter combo', () => {
-      const headerCellSxMap = new Map([['name', { width: '40%', minWidth: '120px' }]]);
-      const contextValue = {
-        ...defaultContextValue,
-        headerCellSxMap,
-      };
-
-      renderWithContext(
-        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />,
-        contextValue
-      );
-
-      const cell = screen.getByRole('columnheader');
-      const styles = window.getComputedStyle(cell);
-      expect(styles.width).toBe('40%');
-      expect(styles.minWidth).toBe('120px');
-    });
+    });    
   });
 
   describe('Test minWidth and text truncation', () => {
     it('should apply minWidth when headerCellSxMap includes minWidth', () => {
-      const headerCellSxMap = new Map([['name', { minWidth: '120px' }]]);
+      const headerCellSxMap = new Map([['name', { minWidth: '140px' }]]);
       const contextValue = {
         ...defaultContextValue,
         headerCellSxMap,
@@ -478,7 +410,7 @@ describe('GridHeaderCell Component', () => {
 
       const cell = screen.getByRole('columnheader');
       const styles = window.getComputedStyle(cell);
-      expect(styles.minWidth).toBe('120px');
+      expect(styles.minWidth).toBe('140px');
     });
 
     it('should not wrap when headerComboSlot is present', () => {
@@ -526,15 +458,54 @@ describe('GridHeaderCell Component', () => {
       expect(styles.overflow).toBe('hidden');
       expect(styles.textOverflow).toBe('ellipsis');
       expect(styles.whiteSpace).toBe('nowrap');
-    });
+    });  
+  });
 
-    it('should apply minWidth and prevent wrapping when combo is present', () => {
+  describe('Test layout order - sort/filter closest to header text', () => {
+    it('should have header text first, then sort/filter elements, then spacer', () => {
       const headerComboSlot = <div data-testid="header-combo">Combo</div>;
-      const headerCellSxMap = new Map([['name', { minWidth: '120px' }]]);
       const contextValue = {
         ...defaultContextValue,
-        headerCellSxMap,
+        columnSortDirMap: new Map([['name', SORT_ORDER_ASC]]),
       };
+      const sortModel = [
+        { field: 'age', order: SORT_ORDER_ASC },
+        { field: 'name', order: SORT_ORDER_ASC },
+      ];
+
+      renderWithContext(
+        <GridHeaderCell 
+          column={defaultColumn} 
+          sortModel={sortModel} 
+          onSort={vi.fn()}
+          headerComboSlot={headerComboSlot}
+          sortOrderIndex={2}
+        />,
+        contextValue
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      const children = Array.from(contentBox.children);
+      
+      // First child should be Tooltip containing TableSortLabel with header text
+      expect(children[0].querySelector('[class*="MuiTableSortLabel"]')).toBeInTheDocument();
+      expect(screen.getByText('Name')).toBeInTheDocument();
+      
+      // Second child should be sort order index
+      expect(children[1]).toHaveTextContent('(2)');
+      
+      // Third child should be headerComboSlot
+      expect(children[2]).toContainElement(screen.getByTestId('header-combo'));
+      
+      // Last child should be spacer with flex: 1
+      const spacer = children[children.length - 1];
+      const spacerStyles = window.getComputedStyle(spacer);
+      expect(spacerStyles.flex).toBe('1 1 0%');
+    });
+
+    it('should have spacer element to fill remaining width', () => {
+      const headerComboSlot = <div data-testid="header-combo">Combo</div>;
 
       renderWithContext(
         <GridHeaderCell 
@@ -542,17 +513,61 @@ describe('GridHeaderCell Component', () => {
           sortModel={[]} 
           onSort={vi.fn()}
           headerComboSlot={headerComboSlot}
-        />,
-        contextValue
+        />
       );
 
       const cell = screen.getByRole('columnheader');
-      const cellStyles = window.getComputedStyle(cell);
-      expect(cellStyles.minWidth).toBe('120px');
-      
       const contentBox = cell.querySelector('div[class*="MuiBox"]');
-      const boxStyles = window.getComputedStyle(contentBox);
-      expect(boxStyles.flexWrap).toBe('nowrap');
+      const children = Array.from(contentBox.children);
+      
+      // Last child should be spacer
+      const spacer = children[children.length - 1];
+      const spacerStyles = window.getComputedStyle(spacer);
+      expect(spacerStyles.flex).toBe('1 1 0%');
+      expect(spacerStyles.minWidth).toBe('0');
+    });
+
+    it('should have TableSortLabel with flexShrink: 0 (not flex: 1)', () => {
+      const headerComboSlot = <div data-testid="header-combo">Combo</div>;
+
+      renderWithContext(
+        <GridHeaderCell 
+          column={defaultColumn} 
+          sortModel={[]} 
+          onSort={vi.fn()}
+          headerComboSlot={headerComboSlot}
+        />
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const sortLabel = cell.querySelector('[class*="MuiTableSortLabel"]');
+      const sortLabelStyles = window.getComputedStyle(sortLabel);
+      
+      // Should not have flex: 1, should have flexShrink: 0
+      expect(sortLabelStyles.flex).not.toBe('1 1 0%');
+      expect(sortLabelStyles.flexShrink).toBe('0');
+    });
+
+    it('should maintain layout order without headerComboSlot', () => {
+      renderWithContext(
+        <GridHeaderCell 
+          column={defaultColumn} 
+          sortModel={[]} 
+          onSort={vi.fn()}
+        />
+      );
+
+      const cell = screen.getByRole('columnheader');
+      const contentBox = cell.querySelector('div[class*="MuiBox"]');
+      const children = Array.from(contentBox.children);
+      
+      // First child should be Tooltip containing TableSortLabel
+      expect(children[0].querySelector('[class*="MuiTableSortLabel"]')).toBeInTheDocument();
+      
+      // Last child should still be spacer
+      const spacer = children[children.length - 1];
+      const spacerStyles = window.getComputedStyle(spacer);
+      expect(spacerStyles.flex).toBe('1 1 0%');
     });
   });
 });

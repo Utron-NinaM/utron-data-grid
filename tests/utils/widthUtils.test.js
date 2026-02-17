@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeWidth } from '../../src/utils/widthUtils';
+import { normalizeWidth } from '../../src/utils/columnWidthUtils';
 
 describe('normalizeWidth', () => {
   describe('number values', () => {

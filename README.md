@@ -92,7 +92,11 @@ Each column can define:
 - `filter` – same as type or `false` to disable
 - `filterOptions.listValues` – for list filter options
 - `editable` – `boolean | ((row) => boolean)` – enables editing. Use a function for conditional editing based on row data
-- `width` – number (px) or string (e.g. `"20%"`)
+- `width` – number (px) for fixed width
+- `flex` – number for proportional grow factor (columns share remaining space proportionally)
+- `minWidth` – number (px) for minimum width constraint
+- `maxWidth` – number (px) for maximum width constraint
+- `defaultWidth` – number (px) for optional default width (useful for action/icon columns)
 - `validators` – `[{ validate: (value, row) => boolean|string, message? }]`
 - `options` – for list type (dropdown options)
 - `render(value, row)` – custom display (not used when editing)
@@ -100,10 +104,37 @@ Each column can define:
 - `cellStyle(value, row)` – sx for the cell
 - `align` – `'left' | 'right' | 'center'`
 
-Example:
+### Column Width System
+
+The grid supports flexible column width management:
+
+- **Fixed width**: Set `width` (in pixels) for a column that maintains a constant size
+- **Flexible width**: Set `flex` (number) for columns that grow proportionally to fill remaining space
+- **Auto-sizing**: If neither `width` nor `flex` is provided, the column is auto-sized based on content
+- **Constraints**: Use `minWidth` and `maxWidth` to limit column sizes
+- **Manual resizing**: Users can drag column borders to resize (resized columns are automatically excluded from flex distribution)
+
+Built-in minimum widths:
+- Columns with filter combo (number/date/text): 120px
+- Columns without filter combo: 85px
+- Effective minimum = max(user `minWidth`, built-in minimum)
+
+**Column Resizing**: Users can manually resize columns by dragging the border between column headers. Resized columns are automatically "frozen" and excluded from flex/auto distribution, maintaining their user-set width. The resize handle is an 8px invisible drag area on the right edge of each column header.
+
+Examples:
 
 ```js
+// Fixed width
 { field: 'price', headerName: 'Price', type: 'number', filter: 'number', editable: true, width: 100 }
+
+// Flexible width (grows proportionally)
+{ field: 'description', headerName: 'Description', type: 'text', flex: 2 }
+
+// Auto-sized with constraints
+{ field: 'name', headerName: 'Name', type: 'text', minWidth: 150, maxWidth: 300 }
+
+// Fixed width with constraints
+{ field: 'status', headerName: 'Status', type: 'list', width: 120, minWidth: 100, maxWidth: 200 }
 ```
 
 Conditional editing example:

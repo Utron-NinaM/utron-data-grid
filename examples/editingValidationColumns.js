@@ -1,4 +1,5 @@
 /** Example column config with validation rules */
+/** Demonstrates column width system with fixed widths and constraints */
 
 export const editingValidationColumns = [
   {
@@ -8,6 +9,8 @@ export const editingValidationColumns = [
     filter: 'text',
     editable: true,
     width: 150,
+    minWidth: 120,
+    maxWidth: 250,
     validators: [
       {
         validate: (value) => {
@@ -30,6 +33,8 @@ export const editingValidationColumns = [
     filter: 'text',
     editable: true,
     width: 200,
+    minWidth: 180,
+    maxWidth: 350,
     validators: [
       {
         validate: (value) => {

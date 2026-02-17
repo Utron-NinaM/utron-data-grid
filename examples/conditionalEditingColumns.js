@@ -1,4 +1,5 @@
 /** Example column config with conditional editing rules */
+/** Demonstrates column width system with fixed widths and constraints */
 
 export const conditionalEditingColumns = [
   {
@@ -8,6 +9,8 @@ export const conditionalEditingColumns = [
     filter: 'text',
     editable: true, // Always editable
     width: 180,
+    minWidth: 150,
+    maxWidth: 300,
     validators: [
       {
         validate: (value) => {
@@ -88,7 +91,8 @@ export const conditionalEditingColumns = [
     type: 'text',
     filter: 'text',
     editable: (row) => row.status === 'Pending', // Only editable for pending projects
-    width: 200,
+    flex: 1, // Flexible width - grows to fill remaining space
+    minWidth: 150,
     validators: [
       {
         validate: (value) => {

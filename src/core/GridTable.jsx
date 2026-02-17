@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo, useRef } from 'react';
+import React, { memo, useContext, useMemo, useRef, useEffect } from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext } from '../DataGrid/DataGridContext';
@@ -46,7 +46,20 @@ function GridTableInner({
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
   const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters,
-    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap } = ctx;
+    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, totalWidth, enableHorizontalScroll, columnWidthMap } = ctx;
+
+  // Apply widths from columnWidthMap to col elements
+  useEffect(() => {
+    if (!columnWidthMap || !colRefs) return;
+
+    columns.forEach((col) => {
+      const width = columnWidthMap.get(col.field);
+      const colElement = colRefs.current?.get(col.field);
+      if (colElement && width != null) {
+        colElement.style.width = `${width}px`;
+      }
+    });
+  }, [columns, columnWidthMap, colRefs]);
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
 
@@ -178,8 +191,33 @@ function GridTableInner({
         </Box>
       )}
       <GridErrorBoundary>
-        <TableContainer component={Paper} variant="outlined" sx={{ overflowX: 'auto', width: '100%' }}>
-          <Table size="small" stickyHeader aria-label="Data grid" sx={{ width: '100%', tableLayout: 'fixed' }}>
+        <TableContainer ref={containerRef} component={Paper} variant="outlined" sx={{ overflowX: 'auto', width: '100%' }}>
+          <Table 
+            size="small" 
+            stickyHeader 
+            aria-label="Data grid" 
+            sx={{ 
+              width: '100%', 
+              tableLayout: 'fixed',
+              ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` })
+            }}
+          >
+            <colgroup>
+              {multiSelectable && <col />}
+              {columns.map((col) => (
+                <col
+                  key={col.field}
+                  data-field={col.field}
+                  ref={(el) => {
+                    if (el) {
+                      colRefs.current.set(col.field, el);
+                    } else {
+                      colRefs.current.delete(col.field);
+                    }
+                  }}
+                />
+              ))}
+            </colgroup>
             <TableHead sx={headerConfig?.base}>
               <TableRow
                 sx={{

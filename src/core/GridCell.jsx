@@ -39,7 +39,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
       paddingRight: '4px',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      ...(width && { width }),      
+      ...(width != null && { width: `${width}px` }),      
       ...cellStyle,
       ...(hasError && { border: '1px solid', borderColor: 'error.light' }),
     };    

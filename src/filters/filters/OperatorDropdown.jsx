@@ -19,8 +19,8 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
   const renderOperator = (op) => <FontAwesomeIcon icon={OPERATOR_ICONS[op]} fontSize="small" />;
 
   return (
-    <>
-      <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} aria-label="Operator">
+    <Box sx={{ paddingLeft: '1px', paddingRight: '1px' }}>
+      <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} aria-label="Operator" sx={{ boxSizing: 'border-box', paddingLeft: '1px', paddingRight: '1px' }}>
         <ArrowDropDownIcon />
         <Box component="span" sx={{ fontSize: '0.875rem', minWidth: 20 }}>
           {renderOperator(operator)}
@@ -51,6 +51,6 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
           </MenuItem>
         ))}
       </Menu>
-    </>
+    </Box>
   );
 }

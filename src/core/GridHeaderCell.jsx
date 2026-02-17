@@ -1,9 +1,10 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useRef, useEffect } from 'react';
 import { TableCell, TableSortLabel, Box, Tooltip } from '@mui/material';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT } from '../config/schema';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { useTranslations } from '../localization/useTranslations';
 import { getFilterRowBoxSx } from '../utils/filterBoxStyles';
+import { getEffectiveMinWidth } from '../utils/columnWidthUtils';
 
 /**
  * @param {Object} props
@@ -45,15 +46,102 @@ export function GridHeaderCell({
     onSort(column.field, multiColumn);
   };
 
+  const onColumnResize = ctx?.onColumnResize;
+  const colRefs = ctx?.colRefs;
+  const columnWidthMap = ctx?.columnWidthMap;
+
+  // Resize state - store width in ref during drag (not state)
+  const resizeStateRef = useRef(null);
+
+  // Get initial width from columnWidthMap
+  const initialWidth = columnWidthMap?.get(column.field);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (resizeStateRef.current) {
+        document.removeEventListener('mousemove', resizeStateRef.current.handleMouseMove);
+        document.removeEventListener('mouseup', resizeStateRef.current.handleMouseUp);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    };
+  }, []);
+
+  const handleResizeMouseDown = (e) => {
+    if (!onColumnResize || !colRefs) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+      const colElement = colRefs?.current?.get(column.field);
+    if (!colElement) return;
+
+    const currentWidth = parseFloat(colElement.style.width) || initialWidth || 100;
+    const startX = e.clientX;
+    const startWidth = currentWidth;
+
+    // Get minWidth constraint using getEffectiveMinWidth
+    const minWidth = getEffectiveMinWidth(column);
+
+    const handleMouseMove = (e) => {
+      const deltaX = e.clientX - startX;
+      let newWidth = startWidth + deltaX;
+
+      // Snap to integer pixels
+      newWidth = Math.floor(newWidth);
+
+      // Optional: Snap to 8px grid for visual consistency
+      // newWidth = Math.round(newWidth / 8) * 8;
+
+      // Apply minWidth constraint
+      newWidth = Math.max(newWidth, minWidth);
+
+      // Apply maxWidth constraint if provided
+      if (column.maxWidth != null) {
+        newWidth = Math.min(newWidth, column.maxWidth);
+      }
+
+      // Update col element directly (updates entire column instantly)
+      colElement.style.width = `${newWidth}px`;
+    };
+
+    const handleMouseUp = () => {
+      const finalWidth = Math.floor(parseFloat(colElement.style.width) || startWidth);
+      
+      // Commit to state on mouseup (once)
+      onColumnResize(column.field, finalWidth);
+
+      // Cleanup
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      resizeStateRef.current = null;
+    };
+
+    // Store handlers in ref for cleanup
+    resizeStateRef.current = {
+      handleMouseMove,
+      handleMouseUp,
+    };
+
+    // Set up global listeners
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  };
+
   return (
-    <TableCell align={align} padding="none" variant="head" sx={{ paddingLeft: '4px', paddingRight: '4px', ...cellSx }}>
+    <TableCell align={align} padding="none" variant="head" sx={{ paddingLeft: '4px', paddingRight: '4px', ...cellSx, position: 'relative' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: headerComboSlot ? 'nowrap' : 'wrap', py: mainRowHeight ? 0 : 0.5, boxSizing: 'border-box', height: '100%' }}>
-        <Tooltip title={t('sortMultiColumnHint')}>
+        <Tooltip title={column.headerName || ''}>
           <TableSortLabel
             active={!!sortDir}
             direction={order}
             onClick={handleSortClick}
-            sx={{ minHeight: 20, flex: headerComboSlot ? 1 : 'none', minWidth: 0, overflow: 'hidden' }}
+            sx={{ minHeight: 20, minWidth: 0, overflow: 'hidden', flexShrink: 0 }}
           >
             <Box
               component="span"
@@ -74,9 +162,28 @@ export function GridHeaderCell({
                 {`(${sortOrderIndex})`}
               </Box>
             )}
-        {headerComboSlot != null && <Box sx={{ flexShrink: 0 }}>{headerComboSlot}</Box>}        
+        {headerComboSlot != null && <Box sx={{ flexShrink: 0 }}>{headerComboSlot}</Box>}
+        <Box sx={{ flex: 1, minWidth: 0 }} />        
       </Box>
       {filterSlot != null && <Box sx={filterBoxSx}>{filterSlot}</Box>}
+      {/* Resize handle - invisible drag area on right edge with improved hit area */}
+      {onColumnResize && colRefs && (
+        <Box
+          onMouseDown={handleResizeMouseDown}
+          sx={{
+            position: 'absolute',
+            top: 0,
+            right: '-3px',
+            width: '8px',
+            height: '100%',
+            cursor: 'col-resize',
+            zIndex: 1,
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+            },
+          }}
+        />
+      )}
     </TableCell>
   );
 }

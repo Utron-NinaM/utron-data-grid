@@ -9,6 +9,7 @@ import { defaultGridConfig } from '../config/defaultConfig';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, DIRECTION_LTR } from '../config/schema';
 import { useDataGridMaps } from './useDataGridMaps';
 import { useDataGridEdit } from './useDataGridEdit';
+import { useColumnLayout } from './useColumnLayout';
 
 /**
  * Custom hook for DataGrid state management and business logic
@@ -50,6 +51,12 @@ export function useDataGrid(props) {
   const [internalPage, setInternalPage] = useState(0);
   const [internalPageSize, setInternalPageSize] = useState(initialPageSize);
   const [selectedRowId, setSelectedRowId] = useState(null);
+  // Column width state: Map<field, width> for resized width overrides only (not full widths)
+  const [columnWidthState, setColumnWidthState] = useState(() => new Map());
+  // Container ref for ResizeObserver (created here, passed to GridTable via context)
+  const containerRef = useRef(null);
+  // Refs for col elements to enable column-wide width updates during resize
+  const colRefs = useRef(new Map());
 
   const {
     editRowId,
@@ -209,6 +216,19 @@ export function useDataGrid(props) {
     [onRowSelect, getRowId]
   );
 
+  const handleColumnResize = useCallback(
+    (field, newWidth) => {
+      // CRITICAL: Always create new Map instance for React reference equality
+      // Functional update pattern avoids dependencies
+      setColumnWidthState((prev) => {
+        const next = new Map(prev);
+        next.set(field, newWidth);
+        return next; // New Map instance every time
+      });
+    },
+    [] // No dependencies needed - functional update pattern
+  );
+
   // Wrapper that calls user's onRowDoubleClick callback, then the edit handler
   const handleRowDoubleClickWrapper = useCallback(
     (row) => {
@@ -236,6 +256,13 @@ export function useDataGrid(props) {
   );
   const displayRows = paginationResult.rows;
 
+  // Calculate column widths using layout algorithm
+  const { columnWidthMap: layoutColumnWidthMap, totalWidth, enableHorizontalScroll } = useColumnLayout({
+    columns,
+    containerRef,
+    columnWidthState,
+  });
+
   const {
     sortOrderIndexMap,
     columnSortDirMap,
@@ -251,6 +278,7 @@ export function useDataGrid(props) {
     headerConfig,
     displayRows,
     getRowId,
+    columnWidthMap: layoutColumnWidthMap, // Pass layout-calculated widths
   });
 
   const filterInputHeight = headerConfig?.filterCells?.height || headerConfig?.filterRows?.height;
@@ -304,7 +332,12 @@ export function useDataGrid(props) {
       columnAlignMap,
       headerCellSxMap,
       filterCellSxMap,
-      columnWidthMap,
+      columnWidthMap: layoutColumnWidthMap, // Use layout-calculated widths
+      containerRef, // Container ref for ResizeObserver
+      colRefs, // Refs for col elements (Map of field -> col element)
+      onColumnResize: handleColumnResize, // Resize handler
+      totalWidth, // Total width for scroll calculation
+      enableHorizontalScroll, // Whether to enable horizontal scroll
     }),
     [
       columns,
@@ -333,7 +366,12 @@ export function useDataGrid(props) {
       columnAlignMap,
       headerCellSxMap,
       filterCellSxMap,
-      columnWidthMap,
+      layoutColumnWidthMap,
+      containerRef,
+      colRefs,
+      handleColumnResize,
+      totalWidth,
+      enableHorizontalScroll,
     ]
   );
 

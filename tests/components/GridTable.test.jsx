@@ -30,6 +30,24 @@ describe('GridTable Component', () => {
     direction: DIRECTION_LTR,
     translations: {},
     defaultTranslations: {},
+    // Add missing required properties
+    colRefs: { current: new Map() },
+    containerRef: { current: null },
+    columnWidthMap: new Map(),
+    totalWidth: 0,
+    enableHorizontalScroll: false,
+    onClearSort: vi.fn(),
+    onClearAllFilters: vi.fn(),
+    headerConfig: {},
+    getEditor: null,
+    selectedRowStyle: {},
+    rowStylesMap: new Map(),
+    sortOrderIndexMap: new Map(),
+    columnSortDirMap: new Map(),
+    columnAlignMap: new Map(),
+    headerCellSxMap: new Map(),
+    filterCellSxMap: new Map(),
+    onColumnResize: null,
   };
 
   const defaultFilterValue = {

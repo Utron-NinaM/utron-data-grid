@@ -1,11 +1,21 @@
 /** Example column config: cars (Make, Model, Price, Year, Color, Electric, Status, Date) */
+/** Demonstrates column width system: fixed widths, flex, minWidth, maxWidth, and auto-sizing */
 import { FIELD_TYPE_TEXT, FIELD_TYPE_NUMBER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST } from '../src/config/schema';
 
 export const columnsConfig = [
+  // Fixed width column
   { field: 'make', headerName: 'Make', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 50 },
-  { field: 'model', headerName: 'Model', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 200 , cellStyle: { fontSize: '20px' }, },
-  { field: 'price', headerName: 'Price', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 100 },
-  { field: 'year', headerName: 'Year', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 80 },
+  
+  // Fixed width with constraints
+  { field: 'model', headerName: 'Model', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 200, minWidth: 150, maxWidth: 300, cellStyle: { fontSize: '20px' } },
+  
+  // Fixed width column
+  { field: 'price', headerName: 'Price', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, flex: 1 },
+  
+  // Fixed width column
+  { field: 'year', headerName: 'Year', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, flex: 2 },
+  
+  // Fixed width column
   {
     field: 'color',
     headerName: 'Color',
@@ -16,6 +26,8 @@ export const columnsConfig = [
     options: ['White', 'Black', 'Red', 'Silver', 'Blue', 'Green', 'Gray', 'Pearl', 'Bronze', 'Navy'],
     filterOptions: { listValues: ['White', 'Black', 'Red', 'Silver', 'Blue', 'Green', 'Gray', 'Pearl', 'Bronze', 'Navy'] },
   },
+  
+  // Fixed width column
   {
     field: 'electric',
     headerName: 'Electric',
@@ -27,7 +39,11 @@ export const columnsConfig = [
     filterOptions: { listValues: ['Yes', 'No'] },
     cellStyle: (value, row) => (value === 'Yes' ? { backgroundColor: '#e8f5e9' } : {}),
   },
+  
+  // Fixed width column
   { field: 'createdAt', headerName: 'Date', type: FIELD_TYPE_DATETIME, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
+  
+  // Fixed width column with constraints
   {
     field: 'status',
     headerName: 'Status',
@@ -35,11 +51,15 @@ export const columnsConfig = [
     filter: FIELD_TYPE_LIST,
     editable: true,
     width: 100,
+    minWidth: 80,
+    maxWidth: 150,
     options: ['Active', 'Inactive', 'Pending'],
     filterOptions: { listValues: ['Active', 'Inactive', 'Pending'] },
     rowStyle: (row) => (row.status === 'Pending' ? { backgroundColor: '#fff3e0' } : {}),    
   },
-  { field: 'description', headerName: 'Description', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 150 },
+  
+  // Flexible width column (grows proportionally to fill remaining space)
+  { field: 'description', headerName: 'Description', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, flex: 1, minWidth: 150 },
 ];
 
 export const columnsConfigHebrew = [
@@ -80,5 +100,6 @@ export const columnsConfigHebrew = [
     rowStyle: (row) => (row.statusHebrew === 'ממתין' ? { backgroundColor: '#fff3e0' } : {}),
   },
   { field: 'createdAt', headerName: 'תאריך', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
-  { field: 'descriptionHebrew', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 150 },  
+  // Flexible width column (grows proportionally)
+  { field: 'descriptionHebrew', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, flex: 1, minWidth: 150 },  
 ];
