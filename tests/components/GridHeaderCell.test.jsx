@@ -5,8 +5,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Table, TableHead, TableRow } from '@mui/material';
 import { GridHeaderCell } from '../../src/core/GridHeaderCell';
 import { DataGridStableContext } from '../../src/DataGrid/DataGridContext';
-import { ALIGN_LEFT, ALIGN_RIGHT, ALIGN_CENTER, SORT_ORDER_ASC, SORT_ORDER_DESC, DIRECTION_LTR } from '../../src/config/schema';
-import { MIN_WIDTH_WITH_FILTER_COMBO_PX } from '../../src/utils/columnWidthUtils';
+import { ALIGN_LEFT, ALIGN_RIGHT, ALIGN_CENTER, SORT_ORDER_ASC, SORT_ORDER_DESC, DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
 
 describe('GridHeaderCell Component', () => {
   const defaultColumn = { field: 'name', headerName: 'Name' };
@@ -568,6 +567,143 @@ describe('GridHeaderCell Component', () => {
       const spacer = children[children.length - 1];
       const spacerStyles = window.getComputedStyle(spacer);
       expect(spacerStyles.flex).toBe('1 1 0%');
+    });
+  });
+
+  describe('Column resize handle', () => {
+    it('should render resize handle when onColumnResize and colRefs are in context', () => {
+      const colRefs = { current: new Map() };
+      const contextValue = {
+        ...defaultContextValue,
+        onColumnResize: vi.fn(),
+        colRefs,
+        columnWidthMap: new Map([['name', 100]]),
+      };
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} columnIndex={0} />,
+        contextValue
+      );
+      expect(screen.getByTestId('resize-handle')).toBeInTheDocument();
+    });    
+
+    it('should position handle on right edge in LTR', () => {
+      const colRefs = { current: new Map() };
+      const contextValue = {
+        ...defaultContextValue,
+        direction: DIRECTION_LTR,
+        onColumnResize: vi.fn(),
+        colRefs,
+        columnWidthMap: new Map([['name', 100]]),
+      };
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} columnIndex={0} />,
+        contextValue
+      );
+      const handle = screen.getByTestId('resize-handle');
+      const styles = window.getComputedStyle(handle);
+      expect(styles.right).toBe('-3px');
+    });    
+  });
+  
+  describe('Column resize behavior', () => {
+    it('should call onColumnResize with increased width when dragging right', () => {
+      const colRefs = { current: new Map() };
+      const colEl = document.createElement('div');
+      colEl.style.width = '100px';
+      colRefs.current.set('name', colEl);
+      const onColumnResize = vi.fn();
+      const contextValue = {
+        ...defaultContextValue,
+        onColumnResize,
+        colRefs,
+        columnWidthMap: new Map([['name', 100]]),
+      };
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} columnIndex={0} />,
+        contextValue
+      );
+      const handle = screen.getByTestId('resize-handle');
+      fireEvent.mouseDown(handle, { clientX: 0 });
+      fireEvent.mouseMove(document, { clientX: 50 });
+      fireEvent.mouseUp(document);
+      expect(onColumnResize).toHaveBeenCalledWith('name', 150);
+      expect(colEl.style.width).toBe('150px');
+    });
+
+    it('should call onColumnResize with decreased width when dragging left', () => {
+      const colRefs = { current: new Map() };
+      const colEl = document.createElement('div');
+      colEl.style.width = '200px';
+      colRefs.current.set('name', colEl);
+      const onColumnResize = vi.fn();
+      const contextValue = {
+        ...defaultContextValue,
+        onColumnResize,
+        colRefs,
+        columnWidthMap: new Map([['name', 200]]),
+      };
+      renderWithContext(
+        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} columnIndex={0} />,
+        contextValue
+      );
+      const handle = screen.getByTestId('resize-handle');
+      fireEvent.mouseDown(handle, { clientX: 100 });
+      fireEvent.mouseMove(document, { clientX: 50 });
+      fireEvent.mouseUp(document);
+      expect(onColumnResize).toHaveBeenCalledWith('name', 150);
+      expect(colEl.style.width).toBe('150px');
+    });
+
+    it('should shrink column when dragging right in RTL', () => {
+      const colRefs = { current: new Map() };
+      const colEl = document.createElement('div');
+      colEl.style.width = '100px';
+      colRefs.current.set('price', colEl);
+      const onColumnResize = vi.fn();
+      const column = { field: 'price', headerName: 'Price', filter: 'list' };
+      const contextValue = {
+        ...defaultContextValue,
+        direction: DIRECTION_RTL,
+        onColumnResize,
+        colRefs,
+        columnWidthMap: new Map([['price', 100]]),
+      };
+      renderWithContext(
+        <GridHeaderCell column={column} sortModel={[]} onSort={vi.fn()} columnIndex={1} />,
+        contextValue
+      );
+      const handle = screen.getByTestId('resize-handle');
+      fireEvent.mouseDown(handle, { clientX: 0 });
+      fireEvent.mouseMove(document, { clientX: 40 });
+      fireEvent.mouseUp(document);
+      expect(onColumnResize).toHaveBeenCalledWith('price', 85);
+      expect(colEl.style.width).toBe('85px');
+    });
+
+    it('should grow column when dragging left in RTL', () => {
+      const colRefs = { current: new Map() };
+      const colEl = document.createElement('div');
+      colEl.style.width = '100px';
+      colRefs.current.set('price', colEl);
+      const onColumnResize = vi.fn();
+      const column = { field: 'price', headerName: 'Price' };
+      const contextValue = {
+        ...defaultContextValue,
+        direction: DIRECTION_RTL,
+        onColumnResize,
+        colRefs,
+        columnWidthMap: new Map([['price', 100]]),
+      };
+      renderWithContext(
+        <GridHeaderCell column={column} sortModel={[]} onSort={vi.fn()} columnIndex={1} />,
+        contextValue
+      );
+      const handle = screen.getByTestId('resize-handle');
+      fireEvent.mouseDown(handle, { clientX: 100 });
+      fireEvent.mouseMove(document, { clientX: 50 });
+      fireEvent.mouseUp(document);
+      expect(onColumnResize).toHaveBeenCalledWith('price', 150);
+      expect(colEl.style.width).toBe('150px');
     });
   });
 });

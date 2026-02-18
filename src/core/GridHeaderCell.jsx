@@ -1,8 +1,7 @@
 import React, { useContext, useMemo, useRef, useEffect } from 'react';
 import { TableCell, TableSortLabel, Box, Tooltip } from '@mui/material';
-import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT } from '../config/schema';
+import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, DIRECTION_RTL } from '../config/schema';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
-import { useTranslations } from '../localization/useTranslations';
 import { getFilterRowBoxSx } from '../utils/filterBoxStyles';
 import { getEffectiveMinWidth } from '../utils/columnWidthUtils';
 
@@ -24,7 +23,7 @@ export function GridHeaderCell({
   sortOrderIndex,
 }) {
   const ctx = useContext(DataGridStableContext);
-  const t = useTranslations();
+  const direction = ctx?.direction;
   const headerConfig = ctx?.headerConfig;
   const filterInputHeight = ctx?.filterInputHeight;
   const columnAlignMap = ctx?.columnAlignMap;
@@ -86,7 +85,8 @@ export function GridHeaderCell({
 
     const handleMouseMove = (e) => {
       const deltaX = e.clientX - startX;
-      let newWidth = startWidth + deltaX;
+      const effectiveDelta = direction === DIRECTION_RTL ? -deltaX : deltaX;
+      let newWidth = startWidth + effectiveDelta;
 
       // Snap to integer pixels
       newWidth = Math.floor(newWidth);
@@ -166,23 +166,27 @@ export function GridHeaderCell({
         <Box sx={{ flex: 1, minWidth: 0 }} />        
       </Box>
       {filterSlot != null && <Box sx={filterBoxSx}>{filterSlot}</Box>}
-      {/* Resize handle - invisible drag area on right edge with improved hit area */}
+      {/* Resize handle(s) - RTL: main handle at left (end of column); RTL first column also gets right edge. LTR: right edge only */}
       {onColumnResize && colRefs && (
-        <Box
-          onMouseDown={handleResizeMouseDown}
-          sx={{
-            position: 'absolute',
-            top: 0,
-            right: '-3px',
-            width: '8px',
-            height: '100%',
-            cursor: 'col-resize',
-            zIndex: 1,
-            '&:hover': {
+        <>
+          <Box
+            data-testid="resize-handle"
+            onMouseDown={handleResizeMouseDown}
+            sx={{
+              position: 'absolute',
+              top: 0,
+              ...(direction === DIRECTION_RTL ? { left: '-3px' } : { right: '-3px' }),
+              width: '8px',
+              height: '100%',
+              cursor: 'col-resize',
+              zIndex: 1,
               backgroundColor: 'rgba(0, 0, 0, 0.05)',
-            },
-          }}
-        />
+              '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+              },
+            }}
+          />
+        </>
       )}
     </TableCell>
   );
