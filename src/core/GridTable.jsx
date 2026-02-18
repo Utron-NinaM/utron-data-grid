@@ -207,6 +207,8 @@ function GridTableInner({
             overflow: 'visible',
             width: '100%',
             ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
+            borderRight: 'none',
+            borderLeft: 'none',
           }}
         >
           <Table
