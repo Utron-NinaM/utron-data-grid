@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import { ThemeProvider, createTheme, Box } from '@mui/material';
-import { DataGridProvider } from './DataGridContext';
+import { DataGridProvider, DataGridStableContext } from './DataGridContext';
 import { GridTable } from '../core/GridTable';
 import { PaginationBar } from '../pagination/PaginationBar';
 import { ValidationAlert } from '../validation/ValidationAlert';
@@ -8,6 +8,25 @@ import { defaultGridConfig } from '../config/defaultConfig';
 import { useDataGrid } from './useDataGrid';
 import { EditToolbar } from './EditToolbar';
 import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
+
+function GridScrollContainer({ children }) {
+  const ctx = useContext(DataGridStableContext);
+  const enableHorizontalScroll = ctx?.enableHorizontalScroll;
+  return (
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: 0,
+        minWidth: 0,
+        overflow: 'auto',
+        overflowX: enableHorizontalScroll ? 'scroll' : 'auto',
+      }}
+      data-testid="grid-scroll-container"
+    >
+      {children}
+    </Box>
+  );
+}
 
 /**
  * @typedef {Object} DataGridOptions
@@ -101,14 +120,16 @@ export function DataGrid(props) {
     <ThemeProvider theme={theme}>
       <DataGridProvider stableValue={grid.stableContextValue} filterValue={grid.filterContextValue}>
         <Box
+          ref={grid.stableContextValue.containerRef}
           sx={{
             ...flatProps.sx,
+            minWidth: 0,
+            width: '100%',
+            maxWidth: '100%',
+            overflowX: 'hidden',
             ...(useScrollableLayout && {
               display: 'flex',
               flexDirection: 'column',
-              minWidth: 0,
-              width: '100%',
-              maxWidth: '100%',
               overflow: 'hidden',
             }),
           }}
@@ -117,9 +138,7 @@ export function DataGrid(props) {
         >
           <ValidationAlert errors={grid.validationErrors} />
           {useScrollableLayout ? (
-            <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'auto' }} data-testid="grid-scroll-container">
-              {gridTable}
-            </Box>
+            <GridScrollContainer>{gridTable}</GridScrollContainer>
           ) :
             gridTable
           }

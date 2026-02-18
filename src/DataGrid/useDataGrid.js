@@ -60,6 +60,8 @@ export function useDataGrid(props) {
   const containerRef = useRef(null);
   // Refs for col elements to enable column-wide width updates during resize
   const colRefs = useRef(new Map());
+  // Ref for column currently being resized (field name or null); prevents layout from overwriting DOM width during drag
+  const resizingColumnRef = useRef(null);
 
   const {
     editRowId,
@@ -357,6 +359,7 @@ export function useDataGrid(props) {
       listColumnOptionMaps, // Map<field, optionMap> for list columns (key -> label)
       containerRef, // Container ref for ResizeObserver
       colRefs, // Refs for col elements (Map of field -> col element)
+      resizingColumnRef, // Ref: field name of column being resized, or null
       onColumnResize: handleColumnResize, // Resize handler
       totalWidth, // Total width for scroll calculation
       enableHorizontalScroll, // Whether to enable horizontal scroll
@@ -395,6 +398,7 @@ export function useDataGrid(props) {
       layoutColumnWidthMap,
       containerRef,
       colRefs,
+      resizingColumnRef,
       handleColumnResize,
       totalWidth,
       enableHorizontalScroll,

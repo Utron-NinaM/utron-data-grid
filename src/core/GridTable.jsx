@@ -46,20 +46,21 @@ function GridTableInner({
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
   const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
-    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions } = ctx;
+    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions } = ctx;
 
-  // Apply widths from columnWidthMap to col elements
+  // Apply widths from columnWidthMap to col elements (skip column currently being resized to avoid overwriting drag width)
   useEffect(() => {
     if (!columnWidthMap || !colRefs) return;
 
     columns.forEach((col) => {
+      if (resizingColumnRef?.current === col.field) return;
       const width = columnWidthMap.get(col.field);
       const colElement = colRefs.current?.get(col.field);
       if (colElement && width != null) {
         colElement.style.width = `${width}px`;
       }
     });
-  }, [columns, columnWidthMap, colRefs]);
+  }, [columns, columnWidthMap, colRefs, resizingColumnRef]);
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
 
@@ -211,11 +212,11 @@ function GridTableInner({
       </Box>
       <GridErrorBoundary>
         <TableContainer
-          ref={containerRef}
           component={Paper}
           variant="outlined"
           sx={{
-            overflow: 'visible',
+            overflowX: enableHorizontalScroll ? 'scroll' : 'visible',
+            overflowY: 'visible',
             width: '100%',
             ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
             borderRight: 'none',

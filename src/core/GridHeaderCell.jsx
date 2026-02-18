@@ -47,6 +47,7 @@ export function GridHeaderCell({
 
   const onColumnResize = ctx?.onColumnResize;
   const colRefs = ctx?.colRefs;
+  const resizingColumnRef = ctx?.resizingColumnRef;
   const columnWidthMap = ctx?.columnWidthMap;
 
   // Resize state - store width in ref during drag (not state)
@@ -59,13 +60,14 @@ export function GridHeaderCell({
   useEffect(() => {
     return () => {
       if (resizeStateRef.current) {
+        if (resizingColumnRef) resizingColumnRef.current = null;
         document.removeEventListener('mousemove', resizeStateRef.current.handleMouseMove);
         document.removeEventListener('mouseup', resizeStateRef.current.handleMouseUp);
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
       }
     };
-  }, []);
+  }, [resizingColumnRef]);
 
   const handleResizeMouseDown = (e) => {
     if (!onColumnResize || !colRefs) return;
@@ -73,8 +75,10 @@ export function GridHeaderCell({
     e.preventDefault();
     e.stopPropagation();
 
-      const colElement = colRefs?.current?.get(column.field);
+    const colElement = colRefs?.current?.get(column.field);
     if (!colElement) return;
+
+    if (resizingColumnRef) resizingColumnRef.current = column.field;
 
     const currentWidth = parseFloat(colElement.style.width) || initialWidth || 100;
     const startX = e.clientX;
@@ -113,6 +117,7 @@ export function GridHeaderCell({
       onColumnResize(column.field, finalWidth);
 
       // Cleanup
+      if (resizingColumnRef) resizingColumnRef.current = null;
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.cursor = '';

@@ -45,7 +45,7 @@ export function PaginationBar({
           size="small"
           value={pageSize}
           onChange={(e) => onPageSizeChange(Number(e.target.value))}
-          sx={{ minWidth: 64 }}
+          sx={{ minWidth: 64, height: 30 }}
           variant="outlined"
         >
           {pageSizeOptions.map((n) => (
