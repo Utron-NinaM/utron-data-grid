@@ -369,6 +369,40 @@ describe('GridTable Component', () => {
     });
   });
 
+  describe('Toolbar actions slot', () => {
+    it('should render toolbarActions content on the right when provided as ReactNode', () => {
+      const stableValue = {
+        ...defaultStableValue,
+        toolbarActions: <span data-testid="toolbar-actions-slot">Row actions</span>,
+      };
+      renderGridTable({}, stableValue);
+      expect(screen.getByTestId('toolbar-actions-slot')).toHaveTextContent('Row actions');
+      expect(screen.getByRole('button', { name: /clear sort/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /clear all filters/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /reset column widths/i })).toBeInTheDocument();
+    });
+
+    it('should render toolbarActions when provided as function with selectedRow and selectedRowId', () => {
+      const toolbarActionsFn = vi.fn(({ selectedRow, selectedRowId }) => (
+        <span data-testid="toolbar-actions-fn">Selected: {selectedRowId ?? 'none'}</span>
+      ));
+      const stableValue = {
+        ...defaultStableValue,
+        toolbarActions: toolbarActionsFn,
+      };
+      renderGridTable({ selectedRowId: 2 }, stableValue);
+      expect(screen.getByTestId('toolbar-actions-fn')).toHaveTextContent('Selected: 2');
+      expect(toolbarActionsFn).toHaveBeenCalledWith({ selectedRow: basicRows[1], selectedRowId: 2 });
+      expect(screen.getByRole('button', { name: /clear sort/i })).toBeInTheDocument();
+    });
+
+    it('should not render toolbar slot when toolbarActions is not provided', () => {
+      renderGridTable();
+      expect(screen.queryByTestId('toolbar-actions-slot')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /clear sort/i })).toBeInTheDocument();
+    });
+  });
+
   describe('Reset column widths button', () => {
     it('should render Reset column widths button and disable it when no resized columns', () => {
       renderGridTable();

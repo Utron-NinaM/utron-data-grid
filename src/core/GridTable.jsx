@@ -46,7 +46,7 @@ function GridTableInner({
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
   const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
-    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, totalWidth, enableHorizontalScroll, columnWidthMap } = ctx;
+    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions } = ctx;
 
   // Apply widths from columnWidthMap to col elements
   useEffect(() => {
@@ -173,31 +173,42 @@ function GridTableInner({
       );
     });
   }
+  const selectedRow = selectedRowId != null ? rows.find((r) => getRowId(r) === selectedRowId) ?? null : null;
+  const toolbarActionsContent = toolbarActions != null
+    ? (typeof toolbarActions === 'function'
+      ? toolbarActions({ selectedRow, selectedRowId })
+      : toolbarActions)
+    : null;
+
   return (
-    <>      
-        <Box
-          sx={{
-            position: 'sticky',
-            top: 0,
-            zIndex: 3,
-            display: 'flex',
-            gap: 1,
-            py: 0.5,
-            pb: 1.5,
-            backgroundColor: 'background.paper',
-          }}
-        >
-         
-            <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0}>
-              {translations('clearSort')}
-            </Button>
-            <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
-              {translations('clearAllFilters')}
-            </Button>
-            <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns}>
-              {translations('clearColumnWidths')}
-            </Button>
+    <>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 1,
+          py: 0.5,
+          pb: 1.5,
+          backgroundColor: 'background.paper',
+        }}
+      >
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0}>
+            {translations('clearSort')}
+          </Button>
+          <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
+            {translations('clearAllFilters')}
+          </Button>
+          <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns}>
+            {translations('clearColumnWidths')}
+          </Button>
         </Box>
+        {toolbarActionsContent != null ? toolbarActionsContent : null}
+      </Box>
       <GridErrorBoundary>
         <TableContainer
           ref={containerRef}

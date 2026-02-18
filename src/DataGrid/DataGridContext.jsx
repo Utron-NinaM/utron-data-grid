@@ -30,6 +30,7 @@ export const DataGridFilterContext = createContext(null);
  * @param {Object} [stableValue.headerConfig] Header configuration object (base, mainRow, filterRows, filterCells)
  * @param {number|string} [stableValue.filterInputHeight]
  * @param {Map<string, string>} [stableValue.columnWidthMap] Map of field -> normalized width string
+ * @param {React.ReactNode|Function} [stableValue.toolbarActions] Optional slot for right side of toolbar row (ReactNode or (params: { selectedRow, selectedRowId }) => ReactNode)
  * @param {Object} filterValue Filter-related functions that change with filterModel
  * @param {Function} [filterValue.getHeaderComboSlot]
  * @param {Function} [filterValue.getFilterInputSlot]

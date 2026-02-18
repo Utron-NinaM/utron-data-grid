@@ -45,6 +45,7 @@ export function useDataGrid(props) {
     headerConfig,
     selectedRowStyle,
     gridId,
+    toolbarActions,
   } = props;
 
   const [internalSort, setInternalSort] = useState(() => getStoredSortModel(props.gridId, props.columns));
@@ -359,6 +360,7 @@ export function useDataGrid(props) {
       onColumnResize: handleColumnResize, // Resize handler
       totalWidth, // Total width for scroll calculation
       enableHorizontalScroll, // Whether to enable horizontal scroll
+      toolbarActions,
     }),
     [
       columns,
@@ -396,6 +398,7 @@ export function useDataGrid(props) {
       handleColumnResize,
       totalWidth,
       enableHorizontalScroll,
+      toolbarActions,
     ]
   );
 

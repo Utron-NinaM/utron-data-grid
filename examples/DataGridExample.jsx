@@ -3,7 +3,7 @@ import { DataGrid } from '../src/DataGrid/DataGrid';
 import { columnsConfig, columnsConfigHebrew } from './columnsConfig';
 import { sampleData } from './sampleData';
 import { en } from './translations';
-import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box } from '@mui/material';
 import { DIRECTION_RTL, DIRECTION_LTR } from '../src/config/schema';
 
 export function DataGridExample() {
@@ -70,16 +70,6 @@ export function DataGridExample() {
             <option value={DIRECTION_RTL}>RTL</option>
           </select>
         </label>
-        <div style={{ marginTop: 16, marginBottom: 16 }}>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleCancelOrder}
-            disabled={!selectedRow}
-          >
-            Cancel Order
-          </Button>
-        </div>
       </div>
       <div style={{ flex: 1, minHeight: 0, minWidth: 0, width: '100%', maxWidth: '100%', marginTop: 16 }}>
         <DataGrid
@@ -105,6 +95,25 @@ export function DataGridExample() {
               filterCells: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
             },
             selectedRowStyle: { backgroundColor: 'rgb(129, 124, 124)' },
+            toolbarActions: ({ selectedRow: row }) => (
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button size="small" variant="outlined" disabled={!row}>
+                  Release
+                </Button>
+                <Button size="small" variant="outlined" disabled={!row}>
+                  Edit
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="error"
+                  onClick={handleCancelOrder}
+                  disabled={!row}
+                >
+                  Cancel Order
+                </Button>
+              </Box>
+            ),
           }}
         />
       </div>
