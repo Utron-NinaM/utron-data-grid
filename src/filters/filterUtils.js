@@ -1,4 +1,5 @@
 import {
+  FIELD_TYPE_TEXT,
   FIELD_TYPE_NUMBER,
   FIELD_TYPE_DATE,
   FIELD_TYPE_DATETIME,
@@ -16,10 +17,49 @@ import {
   OPERATOR_NOT_CONTAINS,
   OPERATOR_STARTS_WITH,
   OPERATOR_ENDS_WITH,
+  OPERATOR_PERIOD,
 } from '../config/schema';
+import dayjs from 'dayjs';
 
 
 export const FILTER_DEBOUNCE_MS = 200;
+
+const FILTER_STORAGE_KEY_PREFIX = 'utron-datagrid-filters-';
+
+/**
+ * Load persisted filter model from localStorage. Returns only entries for known column fields.
+ * @param {string} gridId
+ * @param {Object[]} columns
+ * @returns {Object}
+ */
+export function getStoredFilterModel(gridId, columns) {
+  if (!gridId || typeof localStorage === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(FILTER_STORAGE_KEY_PREFIX + gridId);
+    if (raw == null) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {};
+    const fieldSet = new Set((columns || []).map((c) => c.field));
+    const filtered = {};
+    for (const [key, val] of Object.entries(parsed)) {
+      if (fieldSet.has(key) && val != null && typeof val === 'object') filtered[key] = val;
+    }
+    return filtered;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Persist filter model to localStorage.
+ * @param {string} gridId
+ * @param {Object} filterModel
+ */
+export function saveFilterModel(gridId, filterModel) {
+  if (gridId && typeof localStorage !== 'undefined') {
+    localStorage.setItem(FILTER_STORAGE_KEY_PREFIX + gridId, JSON.stringify(filterModel));
+  }
+}
 
 /**
  * Apply filter model to rows. AND across columns.
@@ -35,7 +75,9 @@ export function applyFilters(rows, filterModel, columns) {
     return Object.entries(filterModel).every(([field, state]) => {
       if (!state) return true;
       const isEmptyNotEmpty = state.operator === OPERATOR_EMPTY || state.operator === OPERATOR_NOT_EMPTY;
-      const hasValue = state.value !== undefined || state.valueTo !== undefined;
+      const hasValue = state.operator === OPERATOR_PERIOD
+        ? (state.value !== undefined && state.value !== '' && state.periodUnit != null)
+        : (state.value !== undefined || state.valueTo !== undefined);
       if (!hasValue && !isEmptyNotEmpty) return true;
       const col = colMap.get(field);
       return matchFilter(row[field], state, col?.type);
@@ -43,8 +85,9 @@ export function applyFilters(rows, filterModel, columns) {
   });
 }
 
-function matchFilter(cellValue, state, type) {
-  const { operator = OPERATOR_EQUALS, value, valueTo } = state;
+function matchFilter(cellValue, state, type) {  
+  const defaultOperator = type === FIELD_TYPE_TEXT ? OPERATOR_CONTAINS : OPERATOR_EQUALS;
+  const { operator = defaultOperator, value, valueTo } = state;
   
   const v = cellValue;
   let val = null;
@@ -80,6 +123,15 @@ function matchFilter(cellValue, state, type) {
         return val <= val1;
       case OPERATOR_IN_RANGE:
         return val2 != null && val >= Math.min(val1, val2) && val <= Math.max(val1, val2);
+      case OPERATOR_PERIOD: {
+        const amount = Number(state.value);
+        const periodUnit = state.periodUnit;
+        if (periodUnit == null || amount == null || isNaN(amount) || amount <= 0) return false;
+        const unit = periodUnit.endsWith('s') ? periodUnit.slice(0, -1) : periodUnit;
+        const start = dayjs().subtract(amount, unit).valueOf();
+        const now = dayjs().valueOf();
+        return val >= start && val <= now;
+      }
       case OPERATOR_EMPTY:
         return val == null || val === '';
       case OPERATOR_NOT_EMPTY:
