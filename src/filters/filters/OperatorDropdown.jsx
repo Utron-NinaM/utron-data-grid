@@ -6,6 +6,7 @@ import { useTranslations } from '../../localization/useTranslations';
 import { OPERATOR_EQUALS, OPERATOR_CONTAINS, OPERATOR_ICONS, DIRECTION_LTR, DIRECTION_RTL } from '../../config/schema';
 import { useContext } from 'react';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
+import { FILTER_OPERATOR_WIDTH_PX } from '../../utils/filterBoxStyles';
 
 export function OperatorDropdown({ value, onChange, operatorMap }) {
   const ctx = useContext(DataGridStableContext);
@@ -19,7 +20,7 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
   const renderOperator = (op) => <FontAwesomeIcon icon={OPERATOR_ICONS[op]} fontSize="small" />;
 
   return (
-    <Box sx={{ paddingLeft: '1px', paddingRight: '1px' }}>
+    <Box sx={{ paddingLeft: '1px', paddingRight: '1px', width: FILTER_OPERATOR_WIDTH_PX , minWidth: FILTER_OPERATOR_WIDTH_PX}}>
       <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} aria-label="Operator" sx={{ boxSizing: 'border-box', paddingLeft: '1px', paddingRight: '1px' }}>
         <ArrowDropDownIcon />
         <Box component="span" sx={{ fontSize: '0.875rem', minWidth: 20 }}>

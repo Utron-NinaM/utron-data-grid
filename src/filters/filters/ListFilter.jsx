@@ -5,12 +5,15 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
 import { getOptionLabel, getOptionValue, getOptionMap } from '../../utils/optionUtils';
 import { DIRECTION_RTL, DIRECTION_LTR } from '../../config/schema';
+import { getFilterContentHeight } from '../../utils/filterBoxStyles';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ListFilter({ value, onChange, options }) {
   const ctx = useContext(DataGridStableContext);
+  const filterInputHeight = ctx?.filterInputHeight;
+  const contentHeight = getFilterContentHeight(filterInputHeight);
   const direction = ctx?.direction ?? DIRECTION_LTR;
   const isRtl = direction === DIRECTION_RTL;
   const [inputValue, setInputValue] = React.useState('');
@@ -23,7 +26,7 @@ export function ListFilter({ value, onChange, options }) {
   );
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%', padding: 0}}>
       <Autocomplete
         multiple
         size="small"
@@ -74,7 +77,9 @@ export function ListFilter({ value, onChange, options }) {
           maxWidth: '100%',
           overflow: 'hidden',
           boxSizing: 'border-box',
-          '& .MuiInputBase-root': { minHeight: 20, overflow: 'hidden', direction },
+          height: contentHeight,
+          minHeight: contentHeight,
+          maxHeight: contentHeight,
         }}
         slotProps={{
           popper: {

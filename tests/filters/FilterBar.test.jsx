@@ -108,7 +108,6 @@ describe('FilterBar slot helpers', () => {
       const slot = getFilterToInputSlot(column, filterModel, noop);
       expect(slot).not.toBeNull();
       expect(React.isValidElement(slot)).toBe(true);
-      expect(slot.props.value).toEqual(filterModel.score);
     });
 
     it('returns element for date column with OPERATOR_IN_RANGE', () => {

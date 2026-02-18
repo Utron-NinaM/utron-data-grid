@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -6,6 +6,8 @@ import { Box, TextField } from '@mui/material';
 import { getDateFormat } from '../../utils/directionUtils';
 import { useTranslations } from '../../localization/useTranslations';
 import { ThemeProvider } from '@mui/material/styles';
+import { DataGridStableContext } from '../../DataGrid/DataGridContext';
+import { getFilterContentHeight } from '../../utils/filterBoxStyles';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
@@ -41,8 +43,16 @@ function getSlotProps(direction) {
 /** Date picker (from only). "To" is rendered in separate header row when inRange. For OPERATOR_PERIOD: "Last" label + number input + unit combo. */
 export function DateFilterInputs({ value, onChange, direction = DIRECTION_LTR }) {
   const t = useTranslations();
+  const ctx = useContext(DataGridStableContext);
+  const contentHeight = getFilterContentHeight(ctx?.filterInputHeight);
+  const datePickerIconSize = contentHeight - 2;
   const format = getDateFormat(direction);
   const dateVal = value?.value != null ? dayjs(value.value) : null;
+  const datePickerSlotProps = {
+    ...getSlotProps(direction),
+    openPickerButton: { sx: { width: datePickerIconSize, height: datePickerIconSize, minWidth: datePickerIconSize, minHeight: datePickerIconSize } },
+    openPickerIcon: { sx: { width: datePickerIconSize, height: datePickerIconSize } },
+  };
 
   const handleChange = (next) => {
     onChange({ ...value, ...next });
@@ -104,7 +114,7 @@ export function DateFilterInputs({ value, onChange, direction = DIRECTION_LTR })
           <DatePicker
             value={dateVal}
             onChange={(d) => handleChange({ value: d && d.isValid() ? d.toISOString() : null })}
-            slotProps={getSlotProps(direction)}
+            slotProps={datePickerSlotProps}
             dir={direction}
             format={format}
           />
@@ -116,11 +126,24 @@ export function DateFilterInputs({ value, onChange, direction = DIRECTION_LTR })
 
 /** "To" date picker only (for in-range second header row) */
 export function DateFilterToInput({ value, onChange, direction }) {
+  const ctx = useContext(DataGridStableContext);
+  const contentHeight = getFilterContentHeight(ctx?.filterInputHeight);
+  const datePickerIconSize = contentHeight - 2;
   const format = getDateFormat(direction);
   const dateTo = value?.valueTo != null ? dayjs(value.valueTo) : null;
 
   const handleChange = (next) => {
     onChange({ ...value, ...next });
+  };
+
+  const toSlotProps = {
+    ...getSlotProps(direction),
+    openPickerButton: { sx: { width: datePickerIconSize, height: datePickerIconSize, minWidth: datePickerIconSize, minHeight: datePickerIconSize } },
+    openPickerIcon: { sx: { width: datePickerIconSize, height: datePickerIconSize } },
+    textField: {
+      ...getSlotProps(direction).textField,
+      inputProps: { 'aria-label': 'To' },
+    },
   };
 
   return (
@@ -130,7 +153,7 @@ export function DateFilterToInput({ value, onChange, direction }) {
           <DatePicker
             value={dateTo}
             onChange={(d) => handleChange({ valueTo: d && d.isValid() ? d.toISOString() : null })}
-            slotProps={{ ...getSlotProps(direction), textField: { ...getSlotProps(direction).textField, inputProps: { 'aria-label': 'To' } } }}
+            slotProps={toSlotProps}
             dir={direction}
             format={format}
           />

@@ -14,7 +14,6 @@ import {
   OPERATOR_IN_RANGE,
   OPERATOR_CONTAINS,
   DIRECTION_LTR,
-  DIRECTION_RTL,
   NUMBER_OP_IDS,
   DATE_OP_IDS,
   TEXT_OP_IDS,
@@ -22,6 +21,7 @@ import {
   FILTER_TYPE_DATE,
   FILTER_TYPE_LIST,
 } from '../config/schema';
+import { FILTER_OPERATOR_WIDTH_PX_WITH_PADDING } from '../utils/filterBoxStyles';
 
 /**
  * Header combo slot: clear filter button when column has active filter. Renders next to column label.
@@ -48,14 +48,13 @@ function HeaderClearFilterButton({ field, onClear }) {
 /**
  * Filter input slot: operator (text/number/date) + value inputs in filter row. LTR: operator left, RTL: operator right.
  */
-export function getFilterInputSlot(column, filterModel, onFilterChange, direction = DIRECTION_LTR, translations) {
+export function getFilterInputSlot(column, filterModel, onFilterChange, direction = DIRECTION_LTR) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
 
   if (filterType === false) return null;
 
-  const isRtl = direction === DIRECTION_RTL;
   const operatorWrapperSx = {
     display: 'flex',
     alignItems: 'center',
@@ -63,7 +62,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
     width: '100%',
     minWidth: 0,
     maxWidth: '100%',
-    flexDirection: isRtl ? 'row-reverse' : 'row',
+    flexDirection: 'row',
     transition: 'opacity 120ms ease',
   };
 
@@ -140,21 +139,34 @@ export function getFilterToInputSlot(column, filterModel, onFilterChange, direct
   if (filterType === false) return null;
   if (state?.operator !== OPERATOR_IN_RANGE) return null;
 
+  const toSlotWrapperSx = {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    minWidth: 0,
+    maxWidth: '100%',
+    paddingInlineStart: `${FILTER_OPERATOR_WIDTH_PX_WITH_PADDING}px`,
+  };
+
   switch (filterType) {
     case FILTER_TYPE_NUMBER:
       return (
-        <NumberFilterToInput
-          value={state}
-          onChange={(v) => onFilterChange(field, v)}
-        />
+        <Box sx={toSlotWrapperSx}>
+          <NumberFilterToInput
+            value={state}
+            onChange={(v) => onFilterChange(field, v)}
+          />
+        </Box>
       );
-    case FILTER_TYPE_DATE:    
+    case FILTER_TYPE_DATE:
       return (
-        <DateFilterToInput
-          value={state}
-          onChange={(v) => onFilterChange(field, v)}
-          direction={direction}
-        />
+        <Box sx={toSlotWrapperSx}>
+          <DateFilterToInput
+            value={state}
+            onChange={(v) => onFilterChange(field, v)}
+            direction={direction}
+          />
+        </Box>
       );
     default:
       return null;

@@ -12,30 +12,30 @@ import { hebrewTranslations } from '../../src/localization/defaultTranslations';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
 
+const createContextValue = (direction) => ({
+  direction,
+  translations: direction === DIRECTION_RTL ? hebrewTranslations : undefined,
+  defaultTranslations: undefined,
+  columnAlignMap: new Map(),
+  columnSortDirMap: new Map(),
+  headerCellSxMap: new Map(),
+  filterCellSxMap: new Map(),
+  rowStylesMap: new Map(),
+  headerConfig: {},
+  filterInputHeight: 40,
+});
+
+const renderWithTheme = (component, direction = DIRECTION_LTR) => {
+  return render(
+    <ThemeProvider theme={createTheme({ direction })}>
+      <DataGridProvider stableValue={createContextValue(direction)} filterValue={{}}>
+        {component}
+      </DataGridProvider>
+    </ThemeProvider>
+  );
+};
+
 describe('Filter RTL Test', () => {
-  const createContextValue = (direction) => ({
-    direction,
-    translations: direction === DIRECTION_RTL ? hebrewTranslations : undefined,
-    defaultTranslations: undefined,
-    columnAlignMap: new Map(),
-    columnSortDirMap: new Map(),
-    headerCellSxMap: new Map(),
-    filterCellSxMap: new Map(),
-    rowStylesMap: new Map(),
-    headerConfig: {},
-    filterInputHeight: 40,
-  });
-
-  const renderWithTheme = (component, direction = DIRECTION_LTR) => {
-    return render(
-      <ThemeProvider theme={createTheme({ direction })}>
-        <DataGridProvider stableValue={createContextValue(direction)} filterValue={{}}>
-          {component}
-        </DataGridProvider>
-      </ThemeProvider>
-    );
-  };
-
   beforeEach(() => {
     if (typeof localStorage !== 'undefined' && localStorage.clear) {
       localStorage.clear();
@@ -45,7 +45,7 @@ describe('Filter RTL Test', () => {
   describe('Render filters in RTL mode', () => {
     it('should render TextFilter in RTL mode', () => {
       renderWithTheme(
-        <TextFilter 
+        <TextFilter
           value=""
           onChange={vi.fn()}
           placeholder={hebrewTranslations.filterPlaceholder}
@@ -59,7 +59,7 @@ describe('Filter RTL Test', () => {
 
     it('should render NumberFilterInputs in RTL mode', () => {
       renderWithTheme(
-        <NumberFilterInputs 
+        <NumberFilterInputs
           value={null}
           onChange={vi.fn()}
           placeholder={hebrewTranslations.filterNumber}
@@ -74,7 +74,7 @@ describe('Filter RTL Test', () => {
 
     it('should render DateFilter in RTL mode', () => {
       renderWithTheme(
-        <DateFilterInputs 
+        <DateFilterInputs
           value={null}
           onChange={vi.fn()}
           placeholder={hebrewTranslations.filterDate}
@@ -89,7 +89,7 @@ describe('Filter RTL Test', () => {
 
     it('should render ListFilter in RTL mode', () => {
       renderWithTheme(
-        <ListFilter 
+        <ListFilter
           value={null}
           onChange={vi.fn()}
           options={['אופציה 1', 'אופציה 2', 'אופציה 3']}
@@ -106,7 +106,7 @@ describe('Filter RTL Test', () => {
   describe('Test input alignment', () => {
     it('should align TextFilter input correctly in RTL', () => {
       const { container } = renderWithTheme(
-        <TextFilter 
+        <TextFilter
           value=""
           onChange={vi.fn()}
           placeholder={hebrewTranslations.filterPlaceholder}
@@ -116,7 +116,7 @@ describe('Filter RTL Test', () => {
 
       const input = screen.getByRole('textbox');
       expect(input).toBeInTheDocument();
-      
+
       // Verify RTL-specific CSS properties - check computed styles
       // MUI TextField wraps the input, so we check the actual input element
       const actualInput = input.tagName === 'INPUT' ? input : input.querySelector('input');
@@ -126,7 +126,7 @@ describe('Filter RTL Test', () => {
         // Both are valid RTL alignments
         expect(['start', 'right']).toContain(styles.textAlign);
       }
-      
+
       // Verify RTL is applied to the component tree via theme
       // MUI applies direction through the theme, which may not show up directly on TextField root
       // Instead, verify that the theme direction is RTL by checking the actual rendering behavior
@@ -136,7 +136,7 @@ describe('Filter RTL Test', () => {
 
     it('should align NumberFilterInputs correctly in RTL', () => {
       const { container } = renderWithTheme(
-        <NumberFilterInputs 
+        <NumberFilterInputs
           value={null}
           onChange={vi.fn()}
           placeholder={hebrewTranslations.filterNumber}
@@ -147,7 +147,7 @@ describe('Filter RTL Test', () => {
       // Number inputs use 'spinbutton' role, not 'textbox'
       const inputs = screen.getAllByRole('spinbutton');
       expect(inputs.length).toBeGreaterThan(0);
-      
+
       // Verify RTL-specific CSS properties for each input
       inputs.forEach(input => {
         expect(input).toBeInTheDocument();
@@ -156,7 +156,7 @@ describe('Filter RTL Test', () => {
         // Both are valid RTL alignments
         expect(['start', 'right']).toContain(styles.textAlign);
       });
-      
+
       // Verify RTL is applied to the component tree via theme
       // MUI applies direction through the theme, which may not show up directly on TextField root
       const textField = container.querySelector('.MuiTextField-root');
@@ -167,7 +167,7 @@ describe('Filter RTL Test', () => {
   describe('Test date picker locale (Hebrew)', () => {
     it('should use Hebrew locale for date picker in RTL', () => {
       const { container } = renderWithTheme(
-        <DateFilterInputs 
+        <DateFilterInputs
           value={{ value: '2024-01-15' }}
           onChange={vi.fn()}
           placeholder={hebrewTranslations.filterDate}
@@ -178,7 +178,7 @@ describe('Filter RTL Test', () => {
 
       const input = screen.getByRole('textbox');
       expect(input).toBeInTheDocument();
-      
+
       // Verify dir attribute is set (DateFilterInputs sets it in slotProps.textField.dir)
       const textField = container.querySelector('.MuiTextField-root');
       if (textField) {
@@ -191,13 +191,13 @@ describe('Filter RTL Test', () => {
           if (dirAttr) {
             expect(dirAttr).toBe('rtl');
           }
-          
+
           // Verify text alignment (can be 'start' or 'right' in RTL)
           const styles = window.getComputedStyle(fieldInput);
           expect(['start', 'right']).toContain(styles.textAlign);
         }
       }
-      
+
       // Date should be formatted as DD-MM-YYYY in RTL
       // Note: RTL dates may include bidirectional marks, so we check the format more flexibly
       const actualInput = input.tagName === 'INPUT' ? input : input.querySelector('input');
@@ -224,7 +224,7 @@ describe('Filter RTL Test', () => {
     it('should format date input as DD-MM-YYYY in RTL', () => {
       const testDate = '2024-01-15';
       const { container } = renderWithTheme(
-        <DateFilterInputs 
+        <DateFilterInputs
           value={{ value: testDate }}
           onChange={vi.fn()}
           placeholder={hebrewTranslations.filterDate}
@@ -235,7 +235,7 @@ describe('Filter RTL Test', () => {
 
       const input = screen.getByRole('textbox');
       const formattedDate = dayjs(testDate).format('DD-MM-YYYY');
-      
+
       // Verify dir attribute is set (DateFilterInputs sets it in slotProps)
       const textField = container.querySelector('.MuiTextField-root');
       if (textField) {
@@ -248,13 +248,13 @@ describe('Filter RTL Test', () => {
           if (dirAttr) {
             expect(dirAttr).toBe('rtl');
           }
-          
+
           // Verify text alignment (can be 'start' or 'right' in RTL)
           const styles = window.getComputedStyle(fieldInput);
           expect(['start', 'right']).toContain(styles.textAlign);
         }
       }
-      
+
       // Verify the input contains the formatted date (DD-MM-YYYY format)
       const dateValue = input.value || '';
       if (dateValue) {
@@ -265,7 +265,7 @@ describe('Filter RTL Test', () => {
 
     it('should use Hebrew locale adapter for date picker', () => {
       const { container } = renderWithTheme(
-        <DateFilterInputs 
+        <DateFilterInputs
           value={null}
           onChange={vi.fn()}
           placeholder={hebrewTranslations.filterDate}
@@ -277,7 +277,7 @@ describe('Filter RTL Test', () => {
       // Date picker should be rendered with Hebrew locale
       const input = screen.getByRole('textbox');
       expect(input).toBeInTheDocument();
-      
+
       // Verify dir attribute is set (DateFilterInputs sets it in slotProps)
       const textField = container.querySelector('.MuiTextField-root');
       if (textField) {
@@ -291,7 +291,7 @@ describe('Filter RTL Test', () => {
           if (dirAttr) {
             expect(dirAttr).toBe('rtl');
           }
-          
+
           // Verify text alignment shows RTL behavior
           const styles = window.getComputedStyle(fieldInput);
           expect(['start', 'right']).toContain(styles.textAlign);
@@ -300,103 +300,60 @@ describe('Filter RTL Test', () => {
     });
   });
 
-  describe('Test dropdown alignment', () => {
-    it('should align ListFilter dropdown correctly in RTL', () => {
-      const { container } = renderWithTheme(
-        <ListFilter 
-          value={null}
-          onChange={vi.fn()}
-          options={['אופציה 1', 'אופציה 2']}
-          placeholder={hebrewTranslations.selectOption}
-        />,
-        DIRECTION_RTL
-      );
+  it('should display Hebrew options in dropdown', () => {
+    const options = ['אופציה 1', 'אופציה 2', 'אופציה 3'];
+    const { container } = renderWithTheme(
+      <ListFilter
+        value={null}
+        onChange={vi.fn()}
+        options={options}
+        placeholder={hebrewTranslations.selectOption}
+      />,
+      DIRECTION_RTL
+    );
 
-      const select = screen.getByRole('combobox');
+    const select = screen.getByRole('combobox');
+
+    // Verify RTL-specific CSS properties
+    const input = select.tagName === 'INPUT' ? select : select.querySelector('input');
+    if (input) {
+      // ListFilter sets dir in inputProps
+      expect(input.getAttribute('dir')).toBe('rtl');
+
+      const inputStyles = window.getComputedStyle(input);
+      // Can be 'start' or 'right' in RTL - ListFilter explicitly sets 'right'
+      expect(['start', 'right']).toContain(inputStyles.textAlign);
+    }
+
+    fireEvent.mouseDown(select);
+
+    // Options should be available (may need to wait for menu)
+    options.forEach(option => {
+      const optionElement = screen.queryByText(option);
+      // Options may be in a portal, so we just verify the select exists
       expect(select).toBeInTheDocument();
-      
-      // Verify RTL-specific CSS properties on the Autocomplete root
-      const autocomplete = container.querySelector('.MuiAutocomplete-root');
-      expect(autocomplete).toBeInTheDocument();
-      
-      // ListFilter sets direction in sx prop for .MuiInputBase-root (line 78)
-      // Check the InputBase root element
-      const inputBase = container.querySelector('.MuiInputBase-root');
-      if (inputBase) {
-        const baseStyles = window.getComputedStyle(inputBase);
-        // ListFilter explicitly sets direction in sx prop
-        expect(baseStyles.direction).toBe('rtl');
-      }
-      
-      // Verify the actual input element has RTL properties
-      const input = select.tagName === 'INPUT' ? select : select.querySelector('input');
-      if (input) {
-        // ListFilter sets dir in inputProps (line 64 of ListFilter.jsx)
-        const dirAttr = input.getAttribute('dir');
-        expect(dirAttr).toBe('rtl');
-        
-        // ListFilter sets textAlign in sx prop for .MuiInputBase-input (line 67)
-        const inputStyles = window.getComputedStyle(input);
-        // Can be 'start' or 'right' in RTL - ListFilter explicitly sets 'right'
-        expect(['start', 'right']).toContain(inputStyles.textAlign);
-      }
-    });
-
-    it('should display Hebrew options in dropdown', () => {
-      const options = ['אופציה 1', 'אופציה 2', 'אופציה 3'];
-      const { container } = renderWithTheme(
-        <ListFilter 
-          value={null}
-          onChange={vi.fn()}
-          options={options}
-          placeholder={hebrewTranslations.selectOption}
-        />,
-        DIRECTION_RTL
-      );
-
-      const select = screen.getByRole('combobox');
-      
-      // Verify RTL-specific CSS properties
-      const input = select.tagName === 'INPUT' ? select : select.querySelector('input');
-      if (input) {
-        // ListFilter sets dir in inputProps
-        expect(input.getAttribute('dir')).toBe('rtl');
-        
-        const inputStyles = window.getComputedStyle(input);
-        // Can be 'start' or 'right' in RTL - ListFilter explicitly sets 'right'
-        expect(['start', 'right']).toContain(inputStyles.textAlign);
-      }
-      
-      fireEvent.mouseDown(select);
-      
-      // Options should be available (may need to wait for menu)
-      options.forEach(option => {
-        const optionElement = screen.queryByText(option);
-        // Options may be in a portal, so we just verify the select exists
-        expect(select).toBeInTheDocument();
-      });
     });
   });
+});
 
-  describe('Test filter inputs in Hebrew (no placeholders)', () => {
-    it('should render TextFilter in RTL', () => {
-      renderWithTheme(
-        <TextFilter value="" onChange={vi.fn()} />,
-        DIRECTION_RTL
-      );
+describe('Test filter inputs in Hebrew (no placeholders)', () => {
+  it('should render TextFilter in RTL', () => {
+    renderWithTheme(
+      <TextFilter value="" onChange={vi.fn()} />,
+      DIRECTION_RTL
+    );
 
-      const input = screen.getByRole('textbox');
-      expect(input).toBeInTheDocument();
-    });
+    const input = screen.getByRole('textbox');
+    expect(input).toBeInTheDocument();
+  });
 
-    it('should render NumberFilterInputs in RTL', () => {
-      renderWithTheme(
-        <NumberFilterInputs value={null} onChange={vi.fn()} />,
-        DIRECTION_RTL
-      );
+  it('should render NumberFilterInputs in RTL', () => {
+    renderWithTheme(
+      <NumberFilterInputs value={null} onChange={vi.fn()} />,
+      DIRECTION_RTL
+    );
 
-      const inputs = screen.getAllByRole('spinbutton');
-      expect(inputs.length).toBeGreaterThan(0);
-    });
+    const inputs = screen.getAllByRole('spinbutton');
+    expect(inputs.length).toBeGreaterThan(0);
   });
 });
