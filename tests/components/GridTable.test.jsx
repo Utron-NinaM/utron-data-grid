@@ -38,6 +38,8 @@ describe('GridTable Component', () => {
     enableHorizontalScroll: false,
     onClearSort: vi.fn(),
     onClearAllFilters: vi.fn(),
+    onClearColumnWidths: vi.fn(),
+    hasResizedColumns: false,
     headerConfig: {},
     getEditor: null,
     selectedRowStyle: {},
@@ -364,6 +366,37 @@ describe('GridTable Component', () => {
       }, { timeout: 500 });
       
       expect(onRowClick).toHaveBeenCalledWith(basicRows[0]);
+    });
+  });
+
+  describe('Reset column widths button', () => {
+    it('should render Reset column widths button and disable it when no resized columns', () => {
+      renderGridTable();
+      const btn = screen.getByRole('button', { name: /reset column widths/i });
+      expect(btn).toBeInTheDocument();
+      expect(btn).toBeDisabled();
+    });
+
+    it('should enable button when hasResizedColumns is true', () => {
+      const stableValue = {
+        ...defaultStableValue,
+        hasResizedColumns: true,
+      };
+      renderGridTable({}, stableValue);
+      const btn = screen.getByRole('button', { name: /reset column widths/i });
+      expect(btn).not.toBeDisabled();
+    });
+
+    it('should call onClearColumnWidths when Reset column widths is clicked', () => {
+      const onClearColumnWidths = vi.fn();
+      const stableValue = {
+        ...defaultStableValue,
+        onClearColumnWidths,
+        hasResizedColumns: true,
+      };
+      renderGridTable({}, stableValue);
+      fireEvent.click(screen.getByRole('button', { name: /reset column widths/i }));
+      expect(onClearColumnWidths).toHaveBeenCalledTimes(1);
     });
   });
 });

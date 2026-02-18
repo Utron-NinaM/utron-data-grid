@@ -81,6 +81,7 @@ const rows = [
 | `sx` | `object` | MUI sx for root container |
 | `headerConfig` | `object` | `base` (MUI sx for TableHead), `mainRow`, `filterRows`, `filterCells` (e.g. `backgroundColor`, `height`) |
 | `selectedRowStyle` | `object` | MUI sx for selected rows |
+| `gridId` | `string` | Unique id for this grid; when set, sort, filter, and column width overrides are persisted in localStorage (`utron-datagrid-sort-{gridId}`, `utron-datagrid-filters-{gridId}`, `utron-datagrid-column-widths-{gridId}`) and restored on load. Use a different id per grid when multiple grids exist. |
 
 ## Configuration (columns)
 
@@ -143,6 +144,8 @@ Built-in minimum widths:
 
 **Column Resizing**: Users can manually resize columns by dragging the border between column headers. Resized columns are automatically "frozen" and excluded from flex/auto distribution, maintaining their user-set width. The resize handle is an 8px invisible drag area on the right edge of each column header.
 
+**Column width persistence**: When `options.gridId` is set, column width overrides are stored in localStorage under `utron-datagrid-column-widths-{gridId}` and restored on load (same pattern as sort and filter). A "Reset column widths" toolbar button (next to Clear sort and Clear all filters) clears all width overrides and is disabled when there are none.
+
 Examples:
 
 ```js
@@ -175,6 +178,7 @@ Conditional editing example:
 Pass `options={{ translations: { ... } }}` with keys overriding defaults. Main keys:
 
 - Sort: `clearSort`, `sortAsc`, `sortDesc`
+- Toolbar: `clearAllFilters`, `clearColumnWidths` (e.g. "Clear all filters", "Reset column widths")
 - Filter: `filterPlaceholder`, `selectOption`
 - Operators: `operatorEquals`, `operatorNotEqual`, `operatorGreaterThan`, etc.
 - Pagination: `rowsPerPage`, `paginationRange`, `firstPage`, `lastPage`, `prevPage`, `nextPage`

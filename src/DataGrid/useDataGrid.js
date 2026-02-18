@@ -1,5 +1,6 @@
 import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { applySort, getStoredSortModel, saveSortModel } from '../utils/sortUtils';
+import { getStoredColumnWidthState, saveColumnWidthState } from '../utils/columnWidthStorage';
 import debounce from 'lodash/debounce';
 import { applyFilters, FILTER_DEBOUNCE_MS, getStoredFilterModel, saveFilterModel } from '../filters/filterUtils';
 import { slicePage } from '../pagination/paginationUtils';
@@ -53,7 +54,7 @@ export function useDataGrid(props) {
   const [internalPageSize, setInternalPageSize] = useState(initialPageSize);
   const [selectedRowId, setSelectedRowId] = useState(null);
   // Column width state: Map<field, width> for resized width overrides only (not full widths)
-  const [columnWidthState, setColumnWidthState] = useState(() => new Map());
+  const [columnWidthState, setColumnWidthState] = useState(() => getStoredColumnWidthState(props.gridId, props.columns));
   // Container ref for ResizeObserver (created here, passed to GridTable via context)
   const containerRef = useRef(null);
   // Refs for col elements to enable column-wide width updates during resize
@@ -103,6 +104,10 @@ export function useDataGrid(props) {
   useEffect(() => {
     saveSortModel(gridId, sortModel);
   }, [sortModel, gridId]);
+
+  useEffect(() => {
+    saveColumnWidthState(gridId, columnWidthState);
+  }, [gridId, columnWidthState]);
 
   // Clear selection when edit mode starts
   const prevEditRowIdRef = useRef(null);
@@ -174,6 +179,8 @@ export function useDataGrid(props) {
     setInternalPage(0);
     onPageChange?.(0);
   }, [onFilterChange, onPageChange]);
+
+  const handleClearColumnWidths = useCallback(() => setColumnWidthState(new Map()), []);
 
   const handleSelect = useCallback(
     (rowId, checked) => {
@@ -335,6 +342,8 @@ export function useDataGrid(props) {
       getEditor: getEditorForCell,
       onClearSort: handleClearSort,
       onClearAllFilters: handleClearAllFilters,
+      onClearColumnWidths: handleClearColumnWidths,
+      hasResizedColumns: columnWidthState.size > 0,
       selectedRowStyle,
       headerConfig,
       rowStylesMap,
@@ -371,6 +380,8 @@ export function useDataGrid(props) {
       getEditorForCell,
       handleClearSort,
       handleClearAllFilters,
+      handleClearColumnWidths,
+      columnWidthState,
       selectedRowStyle,
       headerConfig,
       rowStylesMap,
@@ -446,5 +457,6 @@ export function useDataGrid(props) {
     handleEditCancel,
     handleClearSort,
     handleClearAllFilters,
+    handleClearColumnWidths,
   };
 }

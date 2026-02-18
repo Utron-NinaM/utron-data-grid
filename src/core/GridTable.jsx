@@ -45,7 +45,7 @@ function GridTableInner({
   const translations = useTranslations();
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
-  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters,
+  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
     headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, totalWidth, enableHorizontalScroll, columnWidthMap } = ctx;
 
   // Apply widths from columnWidthMap to col elements
@@ -193,6 +193,9 @@ function GridTableInner({
             </Button>
             <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
               {translations('clearAllFilters')}
+            </Button>
+            <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns}>
+              {translations('clearColumnWidths')}
             </Button>
         </Box>
       <GridErrorBoundary>

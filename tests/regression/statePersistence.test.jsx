@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { DataGrid } from '../../src/DataGrid/DataGrid';
 import { getStoredSortModel, saveSortModel } from '../../src/utils/sortUtils';
 import { getStoredFilterModel, saveFilterModel } from '../../src/filters/filterUtils';
+import { getStoredColumnWidthState, saveColumnWidthState } from '../../src/utils/columnWidthStorage';
 
 describe('State Persistence Regression Test', () => {
   const columns = [
@@ -427,6 +428,114 @@ describe('State Persistence Regression Test', () => {
       const restoredFilter = getStoredFilterModel(gridId, columns);
       expect(restoredSort).toEqual([]);
       expect(restoredFilter).toEqual({});
+    });
+
+    it('should handle invalid JSON in column width storage gracefully', () => {
+      const gridId = 'test-grid-invalid-column-width-json';
+      localStorage.setItem('utron-datagrid-column-widths-' + gridId, 'invalid json {');
+
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{ gridId }}
+        />
+      );
+
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+      const restored = getStoredColumnWidthState(gridId, columns);
+      expect(restored.size).toBe(0);
+    });
+
+    it('should handle non-object column width data gracefully', () => {
+      const gridId = 'test-grid-invalid-column-width-type';
+      localStorage.setItem('utron-datagrid-column-widths-' + gridId, JSON.stringify([100, 200]));
+
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{ gridId }}
+        />
+      );
+
+      expect(screen.getByText('Alice')).toBeInTheDocument();
+      const restored = getStoredColumnWidthState(gridId, columns);
+      expect(restored.size).toBe(0);
+    });
+  });
+
+  describe('Column width persistence', () => {
+    it('restores column widths from localStorage on load', () => {
+      const gridId = 'grid-column-width-restore';
+      saveColumnWidthState(gridId, new Map([['name', 250], ['age', 120]]));
+
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{ gridId }}
+        />
+      );
+
+      const restored = getStoredColumnWidthState(gridId, columns);
+      expect(restored.get('name')).toBe(250);
+      expect(restored.get('age')).toBe(120);
+      const nameHeader = screen.getAllByRole('columnheader').find(c => c.textContent?.includes('Name'));
+      expect(nameHeader).toBeDefined();
+      expect(window.getComputedStyle(nameHeader).width).toBe('250px');
+    });
+
+    it('Reset column widths clears stored overrides', () => {
+      const gridId = 'grid-column-width-reset';
+      saveColumnWidthState(gridId, new Map([['name', 300]]));
+
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{ gridId }}
+        />
+      );
+
+      expect(getStoredColumnWidthState(gridId, columns).size).toBeGreaterThan(0);
+      const resetBtn = screen.getByRole('button', { name: /reset column widths/i });
+      fireEvent.click(resetBtn);
+      expect(getStoredColumnWidthState(gridId, columns).size).toBe(0);
+      expect(resetBtn).toBeDisabled();
+    });
+
+    it('maintains separate column width state for different grids', () => {
+      const gridId1 = 'grid-width-1';
+      const gridId2 = 'grid-width-2';
+      saveColumnWidthState(gridId1, new Map([['name', 200]]));
+      saveColumnWidthState(gridId2, new Map([['age', 150]]));
+
+      const { unmount } = render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{ gridId: gridId1 }}
+        />
+      );
+      expect(getStoredColumnWidthState(gridId1, columns).get('name')).toBe(200);
+      unmount();
+
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{ gridId: gridId2 }}
+        />
+      );
+      expect(getStoredColumnWidthState(gridId2, columns).get('age')).toBe(150);
+      expect(getStoredColumnWidthState(gridId1, columns).get('name')).toBe(200);
     });
   });
 });

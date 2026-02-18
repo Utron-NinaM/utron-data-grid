@@ -4,6 +4,7 @@ export const defaultTranslations = {
   // Sort / filters
   clearSort: 'Clear sort',
   clearAllFilters: 'Clear all filters',
+  clearColumnWidths: 'Reset column widths',
   sortAsc: 'Sort ascending',
   sortDesc: 'Sort descending',
   sortMultiColumnHint: 'Hold Ctrl to sort by multiple columns',
@@ -64,6 +65,7 @@ export const hebrewTranslations = {
   // Sort / filters
   clearSort: 'נקה מיון',
   clearAllFilters: 'נקה כל הסינונים',
+  clearColumnWidths: 'איפוס רוחב עמודות',
   sortAsc: 'מיין בסדר עולה',
   sortDesc: 'מיין בסדר יורד',
   sortMultiColumnHint: 'החזק Ctrl למיון לפי מספר עמודות',
