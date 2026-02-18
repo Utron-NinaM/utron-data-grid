@@ -173,33 +173,47 @@ function GridTableInner({
       );
     });
   }
-
   return (
-    <>
-      {(onClearSort || onClearAllFilters) && (
-        <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-          {onClearSort && (
+    <>      
+        <Box
+          sx={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 3,
+            display: 'flex',
+            gap: 1,
+            py: 0.5,
+            pb: 1.5,
+            backgroundColor: 'background.paper',
+          }}
+        >
+         
             <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0}>
               {translations('clearSort')}
             </Button>
-          )}
-          {onClearAllFilters && (
             <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
               {translations('clearAllFilters')}
             </Button>
-          )}
         </Box>
-      )}
       <GridErrorBoundary>
-        <TableContainer ref={containerRef} component={Paper} variant="outlined" sx={{ overflowX: 'auto', width: '100%' }}>
-          <Table 
-            size="small" 
-            stickyHeader 
-            aria-label="Data grid" 
-            sx={{ 
-              width: '100%', 
+        <TableContainer
+          ref={containerRef}
+          component={Paper}
+          variant="outlined"
+          sx={{
+            overflow: 'visible',
+            width: '100%',
+            ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
+          }}
+        >
+          <Table
+            size="small"
+            stickyHeader
+            aria-label="Data grid"
+            sx={{
+              width: '100%',
               tableLayout: 'fixed',
-              ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` })
+              ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
             }}
           >
             <colgroup>
@@ -218,7 +232,15 @@ function GridTableInner({
                 />
               ))}
             </colgroup>
-            <TableHead sx={headerConfig?.base}>
+            <TableHead
+              sx={{
+                ...headerConfig?.base,
+                position: 'sticky',
+                top: 45,
+                zIndex: 2,
+                backgroundColor: headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper',
+              }}
+            >
               <TableRow
                 sx={{
                   ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),

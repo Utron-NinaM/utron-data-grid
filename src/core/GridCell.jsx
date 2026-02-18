@@ -77,7 +77,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
     );
   
     return (
-      <Tooltip title={tooltipText} arrow slotProps={{ tooltip: { sx: { fontSize: '13px' } } }}>
+      <Tooltip title={tooltipText} arrow PopperProps={{ disablePortal: true }} slotProps={{ tooltip: { sx: { fontSize: '13px' } } }}>
         <Box component="span" sx={{ display: 'block', width: '100%', minWidth: 0 }}>
           {content}
         </Box>

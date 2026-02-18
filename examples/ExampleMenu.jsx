@@ -15,9 +15,20 @@ export function ExampleMenu() {
   const ExampleComponent = examples.find((e) => e.id === selectedExample)?.component || DataGridExample;
 
   return (
-    <div>
+    <div
+      style={{
+        height: '100vh',
+        width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
       <div
         style={{
+          flexShrink: 0,
           padding: '16px 24px',
           borderBottom: '1px solid #e0e0e0',
           backgroundColor: '#f5f5f5',
@@ -45,7 +56,9 @@ export function ExampleMenu() {
           </button>
         ))}
       </div>
-      <ExampleComponent />
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
+        <ExampleComponent />
+      </div>
     </div>
   );
 }

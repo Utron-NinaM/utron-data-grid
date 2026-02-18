@@ -136,7 +136,7 @@ export function GridHeaderCell({
   return (
     <TableCell align={align} padding="none" variant="head" sx={{ paddingLeft: '4px', paddingRight: '4px', ...cellSx, position: 'relative' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: headerComboSlot ? 'nowrap' : 'wrap', py: mainRowHeight ? 0 : 0.5, boxSizing: 'border-box', height: '100%' }}>
-        <Tooltip title={column.headerName || ''}>
+        <Tooltip title={column.headerName || ''} PopperProps={{ disablePortal: true }}>
           <TableSortLabel
             active={!!sortDir}
             direction={order}

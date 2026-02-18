@@ -515,5 +515,90 @@ describe('DataGrid Component Integration', () => {
       
     });
   });
+
+  describe('Pagination scroll layout', () => {
+    it('should use flex layout and scroll wrapper when pagination and height are set', () => {
+      render(
+        <DataGrid
+          rows={basicRows}
+          columns={basicColumns}
+          getRowId={getRowId}
+          options={{
+            pagination: true,
+            pageSize: 10,
+            sx: { height: '400px' },
+          }}
+        />
+      );
+
+      const root = screen.getByTestId('data-grid-root');
+      const scrollContainer = screen.getByTestId('grid-scroll-container');
+
+      expect(root).toBeInTheDocument();
+      expect(scrollContainer).toBeInTheDocument();
+      expect(root).toHaveStyle({ display: 'flex', flexDirection: 'column' });
+      expect(root).toHaveStyle({ height: '400px' });
+      expect(scrollContainer).toHaveStyle({ overflow: 'auto' });
+
+      // PaginationBar must be a sibling of the scroll container (same parent), not inside it
+      expect(scrollContainer.parentElement).toBe(root);
+      const paginationNext = screen.getByRole('button', { name: /next/i });
+      expect(paginationNext).toBeInTheDocument();
+      expect(scrollContainer.contains(paginationNext)).toBe(false);
+      expect(root.contains(paginationNext)).toBe(true);
+    });
+
+    it('should not use scroll layout when pagination is on but no height constraint', () => {
+      render(
+        <DataGrid
+          rows={basicRows}
+          columns={basicColumns}
+          getRowId={getRowId}
+          options={{
+            pagination: true,
+            pageSize: 10,
+          }}
+        />
+      );
+
+      expect(screen.queryByTestId('grid-scroll-container')).not.toBeInTheDocument();
+      const root = screen.getByTestId('data-grid-root');
+      expect(root).not.toHaveStyle({ display: 'flex' });
+    });
+
+    it('should keep pagination bar after table wrapper with many rows and fixed height', () => {
+      const manyRows = Array.from({ length: 50 }, (_, i) => ({
+        id: i + 1,
+        name: `User ${i + 1}`,
+        age: 20 + (i % 50),
+      }));
+
+      render(
+        <DataGrid
+          rows={manyRows}
+          columns={basicColumns}
+          getRowId={getRowId}
+          options={{
+            pagination: true,
+            pageSize: 10,
+            sx: { height: '300px' },
+          }}
+        />
+      );
+
+      const scrollContainer = screen.getByTestId('grid-scroll-container');
+      const root = screen.getByTestId('data-grid-root');
+      const paginationBar = screen.getByRole('button', { name: /next/i });
+
+      expect(scrollContainer.parentElement).toBe(root);
+      expect(root.contains(paginationBar)).toBe(true);
+      expect(scrollContainer.contains(paginationBar)).toBe(false);
+      // Pagination bar should appear after the scroll container in DOM order
+      const rootChildren = Array.from(root.children);
+      const scrollIndex = rootChildren.indexOf(scrollContainer);
+      const paginationIndex = rootChildren.findIndex((el) => el.contains(paginationBar));
+      expect(paginationIndex).toBeGreaterThan(scrollIndex);
+    });
+  });
 });
 

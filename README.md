@@ -104,6 +104,23 @@ Each column can define:
 - `cellStyle(value, row)` – sx for the cell
 - `align` – `'left' | 'right' | 'center'`
 
+### List Filter Options
+
+When using `type: 'list'`, options can be an array of strings or an array of objects. To support state persistence across different languages, it's recommended to use objects with `label` and `value`.
+
+```js
+{
+  field: 'status',
+  type: 'list',
+  options: [
+    { label: 'Published', value: 'published' },
+    { label: 'Draft', value: 'draft' }
+  ]
+}
+```
+
+The grid stores the `value` (key) in local storage, ensuring that filters remain active even if the `label` changes (e.g., when switching languages). If the row data contains the same `value`, the filter will match.
+
 ### Column Width System
 
 The grid supports flexible column width management:

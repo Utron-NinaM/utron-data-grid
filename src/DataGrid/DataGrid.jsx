@@ -29,7 +29,7 @@ import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
  * @property {number[]} [pageSizeOptions] - Page size dropdown options
  * @property {Function} [onPageChange] - (page) => void when user changes page; notification only
  * @property {Function} [onPageSizeChange] - (pageSize) => void when user changes page size; notification only
- * @property {Object} [sx] - MUI sx for root container
+ * @property {Object} [sx] - MUI sx for root container. When pagination is true and sx includes height or maxHeight, the grid uses a flex layout so only the table body scrolls and the pagination bar stays visible at the bottom.
  * @property {Object} [headerConfig] - base (MUI sx for TableHead), mainRow, filterRows, filterCells (backgroundColor?, height?)
  * @property {Object} [selectedRowStyle] - MUI sx for selected rows
  * @property {string} [gridId] - Unique id for this grid; when set, filter and sort state are persisted in localStorage and restored on mount or refresh. Use a different id per grid when multiple grids exist.
@@ -63,6 +63,11 @@ export function DataGrid(props) {
   const pagination = flatProps.pagination ?? defaultGridConfig.pagination;
   const pageSizeOptions = flatProps.pageSizeOptions ?? defaultGridConfig.pageSizeOptions;
 
+  const hasHeightConstraint = Boolean(
+    flatProps.sx && (flatProps.sx.height != null || flatProps.sx.maxHeight != null)
+  );
+  const useScrollableLayout = pagination && hasHeightConstraint;
+
   const theme = useMemo(
     () =>
       createTheme({
@@ -74,27 +79,49 @@ export function DataGrid(props) {
     [direction]
   );
 
+  const gridTable = useMemo(() => <GridTable
+    rows={grid.displayRows}
+    selection={grid.selection}
+    onSelect={grid.handleSelect}
+    sortModel={grid.sortModel}
+    onSort={grid.handleSort}
+    hasActiveFilters={grid.hasActiveFilters}
+    editRowId={grid.editRowId}
+    editValues={grid.editValues}
+    validationErrors={grid.validationErrors}
+    errorSet={grid.errorSet}
+    onRowClick={grid.handleRowClick}
+    onRowDoubleClick={grid.handleRowDoubleClick}
+    selectedRowId={grid.selectedRowId}
+    hasActiveRangeFilter={grid.hasActiveRangeFilter}
+  />, [grid.displayRows, grid.selection, grid.handleSelect, grid.sortModel, grid.handleSort, grid.hasActiveFilters, grid.editRowId, grid.editValues, grid.validationErrors, grid.errorSet, grid.handleRowClick, grid.handleRowDoubleClick, grid.selectedRowId, grid.hasActiveRangeFilter]);
+
   return (
     <ThemeProvider theme={theme}>
       <DataGridProvider stableValue={grid.stableContextValue} filterValue={grid.filterContextValue}>
-        <Box sx={{ ...flatProps.sx }} dir={direction}>
+        <Box
+          sx={{
+            ...flatProps.sx,
+            ...(useScrollableLayout && {
+              display: 'flex',
+              flexDirection: 'column',
+              minWidth: 0,
+              width: '100%',
+              maxWidth: '100%',
+              overflow: 'hidden',
+            }),
+          }}
+          dir={direction}
+          data-testid="data-grid-root"
+        >
           <ValidationAlert errors={grid.validationErrors} />
-          <GridTable
-            rows={grid.displayRows}
-            selection={grid.selection}
-            onSelect={grid.handleSelect}
-            sortModel={grid.sortModel}
-            onSort={grid.handleSort}
-            hasActiveFilters={grid.hasActiveFilters}
-            editRowId={grid.editRowId}
-            editValues={grid.editValues}
-            validationErrors={grid.validationErrors}
-            errorSet={grid.errorSet}
-            onRowClick={grid.handleRowClick}
-            onRowDoubleClick={grid.handleRowDoubleClick}
-            selectedRowId={grid.selectedRowId}
-            hasActiveRangeFilter={grid.hasActiveRangeFilter}
-          />
+          {useScrollableLayout ? (
+            <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'auto' }} data-testid="grid-scroll-container">
+              {gridTable}
+            </Box>
+          ) :
+            gridTable
+          }
           {editable && grid.editRowId != null && (
             <EditToolbar onSave={grid.handleEditSave} onCancel={grid.handleEditCancel} />
           )}

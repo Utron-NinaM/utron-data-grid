@@ -43,31 +43,45 @@ export function DataGridExample() {
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1>React Data Grid – Examples</h1>
-      <h2>All Features Combined</h2>
-      <p>
-        This example showcases all features working together: filtering, sorting, inline editing,
-        multi-row selection, and pagination. Toggle direction for RTL/LTR.
-      </p>
-      <label>
-        Direction:{' '}
-        <select value={direction} onChange={(e) => setDirection(e.target.value)}>
-          <option value={DIRECTION_LTR}>LTR</option>
-          <option value={DIRECTION_RTL}>RTL</option>
-        </select>
-      </label>
-      <div style={{ marginTop: 16, marginBottom: 16 }}>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={handleCancelOrder}
-          disabled={!selectedRow}
-        >
-          Cancel Order
-        </Button>
+    <div
+      style={{
+        height: '100%',
+        width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        padding: 24,
+        boxSizing: 'border-box',
+      }}
+    >
+      <div style={{ flexShrink: 0 }}>
+        <h1>React Data Grid – Examples</h1>
+        <h2>All Features Combined</h2>
+        <p>
+          This example showcases all features working together: filtering, sorting, inline editing,
+          multi-row selection, and pagination. Toggle direction for RTL/LTR.
+        </p>
+        <label>
+          Direction:{' '}
+          <select value={direction} onChange={(e) => setDirection(e.target.value)}>
+            <option value={DIRECTION_LTR}>LTR</option>
+            <option value={DIRECTION_RTL}>RTL</option>
+          </select>
+        </label>
+        <div style={{ marginTop: 16, marginBottom: 16 }}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleCancelOrder}
+            disabled={!selectedRow}
+          >
+            Cancel Order
+          </Button>
+        </div>
       </div>
-      <div style={{ marginTop: 16 }}>
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, width: '100%', maxWidth: '100%', marginTop: 16 }}>
         <DataGrid
           rows={data}
           columns={columns}
@@ -81,6 +95,7 @@ export function DataGridExample() {
             pagination: true,
             pageSize: 10,
             pageSizeOptions: [5, 10, 25, 50, 100],
+            sx: { height: '100%' },
             onEditCommit: handleEditCommit,
             onRowSelect: handleRowSelect,
             onRowDoubleClick: handleRowDoubleClick,
