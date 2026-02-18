@@ -13,8 +13,11 @@ export function getFilterRowBoxSx(filterInputHeight) {
     display: 'flex',
     alignItems: 'center',
     overflow: 'hidden',
-    ...(filterInputHeight && { height: filterInputHeight, maxHeight: filterInputHeight }),
-    '& .MuiInputBase-root': filterInputHeight ? { height: filterInputHeight, minHeight: filterInputHeight, maxHeight: filterInputHeight } : {},
-    '& .MuiInputBase-input': filterInputHeight ? { height: '100%', padding: '4px 8px' } : {},
+    ...(filterInputHeight && { height: filterInputHeight-PADDING_INPUT_TOP_BOTTOM_PX*2, maxHeight: filterInputHeight-PADDING_INPUT_TOP_BOTTOM_PX*2 }),
+    '& .MuiInputBase-root': filterInputHeight ? { height: filterInputHeight-PADDING_INPUT_TOP_BOTTOM_PX*2, minHeight: filterInputHeight-PADDING_INPUT_TOP_BOTTOM_PX*2, maxHeight: filterInputHeight-PADDING_INPUT_TOP_BOTTOM_PX*2 } : {},
+    '& .MuiInputBase-input': filterInputHeight ? { height: '100%', padding: `${PADDING_INPUT_TOP_BOTTOM_PX}px 8px` } : {},
   };
 }
+
+
+export const PADDING_INPUT_TOP_BOTTOM_PX = 4;

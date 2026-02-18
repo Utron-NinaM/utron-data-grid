@@ -4,6 +4,7 @@ import {
   getStoredFilterModel,
   saveFilterModel,
   applyFilters,
+  isColumnFilterActive,
 } from '../../src/filters/filterUtils';
 import {
   FIELD_TYPE_NUMBER,
@@ -181,6 +182,35 @@ describe('saveFilterModel', () => {
     const model = { status: { value: ['published', 'draft'] } };
     saveFilterModel('myGrid', model);
     expect(setItemSpy).toHaveBeenCalledWith(STORAGE_KEY_PREFIX + 'myGrid', JSON.stringify(model));
+  });
+});
+
+describe('isColumnFilterActive', () => {
+  it('returns false when no state for column', () => {
+    expect(isColumnFilterActive({ field: 'name' }, {})).toBe(false);
+    expect(isColumnFilterActive({ field: 'name' }, { other: { value: 1 } })).toBe(false);
+  });
+
+  it('returns true for text column with value', () => {
+    expect(isColumnFilterActive({ field: 'name' }, { name: { value: 'x' } })).toBe(true);
+    expect(isColumnFilterActive({ field: 'name', type: FIELD_TYPE_TEXT }, { name: { operator: OPERATOR_CONTAINS, value: 'a' } })).toBe(true);
+  });
+
+  it('returns true for number column with value', () => {
+    expect(isColumnFilterActive({ field: 'score', type: FIELD_TYPE_NUMBER }, { score: { operator: OPERATOR_EQUALS, value: 5 } })).toBe(true);
+  });
+
+  it('returns true for list column with selected values', () => {
+    expect(isColumnFilterActive({ field: 'tag', type: FIELD_TYPE_LIST }, { tag: { value: ['a'] } })).toBe(true);
+  });
+
+  it('returns false for list column with empty array', () => {
+    expect(isColumnFilterActive({ field: 'tag', type: FIELD_TYPE_LIST }, { tag: { value: [] } })).toBe(false);
+  });
+
+  it('returns true for OPERATOR_EMPTY / OPERATOR_NOT_EMPTY without value', () => {
+    expect(isColumnFilterActive({ field: 'name' }, { name: { operator: OPERATOR_EMPTY } })).toBe(true);
+    expect(isColumnFilterActive({ field: 'name' }, { name: { operator: OPERATOR_NOT_EMPTY } })).toBe(true);
   });
 });
 

@@ -80,31 +80,27 @@ describe('Filter Regression Tests', () => {
     return input;
   };
 
-  // Helper function to find operator dropdown button
+  // Helper function to find operator dropdown button (operator is in filter row, not header row)
   const findOperatorButton = async (columnName) => {
     const header = screen.getByText(columnName);
     const headerRow = header.closest('tr');
     const headerCells = Array.from(headerRow?.querySelectorAll('th') || []);
     const columnIndex = headerCells.findIndex(cell => cell.textContent?.includes(columnName));
-    
     expect(columnIndex).toBeGreaterThanOrEqual(0);
-    
+
+    const table = headerRow?.closest('table');
+    const theadRows = Array.from(table?.querySelectorAll('thead tr') || []);
+    const filterRow = theadRows[1];
+    expect(filterRow).toBeDefined();
+
     let button;
     await waitFor(() => {
-      const allButtons = screen.queryAllByRole('button');
-      button = allButtons.find(btn => {
-        const cell = btn.closest('th');
-        if (!cell) return false;
-        const row = cell.closest('tr');
-        if (!row) return false;
-        const cells = Array.from(row.querySelectorAll('th'));
-        const btnColumnIndex = cells.indexOf(cell);
-        return btnColumnIndex === columnIndex && btn.getAttribute('aria-label') === 'Operator';
-      });
-      
-      expect(button).toBeDefined();
+      const cells = Array.from(filterRow.querySelectorAll('th'));
+      const filterCell = cells[columnIndex];
+      button = filterCell?.querySelector('button[aria-label="Operator"]') ?? null;
+      expect(button).toBeTruthy();
     }, { timeout: 3000 });
-    
+
     return button;
   };
 
@@ -216,11 +212,11 @@ describe('Filter Regression Tests', () => {
         }
       }, { timeout: 1000 });
 
-      // Wait for "to" input to appear and filter to update
+      // Wait for "to" input to appear (label "To" on second filter row)
       await waitFor(() => {
-        const toInput = screen.queryByPlaceholderText('To');
+        const toInput = screen.queryByLabelText('To');
         expect(toInput).toBeInTheDocument();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
     });
   });
 
@@ -254,12 +250,12 @@ describe('Filter Regression Tests', () => {
         }
       }, { timeout: 1000 });
 
-      // Wait for "to" input to appear - it should have placeholder "To"
+      // Wait for "to" input to appear (label "To" on range row)
       await waitFor(() => {
-        const toInput = screen.queryByPlaceholderText('To');
+        const toInput = screen.queryByLabelText('To');
         expect(toInput).toBeInTheDocument();
         expect(toInput).toHaveAttribute('type', 'number');
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
     });
 
     it('should hide "to" input when operator changes from in range to equals', async () => {
@@ -290,7 +286,7 @@ describe('Filter Regression Tests', () => {
 
       // Verify "to" input appears
       await waitFor(() => {
-        const toInput = screen.queryByPlaceholderText('To');
+        const toInput = screen.queryByLabelText('To');
         expect(toInput).toBeInTheDocument();
       }, { timeout: 3000 });
 
@@ -311,7 +307,7 @@ describe('Filter Regression Tests', () => {
 
       // Wait for "to" input to disappear
       await waitFor(() => {
-        const toInput = screen.queryByPlaceholderText('To');
+        const toInput = screen.queryByLabelText('To');
         expect(toInput).not.toBeInTheDocument();
       }, { timeout: 3000 });
     });

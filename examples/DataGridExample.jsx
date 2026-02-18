@@ -94,7 +94,7 @@ export function DataGridExample() {
             editable: true,
             pagination: true,
             pageSize: 10,
-            pageSizeOptions: [5, 10, 25, 50, 100],
+            pageSizeOptions: [10, 25, 50, 100],
             sx: { height: '100%' },
             onEditCommit: handleEditCommit,
             onRowSelect: handleRowSelect,

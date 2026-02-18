@@ -5,7 +5,6 @@ import {
   getFilterInputSlot,
   getFilterToInputSlot,
 } from '../../src/filters/FilterBar';
-import { OperatorDropdown } from '../../src/filters/filters/OperatorDropdown';
 import {
   FIELD_TYPE_NUMBER,
   FIELD_TYPE_DATE,
@@ -28,30 +27,24 @@ describe('FilterBar slot helpers', () => {
       expect(getHeaderComboSlot(column, {}, noop)).toBeNull();
     });
 
-    it('returns OperatorDropdown element for text/default column', () => {
+    it('returns null for text column when no active filter', () => {
       const column = { field: 'name', headerName: 'Name' };
       const slot = getHeaderComboSlot(column, {}, noop);
-      expect(slot).not.toBeNull();
-      expect(React.isValidElement(slot)).toBe(true);
-      expect(slot.type).toBe(OperatorDropdown);
-      expect(slot.props).toMatchObject({ value: undefined });
-      expect(typeof slot.props.onChange).toBe('function');
+      expect(slot).toBeNull();
     });
 
-    it('returns OperatorDropdown for number column with state from filterModel', () => {
+    it('returns clear filter button when column has active filter', () => {
       const column = { field: 'score', type: FIELD_TYPE_NUMBER };
       const filterModel = { score: { operator: 'operatorEquals', value: 5 } };
       const slot = getHeaderComboSlot(column, filterModel, noop);
       expect(slot).not.toBeNull();
-      expect(slot.type).toBe(OperatorDropdown);
-      expect(slot.props.value).toEqual(filterModel.score);
+      expect(React.isValidElement(slot)).toBe(true);
     });
 
-    it('returns OperatorDropdown for date column', () => {
+    it('returns null for date column when no active filter', () => {
       const column = { field: 'd', type: FIELD_TYPE_DATE };
       const slot = getHeaderComboSlot(column, {}, noop);
-      expect(slot).not.toBeNull();
-      expect(slot.type).toBe(OperatorDropdown);
+      expect(slot).toBeNull();
     });
   });
 
@@ -89,13 +82,6 @@ describe('FilterBar slot helpers', () => {
       expect(React.isValidElement(slot)).toBe(true);
     });
 
-    it('uses placeholder when translations function provided', () => {
-      const column = { field: 'name' };
-      const t = (key) => (key === 'filterPlaceholder' ? 'Filter here' : '');
-      const slot = getFilterInputSlot(column, {}, noop, DIRECTION_LTR, t);
-      expect(slot).not.toBeNull();
-      expect(slot.props.placeholder).toBe('Filter here');
-    });
   });
 
   describe('getFilterToInputSlot', () => {

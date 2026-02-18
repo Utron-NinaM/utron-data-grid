@@ -18,9 +18,9 @@ import {
   OPERATOR_STARTS_WITH,
   OPERATOR_ENDS_WITH,
   OPERATOR_PERIOD,
+  DEFAULT_FIELD_TYPE,
 } from '../config/schema';
 import dayjs from 'dayjs';
-
 
 export const FILTER_DEBOUNCE_MS = 200;
 
@@ -59,6 +59,28 @@ export function saveFilterModel(gridId, filterModel) {
   if (gridId && typeof localStorage !== 'undefined') {
     localStorage.setItem(FILTER_STORAGE_KEY_PREFIX + gridId, JSON.stringify(filterModel));
   }
+}
+
+/**
+ * Whether the column has an active filter (same logic as applyFilters per-column check).
+ * Must stay in sync with applyFilters so header clear icon and actual filtering match.
+ * @param {Object} column - { field, type?, filter? }
+ * @param {Object} filterModel
+ * @returns {boolean}
+ */
+export function isColumnFilterActive(column, filterModel) {
+  const state = filterModel?.[column?.field];
+  if (!state || typeof state !== 'object') return false;
+  const type = column?.filter ?? column?.type ?? DEFAULT_FIELD_TYPE;
+  if (type === FIELD_TYPE_LIST) {
+    const selected = Array.isArray(state.value) ? state.value : state.value != null ? [state.value] : [];
+    return selected.length > 0;
+  }
+  const isEmptyNotEmpty = state.operator === OPERATOR_EMPTY || state.operator === OPERATOR_NOT_EMPTY;
+  const hasValue = state.operator === OPERATOR_PERIOD
+    ? (state.value !== undefined && state.value !== '' && state.periodUnit != null)
+    : (state.value !== undefined || state.valueTo !== undefined);
+  return hasValue || isEmptyNotEmpty;
 }
 
 /**

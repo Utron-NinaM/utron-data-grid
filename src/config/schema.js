@@ -9,8 +9,11 @@ import {
   faMagnifyingGlass,
   faMagnifyingGlassMinus,
   faPlay,
-  faStop, 
+  faStop,
+  faFilterCircleXmark,
 } from '@fortawesome/free-solid-svg-icons';
+
+export { faFilterCircleXmark };
 
 import { faClock, faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
 

@@ -10,7 +10,6 @@ describe('DateFilter Component', () => {
   const defaultProps = {
     value: null,
     onChange: vi.fn(),
-    placeholder: 'Filter date',
     direction: DIRECTION_LTR,
   };
 
@@ -153,23 +152,6 @@ describe('DateFilter Component', () => {
         expect(input).toBeInTheDocument();
       });
 
-      it('should call onChange with null when cleared', () => {
-        const onChange = vi.fn();
-        
-        renderWithTheme(
-          <DateFilterInputs 
-            {...defaultProps} 
-            value={{ value: '2024-01-15' }} 
-            onChange={onChange} 
-          />
-        );
-        
-        // Find and click clear button (use aria-label to distinguish from calendar button)
-        const clearButton = screen.getByLabelText('Clear');
-        fireEvent.click(clearButton);
-        
-        expect(onChange).toHaveBeenCalledWith(null);
-      });
     });
 
     describe('Test invalid date handling', () => {
@@ -290,23 +272,6 @@ describe('DateFilter Component', () => {
         expect(input).toBeInTheDocument();
       });
 
-      it('should call onChange with null when cleared', () => {
-        const onChange = vi.fn();
-        
-        renderWithTheme(
-          <DateFilterToInput 
-            value={{ operator: OPERATOR_IN_RANGE, value: '2024-01-01', valueTo: '2024-12-31' }} 
-            onChange={onChange} 
-            direction={DIRECTION_LTR}
-          />
-        );
-        
-        // Find and click clear button (use aria-label to distinguish from calendar button)
-        const clearButton = screen.getByLabelText('Clear');
-        fireEvent.click(clearButton);
-        
-        expect(onChange).toHaveBeenCalledWith(null);
-      });
     });
 
     describe('Test invalid date handling for "to" date picker', () => {

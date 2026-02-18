@@ -8,7 +8,6 @@ describe('TextFilter Component', () => {
   const defaultProps = {
     value: '',
     onChange: vi.fn(),
-    placeholder: 'Filter text',
   };
 
   const renderWithTheme = (props = {}) => {
@@ -69,32 +68,11 @@ describe('TextFilter Component', () => {
       
       rerender(
         <ThemeProvider theme={createTheme()}>
-          <TextFilter value={currentValue} onChange={onChange} placeholder={defaultProps.placeholder} />
+          <TextFilter value={currentValue} onChange={onChange} />
         </ThemeProvider>
       );
       
       expect(input).toHaveValue('test');
-    });
-  });
-
-  describe('Test placeholder', () => {
-    it('should display placeholder text when provided', () => {
-      const testCases = ['Enter search text', 'Filter here'];
-      
-      testCases.forEach((placeholder) => {
-        const { unmount } = renderWithTheme({ placeholder });
-        const input = screen.getByPlaceholderText(placeholder);
-        expect(input).toBeInTheDocument();
-        unmount();
-      });
-    });
-
-    it('should handle empty placeholder', () => {
-      renderWithTheme({ placeholder: '' });
-      
-      const input = screen.getByRole('textbox');
-      expect(input).toBeInTheDocument();
-      expect(input.getAttribute('placeholder')).toBe('');
     });
   });
 
@@ -155,14 +133,13 @@ describe('TextFilter Component', () => {
       expect(onChange).toHaveBeenCalledWith('new text');
     });
 
-    it('should call onChange with empty string when cleared', () => {
+    it('should call onChange with empty string when user clears input', () => {
       const onChange = vi.fn();
       
       renderWithTheme({ value: 'existing text', onChange });
       
-      // Find and click clear button
-      const clearButton = screen.getByRole('button');
-      fireEvent.click(clearButton);
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '' } });
       
       expect(onChange).toHaveBeenCalledWith('');
     });

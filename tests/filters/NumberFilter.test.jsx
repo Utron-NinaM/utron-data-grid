@@ -9,7 +9,6 @@ describe('NumberFilter Component', () => {
   const defaultProps = {
     value: null,
     onChange: vi.fn(),
-    placeholder: 'Filter number',
   };
 
   const renderWithTheme = (component) => {
@@ -203,7 +202,7 @@ describe('NumberFilter Component', () => {
         expect(input).toHaveValue(50);
       });
 
-      it('should have placeholder for "to" input', () => {
+      it('should render "to" input with label', () => {
         renderWithTheme(
           <NumberFilterToInput 
             value={{ operator: OPERATOR_IN_RANGE, value: 10 }} 

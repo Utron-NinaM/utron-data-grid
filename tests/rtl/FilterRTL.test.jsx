@@ -378,33 +378,23 @@ describe('Filter RTL Test', () => {
     });
   });
 
-  describe('Test filter placeholders in Hebrew', () => {
-    it('should use Hebrew placeholder for TextFilter', () => {
+  describe('Test filter inputs in Hebrew (no placeholders)', () => {
+    it('should render TextFilter in RTL', () => {
       renderWithTheme(
-        <TextFilter 
-          value=""
-          onChange={vi.fn()}
-          placeholder={hebrewTranslations.filterPlaceholder}
-        />,
+        <TextFilter value="" onChange={vi.fn()} />,
         DIRECTION_RTL
       );
 
-      const input = screen.getByPlaceholderText(hebrewTranslations.filterPlaceholder);
+      const input = screen.getByRole('textbox');
       expect(input).toBeInTheDocument();
     });
 
-    it('should use Hebrew placeholder for NumberFilterInputs', () => {
+    it('should render NumberFilterInputs in RTL', () => {
       renderWithTheme(
-        <NumberFilterInputs 
-          value={null}
-          onChange={vi.fn()}
-          placeholder={hebrewTranslations.filterNumber}
-        />,
+        <NumberFilterInputs value={null} onChange={vi.fn()} />,
         DIRECTION_RTL
       );
 
-      // Number filter input should be rendered
-      // Number inputs use 'spinbutton' role, not 'textbox'
       const inputs = screen.getAllByRole('spinbutton');
       expect(inputs.length).toBeGreaterThan(0);
     });

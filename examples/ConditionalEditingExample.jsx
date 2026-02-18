@@ -74,7 +74,7 @@ export function ConditionalEditingExample() {
             editable: true,
             pagination: true,
             pageSize: 10,
-            pageSizeOptions: [5, 10, 25],
+            pageSizeOptions: [10, 25, 50, 100],
             onEditCommit: handleEditCommit,
             onEditStart: handleEditStart,
             onEditCancel: handleEditCancel,

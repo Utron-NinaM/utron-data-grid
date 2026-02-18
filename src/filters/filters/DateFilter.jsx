@@ -3,7 +3,6 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Box, TextField } from '@mui/material';
-import { ClearButton } from './ClearButton';
 import { getDateFormat } from '../../utils/directionUtils';
 import { useTranslations } from '../../localization/useTranslations';
 import { ThemeProvider } from '@mui/material/styles';
@@ -23,6 +22,7 @@ function getSlotProps(direction) {
       size: 'small',
       dir: direction,
       readOnly: false,
+      placeholder: '',
       sx: {
         flex: 1,
         minWidth: 0,
@@ -38,8 +38,8 @@ function getSlotProps(direction) {
   return slotProps;
 }
 
-/** Date picker (from only) + clear. "To" is rendered in separate header row when inRange. For OPERATOR_PERIOD: "Last" label + number input + unit combo. */
-export function DateFilterInputs({ value, onChange, placeholder, direction = DIRECTION_LTR }) {
+/** Date picker (from only). "To" is rendered in separate header row when inRange. For OPERATOR_PERIOD: "Last" label + number input + unit combo. */
+export function DateFilterInputs({ value, onChange, direction = DIRECTION_LTR }) {
   const t = useTranslations();
   const format = getDateFormat(direction);
   const dateVal = value?.value != null ? dayjs(value.value) : null;
@@ -47,8 +47,6 @@ export function DateFilterInputs({ value, onChange, placeholder, direction = DIR
   const handleChange = (next) => {
     onChange({ ...value, ...next });
   };
-
-  const handleClear = () => onChange(null);
 
   const isPeriod = value?.operator === OPERATOR_PERIOD;
   const periodAmount = isPeriod && (typeof value?.value === 'number' || (typeof value?.value === 'string' && value.value !== '' && !isNaN(Number(value.value))))
@@ -70,19 +68,12 @@ export function DateFilterInputs({ value, onChange, placeholder, direction = DIR
     }
   };
 
-  const hasValue = value != null && (
-    isPeriod
-      ? (periodAmount !== '' || value.periodUnit != null)
-      : (value.value != null || value.valueTo != null)
-  );
-
   if (isPeriod) {
     return (
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <TextField
           size="small"
           type="number"
-          placeholder=""
           value={periodAmount}
           onChange={(e) => handlePeriodChange({ value: e.target.value })}
           sx={{ width: 72, minWidth: 0 }}
@@ -102,7 +93,6 @@ export function DateFilterInputs({ value, onChange, placeholder, direction = DIR
             </option>
           ))}
         </TextField>
-        <ClearButton onClick={handleClear} visible={hasValue} />
       </Box>
     );
   }
@@ -119,7 +109,6 @@ export function DateFilterInputs({ value, onChange, placeholder, direction = DIR
             format={format}
           />
         </ThemeProvider>
-        <ClearButton onClick={handleClear} visible={hasValue} />
       </Box>
     </LocalizationProvider>
   );
@@ -127,7 +116,6 @@ export function DateFilterInputs({ value, onChange, placeholder, direction = DIR
 
 /** "To" date picker only (for in-range second header row) */
 export function DateFilterToInput({ value, onChange, direction }) {
-  const t = useTranslations();
   const format = getDateFormat(direction);
   const dateTo = value?.valueTo != null ? dayjs(value.valueTo) : null;
 
@@ -135,24 +123,18 @@ export function DateFilterToInput({ value, onChange, direction }) {
     onChange({ ...value, ...next });
   };
 
-  const handleClear = () => onChange(null);
-
-  const hasValue = value != null && value.valueTo != null;
-
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === DIRECTION_RTL ? LOCALE_HE : LOCALE_EN}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
         <ThemeProvider theme={ltrTheme}>
           <DatePicker
-            label={t('filterTo')}
             value={dateTo}
             onChange={(d) => handleChange({ valueTo: d && d.isValid() ? d.toISOString() : null })}
-            slotProps={getSlotProps(direction)}
+            slotProps={{ ...getSlotProps(direction), textField: { ...getSlotProps(direction).textField, inputProps: { 'aria-label': 'To' } } }}
             dir={direction}
             format={format}
           />
         </ThemeProvider>
-        <ClearButton onClick={handleClear} visible={hasValue} />
       </Box>
     </LocalizationProvider>
   );

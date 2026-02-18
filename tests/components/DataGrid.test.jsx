@@ -145,7 +145,7 @@ describe('DataGrid Component Integration', () => {
           options={{
             pagination: true,
             pageSize: 2,
-            pageSizeOptions: [2, 10, 25, 50, 100],
+            pageSizeOptions: [10, 25, 50, 100],
           }}
         />
       );

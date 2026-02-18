@@ -2,17 +2,14 @@ import React, { useContext, useMemo } from 'react';
 import { Autocomplete, TextField, Checkbox, Box } from '@mui/material';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import { useTranslations } from '../../localization/useTranslations';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
-import { ClearButton } from './ClearButton';
 import { getOptionLabel, getOptionValue, getOptionMap } from '../../utils/optionUtils';
 import { DIRECTION_RTL, DIRECTION_LTR } from '../../config/schema';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-export function ListFilter({ value, onChange, options, placeholder }) {
-  const t = useTranslations();
+export function ListFilter({ value, onChange, options }) {
   const ctx = useContext(DataGridStableContext);
   const direction = ctx?.direction ?? DIRECTION_LTR;
   const isRtl = direction === DIRECTION_RTL;
@@ -24,9 +21,6 @@ export function ListFilter({ value, onChange, options, placeholder }) {
     () => keysArray.map((key) => optionMap.get(key)).filter(Boolean),
     [keysArray, optionMap]
   );
-  const hasValue = valueResolved.length > 0;
-
-  const handleClear = () => onChange([]);
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
@@ -66,7 +60,6 @@ export function ListFilter({ value, onChange, options, placeholder }) {
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder={placeholder ?? t('filterPlaceholder')}
             inputProps={{ ...params.inputProps, maxLength: 200, dir: direction }}
             sx={{
               '& .MuiInputBase-input': {
@@ -93,7 +86,6 @@ export function ListFilter({ value, onChange, options, placeholder }) {
           },
         }}
       />
-      <ClearButton onClick={handleClear} visible={hasValue} />
     </Box>
   );
 }

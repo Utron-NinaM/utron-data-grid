@@ -11,7 +11,6 @@ describe('ListFilter Component', () => {
     value: null,
     onChange: vi.fn(),
     options: ['Option 1', 'Option 2', 'Option 3'],
-    placeholder: 'Select options',
   };
 
   const defaultContextValue = {
@@ -41,13 +40,6 @@ describe('ListFilter Component', () => {
       
       const input = screen.getByRole('combobox');
       expect(input).toHaveValue('');
-    });
-
-    it('should display placeholder text', () => {
-      renderWithTheme({ placeholder: 'Choose items' });
-      
-      const input = screen.getByPlaceholderText('Choose items');
-      expect(input).toBeInTheDocument();
     });
 
     it('should render with provided options', () => {
@@ -145,17 +137,6 @@ describe('ListFilter Component', () => {
       expect(input).toBeInTheDocument();
     });
 
-    it('should clear all selections when cleared (emits empty array)', () => {
-      const onChange = vi.fn();
-      
-      renderWithTheme({ value: ['Option 1', 'Option 2'], onChange });
-      
-      const clearButton = screen.getByLabelText('Clear');
-      fireEvent.click(clearButton);
-      
-      expect(onChange).toHaveBeenCalledWith([]);
-    });
-
     it('should return null when all options are deselected', async () => {
       const onChange = vi.fn();
       
@@ -199,17 +180,6 @@ describe('ListFilter Component', () => {
       const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
       expect(Array.isArray(lastCall[0])).toBe(true);
       expect(lastCall[0].length).toBeGreaterThan(0);
-    });
-
-    it('should call onChange with empty array when no options selected', () => {
-      const onChange = vi.fn();
-      
-      renderWithTheme({ value: ['Option 1'], onChange });
-      
-      const clearButton = screen.getByLabelText('Clear');
-      fireEvent.click(clearButton);
-      
-      expect(onChange).toHaveBeenCalledWith([]);
     });
 
     it('should not call onChange on initial render', () => {
