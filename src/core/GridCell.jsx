@@ -1,9 +1,10 @@
 import React, { memo, useContext, useMemo } from 'react';
 import { TableCell, Box, Tooltip } from '@mui/material';
 import dayjs from 'dayjs';
-import { ALIGN_LEFT, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME } from '../config/schema';
+import { ALIGN_LEFT, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST } from '../config/schema';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
+import { getOptionLabel } from '../utils/optionUtils';
 import { DIRECTION_LTR } from '../config/schema';
 
 const truncationSx = {
@@ -50,6 +51,13 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
     if (isEditing && editor != null) return null;
     if (column.render) return column.render(value, row);
     const type = column.type;
+    if (type === FIELD_TYPE_LIST && value != null) {
+      const optionMap = ctx?.listColumnOptionMaps?.get(column.field);
+      if (optionMap) {
+        const option = optionMap.get(value);
+        return option != null ? getOptionLabel(option) : String(value ?? '');
+      }
+    }
     if ((type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME) && value != null) {
       const d = dayjs(value);
       if (d.isValid()) {
@@ -58,7 +66,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
       }
     }
     return String(value ?? '');
-  }, [isEditing, editor, column, value, row, direction]);
+  }, [isEditing, editor, column, value, row, direction, ctx?.listColumnOptionMaps]);
 
   const tooltipText = useMemo(() => {
     if (isEditing && editor != null) return '';

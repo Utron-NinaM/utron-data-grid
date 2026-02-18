@@ -6,7 +6,8 @@ import { slicePage } from '../pagination/paginationUtils';
 import { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } from '../filters/FilterBar';
 import { getEditor } from '../editors/CellEditors';
 import { defaultGridConfig } from '../config/defaultConfig';
-import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, DIRECTION_LTR } from '../config/schema';
+import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, DIRECTION_LTR, FIELD_TYPE_LIST } from '../config/schema';
+import { getOptionMap } from '../utils/optionUtils';
 import { useDataGridMaps } from './useDataGridMaps';
 import { useDataGridEdit } from './useDataGridEdit';
 import { useColumnLayout } from './useColumnLayout';
@@ -303,6 +304,16 @@ export function useDataGrid(props) {
     [filterModel, handleFilterChange, direction]
   );
 
+  const listColumnOptionMaps = useMemo(() => {
+    const map = new Map();
+    columns.forEach((col) => {
+      if (col.type === FIELD_TYPE_LIST && Array.isArray(col.options) && col.options.length > 0) {
+        map.set(col.field, getOptionMap(col.options));
+      }
+    });
+    return map;
+  }, [columns]);
+
   // Stable context - values that rarely change
   const stableContextValue = useMemo(
     () => ({
@@ -333,6 +344,7 @@ export function useDataGrid(props) {
       headerCellSxMap,
       filterCellSxMap,
       columnWidthMap: layoutColumnWidthMap, // Use layout-calculated widths
+      listColumnOptionMaps, // Map<field, optionMap> for list columns (key -> label)
       containerRef, // Container ref for ResizeObserver
       colRefs, // Refs for col elements (Map of field -> col element)
       onColumnResize: handleColumnResize, // Resize handler
@@ -341,6 +353,7 @@ export function useDataGrid(props) {
     }),
     [
       columns,
+      listColumnOptionMaps,
       translations,
       direction,
       getRowId,

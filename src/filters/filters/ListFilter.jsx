@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Autocomplete, TextField, Checkbox, Box } from '@mui/material';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { useTranslations } from '../../localization/useTranslations';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
 import { ClearButton } from './ClearButton';
-import { getOptionLabel } from '../../utils/optionUtils';
+import { getOptionLabel, getOptionValue, getOptionMap } from '../../utils/optionUtils';
 import { DIRECTION_RTL, DIRECTION_LTR } from '../../config/schema';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -17,11 +17,16 @@ export function ListFilter({ value, onChange, options, placeholder }) {
   const direction = ctx?.direction ?? DIRECTION_LTR;
   const isRtl = direction === DIRECTION_RTL;
   const [inputValue, setInputValue] = React.useState('');
-  const selected = Array.isArray(value) ? value : value != null ? [value] : [];
   const listOptions = options ?? [];
-  const hasValue = selected.length > 0;
+  const optionMap = useMemo(() => getOptionMap(listOptions), [listOptions]);
+  const keysArray = Array.isArray(value) ? value : value != null ? [value] : [];
+  const valueResolved = useMemo(
+    () => keysArray.map((key) => optionMap.get(key)).filter(Boolean),
+    [keysArray, optionMap]
+  );
+  const hasValue = valueResolved.length > 0;
 
-  const handleClear = () => onChange(null);
+  const handleClear = () => onChange([]);
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
@@ -29,14 +34,15 @@ export function ListFilter({ value, onChange, options, placeholder }) {
         multiple
         size="small"
         options={listOptions}
-        value={selected}
+        value={valueResolved}
         inputValue={inputValue}
         onInputChange={(_, newInputValue) => setInputValue(newInputValue)}
         disableCloseOnSelect
         disableClearable
         getOptionLabel={getOptionLabel}
+        isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
         onChange={(_, newVal) => {
-          onChange(newVal?.length ? newVal : null);
+          onChange(newVal ? newVal.map(getOptionValue) : []);
           setInputValue('');
         }}
         renderOption={(props, option, { selected: isSelected }) => {

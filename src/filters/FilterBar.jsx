@@ -90,7 +90,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
       return (
         <ListFilter
           value={state?.value ?? state}
-          onChange={(v) => onFilterChange(field, v != null ? { value: v } : null)}
+          onChange={(v) => onFilterChange(field, v?.length ? { value: v } : null)}
           options={column.filterOptions?.listValues ?? column.options ?? []}
           placeholder={placeholder}
         />

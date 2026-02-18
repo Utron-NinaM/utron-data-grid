@@ -145,16 +145,15 @@ describe('ListFilter Component', () => {
       expect(input).toBeInTheDocument();
     });
 
-    it('should clear all selections when cleared', () => {
+    it('should clear all selections when cleared (emits empty array)', () => {
       const onChange = vi.fn();
       
       renderWithTheme({ value: ['Option 1', 'Option 2'], onChange });
       
-      // Find and click clear button (use aria-label to distinguish from autocomplete open button)
       const clearButton = screen.getByLabelText('Clear');
       fireEvent.click(clearButton);
       
-      expect(onChange).toHaveBeenCalledWith(null);
+      expect(onChange).toHaveBeenCalledWith([]);
     });
 
     it('should return null when all options are deselected', async () => {
@@ -202,16 +201,15 @@ describe('ListFilter Component', () => {
       expect(lastCall[0].length).toBeGreaterThan(0);
     });
 
-    it('should call onChange with null when no options selected', () => {
+    it('should call onChange with empty array when no options selected', () => {
       const onChange = vi.fn();
       
       renderWithTheme({ value: ['Option 1'], onChange });
       
-      // Find and click clear button (use aria-label to distinguish from autocomplete open button)
       const clearButton = screen.getByLabelText('Clear');
       fireEvent.click(clearButton);
       
-      expect(onChange).toHaveBeenCalledWith(null);
+      expect(onChange).toHaveBeenCalledWith([]);
     });
 
     it('should not call onChange on initial render', () => {
@@ -220,6 +218,38 @@ describe('ListFilter Component', () => {
       renderWithTheme({ onChange });
       
       expect(onChange).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Keyed options: value and onChange use keys', () => {
+    it('resolves value array of keys to options and displays labels', () => {
+      const options = [
+        { value: 'key1', label: 'Label One' },
+        { value: 'key2', label: 'Label Two' },
+      ];
+      renderWithTheme({ value: ['key1'], options });
+      const input = screen.getByRole('combobox');
+      expect(input).toBeInTheDocument();
+    });
+
+    it('onChange is called with array of keys when option selected', async () => {
+      const onChange = vi.fn();
+      const options = [
+        { value: 'published', label: 'Published' },
+        { value: 'draft', label: 'Draft' },
+      ];
+      renderWithTheme({ value: [], onChange, options });
+      const input = screen.getByRole('combobox');
+      fireEvent.mouseDown(input);
+      fireEvent.click(input);
+      await waitFor(() => {
+        expect(screen.getByText('Published')).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByText('Published'));
+      expect(onChange).toHaveBeenCalled();
+      const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
+      expect(Array.isArray(lastCall[0])).toBe(true);
+      expect(lastCall[0]).toEqual(['published']);
     });
   });
 

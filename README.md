@@ -90,7 +90,7 @@ Each column can define:
 - `headerName` (string)
 - `type` – `'text' | 'number' | 'date' | 'datetime' | 'list'`
 - `filter` – same as type or `false` to disable
-- `filterOptions.listValues` – for list filter options
+- `filterOptions.listValues` – for list filter options (same shape as `options` for list type)
 - `editable` – `boolean | ((row) => boolean)` – enables editing. Use a function for conditional editing based on row data
 - `width` – number (px) for fixed width
 - `flex` – number for proportional grow factor (columns share remaining space proportionally)
@@ -98,28 +98,33 @@ Each column can define:
 - `maxWidth` – number (px) for maximum width constraint
 - `defaultWidth` – number (px) for optional default width (useful for action/icon columns)
 - `validators` – `[{ validate: (value, row) => boolean|string, message? }]`
-- `options` – for list type (dropdown options)
+- `options` – for list type: array of `{ value, label }` (see List columns below)
 - `render(value, row)` – custom display (not used when editing)
 - `rowStyle(row)` – sx for the row (when this column's condition applies)
 - `cellStyle(value, row)` – sx for the cell
 - `align` – `'left' | 'right' | 'center'`
 
-### List Filter Options
+### List columns and list filter options
 
-When using `type: 'list'`, options can be an array of strings or an array of objects. To support state persistence across different languages, it's recommended to use objects with `label` and `value`.
+For `type: 'list'` (and list filters), options must be an array of **keyed options**: `Array<{ value: Key, label: string }>`.
+
+- **`value`** (the key) must be **primitive and JSON-serializable** (string, number, or boolean). Do not use objects as keys.
+- **Row data** for that field must store the same **key** (e.g. `row.status === 'published'`), not the label.
+- **`label`** is the display text and can be translated per locale; the grid shows the label in cells and in the filter dropdown.
+
+The grid persists list filter selections by **key** in local storage, so filters remain active when switching languages or direction (RTL/LTR). List filter value is always an array: empty array = no selection, one or more keys = selected.
 
 ```js
 {
   field: 'status',
   type: 'list',
   options: [
-    { label: 'Published', value: 'published' },
-    { label: 'Draft', value: 'draft' }
-  ]
+    { value: 'published', label: 'Published' },
+    { value: 'draft', label: 'Draft' }
+  ],
+  filterOptions: { listValues: [/* same { value, label } array */] }
 }
 ```
-
-The grid stores the `value` (key) in local storage, ensuring that filters remain active even if the `label` changes (e.g., when switching languages). If the row data contains the same `value`, the filter will match.
 
 ### Column Width System
 

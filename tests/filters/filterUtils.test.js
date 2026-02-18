@@ -176,6 +176,12 @@ describe('saveFilterModel', () => {
     saveFilterModel('myGrid', model);
     expect(setItemSpy).toHaveBeenCalledWith(STORAGE_KEY_PREFIX + 'myGrid', JSON.stringify(model));
   });
+
+  it('persists list filter by keys (value array of keys)', () => {
+    const model = { status: { value: ['published', 'draft'] } };
+    saveFilterModel('myGrid', model);
+    expect(setItemSpy).toHaveBeenCalledWith(STORAGE_KEY_PREFIX + 'myGrid', JSON.stringify(model));
+  });
 });
 
 describe('applyFilters — general', () => {
@@ -494,6 +500,18 @@ describe('applyFilters — list type', () => {
   it('match by string coercion', () => {
     const rows = [{ tag: 42 }];
     const result = applyFilters(rows, { tag: { value: ['42'] } }, col);
+    expect(result).toHaveLength(1);
+  });
+
+  it('empty array passes all rows (no filter)', () => {
+    const rows = [{ tag: 'a' }, { tag: 'b' }];
+    const result = applyFilters(rows, { tag: { value: [] } }, col);
+    expect(result).toHaveLength(2);
+  });
+
+  it('state.value null normalized to empty selected, passes all', () => {
+    const rows = [{ tag: 'a' }];
+    const result = applyFilters(rows, { tag: { value: null } }, col);
     expect(result).toHaveLength(1);
   });
 });

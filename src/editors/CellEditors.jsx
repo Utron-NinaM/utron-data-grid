@@ -7,7 +7,7 @@ import { Autocomplete } from '@mui/material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
 import { getDateFormat } from '../utils/directionUtils';
-import { getOptionLabel } from '../utils/optionUtils';
+import { getOptionLabel, getOptionValue, getOptionMap } from '../utils/optionUtils';
 import {
   DEFAULT_FIELD_TYPE,
   FIELD_TYPE_NUMBER,
@@ -49,18 +49,23 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           />
         </LocalizationProvider>
       );
-    case FIELD_TYPE_LIST:
+    case FIELD_TYPE_LIST: {
+      const listOptions = column.options ?? [];
+      const optionMap = getOptionMap(listOptions);
+      const valueOption = value != null ? optionMap.get(value) ?? null : null;
       return (
         <Autocomplete
           size="small"
-          options={column.options ?? []}
-          value={value ?? null}
-          onChange={(_, v) => onChange(column.field, v)}
+          options={listOptions}
+          value={valueOption}
+          onChange={(_, v) => onChange(column.field, v != null ? getOptionValue(v) : undefined)}
           getOptionLabel={getOptionLabel}
+          isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
           renderInput={(params) => <TextField {...params} />}
           fullWidth
         />
       );
+    }
     default:
       return (
         <TextField
