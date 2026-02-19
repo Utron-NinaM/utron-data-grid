@@ -3,6 +3,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Box, TextField } from '@mui/material';
+import { NumericTextField } from './NumericInput';
 import { getDateFormat } from '../../utils/directionUtils';
 import { useTranslations } from '../../localization/useTranslations';
 import { ThemeProvider } from '@mui/material/styles';
@@ -17,8 +18,7 @@ const ltrTheme = {
   direction: DIRECTION_LTR
 };
 
-function getDatePickerSlotProps(direction, placeholder = '') {
-  const ctx = useContext(DataGridStableContext);
+function getDatePickerSlotProps(ctx, direction, placeholder = '') {
   const contentHeight = getFilterContentHeight(ctx?.filterInputHeight);
   const datePickerIconSize = contentHeight - 2;
   const slotProps = {
@@ -44,7 +44,7 @@ function getDatePickerSlotProps(direction, placeholder = '') {
   return slotProps;
 }
 
-function getDateField(dateVal, handleChange, direction, placeholder) {
+function getDateField(dateVal, handleChange, direction, placeholder, ctx) {
   const format = getDateFormat(direction);
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === DIRECTION_RTL ? LOCALE_HE : LOCALE_EN}>
@@ -53,7 +53,7 @@ function getDateField(dateVal, handleChange, direction, placeholder) {
           <DatePicker
             value={dateVal}
             onChange={(d) => handleChange({ value: d && d.isValid() ? d.toISOString() : null })}
-            slotProps={getDatePickerSlotProps(direction, placeholder)}
+            slotProps={getDatePickerSlotProps(ctx, direction, placeholder)}
             dir={direction}
             format={format}
           />
@@ -66,6 +66,7 @@ function getDateField(dateVal, handleChange, direction, placeholder) {
 /** Date picker (from only). "To" is rendered in separate header row when inRange. For OPERATOR_PERIOD: "Last" label + number input + unit combo. */
 export function DateFilterInputs({ value, onChange, direction = DIRECTION_LTR }) {
   const t = useTranslations();
+  const ctx = useContext(DataGridStableContext);
   const dateVal = value?.value != null ? dayjs(value.value) : null;
 
   const handleChange = (next) => {
@@ -110,7 +111,7 @@ export function DateFilterInputs({ value, onChange, direction = DIRECTION_LTR })
     );
   }
   const fromPlaceholder = value?.operator === OPERATOR_IN_RANGE ? t('filterFrom') : '';
-  return getDateField(dateVal, handleChange, direction, fromPlaceholder);
+  return getDateField(dateVal, handleChange, direction, fromPlaceholder, ctx);
 }
 
 /** Period amount (number) input only (for second header row when operator is OPERATOR_PERIOD). */
@@ -135,12 +136,12 @@ export function DateFilterPeriodAmountInput({ value, onChange }) {
   };
 
   return (
-    <TextField
+    <NumericTextField
       size="small"
-      type="number"
       value={periodAmount}
-      onChange={(e) => handleChange({ value: e.target.value })}
-      sx={{ width: 72, minWidth: 0 }}
+      onChange={(raw) => handleChange({ value: raw })}
+      integerOnly
+      sx={{ width: '100%', minWidth: 0 }}
       inputProps={{ min: 1, step: 1 }}
     />
   );
@@ -149,6 +150,7 @@ export function DateFilterPeriodAmountInput({ value, onChange }) {
 /** "To" date picker only (for in-range second header row) */
 export function DateFilterToInput({ value, onChange, direction }) {
   const t = useTranslations();
+  const ctx = useContext(DataGridStableContext);
   const dateTo = value?.valueTo != null ? dayjs(value.valueTo) : null;
 
   const handleChange = (next) => {
@@ -156,6 +158,6 @@ export function DateFilterToInput({ value, onChange, direction }) {
     onChange({ ...value, ...nextState });
   };
 
-  return getDateField(dateTo, handleChange, direction, t('filterTo'));
+  return getDateField(dateTo, handleChange, direction, t('filterTo'), ctx);
 }
 

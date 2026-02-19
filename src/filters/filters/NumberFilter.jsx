@@ -1,8 +1,6 @@
 import React from 'react';
-import { TextField, Box } from '@mui/material';
-
-const MAX_INPUT_LENGTH = 50;
-const NUMBER_INPUT_REGEX = /^-?\d*\.?\d*$/;
+import { Box } from '@mui/material';
+import { NumericTextField } from './NumericInput';
 
 /** Value input (from only). "To" is rendered in separate header row when inRange. */
 export function NumberFilterInputs({ value, onChange }) {
@@ -19,19 +17,13 @@ export function NumberFilterInputs({ value, onChange }) {
     }
   };
 
-  const onValueChange = (raw) => {
-    if (raw === '' || NUMBER_INPUT_REGEX.test(raw)) handleChange({ value: raw });
-  };
-
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
-      <TextField
+      <NumericTextField
         size="small"
-        type="text"
         value={val}
-        onChange={(e) => onValueChange(e.target.value)}
+        onChange={(raw) => handleChange({ value: raw })}
         sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}
-        inputProps={{ maxLength: MAX_INPUT_LENGTH }}
       />
     </Box>
   );
@@ -52,19 +44,14 @@ export function NumberFilterToInput({ value, onChange }) {
     }
   };
 
-  const onValueToChange = (raw) => {
-    if (raw === '' || NUMBER_INPUT_REGEX.test(raw)) handleChange({ valueTo: raw });
-  };
-
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
-      <TextField
+      <NumericTextField
         size="small"
-        type="text"
         value={valueTo}
-        onChange={(e) => onValueToChange(e.target.value)}
+        onChange={(raw) => handleChange({ valueTo: raw })}
         sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}
-        inputProps={{ maxLength: MAX_INPUT_LENGTH, 'aria-label': 'To' }}
+        inputProps={{ 'aria-label': 'To' }}
       />
     </Box>
   );

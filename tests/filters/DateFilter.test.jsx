@@ -208,9 +208,9 @@ describe('DateFilter Component', () => {
           onChange={vi.fn()}
         />
       );
-      const numberInput = screen.getByRole('spinbutton');
+      const numberInput = screen.getByRole('textbox');
       expect(numberInput).toBeInTheDocument();
-      expect(numberInput).toHaveValue(5);
+      expect(numberInput).toHaveValue('5');
     });
   });
 
