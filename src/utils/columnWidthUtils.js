@@ -272,15 +272,15 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
       resultMap.set(col.field, min);
     });
   } else {
-    // Distribute to flex columns
+    // Distribute to flex columns: reserve flexMinTotal first, then share the remainder by flex ratio
+    // so the sum of flex widths never exceeds remainingSpace (avoids horizontal scroll)
     const totalFlex = flexCols.reduce((sum, { flex }) => sum + flex, 0);
+    const extraSpace = Math.max(0, remainingSpace - flexMinTotal);
 
     if (totalFlex > 0) {
       flexCols.forEach(({ col, flex }) => {
-        const flexWidth = (remainingSpace * flex) / totalFlex;
         const minWidth = getEffectiveMinWidth(col);
-        // Ensure minWidth before flooring to avoid post-hoc correction drift
-        resultMap.set(col.field, Math.max(Math.floor(flexWidth), minWidth));
+        resultMap.set(col.field, minWidth + Math.floor((extraSpace * flex) / totalFlex));
       });
     }
 

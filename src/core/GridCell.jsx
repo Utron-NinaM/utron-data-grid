@@ -21,6 +21,8 @@ export function getCellTooltipText(displayValue, value, isEditing, editor) {
   const str = String(displayValue ?? '');
   if (str !== '[object Object]') return str;
   if (value != null && typeof value === 'object') {
+    const label = getOptionLabel(value);
+    if (label !== '[object Object]' && label !== '') return label;
     const vals = Object.values(value);
     if (vals.length === 1) {
       const v = vals[0];
@@ -40,6 +42,7 @@ export function getCellTooltipText(displayValue, value, isEditing, editor) {
  * @param {*} props.value
  * @param {Object} props.row
  * @param {Object} props.column
+ * @param {(value: *, row: Object) => string} [props.column.getTooltipText] - Optional. When set, used as tooltip text (e.g. for columns that render React elements or to show a label from value/row).
  * @param {boolean} [props.isEditing]
  * @param {React.ReactNode} [props.editor]
  * @param {boolean} [props.hasError]
@@ -86,13 +89,20 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
         return d.format(format);
       }
     }
+    if (value != null && typeof value === 'object') {
+      const label = getOptionLabel(value);
+      if (label !== '[object Object]') return label;
+    }
     return String(value ?? '');
   }, [isEditing, editor, column, value, row, direction, ctx?.listColumnOptionMaps]);
 
-  const tooltipText = useMemo(
-    () => getCellTooltipText(displayValue, value, isEditing, editor),
-    [displayValue, isEditing, editor, value]
-  );
+  const tooltipText = useMemo(() => {
+    if (typeof column.getTooltipText === 'function') {
+      const custom = column.getTooltipText(value, row);
+      if (custom != null && String(custom).trim() !== '') return String(custom).trim();
+    }
+    return getCellTooltipText(displayValue, value, isEditing, editor);
+  }, [column, value, row, displayValue, isEditing, editor]);
 
   const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
   const cellContent = useMemo(() => {

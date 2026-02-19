@@ -273,6 +273,7 @@ export function useDataGrid(props) {
     columns,
     containerRef,
     columnWidthState,
+    multiSelectable,
   });
 
   const {

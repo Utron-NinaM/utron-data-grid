@@ -102,6 +102,7 @@ Each column can define:
 - `validators` – `[{ validate: (value, row) => boolean|string, message? }]`
 - `options` – for list type: array of `{ value, label }` (see List columns below)
 - `render(value, row)` – custom display (not used when editing)
+- `getTooltipText(value, row)` – optional. When set, used as the cell tooltip string (e.g. for columns that render React elements like Autocomplete, so the tooltip shows the label instead of "[object Object]").
 - `rowStyle(row)` – sx for the row (when this column's condition applies)
 - `cellStyle(value, row)` – sx for the cell
 - `align` – `'left' | 'right' | 'center'`

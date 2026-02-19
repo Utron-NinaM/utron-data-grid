@@ -613,6 +613,26 @@ describe('GridCell Component', () => {
       expect(screen.getByRole('cell')).toBeInTheDocument();
       expect(screen.getByText('[object Object]')).toBeInTheDocument();
     });
+
+    it('should show getTooltipText result when column renders React element (e.g. Autocomplete)', () => {
+      const priorityKey = 2;
+      const rowWithPriority = { ...mockRow, priority: priorityKey };
+      const expectedLabel = 'דחופה';
+      const column = {
+        field: 'priority',
+        headerName: 'Priority',
+        render: () => <span>Custom dropdown</span>,
+        getTooltipText: (value) => (value === 2 ? expectedLabel : String(value ?? '')),
+      };
+      renderWithContext(
+        <GridCell value={priorityKey} row={rowWithPriority} column={column} />
+      );
+      expect(screen.getByText('Custom dropdown')).toBeInTheDocument();
+      // Tooltip title is applied as aria-label on the wrapper (getTooltipText used instead of "[object Object]")
+      const cell = screen.getByRole('cell');
+      const wrapper = cell.querySelector('[aria-label]');
+      expect(wrapper).toHaveAttribute('aria-label', expectedLabel);
+    });
   });
 });
 
