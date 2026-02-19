@@ -80,10 +80,7 @@ function GridTableInner({
         {
           '&.Mui-selected': {
             ...selectedRowStyle,
-          },
-          '&.Mui-selected:hover': {
-            ...selectedRowStyle,
-          },
+          },          
         },
       ]);
     });

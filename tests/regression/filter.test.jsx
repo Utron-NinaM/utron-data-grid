@@ -118,7 +118,7 @@ describe('Filter Regression Tests', () => {
       );
 
       // Find age filter input and set initial value with equals operator
-      const ageInput = await findFilterInput('Age', 'spinbutton');
+      const ageInput = await findFilterInput('Age', 'textbox');
       fireEvent.change(ageInput, { target: { value: '30' } });
 
       // Wait for initial filter to apply
@@ -171,7 +171,7 @@ describe('Filter Regression Tests', () => {
       );
 
       // Set initial filter with greater than operator
-      const ageInput = await findFilterInput('Age', 'spinbutton');
+      const ageInput = await findFilterInput('Age', 'textbox');
       fireEvent.change(ageInput, { target: { value: '28' } });
 
       // Change operator to greater than
@@ -254,7 +254,7 @@ describe('Filter Regression Tests', () => {
       await waitFor(() => {
         const toInput = screen.queryByLabelText('To');
         expect(toInput).toBeInTheDocument();
-        expect(toInput).toHaveAttribute('type', 'number');
+        expect(toInput).toHaveAttribute('type', 'text');
       }, { timeout: 5000 });
     });
 
@@ -331,7 +331,7 @@ describe('Filter Regression Tests', () => {
       fireEvent.change(nameInput, { target: { value: 'Alice' } });
 
       // Apply filter to age column
-      const ageInput = await findFilterInput('Age', 'spinbutton');
+      const ageInput = await findFilterInput('Age', 'textbox');
       fireEvent.change(ageInput, { target: { value: '30' } });
 
       // Wait for filters to apply
@@ -357,7 +357,7 @@ describe('Filter Regression Tests', () => {
 
       // Verify filter inputs are cleared
       const nameInputAfter = await findFilterInput('Name', 'textbox');
-      const ageInputAfter = await findFilterInput('Age', 'spinbutton');
+      const ageInputAfter = await findFilterInput('Age', 'textbox');
       expect(nameInputAfter.value).toBe('');
       expect(ageInputAfter.value).toBe('');
     });
@@ -557,7 +557,7 @@ describe('Filter Regression Tests', () => {
       const nameInput = await findFilterInput('Name', 'textbox');
       fireEvent.change(nameInput, { target: { value: 'A' } });
 
-      const ageInput = await findFilterInput('Age', 'spinbutton');
+      const ageInput = await findFilterInput('Age', 'textbox');
       fireEvent.change(ageInput, { target: { value: '30' } });
 
       // Wait for filters to be applied and saved

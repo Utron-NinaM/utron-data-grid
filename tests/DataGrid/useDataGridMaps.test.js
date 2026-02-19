@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useDataGridMaps } from '../../src/DataGrid/useDataGridMaps';
 import { DIRECTION_RTL, FILTER_TYPE_NONE, FILTER_TYPE_NUMBER, FILTER_TYPE_TEXT } from '../../src/config/schema';
+import { MIN_WIDTH_DEFAULT_PX } from '../../src/utils/columnWidthUtils';
 
 describe('useDataGridMaps', () => {
   const defaultColumns = [
@@ -283,7 +284,7 @@ describe('useDataGridMaps', () => {
     });
 
 
-    it('applies minWidth to headerCellSxMap when no width is set but column has filter combo', () => {
+    it('applies minWidth to headerCellSxMap when no width is set', () => {
       const columns = [
         { field: 'a', headerName: 'A', filter: FILTER_TYPE_NUMBER },
       ];
@@ -299,12 +300,12 @@ describe('useDataGridMaps', () => {
       });
       const headerSx = result.current.headerCellSxMap.get('a');
       expect(headerSx.width).toBe('inherit');
-      expect(headerSx.minWidth).toBe('135px');
+      expect(headerSx.minWidth).toBe(`${MIN_WIDTH_DEFAULT_PX}px`);
     });
 
 
 
-    it('applies minWidth to filterCellSxMap when column has filter combo', () => {
+    it('applies minWidth to filterCellSxMap', () => {
       const columns = [
         { field: 'a', headerName: 'A', filter: FILTER_TYPE_TEXT },
       ];
@@ -319,7 +320,7 @@ describe('useDataGridMaps', () => {
         },
       });
       const filterSx = result.current.filterCellSxMap.get('a');
-      expect(filterSx.minWidth).toBe('135px');
+      expect(filterSx.minWidth).toBe(`${MIN_WIDTH_DEFAULT_PX}px`);
     });
 
     it('merges mainRow height and backgroundColor into headerCellSxMap', () => {

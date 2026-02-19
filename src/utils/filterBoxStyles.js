@@ -1,7 +1,7 @@
 export const PADDING_INPUT_TOP_BOTTOM_PX = 4;
 
 /** Width reserved for operator dropdown in filter row; used to align "to" input with "from". */
-export const FILTER_OPERATOR_WIDTH_PX = 50;
+export const FILTER_OPERATOR_WIDTH_PX = 40;
 export const FILTER_OPERATOR_WIDTH_PX_WITH_PADDING = FILTER_OPERATOR_WIDTH_PX + 6;
 
 /** Default content height when headerConfig does not set filterInputHeight (match MUI small input). */

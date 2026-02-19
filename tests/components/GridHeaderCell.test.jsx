@@ -6,6 +6,7 @@ import { Table, TableHead, TableRow } from '@mui/material';
 import { GridHeaderCell } from '../../src/core/GridHeaderCell';
 import { DataGridStableContext } from '../../src/DataGrid/DataGridContext';
 import { ALIGN_LEFT, ALIGN_RIGHT, ALIGN_CENTER, SORT_ORDER_ASC, SORT_ORDER_DESC, DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
+import { MIN_WIDTH_DEFAULT_PX } from '../../src/utils/columnWidthUtils';
 
 describe('GridHeaderCell Component', () => {
   const defaultColumn = { field: 'name', headerName: 'Name' };
@@ -376,8 +377,8 @@ describe('GridHeaderCell Component', () => {
       expect(styles.width).toBeTruthy();
     });   
 
-    it('should enforce minimum width of 85px when user width is too small (no combo)', () => {
-      const headerCellSxMap = new Map([['name', { width: '85px' }]]);
+    it('should enforce minimum width of MIN_WIDTH_DEFAULT_PX when user width is too small (no combo)', () => {
+      const headerCellSxMap = new Map([['name', { width: `${MIN_WIDTH_DEFAULT_PX}px` }]]);
       const contextValue = {
         ...defaultContextValue,
         headerCellSxMap,
@@ -390,7 +391,7 @@ describe('GridHeaderCell Component', () => {
 
       const cell = screen.getByRole('columnheader');
       const styles = window.getComputedStyle(cell);
-      expect(styles.width).toBe('85px');
+      expect(styles.width).toBe(`${MIN_WIDTH_DEFAULT_PX}px`);
     });    
   });
 
@@ -676,8 +677,8 @@ describe('GridHeaderCell Component', () => {
       fireEvent.mouseDown(handle, { clientX: 0 });
       fireEvent.mouseMove(document, { clientX: 40 });
       fireEvent.mouseUp(document);
-      expect(onColumnResize).toHaveBeenCalledWith('price', 85);
-      expect(colEl.style.width).toBe('85px');
+      expect(onColumnResize).toHaveBeenCalledWith('price', MIN_WIDTH_DEFAULT_PX);
+      expect(colEl.style.width).toBe(`${MIN_WIDTH_DEFAULT_PX}px`);
     });
 
     it('should grow column when dragging left in RTL', () => {

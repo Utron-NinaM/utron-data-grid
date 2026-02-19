@@ -1,8 +1,7 @@
-import { FILTER_TYPE_NUMBER, FILTER_TYPE_DATE, FILTER_TYPE_TEXT, FILTER_TYPE_LIST, DEFAULT_FIELD_TYPE } from '../config/schema';
+import { DEFAULT_FIELD_TYPE } from '../config/schema';
 
 // Pre-compute constant values
-export const MIN_WIDTH_WITH_FILTER_COMBO_PX = 135;
-export const MIN_WIDTH_DEFAULT_PX = 85;
+export const MIN_WIDTH_DEFAULT_PX = 110;
 
 /**
  * Normalizes column width values to CSS-compatible strings.
@@ -55,9 +54,9 @@ function getCacheKey(column) {
 }
 
 /**
- * Returns the built-in minimum width for a column based on filter type.
- * Columns with filter combo (number, date, text) get 135px, others get 85px.
- * 
+ * Returns the built-in minimum width for a column.
+ * Built-in minimum is 110px for all columns.
+ *
  * @param {Object} column - Column object
  * @returns {number} Built-in minimum width in pixels
  */
@@ -69,19 +68,9 @@ export function getBuiltInMinWidth(column) {
     return builtInMinWidthCache.get(cacheKey);
   }
 
-  const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
-
-  // Filter combo minWidth (135px) applies when filterType is a combo type
-  // When there's no filter combo, minWidth is 85px
-  const hasFilterCombo = filterType !== false &&
-    filterType !== FILTER_TYPE_LIST &&
-    (filterType === FILTER_TYPE_NUMBER || filterType === FILTER_TYPE_DATE || filterType === FILTER_TYPE_TEXT);
-
-  const minWidth = hasFilterCombo ? MIN_WIDTH_WITH_FILTER_COMBO_PX : MIN_WIDTH_DEFAULT_PX;
-
   // Cache and return
-  builtInMinWidthCache.set(cacheKey, minWidth);
-  return minWidth;
+  builtInMinWidthCache.set(cacheKey, MIN_WIDTH_DEFAULT_PX);
+  return MIN_WIDTH_DEFAULT_PX;
 }
 
 /**

@@ -35,8 +35,7 @@ function GridBodyRowComponent({
   const isRowSelected = selected || isSelected;
   
   return (
-    <TableRow
-      hover
+    <TableRow      
       selected={isRowSelected}
       sx={rowSx}
       data-row-id={rowId}

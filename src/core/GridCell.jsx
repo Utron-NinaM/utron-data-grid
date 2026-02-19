@@ -70,8 +70,8 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
   }, [isEditing, editor, column, value, row, direction, ctx?.listColumnOptionMaps]);
 
   const tooltipText = useMemo(() => {
-    if (isEditing && editor != null) return '';
-    return React.isValidElement(displayValue) ? String(value ?? '') : String(displayValue ?? '');
+    if (isEditing && editor != null) return '';    
+    return String(displayValue ?? '');
   }, [displayValue, isEditing, editor, value]);
 
   const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;

@@ -139,8 +139,7 @@ The grid supports flexible column width management:
 - **Manual resizing**: Users can drag column borders to resize (resized columns are automatically excluded from flex distribution)
 
 Built-in minimum widths:
-- Columns with filter combo (number/date/text):135px
-- Columns without filter combo: 85px
+- Built-in minimum: 110px for all columns.
 - Effective minimum = max(user `minWidth`, built-in minimum)
 
 **Column Resizing**: Users can manually resize columns by dragging the border between column headers. Resized columns are automatically "frozen" and excluded from flex/auto distribution, maintaining their user-set width. The resize handle is an 8px invisible drag area on the right edge of each column header.

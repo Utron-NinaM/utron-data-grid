@@ -6,58 +6,28 @@ import {
   getAutoMaxWidth,
   calculateColumnWidths,
 } from '../../src/utils/columnWidthUtils';
-import { FILTER_TYPE_NUMBER, FILTER_TYPE_DATE, FILTER_TYPE_TEXT, FILTER_TYPE_LIST, FILTER_TYPE_NONE } from '../../src/config/schema';
+import { FILTER_TYPE_NUMBER, FILTER_TYPE_TEXT, FILTER_TYPE_NONE } from '../../src/config/schema';
+import { MIN_WIDTH_DEFAULT_PX } from '../../src/utils/columnWidthUtils';
 
 describe('columnWidthUtils', () => {
   describe('getBuiltInMinWidth', () => {
-    it('should return 135px for columns with number filter combo', () => {
-      const column = { field: 'price', headerName: 'Price', filter: FILTER_TYPE_NUMBER };
-      expect(getBuiltInMinWidth(column)).toBe(135);
+    it('should return MIN_WIDTH_DEFAULT_PX for any column', () => {
+      expect(getBuiltInMinWidth({ field: 'id', headerName: 'ID' })).toBe(MIN_WIDTH_DEFAULT_PX);
+      expect(getBuiltInMinWidth({ field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT })).toBe(MIN_WIDTH_DEFAULT_PX);
     });
-
-    it('should return 135px for columns with date filter combo', () => {
-      const column = { field: 'date', headerName: 'Date', filter: FILTER_TYPE_DATE };
-      expect(getBuiltInMinWidth(column)).toBe(135);
-    });
-
-    it('should return 135px for columns with text filter combo', () => {
-      const column = { field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT };
-      expect(getBuiltInMinWidth(column)).toBe(135);
-    });
-
-    it('should return 85px for columns without filter combo', () => {
-      const column = { field: 'id', headerName: 'ID', filter: FILTER_TYPE_NONE };
-      expect(getBuiltInMinWidth(column)).toBe(85);
-    });
-
-    it('should return 85px for list filter columns', () => {
-      const column = { field: 'status', headerName: 'Status', filter: FILTER_TYPE_LIST };
-      expect(getBuiltInMinWidth(column)).toBe(85);
-    });
-
-    it('should return 85px for columns with filter: false', () => {
-      const column = { field: 'id', headerName: 'ID', filter: false };
-      expect(getBuiltInMinWidth(column)).toBe(85);
-    });
-
-    it('should use type as fallback when filter is undefined', () => {
-      const column = { field: 'price', headerName: 'Price', type: FILTER_TYPE_NUMBER };
-      expect(getBuiltInMinWidth(column)).toBe(135);
-    });
-
     it('should cache results for same column', () => {
       const column = { field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT };
       const result1 = getBuiltInMinWidth(column);
       const result2 = getBuiltInMinWidth(column);
       expect(result1).toBe(result2);
-      expect(result1).toBe(135);
+      expect(result1).toBe(MIN_WIDTH_DEFAULT_PX);
     });
   });
 
   describe('getEffectiveMinWidth', () => {
     it('should return built-in min when user minWidth is not provided', () => {
       const column = { field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT };
-      expect(getEffectiveMinWidth(column)).toBe(135);
+      expect(getEffectiveMinWidth(column)).toBe(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should return user minWidth when greater than built-in', () => {
@@ -67,17 +37,17 @@ describe('columnWidthUtils', () => {
 
     it('should return built-in min when user minWidth is smaller', () => {
       const column = { field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT, minWidth: 50 };
-      expect(getEffectiveMinWidth(column)).toBe(135);
+      expect(getEffectiveMinWidth(column)).toBe(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should return built-in min when user minWidth equals built-in', () => {
-      const column = { field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT, minWidth: 135 };
-      expect(getEffectiveMinWidth(column)).toBe(135);
+      const column = { field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT, minWidth: MIN_WIDTH_DEFAULT_PX };
+      expect(getEffectiveMinWidth(column)).toBe(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should handle minWidth: 0 (should use built-in)', () => {
       const column = { field: 'id', headerName: 'ID', filter: FILTER_TYPE_NONE, minWidth: 0 };
-      expect(getEffectiveMinWidth(column)).toBe(85);
+      expect(getEffectiveMinWidth(column)).toBe(MIN_WIDTH_DEFAULT_PX);
     });
   });
 
@@ -85,14 +55,14 @@ describe('columnWidthUtils', () => {
     it('should return at least effective minWidth', () => {
       const column = { field: 'id', headerName: 'ID', filter: FILTER_TYPE_NONE };
       const width = estimateAutoColumnWidth(column);
-      expect(width).toBeGreaterThanOrEqual(85);
+      expect(width).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should estimate based on header text length', () => {
       const column = { field: 'name', headerName: 'Very Long Header Name', filter: FILTER_TYPE_NONE };
       const width = estimateAutoColumnWidth(column);
-      // Should be at least: 85 (min) or (23 chars * 8px + 16px + 32px) = 232px
-      expect(width).toBeGreaterThanOrEqual(85);
+      // Should be at least: MIN_WIDTH_DEFAULT_PX (min) or (23 chars * 8px + 16px + 32px) = 232px
+      expect(width).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should use custom options for estimation', () => {
@@ -100,8 +70,8 @@ describe('columnWidthUtils', () => {
       const column1 = { field: 'name1', headerName: 'Test', filter: FILTER_TYPE_NONE };
       const column2 = { field: 'name2', headerName: 'Test', filter: FILTER_TYPE_NONE };
       const width1 = estimateAutoColumnWidth(column1);
-      const width2 = estimateAutoColumnWidth(column2, { avgCharWidth: 10, headerPadding: 20, iconAllowance: 40 });
-      // Different options should produce different results
+      // Options chosen so estimated width (4*15+30+60=150) exceeds MIN_WIDTH_DEFAULT_PX
+      const width2 = estimateAutoColumnWidth(column2, { avgCharWidth: 15, headerPadding: 30, iconAllowance: 60 });
       expect(width2).not.toBe(width1);
       expect(width2).toBeGreaterThan(width1);
     });
@@ -109,13 +79,13 @@ describe('columnWidthUtils', () => {
     it('should handle empty headerName', () => {
       const column = { field: 'id', headerName: '', filter: FILTER_TYPE_NONE };
       const width = estimateAutoColumnWidth(column);
-      expect(width).toBeGreaterThanOrEqual(85);
+      expect(width).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should handle missing headerName', () => {
       const column = { field: 'id', filter: FILTER_TYPE_NONE };
       const width = estimateAutoColumnWidth(column);
-      expect(width).toBeGreaterThanOrEqual(85);
+      expect(width).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should cache results for same column', () => {
@@ -150,13 +120,13 @@ describe('columnWidthUtils', () => {
     describe('Fixed width columns', () => {
       it('should assign fixed widths directly', () => {
         const columns = [
-          { field: 'id', headerName: 'ID', width: 100, filter: FILTER_TYPE_NONE },
+          { field: 'id', headerName: 'ID', width: 140, filter: FILTER_TYPE_NONE },
           { field: 'name', headerName: 'Name', width: 200, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 1000);
-        expect(result.columnWidthMap.get('id')).toBe(100);
+        expect(result.columnWidthMap.get('id')).toBe(140);
         expect(result.columnWidthMap.get('name')).toBe(200);
-        expect(result.totalWidth).toBe(300);
+        expect(result.totalWidth).toBe(340);
         expect(result.enableHorizontalScroll).toBe(false);
       });
 
@@ -165,15 +135,7 @@ describe('columnWidthUtils', () => {
           { field: 'id', headerName: 'ID', width: 50, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 1000);
-        expect(result.columnWidthMap.get('id')).toBe(85); // Enforced to 85px min
-      });
-
-      it('should enforce minWidth on fixed columns with filter combo', () => {
-        const columns = [
-          { field: 'price', headerName: 'Price', width: 100, filter: FILTER_TYPE_NUMBER },
-        ];
-        const result = calculateColumnWidths(columns, 1000);
-        expect(result.columnWidthMap.get('price')).toBe(135); // Enforced to 135px min
+        expect(result.columnWidthMap.get('id')).toBe(MIN_WIDTH_DEFAULT_PX);
       });
 
       it('should respect user minWidth when greater than built-in', () => {
@@ -185,14 +147,13 @@ describe('columnWidthUtils', () => {
       });
 
       it('should respect maxWidth constraint on flex columns', () => {
-        // Test maxWidth on flex column (more reliable than fixed width)
         const columns = [
           { field: 'name3', headerName: 'Name3', flex: 1, maxWidth: 150, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 1000);
         const width = result.columnWidthMap.get('name3');
         expect(width).toBeLessThanOrEqual(150);
-        expect(width).toBeGreaterThanOrEqual(85);
+        expect(width).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
       });
 
       it('should handle defaultWidth columns', () => {
@@ -200,14 +161,14 @@ describe('columnWidthUtils', () => {
           { field: 'actions', headerName: 'Actions', defaultWidth: 80, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 1000);
-        expect(result.columnWidthMap.get('actions')).toBe(85); // Enforced to min
+        expect(result.columnWidthMap.get('actions')).toBe(MIN_WIDTH_DEFAULT_PX);
       });
     });
 
     describe('Flex columns', () => {
       it('should distribute remaining space proportionally', () => {
         const columns = [
-          { field: 'id', headerName: 'ID', width: 100, filter: FILTER_TYPE_NONE },
+          { field: 'id', headerName: 'ID', width: 140, filter: FILTER_TYPE_NONE },
           { field: 'name', headerName: 'Name', flex: 1, filter: FILTER_TYPE_NONE },
           { field: 'desc', headerName: 'Description', flex: 2, filter: FILTER_TYPE_NONE },
         ];
@@ -215,10 +176,10 @@ describe('columnWidthUtils', () => {
         const idWidth = result.columnWidthMap.get('id');
         const nameWidth = result.columnWidthMap.get('name');
         const descWidth = result.columnWidthMap.get('desc');
-        
-        expect(idWidth).toBe(100);
-        expect(nameWidth).toBeGreaterThanOrEqual(85);
-        expect(descWidth).toBeGreaterThanOrEqual(85);
+
+        expect(idWidth).toBe(140);
+        expect(nameWidth).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        expect(descWidth).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
         // desc should be approximately 2x name (within rounding)
         expect(descWidth).toBeGreaterThan(nameWidth);
       });
@@ -230,9 +191,9 @@ describe('columnWidthUtils', () => {
         ];
         const result = calculateColumnWidths(columns, 1000);
         expect(result.columnWidthMap.get('id4')).toBe(950);
-        // With only 50px remaining, flex column should collapse to minWidth (85px)
-        // But 50 < 85, so it gets minWidth
-        expect(result.columnWidthMap.get('name4')).toBe(85);
+        // With only 50px remaining, flex column should collapse to minWidth (MIN_WIDTH_DEFAULT_PX)
+        // But 50 < MIN_WIDTH_DEFAULT_PX, so it gets minWidth
+        expect(result.columnWidthMap.get('name4')).toBe(MIN_WIDTH_DEFAULT_PX);
       });
 
       it('should respect minWidth on flex columns', () => {
@@ -260,7 +221,7 @@ describe('columnWidthUtils', () => {
         const result = calculateColumnWidths(columns, 1000);
         const width = result.columnWidthMap.get('name5');
         // Should get at least minWidth
-        expect(width).toBeGreaterThanOrEqual(85);
+        expect(width).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
       });
     });
 
@@ -271,8 +232,8 @@ describe('columnWidthUtils', () => {
         ];
         const result = calculateColumnWidths(columns, 1000);
         const width = result.columnWidthMap.get('name');
-        expect(width).toBeGreaterThanOrEqual(85);
-        expect(width).toBeLessThanOrEqual(250); // Auto max = 2.5 * 85
+        expect(width).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        expect(width).toBeLessThanOrEqual(2.5 * MIN_WIDTH_DEFAULT_PX); // Auto max = 2.5 * MIN_WIDTH_DEFAULT_PX
       });
 
       it('should allow auto columns to grow with leftover pixels', () => {
@@ -282,7 +243,7 @@ describe('columnWidthUtils', () => {
         ];
         const result = calculateColumnWidths(columns, 1000);
         const nameWidth = result.columnWidthMap.get('name');
-        expect(nameWidth).toBeGreaterThanOrEqual(85);
+        expect(nameWidth).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
         // Should use leftover space up to auto max
       });
 
@@ -307,13 +268,13 @@ describe('columnWidthUtils', () => {
 
       it('should exclude user-resized columns from flex distribution', () => {
         const columns = [
-          { field: 'id', headerName: 'ID', width: 100, filter: FILTER_TYPE_NONE },
+          { field: 'id', headerName: 'ID', width: 140, filter: FILTER_TYPE_NONE },
           { field: 'name', headerName: 'Name', flex: 1, filter: FILTER_TYPE_NONE },
         ];
         const columnState = new Map([['name', 250]]);
         const result = calculateColumnWidths(columns, 1000, columnState);
         expect(result.columnWidthMap.get('name')).toBe(250);
-        expect(result.columnWidthMap.get('id')).toBe(100);
+        expect(result.columnWidthMap.get('id')).toBe(140);
       });
 
       it('should exclude user-resized columns from leftover distribution', () => {
@@ -362,22 +323,22 @@ describe('columnWidthUtils', () => {
 
       it('should handle zero containerWidth', () => {
         const columns = [
-          { field: 'name6', headerName: 'Name6', width: 100, filter: FILTER_TYPE_NONE },
+          { field: 'name6', headerName: 'Name6', width: 140, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 0);
         // With zero containerWidth, minTotal (100 from step 2) > 0, so returns allMinWidths
-        // allMinWidths uses the width from step 2 (100), not the built-in min (85)
-        expect(result.columnWidthMap.get('name6')).toBe(100);
+        // allMinWidths uses the width from step 2 (100), not the built-in min (MIN_WIDTH_DEFAULT_PX)
+        expect(result.columnWidthMap.get('name6')).toBe(140);
         expect(result.enableHorizontalScroll).toBe(true);
       });
 
       it('should handle negative containerWidth', () => {
         const columns = [
-          { field: 'name7', headerName: 'Name7', width: 100, filter: FILTER_TYPE_NONE },
+          { field: 'name7', headerName: 'Name7', width: 120, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, -100);
         // With negative containerWidth, minTotal (100) > -100, so returns allMinWidths
-        expect(result.columnWidthMap.get('name7')).toBe(100);
+        expect(result.columnWidthMap.get('name7')).toBe(120);
         expect(result.enableHorizontalScroll).toBe(true);
       });
     });
@@ -420,22 +381,22 @@ describe('columnWidthUtils', () => {
         ];
         const result = calculateColumnWidths(columns, 1000);
         const width = result.columnWidthMap.get('name');
-        // Auto max = 2.5 * 85 = 212.5, floored = 212
-        expect(width).toBeLessThanOrEqual(213);
+        // Auto max = 2.5 * MIN_WIDTH_DEFAULT_PX = 275, floored = 275
+        expect(width).toBeLessThanOrEqual(2.5 * MIN_WIDTH_DEFAULT_PX);
       });
     });
 
     describe('Mixed column types', () => {
       it('should handle mix of fixed, flex, and auto columns', () => {
         const columns = [
-          { field: 'id', headerName: 'ID', width: 100, filter: FILTER_TYPE_NONE },
+          { field: 'id', headerName: 'ID', width: 120, filter: FILTER_TYPE_NONE },
           { field: 'name', headerName: 'Name', flex: 1, filter: FILTER_TYPE_NONE },
           { field: 'desc', headerName: 'Description', filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 1000);
-        expect(result.columnWidthMap.get('id')).toBe(100);
-        expect(result.columnWidthMap.get('name')).toBeGreaterThanOrEqual(85);
-        expect(result.columnWidthMap.get('desc')).toBeGreaterThanOrEqual(85);
+        expect(result.columnWidthMap.get('id')).toBe(120);
+        expect(result.columnWidthMap.get('name')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        expect(result.columnWidthMap.get('desc')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
       });
 
       it('should handle all fixed columns', () => {
@@ -455,8 +416,8 @@ describe('columnWidthUtils', () => {
           { field: 'col2', headerName: 'Col2', flex: 2, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 1000);
-        expect(result.columnWidthMap.get('col1')).toBeGreaterThanOrEqual(85);
-        expect(result.columnWidthMap.get('col2')).toBeGreaterThanOrEqual(85);
+        expect(result.columnWidthMap.get('col1')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        expect(result.columnWidthMap.get('col2')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
         expect(result.columnWidthMap.get('col2')).toBeGreaterThan(result.columnWidthMap.get('col1'));
       });
 
@@ -466,8 +427,8 @@ describe('columnWidthUtils', () => {
           { field: 'col2', headerName: 'Col2', filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 1000);
-        expect(result.columnWidthMap.get('col1')).toBeGreaterThanOrEqual(85);
-        expect(result.columnWidthMap.get('col2')).toBeGreaterThanOrEqual(85);
+        expect(result.columnWidthMap.get('col1')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        expect(result.columnWidthMap.get('col2')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
       });
     });
 
@@ -486,7 +447,7 @@ describe('columnWidthUtils', () => {
           { field: 'name', headerName: 'Name', flex: 0.001, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 1000);
-        expect(result.columnWidthMap.get('name')).toBeGreaterThanOrEqual(85);
+        expect(result.columnWidthMap.get('name')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
       });
 
       it('should clamp widths to maxWidth', () => {
@@ -505,7 +466,7 @@ describe('columnWidthUtils', () => {
         ];
         const result = calculateColumnWidths(columns, 1000);
         // Width 0 is treated as fixed, but clamped to minWidth
-        expect(result.columnWidthMap.get('name8')).toBe(85);
+        expect(result.columnWidthMap.get('name8')).toBe(MIN_WIDTH_DEFAULT_PX);
       });
 
       it('should handle column with negative width', () => {
@@ -514,7 +475,7 @@ describe('columnWidthUtils', () => {
         ];
         const result = calculateColumnWidths(columns, 1000);
         // Negative width is treated as fixed, but clamped to minWidth
-        expect(result.columnWidthMap.get('name9')).toBe(85);
+        expect(result.columnWidthMap.get('name9')).toBe(MIN_WIDTH_DEFAULT_PX);
       });
 
       it('should always create new Map instance', () => {
@@ -533,7 +494,7 @@ describe('columnWidthUtils', () => {
           { field: 'name', headerName: 'Name', flex: 1, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 100000);
-        expect(result.columnWidthMap.get('name')).toBeGreaterThan(85);
+        expect(result.columnWidthMap.get('name')).toBeGreaterThan(MIN_WIDTH_DEFAULT_PX);
       });
 
       it('should handle columns with same field name (edge case)', () => {
@@ -547,4 +508,4 @@ describe('columnWidthUtils', () => {
       });
     });
   });
-});
+}); 

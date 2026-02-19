@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useColumnLayout } from '../../src/DataGrid/useColumnLayout';
 import { FILTER_TYPE_NONE } from '../../src/config/schema';
+import { MIN_WIDTH_DEFAULT_PX } from '../../src/utils/columnWidthUtils';
 
 // Mock useContainerWidth
 vi.mock('../../src/DataGrid/useContainerWidth', () => ({
@@ -26,7 +27,7 @@ describe('useColumnLayout', () => {
     it('should use fallback width when containerWidth is 0 but containerRef exists', () => {
       useContainerWidth.mockReturnValue(0);
       const columns = [
-        { field: 'name', headerName: 'Name', width: 100, filter: FILTER_TYPE_NONE },
+        { field: 'name', headerName: 'Name', width: 140, filter: FILTER_TYPE_NONE },
       ];
 
       const { result } = renderHook(() =>
@@ -35,8 +36,8 @@ describe('useColumnLayout', () => {
 
       // When containerWidth is 0 but ref exists, should use fallback (1000px) to calculate widths
       expect(result.current.columnWidthMap.size).toBe(1);
-      expect(result.current.columnWidthMap.get('name')).toBe(100);
-      expect(result.current.totalWidth).toBe(100);
+      expect(result.current.columnWidthMap.get('name')).toBe(140);
+      expect(result.current.totalWidth).toBe(140);
     });
 
     it('should return empty layout when columns array is empty', () => {
@@ -63,9 +64,9 @@ describe('useColumnLayout', () => {
         useColumnLayout({ columns, containerRef, columnWidthState: new Map() })
       );
 
-      expect(result.current.columnWidthMap.get('id')).toBe(100);
+      expect(result.current.columnWidthMap.get('id')).toBe(MIN_WIDTH_DEFAULT_PX);
       expect(result.current.columnWidthMap.get('name')).toBe(200);
-      expect(result.current.totalWidth).toBe(300);
+      expect(result.current.totalWidth).toBe(MIN_WIDTH_DEFAULT_PX + 200);
     });
 
     it('should calculate layout for flex columns', () => {
@@ -79,8 +80,8 @@ describe('useColumnLayout', () => {
         useColumnLayout({ columns, containerRef, columnWidthState: new Map() })
       );
 
-      expect(result.current.columnWidthMap.get('id')).toBe(100);
-      expect(result.current.columnWidthMap.get('name')).toBeGreaterThanOrEqual(85);
+      expect(result.current.columnWidthMap.get('id')).toBe(MIN_WIDTH_DEFAULT_PX);
+      expect(result.current.columnWidthMap.get('name')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should calculate layout for auto columns', () => {
@@ -93,7 +94,7 @@ describe('useColumnLayout', () => {
         useColumnLayout({ columns, containerRef, columnWidthState: new Map() })
       );
 
-      expect(result.current.columnWidthMap.get('name')).toBeGreaterThanOrEqual(85);
+      expect(result.current.columnWidthMap.get('name')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
     });
   });
 
@@ -137,7 +138,7 @@ describe('useColumnLayout', () => {
       rerender({ cols: columns2 });
       const secondWidth = result.current.columnWidthMap.get('name');
 
-      expect(firstWidth).toBe(100);
+      expect(firstWidth).toBe(MIN_WIDTH_DEFAULT_PX);
       expect(secondWidth).toBe(200);
     });
 
@@ -177,7 +178,7 @@ describe('useColumnLayout', () => {
       rerender({ state: state2 });
       const secondWidth = result.current.columnWidthMap.get('name');
 
-      expect(firstWidth).toBe(100);
+      expect(firstWidth).toBe(MIN_WIDTH_DEFAULT_PX);
       expect(secondWidth).toBe(300);
     });
 
@@ -259,7 +260,7 @@ describe('useColumnLayout', () => {
         useColumnLayout({ columns, containerRef, columnWidthState: null })
       );
 
-      expect(result.current.columnWidthMap.get('name')).toBe(100);
+      expect(result.current.columnWidthMap.get('name')).toBe(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should handle empty columnWidthState Map', () => {
@@ -273,7 +274,7 @@ describe('useColumnLayout', () => {
         useColumnLayout({ columns, containerRef, columnWidthState: emptyState })
       );
 
-      expect(result.current.columnWidthMap.get('name')).toBe(100);
+      expect(result.current.columnWidthMap.get('name')).toBe(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should handle negative containerWidth', () => {
@@ -286,8 +287,7 @@ describe('useColumnLayout', () => {
         useColumnLayout({ columns, containerRef, columnWidthState: new Map() })
       );
 
-      // Should still calculate widths (may be used for scroll)
-      expect(result.current.columnWidthMap.get('name')).toBe(100);
+      expect(result.current.columnWidthMap.get('name')).toBe(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should handle very large containerWidth', () => {
@@ -300,7 +300,7 @@ describe('useColumnLayout', () => {
         useColumnLayout({ columns, containerRef, columnWidthState: new Map() })
       );
 
-      expect(result.current.columnWidthMap.get('name')).toBeGreaterThan(85);
+      expect(result.current.columnWidthMap.get('name')).toBeGreaterThan(MIN_WIDTH_DEFAULT_PX);
     });
 
     it('should handle multiple columnWidthState entries', () => {
@@ -321,7 +321,7 @@ describe('useColumnLayout', () => {
 
       expect(result.current.columnWidthMap.get('id')).toBe(150);
       expect(result.current.columnWidthMap.get('name')).toBe(250);
-      expect(result.current.columnWidthMap.get('desc')).toBeGreaterThanOrEqual(85);
+      expect(result.current.columnWidthMap.get('desc')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
     });
   });
 

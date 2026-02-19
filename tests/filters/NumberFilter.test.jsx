@@ -24,30 +24,30 @@ describe('NumberFilter Component', () => {
       it('should render number input field', () => {
         renderWithTheme(<NumberFilterInputs {...defaultProps} />);
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         expect(input).toBeInTheDocument();
-        expect(input).toHaveAttribute('type', 'number');
+        expect(input).toHaveAttribute('type', 'text');
       });
 
       it('should render with empty value initially', () => {
         renderWithTheme(<NumberFilterInputs {...defaultProps} />);
         
-        const input = screen.getByRole('spinbutton');
-        expect(input).toHaveValue(null);
+        const input = screen.getByRole('textbox');
+        expect(input).toHaveValue('');
       });
 
       it('should render with provided value', () => {
         renderWithTheme(<NumberFilterInputs {...defaultProps} value={{ value: 42 }} />);
         
-        const input = screen.getByRole('spinbutton');
-        expect(input).toHaveValue(42);
+        const input = screen.getByRole('textbox');
+        expect(input).toHaveValue('42');
       });
 
       it('should render with string number value', () => {
         renderWithTheme(<NumberFilterInputs {...defaultProps} value={{ value: '123' }} />);
         
-        const input = screen.getByRole('spinbutton');
-        expect(input).toHaveValue(123);
+        const input = screen.getByRole('textbox');
+        expect(input).toHaveValue('123');
       });
     });
 
@@ -57,7 +57,7 @@ describe('NumberFilter Component', () => {
         
         renderWithTheme(<NumberFilterInputs {...defaultProps} onChange={onChange} />);
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '42' } });
         
         expect(onChange).toHaveBeenCalled();
@@ -68,7 +68,7 @@ describe('NumberFilter Component', () => {
         
         renderWithTheme(<NumberFilterInputs {...defaultProps} onChange={onChange} />);
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '100' } });
         
         expect(onChange).toHaveBeenCalled();
@@ -87,7 +87,7 @@ describe('NumberFilter Component', () => {
           />
         );
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '' } });
         
         expect(onChange).toHaveBeenCalledWith(null);
@@ -100,7 +100,7 @@ describe('NumberFilter Component', () => {
         
         renderWithTheme(<NumberFilterInputs {...defaultProps} onChange={onChange} />);
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '50' } });
         
         expect(onChange).toHaveBeenCalled();
@@ -119,7 +119,7 @@ describe('NumberFilter Component', () => {
           />
         );
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '15' } });
         
         const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
@@ -140,7 +140,7 @@ describe('NumberFilter Component', () => {
           />
         );
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '' } });
         
         // When both are empty, should call with null
@@ -152,7 +152,7 @@ describe('NumberFilter Component', () => {
         
         renderWithTheme(<NumberFilterInputs {...defaultProps} onChange={onChange} />);
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '-10' } });
         
         expect(onChange).toHaveBeenCalled();
@@ -165,7 +165,7 @@ describe('NumberFilter Component', () => {
         
         renderWithTheme(<NumberFilterInputs {...defaultProps} onChange={onChange} />);
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '3.14' } });
         
         expect(onChange).toHaveBeenCalled();
@@ -185,9 +185,9 @@ describe('NumberFilter Component', () => {
           />
         );
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         expect(input).toBeInTheDocument();
-        expect(input).toHaveAttribute('type', 'number');
+        expect(input).toHaveAttribute('type', 'text');
       });
 
       it('should display valueTo in the input', () => {
@@ -198,8 +198,8 @@ describe('NumberFilter Component', () => {
           />
         );
         
-        const input = screen.getByRole('spinbutton');
-        expect(input).toHaveValue(50);
+        const input = screen.getByRole('textbox');
+        expect(input).toHaveValue('50');
       });
 
       it('should render "to" input with label', () => {
@@ -210,7 +210,7 @@ describe('NumberFilter Component', () => {
           />
         );
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         expect(input).toBeInTheDocument();
       });
     });
@@ -226,7 +226,7 @@ describe('NumberFilter Component', () => {
           />
         );
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '30' } });
         
         expect(onChange).toHaveBeenCalled();
@@ -245,7 +245,7 @@ describe('NumberFilter Component', () => {
           />
         );
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '' } });
         
         expect(onChange).toHaveBeenCalledWith(null);
@@ -263,7 +263,7 @@ describe('NumberFilter Component', () => {
           />
         );
         
-        const input = screen.getByRole('spinbutton');
+        const input = screen.getByRole('textbox');
         fireEvent.change(input, { target: { value: '' } });
         
         // onChange should be called when input changes

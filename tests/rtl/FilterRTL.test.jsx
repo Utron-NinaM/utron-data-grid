@@ -67,8 +67,7 @@ describe('Filter RTL Test', () => {
         DIRECTION_RTL
       );
 
-      // Number inputs use 'spinbutton' role, not 'textbox'
-      const inputs = screen.getAllByRole('spinbutton');
+      const inputs = screen.getAllByRole('textbox');
       expect(inputs.length).toBeGreaterThan(0);
     });
 
@@ -144,8 +143,7 @@ describe('Filter RTL Test', () => {
         DIRECTION_RTL
       );
 
-      // Number inputs use 'spinbutton' role, not 'textbox'
-      const inputs = screen.getAllByRole('spinbutton');
+      const inputs = screen.getAllByRole('textbox');
       expect(inputs.length).toBeGreaterThan(0);
 
       // Verify RTL-specific CSS properties for each input
@@ -353,7 +351,7 @@ describe('Test filter inputs in Hebrew (no placeholders)', () => {
       DIRECTION_RTL
     );
 
-    const inputs = screen.getAllByRole('spinbutton');
+    const inputs = screen.getAllByRole('textbox');
     expect(inputs.length).toBeGreaterThan(0);
   });
 });

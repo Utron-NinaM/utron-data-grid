@@ -16,7 +16,7 @@ describe('Column Width Integration', () => {
   it('should apply same width to header and body cells', () => {
     const columns = [
       { field: 'name', headerName: 'Name', width: 150, filter: FILTER_TYPE_NONE },
-      { field: 'age', headerName: 'Age', width: 100, filter: FILTER_TYPE_NONE },
+      { field: 'age', headerName: 'Age', width: 140, filter: FILTER_TYPE_NONE },
     ];
     const rows = [
       { id: 1, name: 'John', age: 30 },
@@ -49,8 +49,8 @@ describe('Column Width Integration', () => {
 
     expect(nameHeaderStyles.width).toBe('150px');
     expect(nameBodyStyles.width).toBe('150px');
-    expect(ageHeaderStyles.width).toBe('100px');
-    expect(ageBodyStyles.width).toBe('100px');
+    expect(ageHeaderStyles.width).toBe('140px');
+    expect(ageBodyStyles.width).toBe('140px');
   });
 
   it('should use table-layout: fixed', () => {

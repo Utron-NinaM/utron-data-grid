@@ -185,10 +185,7 @@ export function GridHeaderCell({
               height: '100%',
               cursor: 'col-resize',
               zIndex: 1,
-              backgroundColor: 'rgba(0, 0, 0, 0.05)',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.05)',
-              },
+              backgroundColor: 'rgba(0, 0, 0, 0.05)',              
             }}
           />
         </>
