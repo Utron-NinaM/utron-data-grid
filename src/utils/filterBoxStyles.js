@@ -7,7 +7,7 @@ export const FILTER_OPERATOR_WIDTH_PX_WITH_PADDING = FILTER_OPERATOR_WIDTH_PX + 
 /** Default content height when headerConfig does not set filterInputHeight (match MUI small input). */
 const DEFAULT_FILTER_CONTENT_HEIGHT = 40;
 
-export const getFilterContentHeight = (filterInputHeight) => {
+export function getFilterContentHeight(filterInputHeight) {
   return filterInputHeight
     ? filterInputHeight - PADDING_INPUT_TOP_BOTTOM_PX * 2
     : DEFAULT_FILTER_CONTENT_HEIGHT;
