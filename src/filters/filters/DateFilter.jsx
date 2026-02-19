@@ -8,7 +8,13 @@ import { getDateFormat } from '../../utils/directionUtils';
 import { useTranslations } from '../../localization/useTranslations';
 import { ThemeProvider } from '@mui/material/styles';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
-import { getFilterContentHeight } from '../../utils/filterBoxStyles';
+import {
+  getFilterContentHeight,
+  filterRowWrapperSx,
+  filterInputFlexSx,
+  filterInputFlexSxNarrow,
+  filterInputFullWidthSx,
+} from '../../utils/filterBoxStyles';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
 import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN, OPERATOR_PERIOD, OPERATOR_IN_RANGE, DIRECTION_LTR } from '../../config/schema';
@@ -27,11 +33,7 @@ function getDatePickerSlotProps(ctx, direction, placeholder = '') {
       dir: direction,
       readOnly: false,
       placeholder,
-      sx: {
-        flex: 1,
-        minWidth: 0,
-        maxWidth: '100%',
-      }
+      sx: filterInputFlexSx,
     },
     openPickerButton: { sx: { width: datePickerIconSize, height: datePickerIconSize, minWidth: datePickerIconSize, minHeight: datePickerIconSize } },
     openPickerIcon: { sx: { width: datePickerIconSize, height: datePickerIconSize } },
@@ -48,7 +50,7 @@ function getDateField(dateVal, handleChange, direction, placeholder, ctx) {
   const format = getDateFormat(direction);
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={direction === DIRECTION_RTL ? LOCALE_HE : LOCALE_EN}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
+      <Box sx={filterRowWrapperSx}>
         <ThemeProvider theme={ltrTheme}>
           <DatePicker
             value={dateVal}
@@ -92,13 +94,13 @@ export function DateFilterInputs({ value, onChange, direction = DIRECTION_LTR })
 
   if (isPeriod) {
     return (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
+      <Box sx={filterRowWrapperSx}>
         <TextField
           select
           size="small"
           value={periodUnit}
           onChange={(e) => handlePeriodChange({ periodUnit: e.target.value })}
-          sx={{ flex: 1, minWidth: 0 }}
+          sx={filterInputFlexSxNarrow}
           SelectProps={{ native: true }}
         >
           {PERIOD_UNITS.map((unit) => (
@@ -141,7 +143,7 @@ export function DateFilterPeriodAmountInput({ value, onChange }) {
       value={periodAmount}
       onChange={(raw) => handleChange({ value: raw })}
       integerOnly
-      sx={{ width: '100%', minWidth: 0 }}
+      sx={filterInputFullWidthSx}
       inputProps={{ min: 1, step: 1 }}
     />
   );

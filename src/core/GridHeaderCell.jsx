@@ -4,6 +4,15 @@ import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, DIRECTION_RTL } from '../c
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { getFilterRowBoxSx } from '../utils/filterBoxStyles';
 import { getEffectiveMinWidth } from '../utils/columnWidthUtils';
+import {
+  headerCellBaseSx,
+  getHeaderInnerBoxSx,
+  sortLabelSx,
+  headerLabelSx,
+  sortOrderBadgeSx,
+  flexSpacerSx,
+  getResizeHandleSx,
+} from './coreStyles';
 
 /**
  * @param {Object} props
@@ -139,56 +148,35 @@ export function GridHeaderCell({
   };
 
   return (
-    <TableCell align={align} padding="none" variant="head" sx={{ paddingLeft: '4px', paddingRight: '4px', ...cellSx, position: 'relative' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: headerComboSlot ? 'nowrap' : 'wrap', py: mainRowHeight ? 0 : 0.5, boxSizing: 'border-box', height: '100%' }}>
+    <TableCell align={align} padding="none" variant="head" sx={{ ...headerCellBaseSx, ...cellSx }}>
+      <Box sx={getHeaderInnerBoxSx(mainRowHeight, headerComboSlot)}>
         <Tooltip title={column.headerName || ''} PopperProps={{ disablePortal: true }}>
           <TableSortLabel
             active={!!sortDir}
             direction={order}
             onClick={handleSortClick}
-            sx={{ minHeight: 20, minWidth: 0, overflow: 'hidden', flexShrink: 0 }}
+            sx={sortLabelSx}
           >
-            <Box
-              component="span"
-              sx={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                display: 'block',
-                width: '100%',
-              }}
-            >
+            <Box component="span" sx={headerLabelSx}>
               {column.headerName}
             </Box>
           </TableSortLabel>
         </Tooltip>
         {sortOrderIndex != null && multiColumn && (
-              <Box component="span" sx={{ ml: 0.25, fontSize: '0.75rem', opacity: 0.8, flexShrink: 0 }}>
-                {`(${sortOrderIndex})`}
-              </Box>
-            )}
+          <Box component="span" sx={sortOrderBadgeSx}>
+            {`(${sortOrderIndex})`}
+          </Box>
+        )}
         {headerComboSlot != null && <Box sx={{ flexShrink: 0 }}>{headerComboSlot}</Box>}
-        <Box sx={{ flex: 1, minWidth: 0 }} />        
+        <Box sx={flexSpacerSx} />
       </Box>
       {filterSlot != null && <Box sx={filterBoxSx}>{filterSlot}</Box>}
-      {/* Resize handle(s) - RTL: main handle at left (end of column); RTL first column also gets right edge. LTR: right edge only */}
       {onColumnResize && colRefs && (
-        <>
-          <Box
-            data-testid="resize-handle"
-            onMouseDown={handleResizeMouseDown}
-            sx={{
-              position: 'absolute',
-              top: 0,
-              ...(direction === DIRECTION_RTL ? { left: '-3px' } : { right: '-3px' }),
-              width: '8px',
-              height: '100%',
-              cursor: 'col-resize',
-              zIndex: 1,
-              backgroundColor: 'rgba(0, 0, 0, 0.05)',              
-            }}
-          />
-        </>
+        <Box
+          data-testid="resize-handle"
+          onMouseDown={handleResizeMouseDown}
+          sx={getResizeHandleSx(direction)}
+        />
       )}
     </TableCell>
   );

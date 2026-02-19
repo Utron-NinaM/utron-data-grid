@@ -6,6 +6,7 @@ import { PaginationBar } from '../pagination/PaginationBar';
 import { ValidationAlert } from '../validation/ValidationAlert';
 import { defaultGridConfig } from '../config/defaultConfig';
 import { useDataGrid } from './useDataGrid';
+import { getDataGridRootSx, scrollableContentSx } from './dataGridStyles';
 import { EditToolbar } from './EditToolbar';
 import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
 
@@ -106,26 +107,17 @@ export function DataGrid(props) {
       <DataGridProvider stableValue={grid.stableContextValue} filterValue={grid.filterContextValue}>
         <Box
           ref={grid.stableContextValue.containerRef}
-          sx={{
-            ...flatProps.sx,
+          sx={getDataGridRootSx({
+            sx: flatProps.sx,
             fontSize: flatProps.fontSize ?? defaultGridConfig.fontSize,
-            '--data-grid-font-size': `${flatProps.fontSize ?? defaultGridConfig.fontSize}px`,
-            minWidth: 0,
-            width: '100%',
-            maxWidth: '100%',
-            overflowX: 'hidden',
-            ...(useScrollableLayout && {
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-            }),
-          }}
+            useScrollableLayout,
+          })}
           dir={direction}
           data-testid="data-grid-root"
         >
           <ValidationAlert errors={grid.validationErrors} />
           {useScrollableLayout ? (
-            <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={scrollableContentSx}>
               {gridTable}
             </Box>
           ) : (

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { NumericTextField } from './NumericInput';
+import { filterRowWrapperSx, filterInputFlexSx } from '../../utils/filterBoxStyles';
 
 /** Value input (from only). "To" is rendered in separate header row when inRange. */
 export function NumberFilterInputs({ value, onChange }) {
@@ -18,12 +19,12 @@ export function NumberFilterInputs({ value, onChange }) {
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
+    <Box sx={filterRowWrapperSx}>
       <NumericTextField
         size="small"
         value={val}
         onChange={(raw) => handleChange({ value: raw })}
-        sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}
+        sx={filterInputFlexSx}
       />
     </Box>
   );
@@ -45,12 +46,12 @@ export function NumberFilterToInput({ value, onChange }) {
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%' }}>
+    <Box sx={filterRowWrapperSx}>
       <NumericTextField
         size="small"
         value={valueTo}
         onChange={(raw) => handleChange({ valueTo: raw })}
-        sx={{ flex: 1, minWidth: 0, maxWidth: '100%' }}
+        sx={filterInputFlexSx}
         inputProps={{ 'aria-label': 'To' }}
       />
     </Box>

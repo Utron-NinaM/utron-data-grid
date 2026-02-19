@@ -5,7 +5,12 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
 import { getOptionLabel, getOptionValue, getOptionMap } from '../../utils/optionUtils';
 import { DIRECTION_RTL, DIRECTION_LTR } from '../../config/schema';
-import { getFilterContentHeight } from '../../utils/filterBoxStyles';
+import {
+  getFilterContentHeight,
+  filterRowWrapperSxNoPadding,
+  getListFilterAutocompleteInputSx,
+  getListFilterAutocompleteSx,
+} from '../../utils/filterBoxStyles';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -26,7 +31,7 @@ export function ListFilter({ value, onChange, options }) {
   );
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, width: '100%', minWidth: 0, maxWidth: '100%', padding: 0}}>
+    <Box sx={filterRowWrapperSxNoPadding}>
       <Autocomplete
         multiple
         size="small"
@@ -45,12 +50,13 @@ export function ListFilter({ value, onChange, options }) {
         renderOption={(props, option, { selected: isSelected }) => {
           const { key, ...restProps } = props;          
           return (
-            <li key={key} {...restProps} style={{ direction, textAlign: isRtl ? 'right' : 'left' }}>             
+            <li key={key} {...restProps} style={{ direction, textAlign: isRtl ? 'right' : 'left', 
+                                                 paddingRight: 2, paddingLeft: 2, paddingTop: 0, paddingBottom: 0}}>             
                 <>                  
                 <Checkbox
               icon={icon}
               checkedIcon={checkedIcon}
-              style={{ [isRtl ? 'marginLeft' : 'marginRight']: 8 }}
+              style={{ [isRtl ? 'marginLeft' : 'marginRight']: 2}}
               checked={isSelected}
             />
             
@@ -64,23 +70,10 @@ export function ListFilter({ value, onChange, options }) {
           <TextField
             {...params}
             inputProps={{ ...params.inputProps, maxLength: 200, dir: direction }}
-            sx={{
-              '& .MuiInputBase-input': {
-                textAlign: isRtl ? 'right' : 'left',
-              },
-            }}
+            sx={getListFilterAutocompleteInputSx(isRtl)}
           />
         )}
-        sx={{
-          flex: 1,
-          minWidth: 0,
-          maxWidth: '100%',
-          overflow: 'hidden',
-          boxSizing: 'border-box',
-          height: contentHeight,
-          minHeight: contentHeight,
-          maxHeight: contentHeight,
-        }}
+        sx={getListFilterAutocompleteSx(contentHeight)}
         slotProps={{
           popper: {
             disablePortal: false,

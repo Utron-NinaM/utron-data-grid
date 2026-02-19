@@ -20,22 +20,12 @@ import {
   FILTER_TYPE_NUMBER,
   FILTER_TYPE_DATE,
   FILTER_TYPE_LIST,
-  DIRECTION_RTL,
-  DIRECTION_LTR,
   } from '../config/schema';
-import { FILTER_OPERATOR_WIDTH_PX_WITH_PADDING } from '../utils/filterBoxStyles';
-
-
-const toSlotWrapperSx = (direction) => {
-  return {display: 'flex',
-  alignItems: 'center',
-  width: '100%',
-  minWidth: 0,
-  maxWidth: '100%',
-  paddingInlineStart: direction === DIRECTION_LTR ? `${FILTER_OPERATOR_WIDTH_PX_WITH_PADDING}px` : 0,
-  paddingInlineEnd: direction === DIRECTION_RTL ? `${FILTER_OPERATOR_WIDTH_PX_WITH_PADDING}px` : 0,
-};
-};
+import {
+  getOperatorWrapperSx,
+  getToSlotWrapperSx,
+  headerClearButtonSx,
+} from '../utils/filterBoxStyles';
 
 /**
  * Header combo slot: clear filter button when column has active filter. Renders next to column label.
@@ -52,7 +42,7 @@ function HeaderClearFilterButton({ field, onClear }) {
   const t = useTranslations();
   return (
     <Tooltip title={t('clearColumnFilter')} PopperProps={{ disablePortal: true, popperOptions: { strategy: 'absolute' } }}>
-      <IconButton size="small" onClick={onClear} aria-label={t('clearColumnFilter')} sx={{ flexShrink: 0 }}>
+      <IconButton size="small" onClick={onClear} aria-label={t('clearColumnFilter')} sx={headerClearButtonSx}>
         <FontAwesomeIcon icon={faFilterCircleXmark} fontSize="small" />
       </IconButton>
     </Tooltip>
@@ -69,16 +59,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
 
   if (filterType === false) return null;
 
-  const operatorWrapperSx = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 0.5,
-    width: '100%',
-    minWidth: 0,
-    maxWidth: '100%',
-    flexDirection: direction === DIRECTION_RTL ? 'row-reverse' : 'row',
-    transition: 'opacity 120ms ease',
-  };
+  const operatorWrapperSx = getOperatorWrapperSx(direction);
 
   switch (filterType) {
     case FILTER_TYPE_NUMBER:
@@ -158,7 +139,7 @@ export function getFilterToInputSlot(column, filterModel, onFilterChange, direct
   switch (filterType) {
     case FILTER_TYPE_NUMBER:
       return (
-        <Box sx={toSlotWrapperSx(direction)}>
+        <Box sx={getToSlotWrapperSx(direction)}>
           <NumberFilterToInput
             value={state}
             onChange={(v) => onFilterChange(field, v)}
@@ -167,7 +148,7 @@ export function getFilterToInputSlot(column, filterModel, onFilterChange, direct
       );
     case FILTER_TYPE_DATE:
       return (
-        <Box sx={toSlotWrapperSx(direction)}>
+        <Box sx={getToSlotWrapperSx(direction)}>
           {state?.operator === OPERATOR_PERIOD ? (
             <DateFilterPeriodAmountInput
               value={state}

@@ -7,6 +7,18 @@ import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBodyRow } from './GridBodyRow';
 import { GridErrorBoundary } from './GridErrorBoundary';
 import { ALIGN_CENTER } from '../config/schema';
+import {
+  getToolbarBoxSx,
+  toolbarActionsBoxSx,
+  getTableContainerSx,
+  getTableSx,
+  getTableHeadSx,
+  getMainHeaderRowSx,
+  getHeaderCheckboxCellSx,
+  getFilterRowSx,
+  scrollContainerSx,
+  getScrollInnerBoxSx,
+} from './coreStyles';
 
 const EMPTY_ERROR_SET = new Set();
 
@@ -186,20 +198,8 @@ function GridTableInner({
     : null;
 
   const toolbarBox = (
-    <Box
-      sx={{
-        ...(containScroll ? {} : { position: 'sticky', top: 0, zIndex: 3 }),
-        flexShrink: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 1,
-        py: 0.5,
-        pb: 1.5,
-        backgroundColor: 'background.paper',
-      }}
-    >
-      <Box sx={{ display: 'flex', gap: 1 }}>
+    <Box sx={getToolbarBoxSx(containScroll)}>
+      <Box sx={toolbarActionsBoxSx}>
         <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0}>
           {translations('clearSort')}
         </Button>
@@ -219,24 +219,13 @@ function GridTableInner({
       <TableContainer
         component={Paper}
         variant="outlined"
-        sx={{
-          overflowX: enableHorizontalScroll ? 'scroll' : 'visible',
-          overflowY: 'visible',
-          width: '100%',
-          ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
-          borderRight: 'none',
-          borderLeft: 'none',
-        }}
+        sx={getTableContainerSx(enableHorizontalScroll, totalWidth)}
       >
         <Table
           size="small"
           stickyHeader={!containScroll}
           aria-label="Data grid"
-          sx={{
-            width: '100%',
-            tableLayout: 'fixed',
-            ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
-          }}
+          sx={getTableSx(totalWidth, enableHorizontalScroll)}
         >
           <colgroup>
             {multiSelectable && <col />}
@@ -254,28 +243,13 @@ function GridTableInner({
               />
             ))}
           </colgroup>
-          <TableHead
-            sx={{
-              ...headerConfig?.base,
-              position: 'sticky',
-              top: containScroll ? 0 : 45,
-              zIndex: 2,
-              backgroundColor: headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper',
-            }}
-          >
-              <TableRow
-                sx={{
-                  ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
-                }}
-              >
+          <TableHead sx={getTableHeadSx(containScroll, headerConfig)}>
+              <TableRow sx={getMainHeaderRowSx(headerConfig, !!(getFilterInputSlot && getFilterToInputSlot))}>
                 {multiSelectable && (
                   <TableCell
                     padding="checkbox"
                     variant="head"
-                    sx={{
-                      ...headerConfig?.base,
-                      backgroundColor: headerConfig?.mainRow?.backgroundColor || headerConfig?.base?.backgroundColor || 'inherit',
-                    }}
+                    sx={getHeaderCheckboxCellSx(headerConfig, 'mainRow')}
                   />
                 )}
                 {columns.map((col) => (
@@ -292,19 +266,12 @@ function GridTableInner({
                 ))}
               </TableRow>
               {getFilterInputSlot && getFilterToInputSlot && (
-                <TableRow
-                  sx={{
-                    ...(headerConfig?.filterRows?.backgroundColor && { backgroundColor: headerConfig.filterRows.backgroundColor }),
-                  }}
-                >
+                <TableRow sx={getFilterRowSx(headerConfig)}>
                   {multiSelectable && (
                     <TableCell
                       padding="checkbox"
                       variant="head"
-                      sx={{
-                        ...headerConfig?.base,
-                        backgroundColor: headerConfig?.filterRows?.backgroundColor || headerConfig?.base?.backgroundColor || 'inherit',
-                      }}
+                      sx={getHeaderCheckboxCellSx(headerConfig, 'filterRows')}
                     />
                   )}
                   {columns.map((col) => (
@@ -318,19 +285,12 @@ function GridTableInner({
                 </TableRow>
               )}
               {getFilterToInputSlot && hasActiveRangeFilter && (
-                <TableRow
-                  sx={{
-                    ...(headerConfig?.filterRows?.backgroundColor && { backgroundColor: headerConfig.filterRows.backgroundColor }),
-                  }}
-                >
+                <TableRow sx={getFilterRowSx(headerConfig)}>
                   {multiSelectable && (
                     <TableCell
                       padding="checkbox"
                       variant="head"
-                      sx={{
-                        ...headerConfig?.base,
-                        backgroundColor: headerConfig?.filterRows?.backgroundColor || headerConfig?.base?.backgroundColor || 'inherit',
-                      }}
+                      sx={getHeaderCheckboxCellSx(headerConfig, 'filterRows')}
                     />
                   )}
                   {columns.map((col) => (
@@ -357,28 +317,9 @@ function GridTableInner({
 
   if (containScroll) {
     return (
-      <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          minWidth: 0,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        data-testid="grid-scroll-container"
-      >
+      <Box sx={scrollContainerSx} data-testid="grid-scroll-container">
         {toolbarBox}
-        <Box
-          ref={scrollContainerRef}
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            minWidth: 0,
-            position: 'relative',
-            overflow: 'auto',
-            overflowX: enableHorizontalScroll ? 'scroll' : 'auto',
-          }}
-        >
+        <Box ref={scrollContainerRef} sx={getScrollInnerBoxSx(enableHorizontalScroll)}>
           <ScrollContainerContext.Provider value={{ ref: scrollContainerRef, ready: scrollContainerReady }}>
             {tableContent}
           </ScrollContainerContext.Provider>

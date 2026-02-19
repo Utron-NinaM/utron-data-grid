@@ -6,14 +6,7 @@ import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataG
 import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
 import { getOptionLabel } from '../utils/optionUtils';
 import { DIRECTION_LTR } from '../config/schema';
-
-const truncationSx = {
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  width: '100%',
-  minWidth: 0,
-};
+import { truncationSx, cellContentWrapperSx } from './coreStyles';
 
 /**
  * @param {Object} props
@@ -92,12 +85,12 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
 
     return (
       <Tooltip title={tooltipText} arrow PopperProps={popperProps} slotProps={{ tooltip: { sx: { fontSize: `${ctx?.fontSize ?? 13}px` } } }}>
-        <Box component="span" sx={{ display: 'block', width: '100%', minWidth: 0 }}>
+        <Box component="span" sx={cellContentWrapperSx}>
           {content}
         </Box>
       </Tooltip>
     );
-  }, [isEditing, editor, displayValue, tooltipText, truncationSx, popperContainer, ctx?.fontSize]);
+  }, [isEditing, editor, displayValue, tooltipText, popperContainer, ctx?.fontSize]);
 
   return (
     <TableCell align={align} sx={sx} padding="none" variant="body">

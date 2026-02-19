@@ -6,7 +6,16 @@ import { useTranslations } from '../../localization/useTranslations';
 import { OPERATOR_EQUALS, OPERATOR_CONTAINS, OPERATOR_ICONS, DIRECTION_LTR, DIRECTION_RTL } from '../../config/schema';
 import { useContext } from 'react';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
-import { FILTER_OPERATOR_WIDTH_PX } from '../../utils/filterBoxStyles';
+import {
+  operatorDropdownRootSx,
+  operatorDropdownButtonSx,
+  operatorDropdownArrowIconSx,
+  operatorIconBoxSx,
+  getOperatorMenuItemBoxSx,
+  operatorMenuItemLabelSx,
+} from '../../utils/filterBoxStyles';
+
+const DEFAULT_OPERATOR_FONT_SIZE = 13;
 
 export function OperatorDropdown({ value, onChange, operatorMap }) {
   const ctx = useContext(DataGridStableContext);
@@ -15,15 +24,20 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
   const [anchor, setAnchor] = useState(null);
   const defaultOperator = operatorMap?.includes(OPERATOR_CONTAINS) ? OPERATOR_CONTAINS : OPERATOR_EQUALS;
   const operator = value?.operator ?? defaultOperator;
-  const menuItemStyle = { display: 'flex', justifyContent: 'flex-start', flexDirection: direction === DIRECTION_RTL ? 'row-reverse' : 'row', width: '100%' };
+  const fontSize = ctx?.fontSize ?? DEFAULT_OPERATOR_FONT_SIZE;
 
   const renderOperator = (op) => <FontAwesomeIcon icon={OPERATOR_ICONS[op]} fontSize="small" />;
 
   return (
-    <Box sx={{ paddingLeft: '1px', paddingRight: '1px', width: FILTER_OPERATOR_WIDTH_PX , minWidth: FILTER_OPERATOR_WIDTH_PX}}>
-      <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} aria-label="Operator" sx={{ boxSizing: 'border-box', paddingLeft: '1px', paddingRight: '1px' }}>
-        <ArrowDropDownIcon />
-        <Box component="span" sx={{ fontSize: ctx?.fontSize ?? 13, minWidth: 20 }}>
+    <Box sx={operatorDropdownRootSx}>
+      <IconButton
+        size="small"
+        onClick={(e) => setAnchor(e.currentTarget)}
+        aria-label="Operator"
+        sx={operatorDropdownButtonSx}
+      >
+        <ArrowDropDownIcon sx={{ ...operatorDropdownArrowIconSx, fontSize }} />
+        <Box component="span" sx={{ ...operatorIconBoxSx, fontSize }}>
           {renderOperator(operator)}
         </Box>
       </IconButton>
@@ -41,11 +55,11 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
               setAnchor(null);
             }}
           >
-            <Box sx={menuItemStyle}>
-              <Box component="span" sx={{ direction: direction }}>
+            <Box sx={getOperatorMenuItemBoxSx(direction)}>
+              <Box component="span" sx={{ direction }}>
                 {renderOperator(op)}
               </Box>
-              <Box component="span" sx={{ alignItems: 'start', paddingLeft: 1, paddingRight: 1 }}>
+              <Box component="span" sx={operatorMenuItemLabelSx}>
                 {t(op)}
               </Box>
             </Box>

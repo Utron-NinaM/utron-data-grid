@@ -4,6 +4,20 @@ import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { PaginationIcons } from './PaginationIcons';
 
+const getBoxSx = (fontSize) => {
+  return {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'start',
+    flexWrap: 'wrap',
+    gap: 1,
+    py: 1,
+    px: 0.5,
+    fontSize,
+  };
+};
+
 /**
  * RTL-aware: First/Prev and Next/Last swap sides in RTL; use translations for labels.
  */
@@ -29,17 +43,7 @@ export function PaginationBar({
 
   return (
     <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'start',
-        flexWrap: 'wrap',
-        gap: 1,
-        py: 1,
-        px: 0.5,
-        fontSize,
-      }}
+      sx={getBoxSx(fontSize)}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Typography variant="body2" component="span">

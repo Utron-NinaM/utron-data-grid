@@ -115,13 +115,14 @@ export function useDataGridMaps({
   const filterCellSxMap = useMemo(() => {
     const map = new Map();
     const filterRowHeight = headerConfig?.filterRows?.height || headerConfig?.filterCells?.height;
+    const filterBg = headerConfig?.filterCells?.backgroundColor ?? headerConfig?.filterRows?.backgroundColor ?? headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper';
     columns.forEach((col) => {
       // Use provided width from layout calculation (number) or fall back to old calculation
       const width = providedColumnWidthMap?.get(col.field);
       const minWidth = width != null ? undefined : getEffectiveMinWidth(col);
       const cellSx = createCellSx(col, {
-        rowHeight: filterRowHeight,        
-        backgroundColor: headerConfig?.filterCells?.backgroundColor,
+        rowHeight: filterRowHeight,
+        backgroundColor: filterBg,
         baseConfig: headerConfig?.base,
       }, width, minWidth);
       map.set(col.field, cellSx);
