@@ -20,6 +20,7 @@ import {
   FILTER_TYPE_NUMBER,
   FILTER_TYPE_DATE,
   FILTER_TYPE_LIST,
+  DIRECTION_RTL,
 } from '../config/schema';
 import { FILTER_OPERATOR_WIDTH_PX_WITH_PADDING } from '../utils/filterBoxStyles';
 
@@ -48,7 +49,7 @@ function HeaderClearFilterButton({ field, onClear }) {
 /**
  * Filter input slot: operator (text/number/date) + value inputs in filter row. LTR: operator left, RTL: operator right.
  */
-export function getFilterInputSlot(column, filterModel, onFilterChange, direction = DIRECTION_LTR) {
+export function getFilterInputSlot(column, filterModel, onFilterChange, direction) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
@@ -62,7 +63,7 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
     width: '100%',
     minWidth: 0,
     maxWidth: '100%',
-    flexDirection: 'row',
+    flexDirection: direction === DIRECTION_RTL ? 'row-reverse' : 'row',
     transition: 'opacity 120ms ease',
   };
 

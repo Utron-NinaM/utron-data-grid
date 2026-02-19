@@ -285,7 +285,7 @@ function GridTableInner({
                     sortModel={sortModel}
                     onSort={onSort}
                     headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
-                    filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations) : null}
+                    filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations, direction) : null}
                     sortOrderIndex={sortOrderIndexMap?.get(col.field)}
 
                   />

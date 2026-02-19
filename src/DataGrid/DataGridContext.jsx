@@ -35,6 +35,7 @@ export const ScrollContainerContext = createContext(null);
  * @param {Map<string, string>} [stableValue.columnWidthMap] Map of field -> normalized width string
  * @param {{ current: string|null }} [stableValue.resizingColumnRef] Ref whose .current is the column field being resized, or null
  * @param {React.ReactNode|Function} [stableValue.toolbarActions] Optional slot for right side of toolbar row (ReactNode or (params: { selectedRow, selectedRowId }) => ReactNode)
+ * @param {number} [stableValue.fontSize] Font size in px for cells, filters, inputs, pagination
  * @param {Object} filterValue Filter-related functions that change with filterModel
  * @param {Function} [filterValue.getHeaderComboSlot]
  * @param {Function} [filterValue.getFilterInputSlot]

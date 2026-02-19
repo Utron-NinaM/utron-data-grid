@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, Select, MenuItem, Typography } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
+import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { PaginationIcons } from './PaginationIcons';
 
 /**
@@ -15,6 +16,8 @@ export function PaginationBar({
   onPageSizeChange,
 }) {
   const t = useTranslations();
+  const ctx = useContext(DataGridStableContext);
+  const fontSize = ctx?.fontSize ?? 13;
   const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
   const from = totalRows === 0 ? 0 : page * pageSize + 1;
   const to = Math.min((page + 1) * pageSize, totalRows);
@@ -35,6 +38,7 @@ export function PaginationBar({
         gap: 1,
         py: 1,
         px: 0.5,
+        fontSize,
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

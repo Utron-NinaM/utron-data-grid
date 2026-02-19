@@ -9,6 +9,7 @@ export const defaultGridConfig = {
   pageSize: 10,
   pageSizeOptions: [10, 25, 50, 100],
   density: 'standard',
+  fontSize: 13,
 };
 
 export const defaultColumnConfig = {

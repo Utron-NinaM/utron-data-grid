@@ -91,13 +91,13 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
       : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
 
     return (
-      <Tooltip title={tooltipText} arrow PopperProps={popperProps} slotProps={{ tooltip: { sx: { fontSize: '13px' } } }}>
+      <Tooltip title={tooltipText} arrow PopperProps={popperProps} slotProps={{ tooltip: { sx: { fontSize: `${ctx?.fontSize ?? 13}px` } } }}>
         <Box component="span" sx={{ display: 'block', width: '100%', minWidth: 0 }}>
           {content}
         </Box>
       </Tooltip>
     );
-  }, [isEditing, editor, displayValue, tooltipText, truncationSx, popperContainer]);
+  }, [isEditing, editor, displayValue, tooltipText, truncationSx, popperContainer, ctx?.fontSize]);
 
   return (
     <TableCell align={align} sx={sx} padding="none" variant="body">

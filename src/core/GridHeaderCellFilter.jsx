@@ -16,7 +16,7 @@ export function GridHeaderCellFilter({ column, slot }) {
     // Use pre-computed values from context
     const align = columnAlignMap?.get(column.field) ?? (column.align ?? ALIGN_LEFT);
     const cellSx = filterCellSxMap?.get(column.field);
-    const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight), [filterInputHeight]);
+    const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight, ctx?.fontSize), [filterInputHeight, ctx?.fontSize]);
     return (
       <TableCell align={align} padding="none" variant="head" sx={cellSx}>
         {slot != null ? (

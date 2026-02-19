@@ -20,10 +20,13 @@ import {
   LOCALE_EN,
 } from '../config/schema';
 
-export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR) {
+const DEFAULT_EDITOR_FONT_SIZE = 13;
+
+export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize) {
   const value = editValues[column.field];
   const type = column.type ?? DEFAULT_FIELD_TYPE;
   const format = getDateFormat(direction);
+  const fontSx = { fontSize: fontSize ?? DEFAULT_EDITOR_FONT_SIZE };
 
   switch (type) {
     case FIELD_TYPE_NUMBER:
@@ -35,6 +38,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           value={value ?? ''}
           onChange={(e) => onChange(column.field, e.target.value === '' ? undefined : Number(e.target.value))}
           inputProps={{ maxLength: 50 }}
+          sx={fontSx}
         />
       );
     case FIELD_TYPE_DATE:
@@ -45,7 +49,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
             value={value != null ? dayjs(value) : null}
             onChange={(d) => onChange(column.field, d ? d.toISOString() : null)}
             format={format}
-            slotProps={{ textField: { size: 'small', fullWidth: true } }}
+            slotProps={{ textField: { size: 'small', fullWidth: true, sx: fontSx } }}
           />
         </LocalizationProvider>
       );
@@ -61,7 +65,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           onChange={(_, v) => onChange(column.field, v != null ? getOptionValue(v) : undefined)}
           getOptionLabel={getOptionLabel}
           isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
-          renderInput={(params) => <TextField {...params} />}
+          renderInput={(params) => <TextField {...params} sx={{ ...params.sx, ...fontSx }} />}
           fullWidth
         />
       );
@@ -74,6 +78,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           value={value ?? ''}
           onChange={(e) => onChange(column.field, e.target.value)}
           inputProps={{ maxLength: 500 }}
+          sx={fontSx}
         />
       );
   }

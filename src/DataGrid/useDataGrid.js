@@ -46,6 +46,7 @@ export function useDataGrid(props) {
     selectedRowStyle,
     gridId,
     toolbarActions,
+    fontSize = defaultGridConfig.fontSize,
   } = props;
 
   const [internalSort, setInternalSort] = useState(() => getStoredSortModel(props.gridId, props.columns));
@@ -295,8 +296,8 @@ export function useDataGrid(props) {
   const filterInputHeight = headerConfig?.filterCells?.height || headerConfig?.filterRows?.height;
 
   const getEditorForCell = useCallback(
-    (col, row, values) => getEditor(col, row, values, handleEditChange, direction),
-    [handleEditChange, direction]
+    (col, row, values) => getEditor(col, row, values, handleEditChange, direction, fontSize),
+    [handleEditChange, direction, fontSize]
   );
 
   const getHeaderComboSlotForColumn = useCallback(
@@ -305,7 +306,7 @@ export function useDataGrid(props) {
   );
 
   const getFilterInputSlotForColumn = useCallback(
-    (col, translations) => getFilterInputSlot(col, filterModel, handleFilterChange, direction, translations),
+    (col, translations, direction) => getFilterInputSlot(col, filterModel, handleFilterChange, direction, translations),
     [filterModel, handleFilterChange, direction, translations]
   );
 
@@ -364,6 +365,7 @@ export function useDataGrid(props) {
       totalWidth, // Total width for scroll calculation
       enableHorizontalScroll, // Whether to enable horizontal scroll
       toolbarActions,
+      fontSize,
     }),
     [
       columns,
@@ -403,6 +405,7 @@ export function useDataGrid(props) {
       totalWidth,
       enableHorizontalScroll,
       toolbarActions,
+      fontSize,
     ]
   );
 

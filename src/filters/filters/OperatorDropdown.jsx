@@ -23,7 +23,7 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
     <Box sx={{ paddingLeft: '1px', paddingRight: '1px', width: FILTER_OPERATOR_WIDTH_PX , minWidth: FILTER_OPERATOR_WIDTH_PX}}>
       <IconButton size="small" onClick={(e) => setAnchor(e.currentTarget)} aria-label="Operator" sx={{ boxSizing: 'border-box', paddingLeft: '1px', paddingRight: '1px' }}>
         <ArrowDropDownIcon />
-        <Box component="span" sx={{ fontSize: '0.875rem', minWidth: 20 }}>
+        <Box component="span" sx={{ fontSize: ctx?.fontSize ?? 13, minWidth: 20 }}>
           {renderOperator(operator)}
         </Box>
       </IconButton>

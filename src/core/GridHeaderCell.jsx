@@ -38,7 +38,7 @@ export function GridHeaderCell({
   const cellSx = headerCellSxMap?.get(column.field);
   const mainRowHeight = headerConfig?.mainRow?.height;
   const multiColumn = sortModel?.length > 1;
-  const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight), [filterInputHeight]); 
+  const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight, ctx?.fontSize), [filterInputHeight, ctx?.fontSize]); 
 
   const handleSortClick = (event) => {
     const multiColumn = event.ctrlKey || event.metaKey;

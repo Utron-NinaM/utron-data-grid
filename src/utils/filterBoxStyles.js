@@ -15,11 +15,18 @@ export const getFilterContentHeight = (filterInputHeight) => {
 /**
  * Shared sx for the filter row box (used in GridHeaderCell and GridHeaderCellFilter).
  * @param {string|number} [filterInputHeight]
+ * @param {number} [fontSize] - Grid font size in px; when set, filter inputs use it
  * @returns {object}
  */
-export function getFilterRowBoxSx(filterInputHeight) {
+export function getFilterRowBoxSx(filterInputHeight, fontSize) {
   const contentHeight = getFilterContentHeight(filterInputHeight);
   const inputPadding = { height: '100%', padding: `${PADDING_INPUT_TOP_BOTTOM_PX}px 8px` };
+  const baseInputSx = {
+    height: contentHeight,
+    minHeight: contentHeight,
+    maxHeight: contentHeight,
+    ...(fontSize != null && { fontSize: 'inherit' }),
+  };
   return {
     width: '100%',
     maxWidth: '100%',
@@ -31,11 +38,8 @@ export function getFilterRowBoxSx(filterInputHeight) {
     overflow: 'hidden',
     height: contentHeight,
     maxHeight: contentHeight,
-    '& .MuiInputBase-root': {
-      height: contentHeight,
-      minHeight: contentHeight,
-      maxHeight: contentHeight,
-    },
+    ...(fontSize != null && { fontSize }),
+    '& .MuiInputBase-root': baseInputSx,
     '& .MuiInputBase-input': filterInputHeight ? inputPadding : {},
   };
 }
