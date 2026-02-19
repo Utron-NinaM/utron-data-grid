@@ -538,10 +538,10 @@ describe('DataGrid Component Integration', () => {
       expect(scrollContainer).toBeInTheDocument();
       expect(root).toHaveStyle({ display: 'flex', flexDirection: 'column' });
       expect(root).toHaveStyle({ height: '400px' });
-      expect(scrollContainer).toHaveStyle({ overflow: 'auto' });
+      // Scroll is on inner box; outer scroll container wraps toolbar + table
+      expect(scrollContainer).toHaveStyle({ display: 'flex', flexDirection: 'column' });
 
-      // PaginationBar must be a sibling of the scroll container (same parent), not inside it
-      expect(scrollContainer.parentElement).toBe(root);
+      // PaginationBar must not be inside the scroll container (so it stays visible)
       const paginationNext = screen.getByRole('button', { name: /next/i });
       expect(paginationNext).toBeInTheDocument();
       expect(scrollContainer.contains(paginationNext)).toBe(false);
@@ -590,12 +590,12 @@ describe('DataGrid Component Integration', () => {
       const root = screen.getByTestId('data-grid-root');
       const paginationBar = screen.getByRole('button', { name: /next/i });
 
-      expect(scrollContainer.parentElement).toBe(root);
+      expect(root.contains(scrollContainer)).toBe(true);
       expect(root.contains(paginationBar)).toBe(true);
       expect(scrollContainer.contains(paginationBar)).toBe(false);
       // Pagination bar should appear after the scroll container in DOM order
       const rootChildren = Array.from(root.children);
-      const scrollIndex = rootChildren.indexOf(scrollContainer);
+      const scrollIndex = rootChildren.findIndex((el) => el.contains(scrollContainer));
       const paginationIndex = rootChildren.findIndex((el) => el.contains(paginationBar));
       expect(paginationIndex).toBeGreaterThan(scrollIndex);
     });

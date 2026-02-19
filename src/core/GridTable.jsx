@@ -1,7 +1,7 @@
-import React, { memo, useContext, useMemo, useRef, useEffect } from 'react';
+import React, { memo, useContext, useMemo, useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
-import { DataGridStableContext, DataGridFilterContext } from '../DataGrid/DataGridContext';
+import { DataGridStableContext, DataGridFilterContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 import { GridHeaderCell } from './GridHeaderCell';
 import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBodyRow } from './GridBodyRow';
@@ -26,6 +26,7 @@ const EMPTY_ERROR_SET = new Set();
  * @param {Function} [props.onRowDoubleClick]
  * @param {string|number|null} [props.selectedRowId]
  * @param {boolean} [props.hasActiveRangeFilter] Whether any column has an active range filter
+ * @param {boolean} [props.containScroll] When true, toolbar stays fixed and only table body scrolls
  */
 function GridTableInner({
   rows,
@@ -41,6 +42,7 @@ function GridTableInner({
   onRowDoubleClick,
   selectedRowId,
   hasActiveRangeFilter,
+  containScroll = false,
 }) {
   const translations = useTranslations();
   const ctx = useContext(DataGridStableContext);
@@ -174,6 +176,11 @@ function GridTableInner({
       );
     });
   }
+  const scrollContainerRef = useRef(null);
+  const [scrollContainerReady, setScrollContainerReady] = useState(false);
+  useLayoutEffect(() => {
+    if (containScroll && scrollContainerRef.current) setScrollContainerReady(true);
+  }, [containScroll]);
   const selectedRow = selectedRowId != null ? rows.find((r) => getRowId(r) === selectedRowId) ?? null : null;
   const toolbarActionsContent = toolbarActions != null
     ? (typeof toolbarActions === 'function'
@@ -181,83 +188,84 @@ function GridTableInner({
       : toolbarActions)
     : null;
 
-  return (
-    <>
-      <Box
+  const toolbarBox = (
+    <Box
+      sx={{
+        ...(containScroll ? {} : { position: 'sticky', top: 0, zIndex: 3 }),
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 1,
+        py: 0.5,
+        pb: 1.5,
+        backgroundColor: 'background.paper',
+      }}
+    >
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0}>
+          {translations('clearSort')}
+        </Button>
+        <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
+          {translations('clearAllFilters')}
+        </Button>
+        <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns}>
+          {translations('clearColumnWidths')}
+        </Button>
+      </Box>
+      {toolbarActionsContent != null ? toolbarActionsContent : null}
+    </Box>
+  );
+
+  const tableContent = (
+    <GridErrorBoundary>
+      <TableContainer
+        component={Paper}
+        variant="outlined"
         sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 3,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 1,
-          py: 0.5,
-          pb: 1.5,
-          backgroundColor: 'background.paper',
+          overflowX: enableHorizontalScroll ? 'scroll' : 'visible',
+          overflowY: 'visible',
+          width: '100%',
+          ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
+          borderRight: 'none',
+          borderLeft: 'none',
         }}
       >
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0}>
-            {translations('clearSort')}
-          </Button>
-          <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
-            {translations('clearAllFilters')}
-          </Button>
-          <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns}>
-            {translations('clearColumnWidths')}
-          </Button>
-        </Box>
-        {toolbarActionsContent != null ? toolbarActionsContent : null}
-      </Box>
-      <GridErrorBoundary>
-        <TableContainer
-          component={Paper}
-          variant="outlined"
+        <Table
+          size="small"
+          stickyHeader={!containScroll}
+          aria-label="Data grid"
           sx={{
-            overflowX: enableHorizontalScroll ? 'scroll' : 'visible',
-            overflowY: 'visible',
             width: '100%',
+            tableLayout: 'fixed',
             ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
-            borderRight: 'none',
-            borderLeft: 'none',
           }}
         >
-          <Table
-            size="small"
-            stickyHeader
-            aria-label="Data grid"
+          <colgroup>
+            {multiSelectable && <col />}
+            {columns.map((col) => (
+              <col
+                key={col.field}
+                data-field={col.field}
+                ref={(el) => {
+                  if (el) {
+                    colRefs.current.set(col.field, el);
+                  } else {
+                    colRefs.current.delete(col.field);
+                  }
+                }}
+              />
+            ))}
+          </colgroup>
+          <TableHead
             sx={{
-              width: '100%',
-              tableLayout: 'fixed',
-              ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
+              ...headerConfig?.base,
+              position: 'sticky',
+              top: containScroll ? 0 : 45,
+              zIndex: 2,
+              backgroundColor: headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper',
             }}
           >
-            <colgroup>
-              {multiSelectable && <col />}
-              {columns.map((col) => (
-                <col
-                  key={col.field}
-                  data-field={col.field}
-                  ref={(el) => {
-                    if (el) {
-                      colRefs.current.set(col.field, el);
-                    } else {
-                      colRefs.current.delete(col.field);
-                    }
-                  }}
-                />
-              ))}
-            </colgroup>
-            <TableHead
-              sx={{
-                ...headerConfig?.base,
-                position: 'sticky',
-                top: 45,
-                zIndex: 2,
-                backgroundColor: headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper',
-              }}
-            >
               <TableRow
                 sx={{
                   ...(headerConfig?.mainRow?.backgroundColor && { backgroundColor: headerConfig.mainRow.backgroundColor }),
@@ -348,6 +356,44 @@ function GridTableInner({
           </Table>
         </TableContainer>
       </GridErrorBoundary>
+  );
+
+  if (containScroll) {
+    return (
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+        data-testid="grid-scroll-container"
+      >
+        {toolbarBox}
+        <Box
+          ref={scrollContainerRef}
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            minWidth: 0,
+            position: 'relative',
+            overflow: 'auto',
+            overflowX: enableHorizontalScroll ? 'scroll' : 'auto',
+          }}
+        >
+          <ScrollContainerContext.Provider value={{ ref: scrollContainerRef, ready: scrollContainerReady }}>
+            {tableContent}
+          </ScrollContainerContext.Provider>
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <>
+      {toolbarBox}
+      {tableContent}
     </>
   );
 }

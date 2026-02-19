@@ -1,4 +1,4 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo } from 'react';
 import { ThemeProvider, createTheme, Box } from '@mui/material';
 import { DataGridProvider, DataGridStableContext } from './DataGridContext';
 import { GridTable } from '../core/GridTable';
@@ -8,25 +8,6 @@ import { defaultGridConfig } from '../config/defaultConfig';
 import { useDataGrid } from './useDataGrid';
 import { EditToolbar } from './EditToolbar';
 import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
-
-function GridScrollContainer({ children }) {
-  const ctx = useContext(DataGridStableContext);
-  const enableHorizontalScroll = ctx?.enableHorizontalScroll;
-  return (
-    <Box
-      sx={{
-        flex: 1,
-        minHeight: 0,
-        minWidth: 0,
-        overflow: 'auto',
-        overflowX: enableHorizontalScroll ? 'scroll' : 'auto',
-      }}
-      data-testid="grid-scroll-container"
-    >
-      {children}
-    </Box>
-  );
-}
 
 /**
  * @typedef {Object} DataGridOptions
@@ -114,7 +95,10 @@ export function DataGrid(props) {
     onRowDoubleClick={grid.handleRowDoubleClick}
     selectedRowId={grid.selectedRowId}
     hasActiveRangeFilter={grid.hasActiveRangeFilter}
-  />, [grid.displayRows, grid.selection, grid.handleSelect, grid.sortModel, grid.handleSort, grid.hasActiveFilters, grid.editRowId, grid.editValues, grid.validationErrors, grid.errorSet, grid.handleRowClick, grid.handleRowDoubleClick, grid.selectedRowId, grid.hasActiveRangeFilter]);
+    containScroll={useScrollableLayout}
+  />, [grid.displayRows, grid.selection, grid.handleSelect, grid.sortModel, grid.handleSort, grid.hasActiveFilters,
+  grid.editRowId, grid.editValues, grid.validationErrors, grid.errorSet, grid.handleRowClick, grid.handleRowDoubleClick,
+  grid.selectedRowId, grid.hasActiveRangeFilter, useScrollableLayout]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -138,10 +122,12 @@ export function DataGrid(props) {
         >
           <ValidationAlert errors={grid.validationErrors} />
           {useScrollableLayout ? (
-            <GridScrollContainer>{gridTable}</GridScrollContainer>
-          ) :
+            <Box sx={{ flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+              {gridTable}
+            </Box>
+          ) : (
             gridTable
-          }
+          )}
           {editable && grid.editRowId != null && (
             <EditToolbar onSave={grid.handleEditSave} onCancel={grid.handleEditCancel} />
           )}

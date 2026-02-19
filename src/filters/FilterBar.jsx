@@ -37,7 +37,7 @@ export function getHeaderComboSlot(column, filterModel, onFilterChange) {
 function HeaderClearFilterButton({ field, onClear }) {
   const t = useTranslations();
   return (
-    <Tooltip title={t('clearColumnFilter')} PopperProps={{ disablePortal: true }}>
+    <Tooltip title={t('clearColumnFilter')} PopperProps={{ disablePortal: true, popperOptions: { strategy: 'absolute' } }}>
       <IconButton size="small" onClick={onClear} aria-label={t('clearColumnFilter')} sx={{ flexShrink: 0 }}>
         <FontAwesomeIcon icon={faFilterCircleXmark} fontSize="small" />
       </IconButton>

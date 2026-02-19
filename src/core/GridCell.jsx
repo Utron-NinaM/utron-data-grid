@@ -2,7 +2,7 @@ import React, { memo, useContext, useMemo } from 'react';
 import { TableCell, Box, Tooltip } from '@mui/material';
 import dayjs from 'dayjs';
 import { ALIGN_LEFT, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST } from '../config/schema';
-import { DataGridStableContext } from '../DataGrid/DataGridContext';
+import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
 import { getOptionLabel } from '../utils/optionUtils';
 import { DIRECTION_LTR } from '../config/schema';
@@ -26,6 +26,7 @@ const truncationSx = {
  */
 function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
   const ctx = useContext(DataGridStableContext);
+  const scrollCtx = useContext(ScrollContainerContext);
   const columnAlignMap = ctx?.columnAlignMap;
   const columnWidthMap = ctx?.columnWidthMap;
   const direction = ctx?.direction ?? DIRECTION_LTR;
@@ -73,6 +74,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
     return React.isValidElement(displayValue) ? String(value ?? '') : String(displayValue ?? '');
   }, [displayValue, isEditing, editor, value]);
 
+  const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
   const cellContent = useMemo(() => {
     if (isEditing && editor != null) {
       return editor;
@@ -83,15 +85,19 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
         {displayValue}
       </Box>
     );
-  
+    // When body scroll is contained, mount tooltip in scroll container so it clips and scrolls with rows
+    const popperProps = popperContainer
+      ? { container: popperContainer, popperOptions: { strategy: 'absolute' } }
+      : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
+
     return (
-      <Tooltip title={tooltipText} arrow PopperProps={{ disablePortal: true }} slotProps={{ tooltip: { sx: { fontSize: '13px' } } }}>
+      <Tooltip title={tooltipText} arrow PopperProps={popperProps} slotProps={{ tooltip: { sx: { fontSize: '13px' } } }}>
         <Box component="span" sx={{ display: 'block', width: '100%', minWidth: 0 }}>
           {content}
         </Box>
       </Tooltip>
     );
-  }, [isEditing, editor, displayValue, tooltipText, truncationSx]);
+  }, [isEditing, editor, displayValue, tooltipText, truncationSx, popperContainer]);
 
   return (
     <TableCell align={align} sx={sx} padding="none" variant="body">
