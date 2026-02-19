@@ -17,38 +17,6 @@ export function getFilterContentHeight(filterInputHeight) {
     : DEFAULT_FILTER_CONTENT_HEIGHT;
 }
 
-/**
- * Shared sx for the filter row box (used in GridHeaderCell and GridHeaderCellFilter).
- * @param {string|number} [filterInputHeight]
- * @param {number} [fontSize] - Grid font size in px; when set, filter inputs use it
- * @returns {object}
- */
-export function getFilterRowBoxSx(filterInputHeight, fontSize) {
-  const contentHeight = getFilterContentHeight(filterInputHeight);
-  const inputPadding = { height: '100%', padding: `${PADDING_INPUT_TOP_BOTTOM_PX}px 8px` };
-  const baseInputSx = {
-    height: contentHeight,
-    minHeight: contentHeight,
-    maxHeight: contentHeight,
-    ...(fontSize != null && { fontSize: 'inherit' }),
-  };
-  return {
-    width: '100%',
-    maxWidth: '100%',
-    boxSizing: 'border-box',
-    px: 0.5,
-    minHeight: 20,
-    display: 'flex',
-    alignItems: 'center',
-    overflow: 'hidden',
-    height: contentHeight,
-    maxHeight: contentHeight,
-    ...(fontSize != null && { fontSize }),
-    '& .MuiInputBase-root': baseInputSx,
-    '& .MuiInputBase-input': filterInputHeight ? inputPadding : {},
-  };
-}
-
 // ─── Operator dropdown (OperatorDropdown) ────────────────────────────────────
 
 /** Operator dropdown (filter row): root Box sx. */
@@ -205,3 +173,35 @@ export function getToSlotWrapperSx(direction) {
 
 /** Header clear-filter IconButton sx. */
 export const headerClearButtonSx = { flexShrink: 0 };
+
+/**
+ * Shared sx for the filter row box (used in GridHeaderCell and GridHeaderCellFilter).
+ * @param {string|number} [filterInputHeight]
+ * @param {number} [fontSize] - Grid font size in px; when set, filter inputs use it
+ * @returns {object}
+ */
+export function getFilterRowBoxSx(filterInputHeight, fontSize) {
+  const contentHeight = getFilterContentHeight(filterInputHeight);
+  const inputPadding = { height: '100%', padding: `${PADDING_INPUT_TOP_BOTTOM_PX}px 8px` };
+  const baseInputSx = {
+    height: contentHeight,
+    minHeight: contentHeight,
+    maxHeight: contentHeight,
+    ...(fontSize != null && { fontSize: 'inherit' }),
+  };
+  return {
+    width: '100%',
+    maxWidth: '100%',
+    boxSizing: 'border-box',
+    px: 0.5,
+    minHeight: 20,
+    display: 'flex',
+    alignItems: 'center',
+    overflow: 'hidden',
+    height: contentHeight,
+    maxHeight: contentHeight,
+    ...(fontSize != null && { fontSize }),
+    '& .MuiInputBase-root': baseInputSx,
+    '& .MuiInputBase-input': filterInputHeight ? inputPadding : {},
+  };
+}

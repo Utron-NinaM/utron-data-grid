@@ -13,9 +13,8 @@ import {
   operatorIconBoxSx,
   getOperatorMenuItemBoxSx,
   operatorMenuItemLabelSx,
-} from '../../utils/filterBoxStyles';
-
-const DEFAULT_OPERATOR_FONT_SIZE = 13;
+} from '../filterBoxStyles';
+import { DEFAULT_FONT_SIZE } from '../../constants';
 
 export function OperatorDropdown({ value, onChange, operatorMap }) {
   const ctx = useContext(DataGridStableContext);
@@ -24,7 +23,7 @@ export function OperatorDropdown({ value, onChange, operatorMap }) {
   const [anchor, setAnchor] = useState(null);
   const defaultOperator = operatorMap?.includes(OPERATOR_CONTAINS) ? OPERATOR_CONTAINS : OPERATOR_EQUALS;
   const operator = value?.operator ?? defaultOperator;
-  const fontSize = ctx?.fontSize ?? DEFAULT_OPERATOR_FONT_SIZE;
+  const fontSize = ctx?.fontSize ?? DEFAULT_FONT_SIZE;
 
   const renderOperator = (op) => <FontAwesomeIcon icon={OPERATOR_ICONS[op]} fontSize="small" />;
 

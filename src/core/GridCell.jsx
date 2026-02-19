@@ -6,7 +6,34 @@ import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataG
 import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
 import { getOptionLabel } from '../utils/optionUtils';
 import { DIRECTION_LTR } from '../config/schema';
-import { truncationSx, cellContentWrapperSx } from './coreStyles';
+import { DEFAULT_FONT_SIZE } from '../constants';
+import { truncationSx , cellContentWrapperSx} from './coreStyles';
+
+/**
+ * @param {*} displayValue
+ * @param {*} value
+ * @param {boolean} isEditing
+ * @param {React.ReactNode} editor
+ * @returns {string}
+ */
+export function getCellTooltipText(displayValue, value, isEditing, editor) {
+  if (isEditing && editor != null) return '';
+  const str = String(displayValue ?? '');
+  if (str !== '[object Object]') return str;
+  if (value != null && typeof value === 'object') {
+    const vals = Object.values(value);
+    if (vals.length === 1) {
+      const v = vals[0];
+      if (v != null && (typeof v === 'string' || typeof v === 'number')) return String(v);
+    }
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return str;
+    }
+  }
+  return str;
+}
 
 /**
  * @param {Object} props
@@ -26,7 +53,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
 
   const align = columnAlignMap?.get(column.field) ?? (column.align ?? ALIGN_LEFT);
   const width = columnWidthMap?.get(column.field);
-  
+
   const sx = useMemo(() => {
     const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : column.cellStyle;
     const finalSx = {
@@ -34,13 +61,13 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
       paddingRight: '4px',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      ...(width != null && { width: `${width}px` }),      
+      ...(width != null && { width: `${width}px` }),
       ...cellStyle,
       ...(hasError && { border: '1px solid', borderColor: 'error.light' }),
-    };    
+    };
     return finalSx;
   }, [hasError, column, value, row, width]);
-  
+
   const displayValue = useMemo(() => {
     if (isEditing && editor != null) return null;
     if (column.render) return column.render(value, row);
@@ -62,10 +89,10 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
     return String(value ?? '');
   }, [isEditing, editor, column, value, row, direction, ctx?.listColumnOptionMaps]);
 
-  const tooltipText = useMemo(() => {
-    if (isEditing && editor != null) return '';    
-    return String(displayValue ?? '');
-  }, [displayValue, isEditing, editor, value]);
+  const tooltipText = useMemo(
+    () => getCellTooltipText(displayValue, value, isEditing, editor),
+    [displayValue, isEditing, editor, value]
+  );
 
   const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
   const cellContent = useMemo(() => {
@@ -84,7 +111,8 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
       : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
 
     return (
-      <Tooltip title={tooltipText} arrow PopperProps={popperProps} slotProps={{ tooltip: { sx: { fontSize: `${ctx?.fontSize ?? 13}px` } } }}>
+      <Tooltip title={tooltipText} arrow PopperProps={popperProps} placement="top"
+        slotProps={{ tooltip: { sx: { fontSize: `${ctx?.fontSize ?? DEFAULT_FONT_SIZE}px` } } }}>
         <Box component="span" sx={cellContentWrapperSx}>
           {content}
         </Box>

@@ -3,6 +3,7 @@ import { Box, Select, MenuItem, Typography } from '@mui/material';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { PaginationIcons } from './PaginationIcons';
+import { DEFAULT_FONT_SIZE } from '../constants';
 
 const getBoxSx = (fontSize) => {
   return {
@@ -31,7 +32,7 @@ export function PaginationBar({
 }) {
   const t = useTranslations();
   const ctx = useContext(DataGridStableContext);
-  const fontSize = ctx?.fontSize ?? 13;
+  const fontSize = ctx?.fontSize ?? DEFAULT_FONT_SIZE;
   const totalPages = Math.max(1, Math.ceil(totalRows / pageSize));
   const from = totalRows === 0 ? 0 : page * pageSize + 1;
   const to = Math.min((page + 1) * pageSize, totalRows);

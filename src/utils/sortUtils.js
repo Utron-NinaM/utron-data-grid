@@ -1,6 +1,7 @@
 import { SORT_ORDER_ASC, SORT_ORDER_DESC } from '../config/schema';
+import { STORAGE_KEY_PREFIX } from '../constants';
 
-const SORT_STORAGE_KEY_PREFIX = 'utron-datagrid-sort-';
+export const SORT_STORAGE_KEY_PREFIX = `${STORAGE_KEY_PREFIX}-sort-`;
 
 /**
  * Load persisted sort model from localStorage. Returns only entries for known column fields with valid order.

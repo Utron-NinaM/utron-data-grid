@@ -25,7 +25,7 @@ import {
   getOperatorWrapperSx,
   getToSlotWrapperSx,
   headerClearButtonSx,
-} from '../utils/filterBoxStyles';
+} from './filterBoxStyles';
 
 /**
  * Header combo slot: clear filter button when column has active filter. Renders next to column label.

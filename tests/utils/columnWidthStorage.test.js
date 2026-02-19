@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getStoredColumnWidthState, saveColumnWidthState } from '../../src/utils/columnWidthStorage';
 
-const STORAGE_KEY_PREFIX = 'utron-datagrid-column-widths-';
-
 describe('getStoredColumnWidthState', () => {
   let getItemSpy;
 

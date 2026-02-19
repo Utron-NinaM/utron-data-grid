@@ -20,11 +20,12 @@ import {
   OPERATOR_PERIOD,
   DEFAULT_FIELD_TYPE,
 } from '../config/schema';
+import { STORAGE_KEY_PREFIX } from '../constants';
 import dayjs from 'dayjs';
 
 export const FILTER_DEBOUNCE_MS = 200;
 
-const FILTER_STORAGE_KEY_PREFIX = 'utron-datagrid-filters-';
+export const FILTER_STORAGE_KEY_PREFIX = `${STORAGE_KEY_PREFIX}-filters-`;
 
 /**
  * Load persisted filter model from localStorage. Returns only entries for known column fields.

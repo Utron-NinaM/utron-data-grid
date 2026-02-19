@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useDataGrid } from '../../src/DataGrid/useDataGrid';
-import { OPERATOR_IN_RANGE } from '../../src/config/schema';
+import { OPERATOR_CONTAINS, OPERATOR_IN_RANGE, SORT_ORDER_ASC, SORT_ORDER_DESC } from '../../src/config/schema';
 
 vi.mock('lodash/debounce', () => ({
   default: (fn) => {
@@ -86,13 +86,13 @@ describe('useDataGrid', () => {
       act(() => {
         result.current.handleSort('score', false);
       });
-      expect(result.current.sortModel).toEqual([{ field: 'score', order: 'asc' }]);
-      expect(onSortChange).toHaveBeenCalledWith([{ field: 'score', order: 'asc' }]);
+      expect(result.current.sortModel).toEqual([{ field: 'score', order: SORT_ORDER_ASC }]);
+      expect(onSortChange).toHaveBeenCalledWith([{ field: 'score', order: SORT_ORDER_ASC }]);
 
       act(() => {
         result.current.handleSort('score', false);
       });
-      expect(result.current.sortModel).toEqual([{ field: 'score', order: 'desc' }]);
+      expect(result.current.sortModel).toEqual([{ field: 'score', order: SORT_ORDER_DESC }]);
 
       act(() => {
         result.current.handleSort('score', false);
@@ -115,20 +115,20 @@ describe('useDataGrid', () => {
         result.current.handleSort('score', true);
       });
       expect(result.current.sortModel).toEqual([
-        { field: 'name', order: 'asc' },
-        { field: 'score', order: 'asc' },
+        { field: 'name', order: SORT_ORDER_ASC },
+        { field: 'score', order: SORT_ORDER_ASC },
       ]);
       act(() => {
         result.current.handleSort('score', true);
       });
       expect(result.current.sortModel).toEqual([
-        { field: 'name', order: 'asc' },
-        { field: 'score', order: 'desc' },
+        { field: 'name', order: SORT_ORDER_ASC },
+        { field: 'score', order: SORT_ORDER_DESC },
       ]);
       act(() => {
         result.current.handleSort('score', true);
       });
-      expect(result.current.sortModel).toEqual([{ field: 'name', order: 'asc' }]);
+      expect(result.current.sortModel).toEqual([{ field: 'name', order: SORT_ORDER_ASC }]);
     });
 
     it('resets page to 0 when sort changes', () => {
@@ -171,11 +171,11 @@ describe('useDataGrid', () => {
         result.current.handlePageChange(1);
       });
       act(() => {
-        result.current.handleFilterChange('name', { value: 'A', operator: 'contains' });
+        result.current.handleFilterChange('name', { value: 'A', operator: OPERATOR_CONTAINS });
       });
-      expect(result.current.filterModel).toEqual({ name: { value: 'A', operator: 'contains' } });
+      expect(result.current.filterModel).toEqual({ name: { value: 'A', operator: OPERATOR_CONTAINS } });
       expect(result.current.page).toBe(0);
-      expect(onFilterChange).toHaveBeenCalledWith({ name: { value: 'A', operator: 'contains' } });
+      expect(onFilterChange).toHaveBeenCalledWith({ name: { value: 'A', operator: OPERATOR_CONTAINS } });
       expect(onPageChange).toHaveBeenCalledWith(0);
     });
 

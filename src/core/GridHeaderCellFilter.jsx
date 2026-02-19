@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from 'react';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { TableCell, Box } from '@mui/material';
 import { ALIGN_LEFT } from '../config/schema';
-import { getFilterRowBoxSx } from '../utils/filterBoxStyles';
+import { getFilterRowBoxSx } from '../filters/filterBoxStyles';
 
 /**
  * Filter or "to" row cell: full width slot with consistent padding/alignment.

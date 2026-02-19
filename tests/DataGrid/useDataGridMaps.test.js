@@ -1,7 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useDataGridMaps } from '../../src/DataGrid/useDataGridMaps';
-import { DIRECTION_RTL, FILTER_TYPE_NONE, FILTER_TYPE_NUMBER, FILTER_TYPE_TEXT } from '../../src/config/schema';
+import {
+  ALIGN_CENTER,
+  ALIGN_LEFT,
+  ALIGN_RIGHT,
+  DIRECTION_RTL,
+  FILTER_TYPE_NONE,
+  FILTER_TYPE_NUMBER,
+  FILTER_TYPE_TEXT,
+  SORT_ORDER_ASC,
+  SORT_ORDER_DESC,
+} from '../../src/config/schema';
 import { MIN_WIDTH_DEFAULT_PX } from '../../src/utils/columnWidthUtils';
 
 describe('useDataGridMaps', () => {
@@ -45,8 +55,8 @@ describe('useDataGridMaps', () => {
 
     it('handles sortModel with invalid fields not in columns', () => {
       const sortModel = [
-        { field: 'nonexistent', order: 'asc' },
-        { field: 'a', order: 'desc' },
+        { field: 'nonexistent', order: SORT_ORDER_ASC },
+        { field: 'a', order: SORT_ORDER_DESC },
       ];
       const { result } = renderHook(useDataGridMaps, {
         initialProps: {
@@ -65,8 +75,8 @@ describe('useDataGridMaps', () => {
 
     it('handles sortModel with duplicate fields', () => {
       const sortModel = [
-        { field: 'a', order: 'asc' },
-        { field: 'a', order: 'desc' },
+        { field: 'a', order: SORT_ORDER_ASC },
+        { field: 'a', order: SORT_ORDER_DESC },
       ];
       const { result } = renderHook(useDataGridMaps, {
         initialProps: {
@@ -80,13 +90,13 @@ describe('useDataGridMaps', () => {
       });
       // Last occurrence should win
       expect(result.current.sortOrderIndexMap.get('a')).toBe(2);
-      expect(result.current.columnSortDirMap.get('a')).toBe('desc');
+      expect(result.current.columnSortDirMap.get('a')).toBe(SORT_ORDER_DESC);
     });
 
     it('maps field to 1-based sort index for multi-column sort', () => {
       const sortModel = [
-        { field: 'a', order: 'asc' },
-        { field: 'b', order: 'desc' },
+        { field: 'a', order: SORT_ORDER_ASC },
+        { field: 'b', order: SORT_ORDER_DESC },
       ];
       const { result } = renderHook(useDataGridMaps, {
         initialProps: {
@@ -106,8 +116,8 @@ describe('useDataGridMaps', () => {
   describe('columnSortDirMap', () => {
     it('maps field to order for each sorted column', () => {
       const sortModel = [
-        { field: 'a', order: 'asc' },
-        { field: 'b', order: 'desc' },
+        { field: 'a', order: SORT_ORDER_ASC },
+        { field: 'b', order: SORT_ORDER_DESC },
       ];
       const { result } = renderHook(useDataGridMaps, {
         initialProps: {
@@ -119,14 +129,14 @@ describe('useDataGridMaps', () => {
           getRowId: defaultGetRowId,
         },
       });
-      expect(result.current.columnSortDirMap.get('a')).toBe('asc');
-      expect(result.current.columnSortDirMap.get('b')).toBe('desc');
+      expect(result.current.columnSortDirMap.get('a')).toBe(SORT_ORDER_ASC);
+      expect(result.current.columnSortDirMap.get('b')).toBe(SORT_ORDER_DESC);
     });
   });
 
   describe('columnAlignMap', () => {
     it('uses column align when provided', () => {
-      const columns = [{ field: 'a', align: 'center' }, { field: 'b', headerName: 'B' }];
+      const columns = [{ field: 'a', align: ALIGN_CENTER }, { field: 'b', headerName: 'B' }];
       const { result } = renderHook(useDataGridMaps, {
         initialProps: {
           columns,
@@ -137,7 +147,7 @@ describe('useDataGridMaps', () => {
           getRowId: defaultGetRowId,
         },
       });
-      expect(result.current.columnAlignMap.get('a')).toBe('center');
+      expect(result.current.columnAlignMap.get('a')).toBe(ALIGN_CENTER);
     });
 
     it('handles empty columns array', () => {
@@ -168,7 +178,7 @@ describe('useDataGridMaps', () => {
       });
       // Column without field should still be processed (field will be undefined)
       expect(result.current.columnAlignMap.has(undefined)).toBe(true);
-      expect(result.current.columnAlignMap.get('b')).toBe('left');
+      expect(result.current.columnAlignMap.get('b')).toBe(ALIGN_LEFT);
     });
 
     it('defaults to left when direction is ltr and no align', () => {
@@ -182,8 +192,8 @@ describe('useDataGridMaps', () => {
           getRowId: defaultGetRowId,
         },
       });
-      expect(result.current.columnAlignMap.get('a')).toBe('left');
-      expect(result.current.columnAlignMap.get('b')).toBe('left');
+      expect(result.current.columnAlignMap.get('a')).toBe(ALIGN_LEFT);
+      expect(result.current.columnAlignMap.get('b')).toBe(ALIGN_LEFT);
     });
 
     it('defaults to right when direction is RTL and no align', () => {
@@ -197,8 +207,8 @@ describe('useDataGridMaps', () => {
           getRowId: defaultGetRowId,
         },
       });
-      expect(result.current.columnAlignMap.get('a')).toBe('right');
-      expect(result.current.columnAlignMap.get('b')).toBe('right');
+      expect(result.current.columnAlignMap.get('a')).toBe(ALIGN_RIGHT);
+      expect(result.current.columnAlignMap.get('b')).toBe(ALIGN_RIGHT);
     });
   });
 

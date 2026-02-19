@@ -1,4 +1,6 @@
-const COLUMN_WIDTH_STORAGE_KEY_PREFIX = 'utron-datagrid-column-widths-';
+import { STORAGE_KEY_PREFIX } from '../constants';
+
+export const COLUMN_WIDTH_STORAGE_KEY_PREFIX = `${STORAGE_KEY_PREFIX}-column-widths-`;
 
 /**
  * Load persisted column width state from localStorage. Returns only entries for known column fields with valid positive widths.

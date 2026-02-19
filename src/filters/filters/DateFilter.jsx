@@ -14,7 +14,7 @@ import {
   filterInputFlexSx,
   filterInputFlexSxNarrow,
   filterInputFullWidthSx,
-} from '../../utils/filterBoxStyles';
+} from '../filterBoxStyles';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
 import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN, OPERATOR_PERIOD, OPERATOR_IN_RANGE, DIRECTION_LTR } from '../../config/schema';

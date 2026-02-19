@@ -10,7 +10,8 @@ import {
   filterRowWrapperSxNoPadding,
   getListFilterAutocompleteInputSx,
   getListFilterAutocompleteSx,
-} from '../../utils/filterBoxStyles';
+} from '../filterBoxStyles';
+import { MAX_LIST_FILTER_INPUT_LENGTH } from '../../constants';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -69,7 +70,7 @@ export function ListFilter({ value, onChange, options }) {
         renderInput={(params) => (
           <TextField
             {...params}
-            inputProps={{ ...params.inputProps, maxLength: 200, dir: direction }}
+            inputProps={{ ...params.inputProps, maxLength: MAX_LIST_FILTER_INPUT_LENGTH, dir: direction }}
             sx={getListFilterAutocompleteInputSx(isRtl)}
           />
         )}
@@ -80,7 +81,7 @@ export function ListFilter({ value, onChange, options }) {
             sx: { minWidth: 'max-content', direction },            
           },
           listbox: {
-            sx: { direction },
+            sx: { direction, px: 1 },
           },
         }}
       />

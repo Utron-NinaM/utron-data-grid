@@ -1,8 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { applySort, getStoredSortModel, saveSortModel } from '../../src/utils/sortUtils';
+import { applySort, getStoredSortModel, saveSortModel, SORT_STORAGE_KEY_PREFIX } from '../../src/utils/sortUtils';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC } from '../../src/config/schema';
-
-const SORT_STORAGE_KEY_PREFIX = 'utron-datagrid-sort-';
 
 describe('applySort', () => {
   describe('no sort', () => {
@@ -232,7 +230,7 @@ describe('getStoredSortModel', () => {
   it('filters out entries with invalid order', () => {
     const columns = [{ field: 'a' }, { field: 'b' }];
     getItemSpy.mockReturnValue(JSON.stringify([
-      { field: 'a', order: 'asc' },
+      { field: 'a', order: SORT_ORDER_ASC },
       { field: 'b', order: 'invalid' },
     ]));
     expect(getStoredSortModel('myGrid', columns)).toEqual([

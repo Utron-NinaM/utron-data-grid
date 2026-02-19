@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { NumericTextField } from './NumericInput';
-import { filterRowWrapperSx, filterInputFlexSx } from '../../utils/filterBoxStyles';
+import { filterRowWrapperSx, filterInputFlexSx } from '../filterBoxStyles';
 
 /** Value input (from only). "To" is rendered in separate header row when inRange. */
 export function NumberFilterInputs({ value, onChange }) {

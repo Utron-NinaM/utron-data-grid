@@ -1,7 +1,7 @@
 import React from 'react';
 import { TextField } from '@mui/material';
+import { MAX_NUMBER_INPUT_LENGTH } from '../../constants';
 
-const MAX_INPUT_LENGTH = 50;
 const NUMBER_INPUT_REGEX = /^-?\d*\.?\d*$/;
 const INTEGER_INPUT_REGEX = /^\d*$/;
 
@@ -26,7 +26,7 @@ export function NumericTextField({
       type="text"
       value={value}
       onChange={handleChange}
-      inputProps={{ maxLength: MAX_INPUT_LENGTH, ...inputProps }}
+      inputProps={{ maxLength: MAX_NUMBER_INPUT_LENGTH, ...inputProps }}
     />
   );
 }

@@ -1,9 +1,9 @@
 import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Table, TableBody, TableRow } from '@mui/material';
-import { GridCell } from '../../src/core/GridCell';
+import { GridCell, getCellTooltipText } from '../../src/core/GridCell';
 import { DataGridStableContext } from '../../src/DataGrid/DataGridContext';
 import { ALIGN_LEFT, ALIGN_RIGHT, ALIGN_CENTER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
 import dayjs from 'dayjs';
@@ -605,6 +605,34 @@ describe('GridCell Component', () => {
       const contentBox = cell.querySelector('div[class*="MuiBox"]');
       expect(contentBox).toBeInTheDocument();
     });
+
+    it('should render with object value (cell shows [object Object])', () => {
+      renderWithContext(
+        <GridCell value={{ 1: 'red' }} row={mockRow} column={defaultColumn} />
+      );
+      expect(screen.getByRole('cell')).toBeInTheDocument();
+      expect(screen.getByText('[object Object]')).toBeInTheDocument();
+    });
+  });
+});
+
+describe('getCellTooltipText', () => {
+  it('returns single primitive value for single-key object (e.g. { 1: "red" } -> "red")', () => {
+    expect(getCellTooltipText('[object Object]', { 1: 'red' }, false, null)).toBe('red');
+  });
+
+  it('returns JSON string for multi-key object', () => {
+    const obj = { foo: 'bar', id: 1 };
+    expect(getCellTooltipText('[object Object]', obj, false, null)).toBe(JSON.stringify(obj));
+  });
+
+  it('returns displayValue when not [object Object]', () => {
+    expect(getCellTooltipText('hello', null, false, null)).toBe('hello');
+    expect(getCellTooltipText(42, 42, false, null)).toBe('42');
+  });
+
+  it('returns empty string when editing with editor', () => {
+    expect(getCellTooltipText('x', 'x', true, <span />)).toBe('');
   });
 
 });

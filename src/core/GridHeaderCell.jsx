@@ -2,7 +2,7 @@ import React, { useContext, useMemo, useRef, useEffect } from 'react';
 import { TableCell, TableSortLabel, Box, Tooltip } from '@mui/material';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, DIRECTION_RTL } from '../config/schema';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
-import { getFilterRowBoxSx } from '../utils/filterBoxStyles';
+import { getFilterRowBoxSx } from '../filters/filterBoxStyles';
 import { getEffectiveMinWidth } from '../utils/columnWidthUtils';
 import {
   headerCellBaseSx,

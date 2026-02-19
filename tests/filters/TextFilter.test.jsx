@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { TextFilter } from '../../src/filters/filters/TextFilter';
+import { MAX_TEXT_LENGTH } from '../../src/constants';
 
 describe('TextFilter Component', () => {
   const defaultProps = {
@@ -89,7 +90,7 @@ describe('TextFilter Component', () => {
       // onChange should be called with truncated value
       expect(onChange).toHaveBeenCalled();
       const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1];
-      expect(lastCall[0].length).toBeLessThanOrEqual(500);
+      expect(lastCall[0].length).toBeLessThanOrEqual(MAX_TEXT_LENGTH);
     });
 
     it('should truncate value if it exceeds max length', () => {
@@ -97,7 +98,7 @@ describe('TextFilter Component', () => {
       renderWithTheme({ value: longValue });
       
       const input = screen.getByRole('textbox');
-      expect(input.value.length).toBeLessThanOrEqual(500);
+      expect(input.value.length).toBeLessThanOrEqual(MAX_TEXT_LENGTH);
     });
 
     it('should allow values within max length', () => {
@@ -116,7 +117,7 @@ describe('TextFilter Component', () => {
       renderWithTheme();
       
       const input = screen.getByRole('textbox');
-      expect(input).toHaveAttribute('maxLength', '500');
+      expect(input).toHaveAttribute('maxLength', String(MAX_TEXT_LENGTH));
     });
   });
 

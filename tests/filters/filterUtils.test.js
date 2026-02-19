@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   FILTER_DEBOUNCE_MS,
+  FILTER_STORAGE_KEY_PREFIX,
   getStoredFilterModel,
   saveFilterModel,
   applyFilters,
@@ -27,8 +28,6 @@ import {
   OPERATOR_ENDS_WITH,
   OPERATOR_PERIOD,
 } from '../../src/config/schema';
-
-const STORAGE_KEY_PREFIX = 'utron-datagrid-filters-';
 
 describe('FILTER_DEBOUNCE_MS', () => {
   it('equals 200', () => {
@@ -129,7 +128,7 @@ describe('getStoredFilterModel', () => {
   it('calls getItem with key utron-datagrid-filters- + gridId', () => {
     getItemSpy.mockReturnValue(null);
     getStoredFilterModel('abc', []);
-    expect(getItemSpy).toHaveBeenCalledWith(STORAGE_KEY_PREFIX + 'abc');
+    expect(getItemSpy).toHaveBeenCalledWith(FILTER_STORAGE_KEY_PREFIX + 'abc');
   });
 });
 
@@ -175,13 +174,13 @@ describe('saveFilterModel', () => {
   it('calls setItem with key and stringified model when gridId and localStorage present', () => {
     const model = { name: { operator: 'operatorEquals', value: 'x' } };
     saveFilterModel('myGrid', model);
-    expect(setItemSpy).toHaveBeenCalledWith(STORAGE_KEY_PREFIX + 'myGrid', JSON.stringify(model));
+    expect(setItemSpy).toHaveBeenCalledWith(FILTER_STORAGE_KEY_PREFIX + 'myGrid', JSON.stringify(model));
   });
 
   it('persists list filter by keys (value array of keys)', () => {
     const model = { status: { value: ['published', 'draft'] } };
     saveFilterModel('myGrid', model);
-    expect(setItemSpy).toHaveBeenCalledWith(STORAGE_KEY_PREFIX + 'myGrid', JSON.stringify(model));
+    expect(setItemSpy).toHaveBeenCalledWith(FILTER_STORAGE_KEY_PREFIX + 'myGrid', JSON.stringify(model));
   });
 });
 

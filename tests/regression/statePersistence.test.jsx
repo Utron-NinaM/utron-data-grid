@@ -2,9 +2,10 @@ import React from 'react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { DataGrid } from '../../src/DataGrid/DataGrid';
-import { getStoredSortModel, saveSortModel } from '../../src/utils/sortUtils';
-import { getStoredFilterModel, saveFilterModel } from '../../src/filters/filterUtils';
-import { getStoredColumnWidthState, saveColumnWidthState } from '../../src/utils/columnWidthStorage';
+import { getStoredSortModel, saveSortModel, SORT_STORAGE_KEY_PREFIX } from '../../src/utils/sortUtils';
+import { getStoredFilterModel, saveFilterModel, FILTER_STORAGE_KEY_PREFIX } from '../../src/filters/filterUtils';
+import { getStoredColumnWidthState, saveColumnWidthState, COLUMN_WIDTH_STORAGE_KEY_PREFIX } from '../../src/utils/columnWidthStorage';
+import { SORT_ORDER_ASC, SORT_ORDER_DESC } from '../../src/config/schema';
 
 describe('State Persistence Regression Test', () => {
   const columns = [
@@ -62,7 +63,7 @@ describe('State Persistence Regression Test', () => {
       const nameHeader1 = screen.getByText('Name');
       fireEvent.click(nameHeader1);
       await waitFor(() => {
-        const stored = localStorage.getItem('utron-datagrid-sort-' + gridId1);
+        const stored = localStorage.getItem(SORT_STORAGE_KEY_PREFIX + gridId1);
         expect(stored).not.toBeNull();
       });
 
@@ -81,7 +82,7 @@ describe('State Persistence Regression Test', () => {
       const ageHeader2 = screen.getByText('Age');
       fireEvent.click(ageHeader2);
       await waitFor(() => {
-        const stored = localStorage.getItem('utron-datagrid-sort-' + gridId2);
+        const stored = localStorage.getItem(SORT_STORAGE_KEY_PREFIX + gridId2);
         expect(stored).not.toBeNull();
       });
 
@@ -118,7 +119,7 @@ describe('State Persistence Regression Test', () => {
         fireEvent.change(nameInput1, { target: { value: 'Alice' } });
         // Wait for debounced filter to be applied and saved (200ms debounce + buffer)
         await waitFor(() => {
-          const stored = localStorage.getItem('utron-datagrid-filters-' + gridId1);
+          const stored = localStorage.getItem(FILTER_STORAGE_KEY_PREFIX + gridId1);
           expect(stored).not.toBeNull();
           const parsed = JSON.parse(stored);
           expect(parsed.name).toBeDefined();
@@ -131,7 +132,7 @@ describe('State Persistence Regression Test', () => {
       }
 
       // Verify filter1 is saved before unmounting - check localStorage directly first
-      const storedRaw = localStorage.getItem('utron-datagrid-filters-' + gridId1);
+      const storedRaw = localStorage.getItem(FILTER_STORAGE_KEY_PREFIX + gridId1);
       expect(storedRaw).not.toBeNull();
       const storedParsed = JSON.parse(storedRaw);
       expect(storedParsed.name).toBeDefined();
@@ -166,7 +167,7 @@ describe('State Persistence Regression Test', () => {
         fireEvent.change(ageInput2, { target: { value: '30' } });
         // Wait for debounced filter to be applied and saved (200ms debounce + buffer)
         await waitFor(() => {
-          const stored = localStorage.getItem('utron-datagrid-filters-' + gridId2);
+          const stored = localStorage.getItem(FILTER_STORAGE_KEY_PREFIX + gridId2);
           expect(stored).not.toBeNull();
           const parsed = JSON.parse(stored);
           expect(parsed.age).toBeDefined();
@@ -193,8 +194,8 @@ describe('State Persistence Regression Test', () => {
       const gridId2 = 'grid-restore-2';
 
       // Pre-populate localStorage for both grids
-      saveSortModel(gridId1, [{ field: 'name', order: 'asc' }]);
-      saveSortModel(gridId2, [{ field: 'age', order: 'desc' }]);
+      saveSortModel(gridId1, [{ field: 'name', order: SORT_ORDER_ASC }]);
+      saveSortModel(gridId2, [{ field: 'age', order: SORT_ORDER_DESC }]);
       saveFilterModel(gridId1, { name: { operator: 'operatorContains', value: 'Alice' } });
       saveFilterModel(gridId2, { age: { operator: 'operatorGreaterThan', value: 28 } });
 
@@ -239,7 +240,7 @@ describe('State Persistence Regression Test', () => {
       const gridId = 'test-grid-invalid-sort-json';
       
       // Set invalid JSON
-      localStorage.setItem('utron-datagrid-sort-' + gridId, 'invalid json {');
+      localStorage.setItem(SORT_STORAGE_KEY_PREFIX + gridId, 'invalid json {');
 
       render(
         <DataGrid
@@ -263,7 +264,7 @@ describe('State Persistence Regression Test', () => {
       const gridId = 'test-grid-invalid-filter-json';
       
       // Set invalid JSON
-      localStorage.setItem('utron-datagrid-filters-' + gridId, 'invalid json {');
+      localStorage.setItem(FILTER_STORAGE_KEY_PREFIX + gridId, 'invalid json {');
 
       render(
         <DataGrid
@@ -287,7 +288,7 @@ describe('State Persistence Regression Test', () => {
       const gridId = 'test-grid-invalid-sort-type';
       
       // Set non-array data
-      localStorage.setItem('utron-datagrid-sort-' + gridId, JSON.stringify({ field: 'name', order: 'asc' }));
+      localStorage.setItem(SORT_STORAGE_KEY_PREFIX + gridId, JSON.stringify({ field: 'name', order: SORT_ORDER_ASC }));
 
       render(
         <DataGrid
@@ -310,7 +311,7 @@ describe('State Persistence Regression Test', () => {
       const gridId = 'test-grid-invalid-filter-type';
       
       // Set non-object data (array)
-      localStorage.setItem('utron-datagrid-filters-' + gridId, JSON.stringify([{ name: 'Alice' }]));
+      localStorage.setItem(FILTER_STORAGE_KEY_PREFIX + gridId, JSON.stringify([{ name: 'Alice' }]));
 
       render(
         <DataGrid
@@ -333,9 +334,9 @@ describe('State Persistence Regression Test', () => {
       const gridId = 'test-grid-invalid-sort-field';
       
       // Set sort with unknown field
-      localStorage.setItem('utron-datagrid-sort-' + gridId, JSON.stringify([
-        { field: 'unknownField', order: 'asc' },
-        { field: 'name', order: 'asc' },
+      localStorage.setItem(SORT_STORAGE_KEY_PREFIX + gridId, JSON.stringify([
+        { field: 'unknownField', order: SORT_ORDER_ASC },
+        { field: 'name', order: SORT_ORDER_ASC },
       ]));
 
       render(
@@ -358,7 +359,7 @@ describe('State Persistence Regression Test', () => {
       const gridId = 'test-grid-invalid-filter-field';
       
       // Set filter with unknown field
-      localStorage.setItem('utron-datagrid-filters-' + gridId, JSON.stringify({
+      localStorage.setItem(FILTER_STORAGE_KEY_PREFIX + gridId, JSON.stringify({
         unknownField: { operator: 'operatorContains', value: 'test' },
         name: { operator: 'operatorContains', value: 'Alice' },
       }));
@@ -383,9 +384,9 @@ describe('State Persistence Regression Test', () => {
       const gridId = 'test-grid-invalid-sort-order';
       
       // Set sort with invalid order
-      localStorage.setItem('utron-datagrid-sort-' + gridId, JSON.stringify([
+      localStorage.setItem(SORT_STORAGE_KEY_PREFIX + gridId, JSON.stringify([
         { field: 'name', order: 'invalid' },
-        { field: 'age', order: 'asc' },
+        { field: 'age', order: SORT_ORDER_ASC },
       ]));
 
       render(
@@ -408,8 +409,8 @@ describe('State Persistence Regression Test', () => {
       const gridId = 'test-grid-null-values';
       
       // Set null values
-      localStorage.setItem('utron-datagrid-sort-' + gridId, 'null');
-      localStorage.setItem('utron-datagrid-filters-' + gridId, 'null');
+      localStorage.setItem(SORT_STORAGE_KEY_PREFIX + gridId, 'null');
+      localStorage.setItem(FILTER_STORAGE_KEY_PREFIX + gridId, 'null');
 
       render(
         <DataGrid
@@ -432,7 +433,7 @@ describe('State Persistence Regression Test', () => {
 
     it('should handle invalid JSON in column width storage gracefully', () => {
       const gridId = 'test-grid-invalid-column-width-json';
-      localStorage.setItem('utron-datagrid-column-widths-' + gridId, 'invalid json {');
+      localStorage.setItem(COLUMN_WIDTH_STORAGE_KEY_PREFIX + gridId, 'invalid json {');
 
       render(
         <DataGrid
@@ -450,7 +451,7 @@ describe('State Persistence Regression Test', () => {
 
     it('should handle non-object column width data gracefully', () => {
       const gridId = 'test-grid-invalid-column-width-type';
-      localStorage.setItem('utron-datagrid-column-widths-' + gridId, JSON.stringify([100, 200]));
+      localStorage.setItem(COLUMN_WIDTH_STORAGE_KEY_PREFIX + gridId, JSON.stringify([100, 200]));
 
       render(
         <DataGrid

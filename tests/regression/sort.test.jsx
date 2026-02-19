@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { DataGrid } from '../../src/DataGrid/DataGrid';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC } from '../../src/config/schema';
+import { SORT_STORAGE_KEY_PREFIX } from '../../src/utils/sortUtils';
 
 describe('Sort Regression Tests', () => {
   const columns = [
@@ -332,7 +333,7 @@ describe('Sort Regression Tests', () => {
 
       // Verify localStorage was called
       expect(localStorage.setItem).toHaveBeenCalled();
-      const sortKey = `utron-datagrid-sort-${gridId}`;
+      const sortKey = SORT_STORAGE_KEY_PREFIX + gridId;
       const calls = localStorage.setItem.mock.calls.filter(call => call[0] === sortKey);
       expect(calls.length).toBeGreaterThan(0);
     });
@@ -342,7 +343,7 @@ describe('Sort Regression Tests', () => {
       const sortModel = [{ field: 'name', order: SORT_ORDER_ASC }];
       
       // Pre-populate localStorage
-      localStorage.setItem(`utron-datagrid-sort-${gridId}`, JSON.stringify(sortModel));
+      localStorage.setItem(SORT_STORAGE_KEY_PREFIX + gridId, JSON.stringify(sortModel));
 
       render(
         <DataGrid
@@ -393,7 +394,7 @@ describe('Sort Regression Tests', () => {
 
       // Verify localStorage contains multi-column sort
       expect(localStorage.setItem).toHaveBeenCalled();
-      const sortKey = `utron-datagrid-sort-${gridId}`;
+      const sortKey = SORT_STORAGE_KEY_PREFIX + gridId;
       const lastCall = localStorage.setItem.mock.calls
         .filter(call => call[0] === sortKey)
         .pop();

@@ -19,14 +19,13 @@ import {
   LOCALE_HE,
   LOCALE_EN,
 } from '../config/schema';
-
-const DEFAULT_EDITOR_FONT_SIZE = 13;
+import { DEFAULT_FONT_SIZE, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH } from '../constants';
 
 export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize) {
   const value = editValues[column.field];
   const type = column.type ?? DEFAULT_FIELD_TYPE;
   const format = getDateFormat(direction);
-  const fontSx = { fontSize: fontSize ?? DEFAULT_EDITOR_FONT_SIZE };
+  const fontSx = { fontSize: fontSize ?? DEFAULT_FONT_SIZE };
 
   switch (type) {
     case FIELD_TYPE_NUMBER:
@@ -37,7 +36,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           fullWidth
           value={value ?? ''}
           onChange={(e) => onChange(column.field, e.target.value === '' ? undefined : Number(e.target.value))}
-          inputProps={{ maxLength: 50 }}
+          inputProps={{ maxLength: MAX_NUMBER_INPUT_LENGTH }}
           sx={fontSx}
         />
       );
@@ -77,7 +76,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           fullWidth
           value={value ?? ''}
           onChange={(e) => onChange(column.field, e.target.value)}
-          inputProps={{ maxLength: 500 }}
+          inputProps={{ maxLength: MAX_TEXT_LENGTH }}
           sx={fontSx}
         />
       );
