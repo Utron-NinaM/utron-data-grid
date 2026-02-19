@@ -15,6 +15,7 @@ export const defaultTranslations = {
   filterNumber: 'Filter',
   filterDate: 'Filter',
   selectOption: 'Select',
+  filterFrom: 'From',
   filterTo: 'To',
 
   // Number/date operators
@@ -77,6 +78,7 @@ export const hebrewTranslations = {
   filterNumber: 'סינון',
   filterDate: 'סינון',
   selectOption: 'בחר',
+  filterFrom: 'מ',
   filterTo: 'עד',
 
   // Number/date operators

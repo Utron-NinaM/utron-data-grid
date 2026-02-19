@@ -7,7 +7,7 @@ import { slicePage } from '../pagination/paginationUtils';
 import { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } from '../filters/FilterBar';
 import { getEditor } from '../editors/CellEditors';
 import { defaultGridConfig } from '../config/defaultConfig';
-import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, DIRECTION_LTR, FIELD_TYPE_LIST } from '../config/schema';
+import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, OPERATOR_PERIOD, DIRECTION_LTR, FIELD_TYPE_LIST } from '../config/schema';
 import { getOptionMap } from '../utils/optionUtils';
 import { useDataGridMaps } from './useDataGridMaps';
 import { useDataGridEdit } from './useDataGridEdit';
@@ -311,7 +311,7 @@ export function useDataGrid(props) {
   );
 
   const getFilterToInputSlotForColumn = useCallback(
-    (col) => getFilterToInputSlot(col, filterModel, handleFilterChange, direction),
+    (col, translations, direction) => getFilterToInputSlot(col, filterModel, handleFilterChange, direction, translations),
     [filterModel, handleFilterChange, direction]
   );
 
@@ -427,7 +427,7 @@ export function useDataGrid(props) {
 
   const hasActiveRangeFilter = useMemo(() => {
     return Object.values(filterModel).some(
-      (state) => state?.operator === OPERATOR_IN_RANGE
+      (state) => state?.operator === OPERATOR_IN_RANGE || state?.operator === OPERATOR_PERIOD
     );
   }, [filterModel]);
 

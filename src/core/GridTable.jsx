@@ -48,7 +48,7 @@ function GridTableInner({
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
   const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
-    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions } = ctx;
+    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions, direction } = ctx;
 
   // Apply widths from columnWidthMap to col elements (skip column currently being resized to avoid overwriting drag width)
   useEffect(() => {
@@ -311,7 +311,7 @@ function GridTableInner({
                     <GridHeaderCellFilter
                       key={col.field}
                       column={col}
-                      slot={getFilterInputSlot(col, translations)}
+                      slot={getFilterInputSlot(col, translations, direction)}
 
                     />
                   ))}
@@ -337,7 +337,7 @@ function GridTableInner({
                     <GridHeaderCellFilter
                       key={col.field}
                       column={col}
-                      slot={getFilterToInputSlot(col)}
+                      slot={getFilterToInputSlot(col, translations, direction)}
 
                     />
                   ))}

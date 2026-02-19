@@ -143,8 +143,12 @@ function matchFilter(cellValue, state, type) {
         return val >= val1;
       case OPERATOR_LESS_OR_EQUAL:
         return val <= val1;
-      case OPERATOR_IN_RANGE:
-        return val2 != null && val >= Math.min(val1, val2) && val <= Math.max(val1, val2);
+      case OPERATOR_IN_RANGE: {
+        if (val1 != null && val2 != null) return val >= Math.min(val1, val2) && val <= Math.max(val1, val2);
+        if (val1 != null) return val >= val1;
+        if (val2 != null) return val <= val2;
+        return false;
+      }
       case OPERATOR_PERIOD: {
         const amount = Number(state.value);
         const periodUnit = state.periodUnit;

@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { DateFilterInputs, DateFilterToInput } from '../../src/filters/filters/DateFilter';
+import { DateFilterInputs, DateFilterToInput, DateFilterPeriodAmountInput } from '../../src/filters/filters/DateFilter';
 import { OPERATOR_IN_RANGE, OPERATOR_PERIOD, DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
 import dayjs from 'dayjs';
 
@@ -172,18 +172,17 @@ describe('DateFilter Component', () => {
     });
 
     describe('Test period operator mode', () => {
-      it('should render period inputs when operator is OPERATOR_PERIOD', () => {
+      it('should render only unit select when operator is OPERATOR_PERIOD (amount is on second row)', () => {
         renderWithTheme(
           <DateFilterInputs 
             {...defaultProps} 
             value={{ operator: OPERATOR_PERIOD, value: 5, periodUnit: 'days' }} 
           />
         );
-        
-        // Should render number input for period amount
-        const numberInput = screen.getByRole('spinbutton');
-        expect(numberInput).toBeInTheDocument();
-        expect(numberInput).toHaveValue(5);
+        const select = screen.getByRole('combobox');
+        expect(select).toBeInTheDocument();
+        expect(select).toHaveValue('days');
+        expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument();
       });
 
       it('should render unit selector for period', () => {
@@ -198,6 +197,20 @@ describe('DateFilter Component', () => {
         const select = screen.getByRole('combobox');
         expect(select).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('DateFilterPeriodAmountInput', () => {
+    it('should render number input for period amount (second row)', () => {
+      renderWithTheme(
+        <DateFilterPeriodAmountInput
+          value={{ operator: OPERATOR_PERIOD, value: 5, periodUnit: 'days' }}
+          onChange={vi.fn()}
+        />
+      );
+      const numberInput = screen.getByRole('spinbutton');
+      expect(numberInput).toBeInTheDocument();
+      expect(numberInput).toHaveValue(5);
     });
   });
 

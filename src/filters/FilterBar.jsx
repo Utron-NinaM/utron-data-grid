@@ -5,15 +5,15 @@ import { faFilterCircleXmark } from '../config/schema';
 import { useTranslations } from '../localization/useTranslations';
 import { TextFilter } from './filters/TextFilter';
 import { NumberFilterInputs, NumberFilterToInput } from './filters/NumberFilter';
-import { DateFilterInputs, DateFilterToInput } from './filters/DateFilter';
+import { DateFilterInputs, DateFilterToInput, DateFilterPeriodAmountInput } from './filters/DateFilter';
 import { ListFilter } from './filters/ListFilter';
 import { OperatorDropdown } from './filters/OperatorDropdown';
 import { isColumnFilterActive } from './filterUtils';
 import {
   DEFAULT_FIELD_TYPE,
   OPERATOR_IN_RANGE,
+  OPERATOR_PERIOD,
   OPERATOR_CONTAINS,
-  DIRECTION_LTR,
   NUMBER_OP_IDS,
   DATE_OP_IDS,
   TEXT_OP_IDS,
@@ -21,8 +21,21 @@ import {
   FILTER_TYPE_DATE,
   FILTER_TYPE_LIST,
   DIRECTION_RTL,
-} from '../config/schema';
+  DIRECTION_LTR,
+  } from '../config/schema';
 import { FILTER_OPERATOR_WIDTH_PX_WITH_PADDING } from '../utils/filterBoxStyles';
+
+
+const toSlotWrapperSx = (direction) => {
+  return {display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  minWidth: 0,
+  maxWidth: '100%',
+  paddingInlineStart: direction === DIRECTION_LTR ? `${FILTER_OPERATOR_WIDTH_PX_WITH_PADDING}px` : 0,
+  paddingInlineEnd: direction === DIRECTION_RTL ? `${FILTER_OPERATOR_WIDTH_PX_WITH_PADDING}px` : 0,
+};
+};
 
 /**
  * Header combo slot: clear filter button when column has active filter. Renders next to column label.
@@ -130,29 +143,22 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
 }
 
 /**
- * "To" input slot only (for in-range second header row). Returns null when column is not number/date or operator is not inRange.
+ * "To" input slot (in-range second row) or period amount slot (OPERATOR_PERIOD second row). Returns null when column is not number/date or operator is not inRange/period.
  */
-export function getFilterToInputSlot(column, filterModel, onFilterChange, direction = DIRECTION_LTR) {
+export function getFilterToInputSlot(column, filterModel, onFilterChange, direction) {
   const field = column.field;
   const state = filterModel?.[field];
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
 
   if (filterType === false) return null;
-  if (state?.operator !== OPERATOR_IN_RANGE) return null;
-
-  const toSlotWrapperSx = {
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    minWidth: 0,
-    maxWidth: '100%',
-    paddingInlineStart: `${FILTER_OPERATOR_WIDTH_PX_WITH_PADDING}px`,
-  };
+  const isDatePeriod = filterType === FILTER_TYPE_DATE && state?.operator === OPERATOR_PERIOD;
+  const isInRange = state?.operator === OPERATOR_IN_RANGE;
+  if (!isInRange && !isDatePeriod) return null;
 
   switch (filterType) {
     case FILTER_TYPE_NUMBER:
       return (
-        <Box sx={toSlotWrapperSx}>
+        <Box sx={toSlotWrapperSx(direction)}>
           <NumberFilterToInput
             value={state}
             onChange={(v) => onFilterChange(field, v)}
@@ -161,12 +167,20 @@ export function getFilterToInputSlot(column, filterModel, onFilterChange, direct
       );
     case FILTER_TYPE_DATE:
       return (
-        <Box sx={toSlotWrapperSx}>
-          <DateFilterToInput
-            value={state}
-            onChange={(v) => onFilterChange(field, v)}
-            direction={direction}
-          />
+        <Box sx={toSlotWrapperSx(direction)}>
+          {state?.operator === OPERATOR_PERIOD ? (
+            <DateFilterPeriodAmountInput
+              value={state}
+              onChange={(v) => onFilterChange(field, v)}
+              direction={direction}
+            />
+          ) : (
+            <DateFilterToInput
+              value={state}
+              onChange={(v) => onFilterChange(field, v)}
+              direction={direction}
+            />
+          )}
         </Box>
       );
     default:
