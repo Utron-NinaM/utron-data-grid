@@ -356,4 +356,80 @@ describe('useColumnLayout', () => {
       expect(result.current.totalWidth).toBeLessThanOrEqual(1000);
     });
   });
+
+  describe('reserveScrollbarWidth (avoids spurious horizontal scroll when vertical scroll appears)', () => {
+    it('should enable horizontal scroll when content exceeds container and reserveScrollbarWidth true', () => {
+      useContainerWidth.mockReturnValue(1000);
+      const columns = [
+        { field: 'col1', headerName: 'Col1', width: 600, filter: FILTER_TYPE_NONE },
+        { field: 'col2', headerName: 'Col2', width: 600, filter: FILTER_TYPE_NONE },
+      ];
+
+      const { result } = renderHook(() =>
+        useColumnLayout({
+          columns,
+          containerRef,
+          columnWidthState: new Map(),
+          reserveScrollbarWidth: true,
+        })
+      );
+
+      expect(result.current.enableHorizontalScroll).toBe(true);
+      expect(result.current.totalWidth).toBe(1200);
+    });
+
+    it('should enable horizontal scroll when content barely exceeds available width with reserveScrollbarWidth true', () => {
+      // Content fits in full container but would overflow when vertical scrollbar appears.
+      // With reserveScrollbarWidth: true, we subtract scrollbar space so enableHorizontalScroll is true.
+      // With reserveScrollbarWidth: false, we would get false (spurious horizontal scroll when vertical appears).
+      useContainerWidth.mockReturnValue(1000);
+      const columns = [
+        { field: 'col1', headerName: 'Col1', width: 500, filter: FILTER_TYPE_NONE },
+        { field: 'col2', headerName: 'Col2', width: 500, filter: FILTER_TYPE_NONE },
+      ];
+
+      const { result: resultReserve } = renderHook(() =>
+        useColumnLayout({
+          columns,
+          containerRef,
+          columnWidthState: new Map(),
+          reserveScrollbarWidth: true,
+        })
+      );
+      const { result: resultNoReserve } = renderHook(() =>
+        useColumnLayout({
+          columns,
+          containerRef,
+          columnWidthState: new Map(),
+          reserveScrollbarWidth: false,
+        })
+      );
+
+      // With reserve: available width reduced, 1000 > available => enableHorizontalScroll true
+      expect(resultReserve.current.enableHorizontalScroll).toBe(true);
+      expect(resultReserve.current.totalWidth).toBe(1000);
+      // Without reserve: 1000 <= 1000 => enableHorizontalScroll false (would cause spurious scroll when vertical bar appears)
+      expect(resultNoReserve.current.enableHorizontalScroll).toBe(false);
+    });
+
+    it('should disable horizontal scroll when content fits with reserveScrollbarWidth true', () => {
+      useContainerWidth.mockReturnValue(1000);
+      const columns = [
+        { field: 'col1', headerName: 'Col1', width: 400, filter: FILTER_TYPE_NONE },
+        { field: 'col2', headerName: 'Col2', width: 400, filter: FILTER_TYPE_NONE },
+      ];
+
+      const { result } = renderHook(() =>
+        useColumnLayout({
+          columns,
+          containerRef,
+          columnWidthState: new Map(),
+          reserveScrollbarWidth: true,
+        })
+      );
+
+      expect(result.current.enableHorizontalScroll).toBe(false);
+      expect(result.current.totalWidth).toBeLessThanOrEqual(1000);
+    });
+  });
 });

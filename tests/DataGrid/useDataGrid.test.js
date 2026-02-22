@@ -29,6 +29,17 @@ vi.mock('../../src/filters/filterUtils', async (importOriginal) => {
   };
 });
 
+const columnLayoutCapture = { lastArgs: null };
+vi.mock('../../src/DataGrid/useColumnLayout', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    useColumnLayout: (args) => {
+      columnLayoutCapture.lastArgs = args;
+      return actual.useColumnLayout(args);
+    },
+  };
+});
+
 const defaultRows = [
   { id: 1, name: 'Alice', score: 10 },
   { id: 2, name: 'Bob', score: 20 },
@@ -407,6 +418,56 @@ describe('useDataGrid', () => {
         getFilterInputSlot: expect.any(Function),
         getFilterToInputSlot: expect.any(Function),
       });
+    });
+  });
+
+  describe('reserveScrollbarWidth (avoids spurious horizontal scroll when vertical scroll appears)', () => {
+    beforeEach(() => {
+      columnLayoutCapture.lastArgs = null;
+    });
+
+    it('passes reserveScrollbarWidth: true to useColumnLayout when sx has height constraint (with or without pagination)', () => {
+      renderHook(useDataGrid, {
+        initialProps: {
+          rows: defaultRows,
+          columns: defaultColumns,
+          getRowId: defaultGetRowId,
+          pagination: false,
+          sx: { height: 400 },
+        },
+      });
+
+      expect(columnLayoutCapture.lastArgs).not.toBeNull();
+      expect(columnLayoutCapture.lastArgs.reserveScrollbarWidth).toBe(true);
+    });
+
+    it('passes reserveScrollbarWidth: true when sx has maxHeight and no pagination', () => {
+      renderHook(useDataGrid, {
+        initialProps: {
+          rows: defaultRows,
+          columns: defaultColumns,
+          getRowId: defaultGetRowId,
+          pagination: false,
+          sx: { maxHeight: 500 },
+        },
+      });
+
+      expect(columnLayoutCapture.lastArgs).not.toBeNull();
+      expect(columnLayoutCapture.lastArgs.reserveScrollbarWidth).toBe(true);
+    });
+
+    it('passes reserveScrollbarWidth: false when no height constraint', () => {
+      renderHook(useDataGrid, {
+        initialProps: {
+          rows: defaultRows,
+          columns: defaultColumns,
+          getRowId: defaultGetRowId,
+          sx: {},
+        },
+      });
+
+      expect(columnLayoutCapture.lastArgs).not.toBeNull();
+      expect(columnLayoutCapture.lastArgs.reserveScrollbarWidth).toBe(false);
     });
   });
 
