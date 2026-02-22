@@ -55,7 +55,7 @@ export function ListFilter({ value, onChange, options }) {
           const { key, ...restProps } = props;          
           return (
             <li key={key} {...restProps} style={{ direction, textAlign: isRtl ? 'right' : 'left', 
-                                                 paddingRight: 2, paddingLeft: 2, paddingTop: 0, paddingBottom: 0}}>             
+                                                 paddingRight: 12, paddingLeft: 12, paddingTop: 0, paddingBottom: 0}}>             
                 <>                  
                 <Checkbox
               icon={icon}
@@ -84,7 +84,7 @@ export function ListFilter({ value, onChange, options }) {
             sx: { minWidth: 'max-content', direction },            
           },
           listbox: {
-            sx: { direction, px: 1 },
+            sx: { direction, px: 2 },
           },
         }}
       />
