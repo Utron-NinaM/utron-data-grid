@@ -90,13 +90,10 @@ export function DataGridExample() {
             onRowSelect: handleRowSelect,
             onRowDoubleClick: handleRowDoubleClick,
             headerConfig: {
-              mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30 , fontWeight: 800},
+              mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30 },
               filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
               filterCells: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
-            },
-            fontFamily: 'Arial, sans-serif',
-            fontSize: 14,
-            fontWeight: 600,
+            },          
             selectedRowStyle: { backgroundColor: 'rgb(129, 124, 124)' },
             toolbarActions: ({ selectedRow: row }) => (
               <Box sx={{ display: 'flex', gap: 1 }}>

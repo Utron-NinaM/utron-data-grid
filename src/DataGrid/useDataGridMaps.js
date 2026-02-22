@@ -75,13 +75,13 @@ export function useDataGridMaps({
 
   // Helper function to create cell style for header or filter cells
   const createCellSx = (col, options, width, minWidth) => {
-    const { rowHeight, backgroundColor, baseConfig, rowSx } = options;
+    const { rowHeight, backgroundColor, baseConfig, rowSx, verticalAlign = 'top' } = options;
 
     const widthStr = width != null ? `${width}px` : undefined;
     const minWidthStr = minWidth != null ? `${minWidth}px` : undefined;
 
     return {
-      verticalAlign: 'top',
+      verticalAlign,
       ...baseConfig,
       padding: rowHeight ? '2px' : '4px',
       ...(widthStr ? { width: widthStr } : { width: 'inherit' }),
@@ -137,6 +137,7 @@ export function useDataGridMaps({
           backgroundColor: filterBg,
           baseConfig: headerConfig?.base,
           rowSx: filterRowSx,
+          verticalAlign: 'middle',
         },
         width,
         minWidth

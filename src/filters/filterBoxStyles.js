@@ -118,6 +118,10 @@ export const filterInputFullWidthSx = {
  */
 export function getListFilterAutocompleteInputSx(isRtl) {
   return {
+    '& .MuiInputBase-root': {
+      display: 'flex',
+      alignItems: 'center',
+    },
     '& .MuiInputBase-input': {
       textAlign: isRtl ? 'right' : 'left',
     },
@@ -194,12 +198,11 @@ export function getFilterRowBoxSx(filterInputHeight, fontSize) {
     maxWidth: '100%',
     boxSizing: 'border-box',
     px: 0.5,
-    minHeight: 20,
+    minHeight: contentHeight,
     display: 'flex',
     alignItems: 'center',
     overflow: 'hidden',
-    height: contentHeight,
-    maxHeight: contentHeight,
+    height: '100%',
     ...(fontSize != null && { fontSize }),
     '& .MuiInputBase-root': baseInputSx,
     '& .MuiInputBase-input': filterInputHeight ? inputPadding : {},

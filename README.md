@@ -11,7 +11,7 @@ npm install utron-data-grid
 **Peer dependencies** (you must install these in your app):
 
 - `react`, `react-dom`
-- `@mui/material`, `@emotion/react`, `@emotion/styled`
+- `@mui/material`, `@emotion/react`, `@emotion/styled`, `@mui/icons-material`
 - `@mui/x-date-pickers`, `dayjs`
 
 ## Quick start
@@ -59,10 +59,8 @@ const rows = [
 |-----|------|-------------|
 | `translations` | `Object` | i18n map (see Translations) |
 | `direction` | `'ltr' \| 'rtl'` | Layout direction (default `'ltr'`) |
-| `sortModel` | `Array<{ field, order }>` | Controlled sort |
-| `filterModel` | `Object` | Controlled filters |
-| `onSortChange` | `(sortModel) => void` | Sort change callback |
-| `onFilterChange` | `(filterModel) => void` | Filter change callback |
+| `onSortChange` | `(sortModel) => void` | Sort change callback (notification only) |
+| `onFilterChange` | `(filterModel) => void` | Filter change callback (notification only) |
 | `onEditCommit` | `(rowId, row) => void` | Commit edited row (enables inline edit when provided) |
 | `onEditStart` | `(rowId, row) => void` | When entering edit |
 | `onEditCancel` | `(rowId) => void` | When user cancels edit |
@@ -70,15 +68,15 @@ const rows = [
 | `isRowEditable` | `(row) => boolean` | Only these rows are editable |
 | `onSelectionChange` | `(selectedIds) => void` | Selection change |
 | `onRowSelect` | `(rowId, row) => void` | When a row is clicked |
+| `onRowDoubleClick` | `(row) => void` | When a row is double-clicked |
 | `editable` | `boolean` | Master switch for inline edit (default false) |
 | `multiSelectable` | `boolean` | Show checkboxes and selection (default false) |
 | `pagination` | `boolean` | Enable client-side pagination (default false) |
 | `pageSize` | `number` | Rows per page (default 10) |
 | `pageSizeOptions` | `number[]` | Page size dropdown options (e.g. [10, 25, 50]) |
-| `page` | `number` | Controlled current page (0-based) |
-| `onPageChange` | `(page) => void` | Page change callback |
+| `onPageChange` | `(page) => void` | Page change callback (notification only) |
 | `onPageSizeChange` | `(pageSize) => void` | Page size change callback |
-| `sx` | `object` | MUI sx for root container |
+| `sx` | `object` | MUI sx for root container. When pagination is true and `sx` includes `height` or `maxHeight`, the table body scrolls and the pagination bar stays visible. |
 | `headerConfig` | `object` | `base` (MUI sx for TableHead), `mainRow`, `filterRows`, `filterCells`. Each row object accepts `backgroundColor`, `height`, and any MUI sx (e.g. `fontSize`, `fontWeight`, `fontFamily`) to override grid-level typography for that row. |
 | `selectedRowStyle` | `object` | MUI sx for selected rows |
 | `gridId` | `string` | Unique id for this grid; when set, sort, filter, and column width overrides are persisted in localStorage (`utron-datagrid-sort-{gridId}`, `utron-datagrid-filters-{gridId}`, `utron-datagrid-column-widths-{gridId}`) and restored on load. Use a different id per grid when multiple grids exist. |
@@ -181,9 +179,9 @@ Conditional editing example:
 
 Pass `options={{ translations: { ... } }}` with keys overriding defaults. Main keys:
 
-- Sort: `clearSort`, `sortAsc`, `sortDesc`
-- Toolbar: `clearAllFilters`, `clearColumnWidths` (e.g. "Clear all filters", "Reset column widths")
-- Filter: `filterPlaceholder`, `selectOption`
+- Sort: `clearSort`, `sortAsc`, `sortDesc`, `sortMultiColumnHint`
+- Toolbar: `clearAllFilters`, `clearColumnFilter`, `clearColumnWidths`
+- Filter: `filterPlaceholder`, `filterNumber`, `filterDate`, `selectOption`, `filterFrom`, `filterTo`
 - Operators: `operatorEquals`, `operatorNotEqual`, `operatorGreaterThan`, etc.
 - Pagination: `rowsPerPage`, `paginationRange`, `firstPage`, `lastPage`, `prevPage`, `nextPage`
 - State: `noRows`, `noResults`
@@ -198,7 +196,15 @@ Pass `options={{ direction: 'rtl' }}` for right-to-left. Date format: LTR uses M
 
 ## Pagination
 
-Pass `options={{ pagination: true, pageSize: 10, pageSizeOptions: [10, 25, 50, 100] }}`. Optionally control `page` and use `onPageChange` / `onPageSizeChange` in options.
+Pass `options={{ pagination: true, pageSize: 10, pageSizeOptions: [10, 25, 50, 100] }}`. Use `onPageChange` and `onPageSizeChange` for notifications when the user changes page or page size.
+
+## Exports
+
+Besides `DataGrid`, the package exports:
+
+- `GridErrorBoundary` – Error boundary for the grid
+- `defaultTranslations`, `hebrewTranslations` – Translation presets
+- Schema constants: `FIELD_TYPE_*`, `FILTER_TYPE_*`, `SORT_ORDER_*`, `ALIGN_*`, `DIRECTION_*`, `OPERATOR_*`, `NUMBER_OP_IDS`, `TEXT_OP_IDS`, `DATE_OP_IDS`
 
 ## Building / consuming the library
 
@@ -209,7 +215,7 @@ npm run build
 Output is in `dist/`. Apps can import:
 
 ```js
-import DataGrid from 'utron-data-grid';
+import { DataGrid } from 'utron-data-grid';
 ```
 
 Use the library in your app’s React tree with your own MUI theme if needed; the grid can also wrap with its own ThemeProvider for `direction`.
