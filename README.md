@@ -79,10 +79,13 @@ const rows = [
 | `onPageChange` | `(page) => void` | Page change callback |
 | `onPageSizeChange` | `(pageSize) => void` | Page size change callback |
 | `sx` | `object` | MUI sx for root container |
-| `headerConfig` | `object` | `base` (MUI sx for TableHead), `mainRow`, `filterRows`, `filterCells` (e.g. `backgroundColor`, `height`) |
+| `headerConfig` | `object` | `base` (MUI sx for TableHead), `mainRow`, `filterRows`, `filterCells`. Each row object accepts `backgroundColor`, `height`, and any MUI sx (e.g. `fontSize`, `fontWeight`, `fontFamily`) to override grid-level typography for that row. |
 | `selectedRowStyle` | `object` | MUI sx for selected rows |
 | `gridId` | `string` | Unique id for this grid; when set, sort, filter, and column width overrides are persisted in localStorage (`utron-datagrid-sort-{gridId}`, `utron-datagrid-filters-{gridId}`, `utron-datagrid-column-widths-{gridId}`) and restored on load. Use a different id per grid when multiple grids exist. |
 | `toolbarActions` | `ReactNode` or `(params: { selectedRow, selectedRowId }) => ReactNode` | Optional content on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id. |
+| `fontSize` | `number` | Font size in px for cells, filters, inputs, pagination (default 13). |
+| `fontFamily` | `string` | Font family for all grid components (e.g. `'Roboto, sans-serif'`, `var(--app-font-family)`). Cascades from root. |
+| `fontWeight` | `number` or `string` | Font weight (e.g. `400`, `600`, `'bold'`). Cascades from root. |
 
 ## Configuration (columns)
 

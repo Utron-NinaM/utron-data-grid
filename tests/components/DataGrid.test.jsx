@@ -600,5 +600,37 @@ describe('DataGrid Component Integration', () => {
       expect(paginationIndex).toBeGreaterThan(scrollIndex);
     });
   });
+
+  describe('Typography options', () => {
+    it('should apply fontFamily when provided in options', () => {
+      render(
+        <DataGrid
+          rows={basicRows}
+          columns={basicColumns}
+          getRowId={getRowId}
+          options={{ fontFamily: 'Georgia, serif' }}
+        />
+      );
+
+      const root = screen.getByTestId('data-grid-root');
+      const computed = getComputedStyle(root);
+      expect(computed.fontFamily).toContain('Georgia');
+    });
+
+    it('should apply fontWeight when provided in options', () => {
+      render(
+        <DataGrid
+          rows={basicRows}
+          columns={basicColumns}
+          getRowId={getRowId}
+          options={{ fontWeight: 600 }}
+        />
+      );
+
+      const root = screen.getByTestId('data-grid-root');
+      const computed = getComputedStyle(root);
+      expect(computed.fontWeight).toBe('600');
+    });
+  });
 });
 

@@ -58,9 +58,12 @@ export function getMainHeaderRowSx(headerConfig, hasFilterRow) {
 
 export function getHeaderCheckboxCellSx(headerConfig, rowType = 'mainRow') {
   const bgKey = rowType === 'filterRows' ? 'filterRows' : 'mainRow';
+  const rowConfig = headerConfig?.[bgKey] ?? {};
+  const { backgroundColor: rowBg, ...rowSx } = rowConfig;
   return {
     ...headerConfig?.base,
-    backgroundColor: headerConfig?.[bgKey]?.backgroundColor || headerConfig?.base?.backgroundColor || 'inherit',
+    backgroundColor: rowBg || headerConfig?.base?.backgroundColor || 'inherit',
+    ...rowSx,
   };
 }
 

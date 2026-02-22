@@ -37,6 +37,8 @@ import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
  * @property {string} [gridId] - Unique id for this grid; when set, filter, sort, and column width state are persisted in localStorage and restored on mount or refresh. Use a different id per grid when multiple grids exist.
  * @property {React.ReactNode|((params: { selectedRow: Object|null, selectedRowId: string|number|null }) => React.ReactNode)} [toolbarActions] - Optional content rendered on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id.
  * @property {number} [fontSize=13] - Font size in px for cells, filters, inputs, and pagination. Overridable via CSS (e.g. [data-testid="data-grid-root"] or --data-grid-font-size).
+ * @property {string} [fontFamily] - Font family for all grid components (e.g. 'Roboto, sans-serif', var(--app-font-family)). Cascades from root.
+ * @property {number|string} [fontWeight] - Font weight (e.g. 400, 600, 'bold'). Cascades from root.
  */
 
 /**
@@ -72,16 +74,60 @@ export function DataGrid(props) {
   );
   const useScrollableLayout = hasHeightConstraint;
 
-  const theme = useMemo(
-    () =>
-      createTheme({
-        direction,
-        components: {
-          MuiTableSortLabel: { styleOverrides: { root: { '&.Mui-active': { color: 'inherit' } } } },
-        },
-      }),
-    [direction]
-  );
+  const fontFamily = flatProps.fontFamily;
+  const fontSize = flatProps.fontSize ?? defaultGridConfig.fontSize;
+  const fontWeight = flatProps.fontWeight;
+
+  const theme = useMemo(() => {
+    const fontSx = [fontFamily, fontSize, fontWeight].some((v) => v != null)
+      ? {
+          ...(fontFamily != null && { fontFamily }),
+          ...(fontSize != null && { fontSize }),
+          ...(fontWeight != null && { fontWeight }),
+        }
+      : null;
+
+    const typoOverrides = fontSx
+      ? {
+          typography: {
+            ...(fontFamily != null && { fontFamily }),
+            ...(fontSize != null && { fontSize }),
+            ...(fontWeight != null && {
+              body1: { fontWeight },
+              body2: { fontWeight },
+              caption: { fontWeight },
+              subtitle1: { fontWeight },
+              subtitle2: { fontWeight },
+              h6: { fontWeight },
+              button: { fontWeight },
+            }),
+          },
+        }
+      : {};
+
+    const fontComponents = fontSx
+      ? {
+          MuiTableCell: { styleOverrides: { root: fontSx } },
+          MuiInputBase: { styleOverrides: { root: fontSx, input: fontSx } },
+          MuiTypography: { styleOverrides: { root: fontSx } },
+          MuiButton: { styleOverrides: { root: fontSx } },
+          MuiIconButton: { styleOverrides: { root: fontSx } },
+          MuiFormControlLabel: { styleOverrides: { label: fontSx } },
+          MuiMenuItem: { styleOverrides: { root: fontSx } },
+          MuiAlert: { styleOverrides: { root: fontSx, title: fontSx } },
+          MuiSelect: { styleOverrides: { select: fontSx } },
+        }
+      : {};
+
+    return createTheme({
+      direction,
+      ...typoOverrides,
+      components: {
+        MuiTableSortLabel: { styleOverrides: { root: { '&.Mui-active': { color: 'inherit' } } } },
+        ...fontComponents,
+      },
+    });
+  }, [direction, fontFamily, fontSize, fontWeight]);
 
   const gridTable = useMemo(() => <GridTable
     rows={grid.displayRows}
@@ -111,6 +157,8 @@ export function DataGrid(props) {
           sx={getDataGridRootSx({
             sx: flatProps.sx,
             fontSize: flatProps.fontSize ?? defaultGridConfig.fontSize,
+            fontFamily: flatProps.fontFamily,
+            fontWeight: flatProps.fontWeight,
             useScrollableLayout,
           })}
           dir={direction}

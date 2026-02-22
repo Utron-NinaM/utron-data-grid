@@ -74,14 +74,12 @@ export function useDataGridMaps({
   }, [columns, providedColumnWidthMap]);
 
   // Helper function to create cell style for header or filter cells
-  // Extracted to module level for performance (can be memoized)
   const createCellSx = (col, options, width, minWidth) => {
-    const { rowHeight, backgroundColor, baseConfig } = options;
-    
-    // Convert width number to string if provided
+    const { rowHeight, backgroundColor, baseConfig, rowSx } = options;
+
     const widthStr = width != null ? `${width}px` : undefined;
     const minWidthStr = minWidth != null ? `${minWidth}px` : undefined;
-    
+
     return {
       verticalAlign: 'top',
       ...baseConfig,
@@ -91,22 +89,29 @@ export function useDataGridMaps({
       overflow: 'hidden',
       boxSizing: 'border-box',
       ...(backgroundColor && { backgroundColor }),
-      ...(rowHeight && { height: rowHeight, maxHeight: rowHeight }),      
+      ...(rowHeight && { height: rowHeight, maxHeight: rowHeight }),
+      ...rowSx,
     };
   };
 
   const headerCellSxMap = useMemo(() => {
     const map = new Map();
-    const mainRowHeight = headerConfig?.mainRow?.height;
+    const mainRow = headerConfig?.mainRow ?? {};
+    const { height: mainRowHeight, backgroundColor: mainRowBg, ...mainRowSx } = mainRow;
     columns.forEach((col) => {
-      // Use provided width from layout calculation (number) or fall back to old calculation
       const width = providedColumnWidthMap?.get(col.field);
       const minWidth = getEffectiveMinWidth(col);
-      const cellSx = createCellSx(col, {
-        rowHeight: mainRowHeight,
-        backgroundColor: headerConfig?.mainRow?.backgroundColor,
-        baseConfig: headerConfig?.base,
-      }, width, minWidth);
+      const cellSx = createCellSx(
+        col,
+        {
+          rowHeight: mainRowHeight,
+          backgroundColor: mainRowBg,
+          baseConfig: headerConfig?.base,
+          rowSx: mainRowSx,
+        },
+        width,
+        minWidth
+      );
       map.set(col.field, cellSx);
     });
     return map;
@@ -114,17 +119,28 @@ export function useDataGridMaps({
 
   const filterCellSxMap = useMemo(() => {
     const map = new Map();
-    const filterRowHeight = headerConfig?.filterRows?.height || headerConfig?.filterCells?.height;
-    const filterBg = headerConfig?.filterCells?.backgroundColor ?? headerConfig?.filterRows?.backgroundColor ?? headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper';
+    const filterRows = headerConfig?.filterRows ?? {};
+    const filterCells = headerConfig?.filterCells ?? {};
+    const { height: frHeight, backgroundColor: frBg, ...filterRowsSx } = filterRows;
+    const { height: fcHeight, backgroundColor: fcBg, ...filterCellsSx } = filterCells;
+    const filterRowHeight = frHeight || fcHeight;
+    const filterBg =
+      fcBg ?? frBg ?? headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper';
+    const filterRowSx = { ...filterRowsSx, ...filterCellsSx };
     columns.forEach((col) => {
-      // Use provided width from layout calculation (number) or fall back to old calculation
       const width = providedColumnWidthMap?.get(col.field);
       const minWidth = width != null ? undefined : getEffectiveMinWidth(col);
-      const cellSx = createCellSx(col, {
-        rowHeight: filterRowHeight,
-        backgroundColor: filterBg,
-        baseConfig: headerConfig?.base,
-      }, width, minWidth);
+      const cellSx = createCellSx(
+        col,
+        {
+          rowHeight: filterRowHeight,
+          backgroundColor: filterBg,
+          baseConfig: headerConfig?.base,
+          rowSx: filterRowSx,
+        },
+        width,
+        minWidth
+      );
       map.set(col.field, cellSx);
     });
     return map;
