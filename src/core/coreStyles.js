@@ -18,14 +18,16 @@ export function getToolbarBoxSx(containScroll) {
 
 export const toolbarActionsBoxSx = { display: 'flex', gap: 1 };
 
-export function getTableContainerSx(enableHorizontalScroll, totalWidth) {
+export function getTableContainerSx(enableHorizontalScroll, totalWidth, opts = {}) {
+  const { hideTopBorder, noScroll } = opts;
   return {
-    overflowX: enableHorizontalScroll ? 'scroll' : 'visible',
+    overflowX: noScroll ? 'visible' : (enableHorizontalScroll ? 'scroll' : 'visible'),
     overflowY: 'visible',
     width: '100%',
     ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
     borderRight: 'none',
     borderLeft: 'none',
+    ...(hideTopBorder && { borderTop: 'none' }),
   };
 }
 
@@ -40,7 +42,7 @@ export function getTableSx(totalWidth, enableHorizontalScroll) {
 export function getTableHeadSx(containScroll, headerConfig) {
   return {
     ...headerConfig?.base,
-    position: 'sticky',
+    position: containScroll ? 'relative' : 'sticky',
     top: containScroll ? 0 : 45,
     zIndex: 2,
     backgroundColor: headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper',
@@ -65,6 +67,19 @@ export function getHeaderCheckboxCellSx(headerConfig, rowType = 'mainRow') {
 export function getFilterRowSx(headerConfig) {
   return {
     backgroundColor: headerConfig?.filterRows?.backgroundColor ?? headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper',
+  };
+}
+
+/** Header wrapper when containScroll: syncs horizontal scroll with body, hides own scrollbar, reserves space for body scrollbar */
+export function getHeaderScrollWrapperSx(direction, scrollbarWidth) {
+  const padding = scrollbarWidth && scrollbarWidth > 0 ? scrollbarWidth : 0;
+  return {
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    scrollbarWidth: 'none',
+    msOverflowStyle: 'none',
+    '&::-webkit-scrollbar': { display: 'none' },
+    ...(padding > 0 && (direction === DIRECTION_RTL ? { paddingLeft: padding } : { paddingRight: padding })),
   };
 }
 

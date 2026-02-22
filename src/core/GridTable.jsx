@@ -16,6 +16,7 @@ import {
   getMainHeaderRowSx,
   getHeaderCheckboxCellSx,
   getFilterRowSx,
+  getHeaderScrollWrapperSx,
   scrollContainerSx,
   getScrollInnerBoxSx,
 } from './coreStyles';
@@ -62,19 +63,26 @@ function GridTableInner({
   const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
     headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions, direction } = ctx;
 
+  const bodyColRefs = useRef(new Map());
+  const headerScrollRef = useRef(null);
+
   // Apply widths from columnWidthMap to col elements (skip column currently being resized to avoid overwriting drag width)
+  // When containScroll, update both header and body cols in the same effect to avoid jitter
   useEffect(() => {
     if (!columnWidthMap || !colRefs) return;
 
     columns.forEach((col) => {
       if (resizingColumnRef?.current === col.field) return;
       const width = columnWidthMap.get(col.field);
-      const colElement = colRefs.current?.get(col.field);
-      if (colElement && width != null) {
-        colElement.style.width = `${width}px`;
+      const w = width != null ? `${width}px` : null;
+      const headerCol = colRefs.current?.get(col.field);
+      if (headerCol && w) headerCol.style.width = w;
+      if (containScroll) {
+        const bodyCol = bodyColRefs.current?.get(col.field);
+        if (bodyCol && w) bodyCol.style.width = w;
       }
     });
-  }, [columns, columnWidthMap, colRefs, resizingColumnRef]);
+  }, [columns, columnWidthMap, colRefs, resizingColumnRef, containScroll]);
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
 
@@ -187,8 +195,31 @@ function GridTableInner({
   }
   const scrollContainerRef = useRef(null);
   const [scrollContainerReady, setScrollContainerReady] = useState(false);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+
+  const measureScrollbarWidth = useMemo(() => () => {
+    if (!scrollContainerRef.current) return;
+    const el = scrollContainerRef.current;
+    setScrollbarWidth(el.offsetWidth - el.clientWidth);
+  }, []);
+
   useLayoutEffect(() => {
-    if (containScroll && scrollContainerRef.current) setScrollContainerReady(true);
+    if (!containScroll || !scrollContainerRef.current) return;
+    setScrollContainerReady(true);
+    measureScrollbarWidth();
+    const el = scrollContainerRef.current;
+    const ro = new ResizeObserver(measureScrollbarWidth);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [containScroll, measureScrollbarWidth]);
+
+  const handleBodyScroll = useMemo(() => {
+    if (!containScroll) return undefined;
+    return () => {
+      if (headerScrollRef.current && scrollContainerRef.current) {
+        headerScrollRef.current.scrollLeft = scrollContainerRef.current.scrollLeft;
+      }
+    };
   }, [containScroll]);
   const selectedRow = selectedRowId != null ? rows.find((r) => getRowId(r) === selectedRowId) ?? null : null;
   const toolbarActionsContent = toolbarActions != null
@@ -316,12 +347,119 @@ function GridTableInner({
   );
 
   if (containScroll) {
+    const headerTable = (
+      <GridErrorBoundary>
+        <TableContainer
+          component={Paper}
+          variant="outlined"
+          sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { noScroll: true })}
+        >
+          <Table
+            size="small"
+            aria-label="Data grid header"
+            sx={getTableSx(totalWidth, enableHorizontalScroll)}
+          >
+            <colgroup>
+              {multiSelectable && <col />}
+              {columns.map((col) => (
+                <col
+                  key={col.field}
+                  data-field={col.field}
+                  ref={(el) => {
+                    if (el) colRefs.current.set(col.field, el);
+                    else colRefs.current.delete(col.field);
+                  }}
+                />
+              ))}
+            </colgroup>
+            <TableHead sx={getTableHeadSx(true, headerConfig)}>
+              <TableRow sx={getMainHeaderRowSx(headerConfig, !!(getFilterInputSlot && getFilterToInputSlot))}>
+                {multiSelectable && (
+                  <TableCell padding="checkbox" variant="head" sx={getHeaderCheckboxCellSx(headerConfig, 'mainRow')} />
+                )}
+                {columns.map((col) => (
+                  <GridHeaderCell
+                    key={col.field}
+                    column={col}
+                    sortModel={sortModel}
+                    onSort={onSort}
+                    headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
+                    filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations, direction) : null}
+                    sortOrderIndex={sortOrderIndexMap?.get(col.field)}
+                  />
+                ))}
+              </TableRow>
+              {getFilterInputSlot && getFilterToInputSlot && (
+                <TableRow sx={getFilterRowSx(headerConfig)}>
+                  {multiSelectable && (
+                    <TableCell padding="checkbox" variant="head" sx={getHeaderCheckboxCellSx(headerConfig, 'filterRows')} />
+                  )}
+                  {columns.map((col) => (
+                    <GridHeaderCellFilter key={col.field} column={col} slot={getFilterInputSlot(col, translations, direction)} />
+                  ))}
+                </TableRow>
+              )}
+              {getFilterToInputSlot && hasActiveRangeFilter && (
+                <TableRow sx={getFilterRowSx(headerConfig)}>
+                  {multiSelectable && (
+                    <TableCell padding="checkbox" variant="head" sx={getHeaderCheckboxCellSx(headerConfig, 'filterRows')} />
+                  )}
+                  {columns.map((col) => (
+                    <GridHeaderCellFilter key={col.field} column={col} slot={getFilterToInputSlot(col, translations, direction)} />
+                  ))}
+                </TableRow>
+              )}
+            </TableHead>
+          </Table>
+        </TableContainer>
+      </GridErrorBoundary>
+    );
+
+    const bodyTable = (
+      <GridErrorBoundary>
+        <TableContainer
+          component={Paper}
+          variant="outlined"
+          sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { hideTopBorder: true })}
+        >
+          <Table size="small" aria-label="Data grid body" sx={getTableSx(totalWidth, enableHorizontalScroll)}>
+            <colgroup>
+              {multiSelectable && <col />}
+              {columns.map((col) => (
+                <col
+                  key={col.field}
+                  data-field={col.field}
+                  ref={(el) => {
+                    if (el) bodyColRefs.current.set(col.field, el);
+                    else bodyColRefs.current.delete(col.field);
+                  }}
+                />
+              ))}
+            </colgroup>
+            <TableBody onClick={handleTableBodyClick} onDoubleClick={handleTableBodyDoubleClick}>
+              {bodyRows}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </GridErrorBoundary>
+    );
+
     return (
       <Box sx={scrollContainerSx} data-testid="grid-scroll-container">
         {toolbarBox}
-        <Box ref={scrollContainerRef} sx={getScrollInnerBoxSx(enableHorizontalScroll)}>
+        <Box
+          ref={headerScrollRef}
+          sx={{ ...getHeaderScrollWrapperSx(direction, scrollbarWidth), flexShrink: 0 }}
+        >
+          {headerTable}
+        </Box>
+        <Box
+          ref={scrollContainerRef}
+          onScroll={handleBodyScroll}
+          sx={getScrollInnerBoxSx(enableHorizontalScroll)}
+        >
           <ScrollContainerContext.Provider value={{ ref: scrollContainerRef, ready: scrollContainerReady }}>
-            {tableContent}
+            {bodyTable}
           </ScrollContainerContext.Provider>
         </Box>
       </Box>
