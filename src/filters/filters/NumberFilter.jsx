@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import Box from '@mui/material/Box';
 import { NumericTextField } from './NumericInput';
 import { filterRowWrapperSx, filterInputFlexSx } from '../filterBoxStyles';
 

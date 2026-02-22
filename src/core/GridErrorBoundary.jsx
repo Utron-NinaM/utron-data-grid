@@ -1,5 +1,7 @@
 import React from 'react';
-import { Alert, Box, Button } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 
 /**
  * Catches rendering errors in the grid body so surrounding controls remain usable.

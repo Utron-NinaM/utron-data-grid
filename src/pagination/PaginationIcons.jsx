@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
-import { Box, IconButton } from '@mui/material';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';

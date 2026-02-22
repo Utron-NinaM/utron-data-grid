@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { IconButton, Menu, MenuItem, Box } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Box from '@mui/material/Box';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useTranslations } from '../../localization/useTranslations';

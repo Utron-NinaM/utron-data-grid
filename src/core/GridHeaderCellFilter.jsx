@@ -1,6 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
-import { TableCell, Box } from '@mui/material';
+import TableCell from '@mui/material/TableCell';
+import Box from '@mui/material/Box';
 import { ALIGN_LEFT } from '../config/schema';
 import { getFilterRowBoxSx } from '../filters/filterBoxStyles';
 

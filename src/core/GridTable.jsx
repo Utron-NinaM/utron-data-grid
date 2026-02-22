@@ -1,5 +1,13 @@
 import React, { memo, useContext, useMemo, useRef, useEffect, useState, useLayoutEffect } from 'react';
-import { Table, TableBody, TableContainer, TableHead, TableRow, TableCell, Paper, Box, Button } from '@mui/material';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 import { GridHeaderCell } from './GridHeaderCell';

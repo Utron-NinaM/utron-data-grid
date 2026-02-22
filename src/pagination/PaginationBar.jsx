@@ -1,5 +1,8 @@
 import React, { useContext } from 'react';
-import { Box, Select, MenuItem, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Typography from '@mui/material/Typography';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { PaginationIcons } from './PaginationIcons';

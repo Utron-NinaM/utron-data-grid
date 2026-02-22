@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
-import { TableRow, TableCell, Checkbox } from '@mui/material';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import Checkbox from '@mui/material/Checkbox';
 import { GridCell } from './GridCell';
 
 /**

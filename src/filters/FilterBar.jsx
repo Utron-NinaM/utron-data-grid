@@ -1,5 +1,7 @@
 import React from 'react';
-import { IconButton, Tooltip, Box } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import Box from '@mui/material/Box';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilterCircleXmark } from '../config/schema';
 import { useTranslations } from '../localization/useTranslations';

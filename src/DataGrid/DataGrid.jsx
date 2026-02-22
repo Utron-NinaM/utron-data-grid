@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { ThemeProvider, createTheme, Box } from '@mui/material';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import { DataGridProvider, DataGridStableContext } from './DataGridContext';
 import { GridTable } from '../core/GridTable';
 import { PaginationBar } from '../pagination/PaginationBar';

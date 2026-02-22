@@ -1,5 +1,8 @@
 import React, { useContext, useMemo, useRef, useEffect } from 'react';
-import { TableCell, TableSortLabel, Box, Tooltip } from '@mui/material';
+import TableCell from '@mui/material/TableCell';
+import TableSortLabel from '@mui/material/TableSortLabel';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, DIRECTION_RTL } from '../config/schema';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { getFilterRowBoxSx } from '../filters/filterBoxStyles';

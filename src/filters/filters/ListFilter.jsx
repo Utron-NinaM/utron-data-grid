@@ -1,5 +1,8 @@
 import React, { useContext, useMemo } from 'react';
-import { Autocomplete, TextField, Checkbox, Box } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import Checkbox from '@mui/material/Checkbox';
+import Box from '@mui/material/Box';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';

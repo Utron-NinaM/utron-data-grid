@@ -1,21 +1,20 @@
-import {
-  faEquals,
-  faNotEqual,
-  faGreaterThan,
-  faLessThan,
-  faGreaterThanEqual,
-  faLessThanEqual,
-  faArrowsLeftRight,
-  faMagnifyingGlass,
-  faMagnifyingGlassMinus,
-  faPlay,
-  faStop,
-  faFilterCircleXmark,
-} from '@fortawesome/free-solid-svg-icons';
-
+import { faEquals } from '@fortawesome/free-solid-svg-icons/faEquals';
+import { faNotEqual } from '@fortawesome/free-solid-svg-icons/faNotEqual';
+import { faGreaterThan } from '@fortawesome/free-solid-svg-icons/faGreaterThan';
+import { faLessThan } from '@fortawesome/free-solid-svg-icons/faLessThan';
+import { faGreaterThanEqual } from '@fortawesome/free-solid-svg-icons/faGreaterThanEqual';
+import { faLessThanEqual } from '@fortawesome/free-solid-svg-icons/faLessThanEqual';
+import { faArrowsLeftRight } from '@fortawesome/free-solid-svg-icons/faArrowsLeftRight';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlass';
+import { faMagnifyingGlassMinus } from '@fortawesome/free-solid-svg-icons/faMagnifyingGlassMinus';
+import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
+import { faStop } from '@fortawesome/free-solid-svg-icons/faStop';
+import { faFilterCircleXmark } from '@fortawesome/free-solid-svg-icons/faFilterCircleXmark';
 export { faFilterCircleXmark };
 
-import { faClock, faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
+import { faClock } from '@fortawesome/free-regular-svg-icons/faClock';
+import { faCircle } from '@fortawesome/free-regular-svg-icons/faCircle';
+import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck';
 
 /**
  * Column definition shape (JSDoc for consumers).

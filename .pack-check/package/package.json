@@ -1,9 +1,10 @@
 {
   "name": "utron-data-grid",
-  "version": "1.0.13",
+  "version": "1.0.11",
   "description": "Reusable React Data Grid with MUI – sorting, filtering, inline editing, pagination, RTL",
   "main": "dist/utron-data-grid.js",
   "module": "dist/utron-data-grid.js",
+  "type": "module",
   "exports": {
     ".": "./dist/utron-data-grid.js"
   },
@@ -20,8 +21,7 @@
     "@fortawesome/fontawesome-svg-core": "^7.2.0",
     "@fortawesome/free-regular-svg-icons": "^7.2.0",
     "@fortawesome/free-solid-svg-icons": "^7.2.0",
-    "@fortawesome/react-fontawesome": "^3.2.0",
-    "lodash": "^4.17.21"
+    "@fortawesome/react-fontawesome": "^3.2.0"
   },
   "peerDependencies": {
     "@emotion/react": "^11.0.0",

@@ -31,9 +31,8 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.js'),
       name: 'UtronDataGrid',
-      fileName: (format) =>
-        format === 'es' ? 'utron-data-grid.js' : `utron-data-grid.umd.${format === 'cjs' ? 'cjs' : 'js'}`,
-      formats: ['es', 'umd'],
+      fileName: () => 'utron-data-grid.js',
+      formats: ['es'],
     },
     rollupOptions: {
       external: (id) => {
@@ -74,6 +73,7 @@ export default defineConfig({
         },
       },
     },
-    sourcemap: true,
+    sourcemap: false,
+    target: 'es2018',
   },
 });

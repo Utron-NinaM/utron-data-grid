@@ -1,5 +1,7 @@
 import React, { memo, useContext, useMemo } from 'react';
-import { TableCell, Box, Tooltip } from '@mui/material';
+import TableCell from '@mui/material/TableCell';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import dayjs from 'dayjs';
 import { ALIGN_LEFT, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST } from '../config/schema';
 import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataGridContext';

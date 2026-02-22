@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField } from '@mui/material';
+import TextField from '@mui/material/TextField';
 import { MAX_NUMBER_INPUT_LENGTH } from '../../constants';
 
 const NUMBER_INPUT_REGEX = /^-?\d*\.?\d*$/;
