@@ -271,13 +271,10 @@ export function useDataGrid(props) {
   );
   const displayRows = paginationResult.rows;
 
-  const useScrollableLayout = useMemo(() => {
-    const hasHeightConstraint = Boolean(
-      props.sx && (props.sx.height != null || props.sx.maxHeight != null)
-    );
-    const v = pagination && hasHeightConstraint;
-    return v;
-  }, [pagination, props.sx, scrollContainerReady]);
+  const hasHeightConstraint = useMemo(
+    () => Boolean(props.sx && (props.sx.height != null || props.sx.maxHeight != null)),
+    [props.sx]
+  );
 
   // Calculate column widths using layout algorithm
   const { columnWidthMap: layoutColumnWidthMap, totalWidth, enableHorizontalScroll } = useColumnLayout({
@@ -285,7 +282,7 @@ export function useDataGrid(props) {
     containerRef,
     columnWidthState,
     multiSelectable,
-    reserveScrollbarWidth: useScrollableLayout,
+    reserveScrollbarWidth: hasHeightConstraint,
     scrollContainerRef,
     scrollContainerReady,
   });

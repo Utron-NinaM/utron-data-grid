@@ -69,7 +69,7 @@ export function DataGrid(props) {
   const hasHeightConstraint = Boolean(
     flatProps.sx && (flatProps.sx.height != null || flatProps.sx.maxHeight != null)
   );
-  const useScrollableLayout = pagination && hasHeightConstraint;
+  const useScrollableLayout = hasHeightConstraint;
 
   const theme = useMemo(
     () =>
