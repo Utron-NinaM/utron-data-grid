@@ -2,50 +2,48 @@ import { useState, useEffect, useRef } from 'react';
 
 /**
  * Hook that tracks container width using ResizeObserver with debouncing.
- * Uses requestAnimationFrame + width comparison to batch updates and ignore unchanged widths.
- * 
- * @param {React.RefObject} containerRef - Ref to the container element
+ * When scrollContainerRef + scrollContainerReady are provided, observes the scroll container instead
+ * (its clientWidth already excludes the vertical scrollbar, giving accurate available width).
+ *
+ * @param {React.RefObject} containerRef - Ref to the root container
+ * @param {Object} [opts] - Optional
+ * @param {React.RefObject} [opts.scrollContainerRef] - Ref to the scroll container (body overflow:auto)
+ * @param {boolean} [opts.scrollContainerReady] - When true, scrollContainerRef.current is set
  * @returns {number} Container width in pixels (0 if not available)
  */
-export function useContainerWidth(containerRef) {
+export function useContainerWidth(containerRef, opts = {}) {
+  const { scrollContainerRef, scrollContainerReady } = opts;
   const [containerWidth, setContainerWidth] = useState(0);
   const lastWidthRef = useRef(0);
 
+  const useScrollEl = Boolean(scrollContainerReady && scrollContainerRef?.current);
+  const observeRef = useScrollEl ? scrollContainerRef : containerRef;  
+
   useEffect(() => {
-    if (!containerRef?.current) {
+    if (!observeRef?.current) {
       setContainerWidth(0);
       return;
     }
 
-    // Get initial width
-    const initialWidth = containerRef.current.clientWidth;
+    const el = observeRef.current;
+    const initialWidth = el.clientWidth;
     if (initialWidth > 0) {
       lastWidthRef.current = initialWidth;
-      setContainerWidth(initialWidth);
+      setContainerWidth(initialWidth);            
     }
 
     const resizeObserver = new ResizeObserver((entries) => {
       if (entries.length === 0) return;
-      
-      // Use clientWidth to account for vertical scrollbar
       const width = entries[0].target.clientWidth;
-      
-      // Only update if changed significantly (avoid sub-pixel thrash)
       if (Math.abs(width - lastWidthRef.current) >= 1) {
         lastWidthRef.current = width;
-        // Batch with requestAnimationFrame
-        requestAnimationFrame(() => {
-          setContainerWidth(width);
-        });
+        requestAnimationFrame(() => setContainerWidth(width));
       }
     });
 
-    resizeObserver.observe(containerRef.current);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [containerRef]);
+    resizeObserver.observe(el);
+    return () => resizeObserver.disconnect();
+  }, [observeRef, scrollContainerRef, scrollContainerReady]);
 
   return containerWidth;
 }

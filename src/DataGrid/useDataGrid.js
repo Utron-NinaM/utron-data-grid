@@ -59,6 +59,9 @@ export function useDataGrid(props) {
   const [columnWidthState, setColumnWidthState] = useState(() => getStoredColumnWidthState(props.gridId, props.columns));
   // Container ref for ResizeObserver (created here, passed to GridTable via context)
   const containerRef = useRef(null);
+  // Scroll container ref for accurate width when body scrolls (useScrollableLayout); GridTable populates it
+  const scrollContainerRef = useRef(null);
+  const [scrollContainerReady, setScrollContainerReady] = useState(false);
   // Refs for col elements to enable column-wide width updates during resize
   const colRefs = useRef(new Map());
   // Ref for column currently being resized (field name or null); prevents layout from overwriting DOM width during drag
@@ -268,12 +271,23 @@ export function useDataGrid(props) {
   );
   const displayRows = paginationResult.rows;
 
+  const useScrollableLayout = useMemo(() => {
+    const hasHeightConstraint = Boolean(
+      props.sx && (props.sx.height != null || props.sx.maxHeight != null)
+    );
+    const v = pagination && hasHeightConstraint;
+    return v;
+  }, [pagination, props.sx, scrollContainerReady]);
+
   // Calculate column widths using layout algorithm
   const { columnWidthMap: layoutColumnWidthMap, totalWidth, enableHorizontalScroll } = useColumnLayout({
     columns,
     containerRef,
     columnWidthState,
     multiSelectable,
+    reserveScrollbarWidth: useScrollableLayout,
+    scrollContainerRef,
+    scrollContainerReady,
   });
 
   const {
@@ -360,6 +374,8 @@ export function useDataGrid(props) {
       columnWidthMap: layoutColumnWidthMap, // Use layout-calculated widths
       listColumnOptionMaps, // Map<field, optionMap> for list columns (key -> label)
       containerRef, // Container ref for ResizeObserver
+      scrollContainerRef, // Body scroll container ref (for layout width when useScrollableLayout)
+      setScrollContainerReady, // Called by GridTable when scroll container mounts
       colRefs, // Refs for col elements (Map of field -> col element)
       resizingColumnRef, // Ref: field name of column being resized, or null
       onColumnResize: handleColumnResize, // Resize handler
@@ -400,6 +416,8 @@ export function useDataGrid(props) {
       filterCellSxMap,
       layoutColumnWidthMap,
       containerRef,
+      scrollContainerRef,
+      scrollContainerReady,
       colRefs,
       resizingColumnRef,
       handleColumnResize,

@@ -99,6 +99,8 @@ export function getScrollInnerBoxSx(enableHorizontalScroll) {
     position: 'relative',
     overflow: 'auto',
     overflowX: enableHorizontalScroll ? 'scroll' : 'auto',
+    // Reserve scrollbar space so width is stable when switching page size (10→25 rows); prevents brief horizontal scroll flash
+    scrollbarGutter: 'stable',
   };
 }
 

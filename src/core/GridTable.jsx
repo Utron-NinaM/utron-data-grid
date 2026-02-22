@@ -61,7 +61,7 @@ function GridTableInner({
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
   const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
-    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions, direction } = ctx;
+    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions, direction } = ctx;
 
   const bodyColRefs = useRef(new Map());
   const headerScrollRef = useRef(null);
@@ -454,7 +454,15 @@ function GridTableInner({
           {headerTable}
         </Box>
         <Box
-          ref={scrollContainerRef}
+          ref={(el) => {
+            scrollContainerRef.current = el;
+            if (ctxScrollContainerRef) ctxScrollContainerRef.current = el;
+            if (onScrollContainerReadyForLayout) {
+              const ready = Boolean(el);
+              // eslint-disable-next-line no-console              
+              onScrollContainerReadyForLayout(ready);
+            }
+          }}
           onScroll={handleBodyScroll}
           sx={getScrollInnerBoxSx(enableHorizontalScroll)}
         >

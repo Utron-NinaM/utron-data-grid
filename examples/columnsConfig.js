@@ -57,7 +57,7 @@ export const columnsConfig = [
     filterOptions: { listValues: statusOptionsEn },
     rowStyle: (row) => (row.status === 'pending' ? { backgroundColor: '#fff3e0' } : {}),
   },
-  { field: 'description', headerName: 'Description', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, flex: 1, minWidth: 150 },
+  { field: 'description', headerName: 'Description', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, minWidth: 120 },
 ];
 
 export const columnsConfigHebrew = [
