@@ -7,6 +7,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
 import { getDateFormat } from '../utils/directionUtils';
+import { getListFilterAutocompleteInputSx } from '../filters/filterBoxStyles';
 import { getOptionLabel, getOptionValue, getOptionMap } from '../utils/optionUtils';
 import {
   DEFAULT_FIELD_TYPE,
@@ -56,6 +57,8 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
       const listOptions = column.options ?? [];
       const optionMap = getOptionMap(listOptions);
       const valueOption = value != null ? optionMap.get(value) ?? null : null;
+      const isRtl = direction === DIRECTION_RTL;
+      const rtlSx = { direction, textAlign: isRtl ? 'right' : 'left' };
       return (
         <Autocomplete
           size="small"
@@ -64,7 +67,22 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           onChange={(_, v) => onChange(column.field, v != null ? getOptionValue(v) : undefined)}
           getOptionLabel={getOptionLabel}
           isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
-          renderInput={(params) => <TextField {...params} sx={{ ...params.sx, ...fontSx }} />}
+          renderOption={(props, option) => (
+            <li {...props} style={{ ...props.style, ...rtlSx }}>
+              {getOptionLabel(option)}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              inputProps={{ ...params.inputProps, dir: direction }}
+              sx={{ ...params.sx, ...fontSx, ...getListFilterAutocompleteInputSx(isRtl) }}
+            />
+          )}
+          slotProps={{
+            popper: { sx: { direction } },
+            listbox: { sx: rtlSx },
+          }}
           fullWidth
         />
       );

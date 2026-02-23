@@ -1,10 +1,13 @@
 /** Example column config with validation rules */
 /** Demonstrates column width system with fixed widths and constraints */
 
+const departments = ['הנדסה', 'מכירות', 'שיווק', 'משאבי אנוש', 'כספים', 'תפעול'];
+const statuses = ['פעיל', 'לא פעיל', 'בחופשה'];
+
 export const editingValidationColumns = [
   {
     field: 'name',
-    headerName: 'Name',
+    headerName: 'שם',
     type: 'text',
     filter: 'text',
     editable: true,
@@ -15,20 +18,20 @@ export const editingValidationColumns = [
       {
         validate: (value) => {
           if (!value || value.trim().length === 0) {
-            return 'Name is required';
+            return 'שם שדה חובה';
           }
           if (value.length < 2) {
-            return 'Name must be at least 2 characters';
+            return 'השם חייב להכיל לפחות 2 תווים';
           }
           return true;
         },
-        message: 'Name is required and must be at least 2 characters',
+        message: 'שם שדה חובה והשם חייב להכיל לפחות 2 תווים',
       },
     ],
   },
   {
     field: 'email',
-    headerName: 'Email',
+    headerName: 'אימייל',
     type: 'text',
     filter: 'text',
     editable: true,
@@ -39,21 +42,21 @@ export const editingValidationColumns = [
       {
         validate: (value) => {
           if (!value || value.trim().length === 0) {
-            return 'Email is required';
+            return 'אימייל שדה חובה';
           }
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailRegex.test(value)) {
-            return 'Invalid email format';
+            return 'פורמט אימייל לא תקין';
           }
           return true;
         },
-        message: 'Email is required and must be valid',
+        message: 'אימייל שדה חובה וצריך להיות תקין',
       },
     ],
   },
   {
     field: 'age',
-    headerName: 'Age',
+    headerName: 'גיל',
     type: 'number',
     filter: 'number',
     editable: true,
@@ -62,27 +65,27 @@ export const editingValidationColumns = [
       {
         validate: (value, row) => {
           if (value === undefined || value === null || value === '') {
-            return 'Age is required';
+            return 'גיל שדה חובה';
           }
           const num = Number(value);
           if (isNaN(num)) {
-            return 'Age must be a number';
+            return 'גיל חייב להיות מספר';
           }
           if (num < 18) {
-            return 'Age must be at least 18';
+            return 'גיל חייב להיות לפחות 18';
           }
           if (num > 120) {
-            return 'Age must be less than 120';
+            return 'גיל חייב להיות פחות מ-120';
           }
           return true;
         },
-        message: 'Age must be between 18 and 120',
+        message: 'גיל חייב להיות בין 18 ל-120',
       },
     ],
   },
   {
     field: 'salary',
-    headerName: 'Salary',
+    headerName: 'משכורת',
     type: 'number',
     filter: 'number',
     editable: true,
@@ -91,58 +94,58 @@ export const editingValidationColumns = [
       {
         validate: (value) => {
           if (value === undefined || value === null || value === '') {
-            return 'Salary is required';
+            return 'משכורת שדה חובה';
           }
           const num = Number(value);
           if (isNaN(num)) {
-            return 'Salary must be a number';
+            return 'משכורת חייבת להיות מספר';
           }
           if (num < 0) {
-            return 'Salary cannot be negative';
+            return 'משכורת לא יכולה להיות שלילית';
           }
           if (num > 1000000) {
-            return 'Salary cannot exceed 1,000,000';
+            return 'משכורת לא יכולה לעלות על 1,000,000';
           }
           return true;
         },
-        message: 'Salary must be between 0 and 1,000,000',
+        message: 'משכורת חייבת להיות בין 0 ל-1,000,000',
       },
     ],
   },
   {
     field: 'department',
-    headerName: 'Department',
+    headerName: 'מחלקה',
     type: 'list',
     filter: 'list',
     editable: true,
     width: 150,
-    options: ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'],
-    filterOptions: { listValues: ['Engineering', 'Sales', 'Marketing', 'HR', 'Finance', 'Operations'] },
+    options: departments,
+    filterOptions: { listValues: departments },
     validators: [
       {
         validate: (value) => {
           if (!value || value.trim().length === 0) {
-            return 'Department is required';
+            return 'מחלקה שדה חובה';
           }
           return true;
         },
-        message: 'Department is required',
+        message: 'מחלקה שדה חובה',
       },
     ],
   },
   {
     field: 'status',
-    headerName: 'Status',
+    headerName: 'סטטוס',
     type: 'list',
     filter: 'list',
     editable: true,
     width: 120,
-    options: ['Active', 'Inactive', 'On Leave'],
-    filterOptions: { listValues: ['Active', 'Inactive', 'On Leave'] },
+    options: statuses,
+    filterOptions: { listValues: statuses },
   },
   {
     field: 'startDate',
-    headerName: 'Start Date',
+    headerName: 'תאריך התחלה',
     type: 'date',
     filter: 'date',
     editable: true,
@@ -151,17 +154,17 @@ export const editingValidationColumns = [
       {
         validate: (value) => {
           if (!value) {
-            return 'Start date is required';
+            return 'תאריך התחלה שדה חובה';
           }
           const date = new Date(value);
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           if (date > today) {
-            return 'Start date cannot be in the future';
+            return 'תאריך התחלה לא יכול להיות בעתיד';
           }
           return true;
         },
-        message: 'Start date is required and cannot be in the future',
+        message: 'תאריך התחלה שדה חובה ולא יכול להיות בעתיד',
       },
     ],
   },
