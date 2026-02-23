@@ -6,14 +6,18 @@ import {
   getAutoMaxWidth,
   calculateColumnWidths,
 } from '../../src/utils/columnWidthUtils';
-import { FILTER_TYPE_NUMBER, FILTER_TYPE_TEXT, FILTER_TYPE_NONE } from '../../src/config/schema';
-import { MIN_WIDTH_DEFAULT_PX } from '../../src/utils/columnWidthUtils';
+import { FILTER_TYPE_TEXT, FILTER_TYPE_NONE } from '../../src/config/schema';
+import { MIN_WIDTH_DEFAULT_PX, MIN_WIDTH_NO_FILTERS_PX } from '../../src/utils/columnWidthUtils';
 
 describe('columnWidthUtils', () => {
   describe('getBuiltInMinWidth', () => {
-    it('should return MIN_WIDTH_DEFAULT_PX for any column', () => {
+    it('should return MIN_WIDTH_DEFAULT_PX when filters are shown (default)', () => {
       expect(getBuiltInMinWidth({ field: 'id', headerName: 'ID' })).toBe(MIN_WIDTH_DEFAULT_PX);
       expect(getBuiltInMinWidth({ field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT })).toBe(MIN_WIDTH_DEFAULT_PX);
+    });
+    it('should return MIN_WIDTH_NO_FILTERS_PX when filters: false', () => {
+      expect(getBuiltInMinWidth({ field: 'id', headerName: 'ID' }, { filters: false })).toBe(MIN_WIDTH_NO_FILTERS_PX);
+      expect(getBuiltInMinWidth({ field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT }, { filters: false })).toBe(MIN_WIDTH_NO_FILTERS_PX);
     });
     it('should cache results for same column', () => {
       const column = { field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT };
@@ -35,19 +39,24 @@ describe('columnWidthUtils', () => {
       expect(getEffectiveMinWidth(column)).toBe(200);
     });
 
-    it('should return built-in min when user minWidth is smaller', () => {
+    it('should return user minWidth when set (fully overrides built-in, may be lower)', () => {
       const column = { field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT, minWidth: 50 };
-      expect(getEffectiveMinWidth(column)).toBe(MIN_WIDTH_DEFAULT_PX);
+      expect(getEffectiveMinWidth(column)).toBe(50);
     });
 
-    it('should return built-in min when user minWidth equals built-in', () => {
+    it('should return user minWidth when equals built-in', () => {
       const column = { field: 'name', headerName: 'Name', filter: FILTER_TYPE_TEXT, minWidth: MIN_WIDTH_DEFAULT_PX };
       expect(getEffectiveMinWidth(column)).toBe(MIN_WIDTH_DEFAULT_PX);
     });
 
-    it('should handle minWidth: 0 (should use built-in)', () => {
+    it('should honor minWidth: 0 when user explicitly sets it', () => {
       const column = { field: 'id', headerName: 'ID', filter: FILTER_TYPE_NONE, minWidth: 0 };
-      expect(getEffectiveMinWidth(column)).toBe(MIN_WIDTH_DEFAULT_PX);
+      expect(getEffectiveMinWidth(column)).toBe(0);
+    });
+
+    it('should return MIN_WIDTH_NO_FILTERS_PX when filters: false and no user minWidth', () => {
+      const column = { field: 'id', headerName: 'ID', filter: FILTER_TYPE_NONE };
+      expect(getEffectiveMinWidth(column, { filters: false })).toBe(MIN_WIDTH_NO_FILTERS_PX);
     });
   });
 
@@ -467,6 +476,16 @@ describe('columnWidthUtils', () => {
         const result = calculateColumnWidths(columns, 1000);
         // Width 0 is treated as fixed, but clamped to minWidth
         expect(result.columnWidthMap.get('name8')).toBe(MIN_WIDTH_DEFAULT_PX);
+      });
+
+      it('should use MIN_WIDTH_NO_FILTERS_PX when filters: false', () => {
+        const columns = [
+          { field: 'id', headerName: 'ID', filter: FILTER_TYPE_NONE },
+        ];
+        // Use small container so minTotal > containerWidth, columns get min widths (no leftover distribution)
+        const result = calculateColumnWidths(columns, 50, new Map(), { filters: false });
+        expect(result.columnWidthMap.get('id')).toBe(MIN_WIDTH_NO_FILTERS_PX);
+        expect(result.enableHorizontalScroll).toBe(true);
       });
 
       it('should handle column with negative width', () => {

@@ -99,7 +99,7 @@ Each column can define:
 - `editable` – `boolean | ((row) => boolean)` – enables editing. Use a function for conditional editing based on row data
 - `width` – number (px) for fixed width
 - `flex` – number for proportional grow factor (columns share remaining space proportionally)
-- `minWidth` – number (px) for minimum width constraint
+- `minWidth` – number (px) for minimum width constraint. When set, fully overrides the built-in minimum (may be lower). Very small values may cause layout and usability issues.
 - `maxWidth` – number (px) for maximum width constraint
 - `defaultWidth` – number (px) for optional default width (useful for action/icon columns)
 - `validators` – `[{ validate: (value, row) => boolean|string, message? }]`
@@ -143,8 +143,8 @@ The grid supports flexible column width management:
 - **Manual resizing**: Users can drag column borders to resize (resized columns are automatically excluded from flex distribution)
 
 Built-in minimum widths:
-- Built-in minimum: 110px for all columns.
-- Effective minimum = max(user `minWidth`, built-in minimum)
+- Built-in minimum: 110px when filters are shown, 85px when `filters: false`.
+- If `minWidth` is set on a column, it fully overrides the built-in (user can go lower). Very small values may cause layout and usability issues.
 
 **Column Resizing**: Users can manually resize columns by dragging the border between column headers. Resized columns are automatically "frozen" and excluded from flex/auto distribution, maintaining their user-set width. The resize handle is an 8px invisible drag area on the right edge of each column header.
 

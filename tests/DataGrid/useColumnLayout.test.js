@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useColumnLayout } from '../../src/DataGrid/useColumnLayout';
 import { FILTER_TYPE_NONE } from '../../src/config/schema';
-import { MIN_WIDTH_DEFAULT_PX } from '../../src/utils/columnWidthUtils';
+import { MIN_WIDTH_DEFAULT_PX, MIN_WIDTH_NO_FILTERS_PX } from '../../src/utils/columnWidthUtils';
 
 // Mock useContainerWidth
 vi.mock('../../src/DataGrid/useContainerWidth', () => ({
@@ -95,6 +95,20 @@ describe('useColumnLayout', () => {
       );
 
       expect(result.current.columnWidthMap.get('name')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+    });
+
+    it('should use MIN_WIDTH_NO_FILTERS_PX as default column min width when filters: false', () => {
+      useContainerWidth.mockReturnValue(50);
+      const columns = [
+        { field: 'id', headerName: 'ID', filter: FILTER_TYPE_NONE },
+      ];
+
+      const { result } = renderHook(() =>
+        useColumnLayout({ columns, containerRef, columnWidthState: new Map(), filters: false })
+      );
+
+      // With filters: false, built-in min is MIN_WIDTH_NO_FILTERS_PX (not MIN_WIDTH_DEFAULT_PX)
+      expect(result.current.columnWidthMap.get('id')).toBe(MIN_WIDTH_NO_FILTERS_PX);
     });
   });
 

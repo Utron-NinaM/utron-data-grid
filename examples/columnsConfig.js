@@ -39,6 +39,7 @@ export const columnsConfig = [
     filter: FIELD_TYPE_LIST,
     editable: true,
     width: 90,
+    minWidth: 80,
     options: electricOptionsEn,
     filterOptions: { listValues: electricOptionsEn },
     cellStyle: (value, row) => (value === 'yes' ? { backgroundColor: '#e8f5e9' } : {}),
@@ -62,7 +63,7 @@ export const columnsConfig = [
 
 export const columnsConfigHebrew = [
   { field: 'make', headerName: 'יצרן', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 120 },
-  { field: 'model', headerName: 'דגם', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 120 },
+  { field: 'model', headerName: 'דגם', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, minWidth: 70 },
   { field: 'price', headerName: 'מחיר', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 100 },
   { field: 'year', headerName: 'שנה', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 80 },
   {

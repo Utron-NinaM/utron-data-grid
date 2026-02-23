@@ -2,6 +2,7 @@ import { DEFAULT_FIELD_TYPE } from '../config/schema';
 
 // Pre-compute constant values
 export const MIN_WIDTH_DEFAULT_PX = 110;
+export const MIN_WIDTH_NO_FILTERS_PX = 85;
 
 /**
  * Normalizes column width values to CSS-compatible strings.
@@ -43,54 +44,64 @@ const AUTO_MAX_WIDTH_MULTIPLIER = 2.5; // Auto columns max = 2.5 × minWidth
 /**
  * Gets the cache key for a column
  * @param {Object} column - Column object
+ * @param {boolean} [filters=true] - Whether filters are shown (affects built-in min width)
  * @returns {string} Cache key
  */
-function getCacheKey(column) {
+function getCacheKey(column, filters = true) {
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
   // Include minWidth and maxWidth in cache key to avoid stale values when constraints change
   const minWidth = column.minWidth != null ? column.minWidth : '';
   const maxWidth = column.maxWidth != null ? column.maxWidth : '';
-  return `${column.field}|${column.headerName || ''}|${filterType}|${minWidth}|${maxWidth}`;
+  const filtersSuffix = filters === false ? '|nofilters' : '';
+  return `${column.field}|${column.headerName || ''}|${filterType}|${minWidth}|${maxWidth}${filtersSuffix}`;
 }
 
 /**
  * Returns the built-in minimum width for a column.
- * Built-in minimum is 110px for all columns.
+ * 110px when filters are shown, 85px when filters: false.
  *
  * @param {Object} column - Column object
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.filters=true] - Whether filters are shown
  * @returns {number} Built-in minimum width in pixels
  */
-export function getBuiltInMinWidth(column) {
-  const cacheKey = getCacheKey(column);
+export function getBuiltInMinWidth(column, options = {}) {
+  const filters = options.filters !== false;
+  const cacheKey = getCacheKey(column, filters);
 
   // Check cache first
   if (builtInMinWidthCache.has(cacheKey)) {
     return builtInMinWidthCache.get(cacheKey);
   }
 
-  // Cache and return
-  builtInMinWidthCache.set(cacheKey, MIN_WIDTH_DEFAULT_PX);
-  return MIN_WIDTH_DEFAULT_PX;
+  const value = filters ? MIN_WIDTH_DEFAULT_PX : MIN_WIDTH_NO_FILTERS_PX;
+  builtInMinWidthCache.set(cacheKey, value);
+  return value;
 }
 
 /**
- * Calculates the effective minimum width as the maximum of user minWidth and built-in minWidth.
- * 
+ * Calculates the effective minimum width.
+ * When column.minWidth is set, it fully overrides the built-in (user may go lower).
+ * When not set, uses the built-in minimum.
+ *
  * @param {Object} column - Column object
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.filters=true] - Whether filters are shown
  * @returns {number} Effective minimum width in pixels
  */
-export function getEffectiveMinWidth(column) {
-  const cacheKey = getCacheKey(column);
+export function getEffectiveMinWidth(column, options = {}) {
+  const filters = options.filters !== false;
+  const cacheKey = getCacheKey(column, filters);
 
   // Check cache first
   if (effectiveMinWidthCache.has(cacheKey)) {
     return effectiveMinWidthCache.get(cacheKey);
   }
 
-  const builtInMin = getBuiltInMinWidth(column);
+  const builtInMin = getBuiltInMinWidth(column, options);
   const userMinWidth = column.minWidth;
 
-  const effectiveMin = userMinWidth != null ? Math.max(userMinWidth, builtInMin) : builtInMin;
+  const effectiveMin = userMinWidth != null ? userMinWidth : builtInMin;
 
   // Cache and return
   effectiveMinWidthCache.set(cacheKey, effectiveMin);
@@ -106,17 +117,19 @@ export function getEffectiveMinWidth(column) {
  * @param {number} [options.avgCharWidth] - Average character width (default 8px)
  * @param {number} [options.headerPadding] - Header padding (default 16px)
  * @param {number} [options.iconAllowance] - Icon allowance (default 32px)
+ * @param {boolean} [options.filters=true] - Whether filters are shown
  * @returns {number} Estimated width in pixels
  */
 export function estimateAutoColumnWidth(column, options = {}) {
-  const cacheKey = getCacheKey(column);
+  const filters = options.filters !== false;
+  const cacheKey = getCacheKey(column, filters);
 
   // Check cache first
   if (autoWidthEstimateCache.has(cacheKey)) {
     return autoWidthEstimateCache.get(cacheKey);
   }
 
-  const effectiveMinWidth = getEffectiveMinWidth(column);
+  const effectiveMinWidth = getEffectiveMinWidth(column, options);
   const avgCharWidth = options.avgCharWidth ?? DEFAULT_AVG_CHAR_WIDTH;
   const headerPadding = options.headerPadding ?? HEADER_PADDING;
   const iconAllowance = options.iconAllowance ?? ICON_ALLOWANCE;
@@ -167,12 +180,16 @@ export function getAutoMaxWidth(column, minWidth) {
  * @param {Object[]} columns - Array of column definitions
  * @param {number} containerWidth - Available container width in pixels
  * @param {Map<string, number>} columnState - Map of field -> width for user-resized columns (overrides only)
+ * @param {Object} [options] - Optional configuration
+ * @param {boolean} [options.filters=true] - Whether filters are shown
  * @returns {{ columnWidthMap: Map<string, number>, totalWidth: number, enableHorizontalScroll: boolean }}
  */
-export function calculateColumnWidths(columns, containerWidth, columnState = new Map()) {
+export function calculateColumnWidths(columns, containerWidth, columnState = new Map(), options = {}) {
   // CRITICAL: Always create new Map for results (never reuse) - React relies on reference equality
   const resultMap = new Map();
-  
+  const filters = options.filters !== false;
+  const widthOptions = { filters };
+
   const safeColumnState = columnState || new Map();
 
   // Step 1: Single-pass categorization
@@ -202,7 +219,7 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
   // Step 2: Assign fixed widths
   let fixedTotal = 0;
   fixedCols.forEach(({ col, width }) => {
-    const effectiveMin = getEffectiveMinWidth(col);
+    const effectiveMin = getEffectiveMinWidth(col, widthOptions);
     const maxWidth = col.maxWidth;
 
     // Apply minWidth first
@@ -223,8 +240,8 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
   let autoMinTotal = 0;
 
   autoCols.forEach(col => {
-    const minWidth = getEffectiveMinWidth(col);
-    const estimatedWidth = estimateAutoColumnWidth(col);
+    const minWidth = getEffectiveMinWidth(col, widthOptions);
+    const estimatedWidth = estimateAutoColumnWidth(col, widthOptions);
     const autoMin = Math.max(estimatedWidth, minWidth);
     const autoMax = getAutoMaxWidth(col, minWidth);
 
@@ -236,7 +253,7 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
   // Compute minTotal directly from already-calculated values
   let flexMinTotal = 0;
   flexCols.forEach(({ col }) => {
-    flexMinTotal += getEffectiveMinWidth(col);
+    flexMinTotal += getEffectiveMinWidth(col, widthOptions);
   });
 
   const minTotal = fixedTotal + autoMinTotal + flexMinTotal;
@@ -245,7 +262,7 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
     // Container too small - return minWidths and enable scroll
     columns.forEach(col => {
       if (!resultMap.has(col.field)) {
-        resultMap.set(col.field, getEffectiveMinWidth(col));
+        resultMap.set(col.field, getEffectiveMinWidth(col, widthOptions));
       }
     });
     return {
@@ -262,7 +279,7 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
   if (remainingSpace <= 0) {
     // No space for flex - collapse to minWidth
     flexCols.forEach(({ col }) => {
-      const minWidth = getEffectiveMinWidth(col);
+      const minWidth = getEffectiveMinWidth(col, widthOptions);
       resultMap.set(col.field, minWidth);
     });
 
@@ -279,7 +296,7 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
 
     if (totalFlex > 0) {
       flexCols.forEach(({ col, flex }) => {
-        const minWidth = getEffectiveMinWidth(col);
+        const minWidth = getEffectiveMinWidth(col, widthOptions);
         resultMap.set(col.field, minWidth + Math.floor((extraSpace * flex) / totalFlex));
       });
     }
@@ -302,7 +319,7 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
   columns.forEach(col => {
     if (resultMap.has(col.field)) {
       let width = resultMap.get(col.field);
-      const minWidth = getEffectiveMinWidth(col);
+      const minWidth = getEffectiveMinWidth(col, widthOptions);
       const maxWidth = col.maxWidth;
 
       // If minWidth > maxWidth, minWidth takes precedence
@@ -383,10 +400,10 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
     // This should never happen, but if it does, use minWidths
     columns.forEach(col => {
       if (!resultMap.has(col.field)) {
-        resultMap.set(col.field, getEffectiveMinWidth(col));
+        resultMap.set(col.field, getEffectiveMinWidth(col, widthOptions));
       } else {
         const currentWidth = resultMap.get(col.field);
-        const minWidth = getEffectiveMinWidth(col);
+        const minWidth = getEffectiveMinWidth(col, widthOptions);
         resultMap.set(col.field, Math.max(currentWidth, minWidth));
       }
     });

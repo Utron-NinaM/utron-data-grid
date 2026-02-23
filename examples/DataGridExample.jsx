@@ -80,7 +80,7 @@ export function DataGridExample() {
             gridId: 'orders-grid',
             translations: en,
             direction,
-            multiSelectable: true,
+            multiSelectable: true,            
             editable: true,
             pagination: true,
             pageSize: 10,
@@ -91,7 +91,7 @@ export function DataGridExample() {
             onRowDoubleClick: handleRowDoubleClick,
             toolbarClearButtonsSx: { textTransform: 'none', minWidth: 80 , backgroundColor: 'pink'},
             headerConfig: {
-              mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30, color: 'blue' },
+              mainRow: { backgroundColor: 'rgb(139, 0, 0)', height: 30, color: 'white' },
               filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
               filterCells: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
             },          

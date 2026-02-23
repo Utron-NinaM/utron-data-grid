@@ -12,7 +12,7 @@ import {
   SORT_ORDER_ASC,
   SORT_ORDER_DESC,
 } from '../../src/config/schema';
-import { MIN_WIDTH_DEFAULT_PX } from '../../src/utils/columnWidthUtils';
+import { MIN_WIDTH_DEFAULT_PX, MIN_WIDTH_NO_FILTERS_PX } from '../../src/utils/columnWidthUtils';
 
 describe('useDataGridMaps', () => {
   const defaultColumns = [
@@ -331,6 +331,44 @@ describe('useDataGridMaps', () => {
       });
       const filterSx = result.current.filterCellSxMap.get('a');
       expect(filterSx.minWidth).toBe(`${MIN_WIDTH_DEFAULT_PX}px`);
+    });
+
+    it('applies MIN_WIDTH_NO_FILTERS_PX to headerCellSxMap when filters: false', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', filter: FILTER_TYPE_NUMBER },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+          filters: false,
+        },
+      });
+      const headerSx = result.current.headerCellSxMap.get('a');
+      expect(headerSx.minWidth).toBe(`${MIN_WIDTH_NO_FILTERS_PX}px`);
+    });
+
+    it('applies MIN_WIDTH_NO_FILTERS_PX to filterCellSxMap when filters: false', () => {
+      const columns = [
+        { field: 'a', headerName: 'A', filter: FILTER_TYPE_TEXT },
+      ];
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+          filters: false,
+        },
+      });
+      const filterSx = result.current.filterCellSxMap.get('a');
+      expect(filterSx.minWidth).toBe(`${MIN_WIDTH_NO_FILTERS_PX}px`);
     });
 
     it('merges mainRow height and backgroundColor into headerCellSxMap', () => {

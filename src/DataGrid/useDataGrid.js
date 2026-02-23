@@ -287,6 +287,7 @@ export function useDataGrid(props) {
     reserveScrollbarWidth: hasHeightConstraint,
     scrollContainerRef,
     scrollContainerReady,
+    filters,
   });
 
   const {
@@ -305,6 +306,7 @@ export function useDataGrid(props) {
     displayRows,
     getRowId,
     columnWidthMap: layoutColumnWidthMap, // Pass layout-calculated widths
+    filters,
   });
 
   const filterInputHeight = headerConfig?.filterCells?.height || headerConfig?.filterRows?.height;

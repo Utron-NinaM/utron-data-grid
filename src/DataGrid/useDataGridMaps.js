@@ -13,6 +13,7 @@ import { getEffectiveMinWidth } from '../utils/columnWidthUtils';
  * @param {Object[]} params.displayRows
  * @param {Function} params.getRowId
  * @param {Map<string, number>} [params.columnWidthMap] - Map of field -> width (numbers) from useColumnLayout
+ * @param {boolean} [params.filters=true] - Whether filters are shown (affects built-in min width)
  * @returns {{ sortOrderIndexMap: Map, columnSortDirMap: Map, columnAlignMap: Map, headerCellSxMap: Map, filterCellSxMap: Map, rowStylesMap: Map, columnWidthMap: Map }}
  */
 export function useDataGridMaps({
@@ -23,6 +24,7 @@ export function useDataGridMaps({
   displayRows,
   getRowId,
   columnWidthMap: providedColumnWidthMap,
+  filters = true,
 }) {
   const sortOrderIndexMap = useMemo(() => {
     const map = new Map();
@@ -100,7 +102,7 @@ export function useDataGridMaps({
     const { height: mainRowHeight, backgroundColor: mainRowBg, ...mainRowSx } = mainRow;
     columns.forEach((col) => {
       const width = providedColumnWidthMap?.get(col.field);
-      const minWidth = getEffectiveMinWidth(col);
+      const minWidth = getEffectiveMinWidth(col, { filters });
       const cellSx = createCellSx(
         col,
         {
@@ -115,7 +117,7 @@ export function useDataGridMaps({
       map.set(col.field, cellSx);
     });
     return map;
-  }, [columns, headerConfig, providedColumnWidthMap]);
+  }, [columns, headerConfig, providedColumnWidthMap, filters]);
 
   const filterCellSxMap = useMemo(() => {
     const map = new Map();
@@ -129,7 +131,7 @@ export function useDataGridMaps({
     const filterRowSx = { ...filterRowsSx, ...filterCellsSx };
     columns.forEach((col) => {
       const width = providedColumnWidthMap?.get(col.field);
-      const minWidth = width != null ? undefined : getEffectiveMinWidth(col);
+      const minWidth = width != null ? undefined : getEffectiveMinWidth(col, { filters });
       const cellSx = createCellSx(
         col,
         {
@@ -145,7 +147,7 @@ export function useDataGridMaps({
       map.set(col.field, cellSx);
     });
     return map;
-  }, [columns, headerConfig, providedColumnWidthMap]);
+  }, [columns, headerConfig, providedColumnWidthMap, filters]);
 
   const rowStylesMap = useMemo(() => {
     const map = new Map();
