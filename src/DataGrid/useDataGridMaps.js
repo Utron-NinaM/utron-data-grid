@@ -81,11 +81,14 @@ export function useDataGridMaps({
 
     const widthStr = width != null ? `${width}px` : undefined;
     const minWidthStr = minWidth != null ? `${minWidth}px` : undefined;
-
+    
     return {
       verticalAlign,
       ...baseConfig,
-      padding: rowHeight ? '2px' : '4px',
+      paddingTop: '2px',
+      paddingBottom: '2px',
+      paddingLeft: '4px',
+      paddingRight: '4px',
       ...(widthStr ? { width: widthStr } : { width: 'inherit' }),
       ...(minWidthStr && { minWidth: minWidthStr }),
       overflow: 'hidden',

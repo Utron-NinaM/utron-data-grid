@@ -1,4 +1,16 @@
+import { emphasize } from '@mui/system/colorManipulator';
 import { DIRECTION_RTL } from '../config/schema';
+
+const DEFAULT_RESIZE_HANDLE_BG = 'rgba(0, 0, 0, 0.1)';
+
+export function getResizeHandleBackgroundColor(baseColor) {
+  if (!baseColor || typeof baseColor !== 'string') return DEFAULT_RESIZE_HANDLE_BG;
+  try {
+    return emphasize(baseColor, 0.3);
+  } catch {
+    return DEFAULT_RESIZE_HANDLE_BG;
+  }
+}
 
 // ----- GridTable -----
 
@@ -149,7 +161,7 @@ export const sortOrderBadgeSx = { ml: 0.25, fontSize: '0.75rem', opacity: 0.8, f
 
 export const flexSpacerSx = { flex: 1, minWidth: 0 };
 
-export function getResizeHandleSx(direction) {
+export function getResizeHandleSx(direction, columnBackground) {
   return {
     position: 'absolute',
     top: 0,
@@ -158,6 +170,6 @@ export function getResizeHandleSx(direction) {
     height: '100%',
     cursor: 'col-resize',
     zIndex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    backgroundColor: getResizeHandleBackgroundColor(columnBackground),
   };
 }

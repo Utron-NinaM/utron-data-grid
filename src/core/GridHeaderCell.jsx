@@ -1,4 +1,5 @@
 import React, { useContext, useMemo, useRef, useEffect } from 'react';
+import { useTheme } from '@mui/material/styles';
 import TableCell from '@mui/material/TableCell';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Box from '@mui/material/Box';
@@ -34,6 +35,7 @@ export function GridHeaderCell({
   filterSlot,
   sortOrderIndex,
 }) {
+  const theme = useTheme();
   const ctx = useContext(DataGridStableContext);
   const direction = ctx?.direction;
   const headerConfig = ctx?.headerConfig;
@@ -49,6 +51,22 @@ export function GridHeaderCell({
   const order = sortOrder === SORT_ORDER_ASC ? SORT_ORDER_ASC : SORT_ORDER_DESC;
   const cellSx = headerCellSxMap?.get(column.field);
   const mainRowHeight = headerConfig?.mainRow?.height;
+
+  const columnBackground = useMemo(() => {
+    const raw =
+      cellSx?.backgroundColor ??
+      headerConfig?.mainRow?.backgroundColor ??
+      headerConfig?.base?.backgroundColor;
+    if (!raw || typeof raw !== 'string') return undefined;
+    if (raw.startsWith('#') || raw.startsWith('rgb')) return raw;
+    const parts = raw.split('.');
+    let val = theme?.palette;
+    for (const p of parts) {
+      val = val?.[p];
+    }
+    return typeof val === 'string' ? val : undefined;
+  }, [cellSx?.backgroundColor, headerConfig?.mainRow?.backgroundColor, headerConfig?.base?.backgroundColor, theme?.palette]);
+  
   const multiColumn = sortModel?.length > 1;
   const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight, ctx?.fontSize), [filterInputHeight, ctx?.fontSize]); 
 
@@ -178,7 +196,7 @@ export function GridHeaderCell({
         <Box
           data-testid="resize-handle"
           onMouseDown={handleResizeMouseDown}
-          sx={getResizeHandleSx(direction)}
+          sx={getResizeHandleSx(direction, columnBackground)}
         />
       )}
     </TableCell>
