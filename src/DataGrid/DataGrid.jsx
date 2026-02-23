@@ -117,9 +117,43 @@ export function DataGrid(props) {
           MuiFormControlLabel: { styleOverrides: { label: fontSx } },
           MuiMenuItem: { styleOverrides: { root: fontSx } },
           MuiAlert: { styleOverrides: { root: fontSx, title: fontSx } },
-          MuiSelect: { styleOverrides: { select: fontSx } },
+          MuiSelect: {
+            styleOverrides: {
+              select: fontSx,
+              ...(direction === DIRECTION_RTL && { icon: { left: '9px !important', right: 'auto !important' } }),
+            },
+          },
         }
       : {};
+
+    const rtlComponents =
+      direction === DIRECTION_RTL
+        ? {
+            ...(!fontSx && {
+              MuiSelect: {
+                styleOverrides: { icon: { left: '9px !important', right: 'auto !important' } },
+              },
+            }),
+            MuiAutocomplete: {
+              styleOverrides: {
+                root: {
+                  '& .MuiAutocomplete-endAdornment': {
+                    left: '9px !important',
+                    right: 'auto !important',
+                  },
+                  '& .MuiOutlinedInput-root': {
+                    paddingLeft: '39px !important',
+                    paddingRight: '9px !important',
+                  },
+                  '& .MuiOutlinedInput-root.MuiInputBase-sizeSmall': {
+                    paddingLeft: '35px !important',
+                    paddingRight: '6px !important',
+                  },
+                },
+              },
+            },
+          }
+        : {};
 
     return createTheme({
       direction,
@@ -141,6 +175,7 @@ export function DataGrid(props) {
           },
         },
         ...fontComponents,
+        ...rtlComponents,
       },
     });
   }, [direction, fontFamily, fontSize, fontWeight]);
