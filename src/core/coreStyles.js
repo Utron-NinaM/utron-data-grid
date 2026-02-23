@@ -1,15 +1,26 @@
-import { emphasize } from '@mui/system/colorManipulator';
+import { alpha, getLuminance } from '@mui/system/colorManipulator';
 import { DIRECTION_RTL } from '../config/schema';
 
-const DEFAULT_RESIZE_HANDLE_BG = 'rgba(0, 0, 0, 0.1)';
-
-export function getResizeHandleBackgroundColor(baseColor) {
-  if (!baseColor || typeof baseColor !== 'string') return DEFAULT_RESIZE_HANDLE_BG;
-  try {
-    return emphasize(baseColor, 0.3);
-  } catch {
-    return DEFAULT_RESIZE_HANDLE_BG;
+export function getResizeLineColor(columnBackground, theme) {
+  if (columnBackground && typeof columnBackground === 'string' && theme?.palette) {
+    try {
+      const luminance = getLuminance(columnBackground);
+      if (luminance < 0.3) {
+        const white = theme.palette.common?.white;
+        if (white) return alpha(white, 0.5);
+      }
+    } catch {
+      /* fall through */
+    }
   }
+  if (theme?.palette?.divider) {
+    try {
+      return theme.palette.divider;
+    } catch {
+      /* fall through */
+    }
+  }
+  return 'rgba(0, 0, 0, 0.1)';
 }
 
 // ----- GridTable -----
@@ -161,15 +172,33 @@ export const sortOrderBadgeSx = { ml: 0.25, fontSize: '0.75rem', opacity: 0.8, f
 
 export const flexSpacerSx = { flex: 1, minWidth: 0 };
 
-export function getResizeHandleSx(direction, columnBackground) {
+export function getResizeHandleSx(direction, columnBackground, theme) {
+  const isRTL = direction === DIRECTION_RTL;
+  const base = getResizeLineColor(columnBackground, theme);
+  const hover = alpha(base, 0.85);
   return {
     position: 'absolute',
     top: 0,
-    ...(direction === DIRECTION_RTL ? { left: '-3px' } : { right: '-3px' }),
+    [isRTL ? 'left' : 'right']: '-4px',
     width: '8px',
     height: '100%',
     cursor: 'col-resize',
-    zIndex: 1,
-    backgroundColor: getResizeHandleBackgroundColor(columnBackground),
+    zIndex: 2,
+    backgroundColor: 'transparent',
+
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: '15%',
+      ...(isRTL ? { right: '2px' } : { left: '2px' }),
+      width: '2px',
+      height: '70%',
+      backgroundColor: base,
+      pointerEvents: 'none',
+    },
+
+    '&:hover::after': {
+      backgroundColor: hover,
+    },
   };
 }

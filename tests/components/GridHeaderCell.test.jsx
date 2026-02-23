@@ -602,7 +602,7 @@ describe('GridHeaderCell Component', () => {
       );
       const handle = screen.getByTestId('resize-handle');
       const styles = window.getComputedStyle(handle);
-      expect(styles.right).toBe('-3px');
+      expect(styles.right).toBe('-4px');
     });    
   });
   

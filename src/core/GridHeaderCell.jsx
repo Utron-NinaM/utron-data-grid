@@ -196,7 +196,7 @@ export function GridHeaderCell({
         <Box
           data-testid="resize-handle"
           onMouseDown={handleResizeMouseDown}
-          sx={getResizeHandleSx(direction, columnBackground)}
+          sx={getResizeHandleSx(direction, columnBackground, theme)}
         />
       )}
     </TableCell>
