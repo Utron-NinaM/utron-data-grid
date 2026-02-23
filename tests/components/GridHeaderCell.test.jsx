@@ -431,7 +431,7 @@ describe('GridHeaderCell Component', () => {
       expect(styles.flexWrap).toBe('nowrap');
     });
 
-    it('should wrap when headerComboSlot is not present', () => {
+    it('should use nowrap when headerComboSlot is not present', () => {
       renderWithContext(
         <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />
       );
@@ -439,7 +439,7 @@ describe('GridHeaderCell Component', () => {
       const cell = screen.getByRole('columnheader');
       const contentBox = cell.querySelector('div[class*="MuiBox"]');
       const styles = window.getComputedStyle(contentBox);
-      expect(styles.flexWrap).toBe('wrap');
+      expect(styles.flexWrap).toBe('nowrap');
     });
 
     it('should truncate long header name with ellipsis', () => {

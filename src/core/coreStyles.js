@@ -151,7 +151,7 @@ export function getHeaderInnerBoxSx(mainRowHeight, headerComboSlot) {
     display: 'flex',
     alignItems: 'center',
     gap: 0.5,
-    flexWrap: headerComboSlot ? 'nowrap' : 'wrap',
+    flexWrap: 'nowrap',
     py: mainRowHeight ? 0 : 0.5,
     boxSizing: 'border-box',
     height: '100%',

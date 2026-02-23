@@ -176,6 +176,7 @@ export function GridHeaderCell({
             active={!!sortDir}
             direction={order}
             onClick={handleSortClick}
+            hideSortIcon={false}
             sx={sortLabelSx}
           >
             <Box component="span" sx={headerLabelSx}>
@@ -183,11 +184,12 @@ export function GridHeaderCell({
             </Box>
           </TableSortLabel>
         </Tooltip>
-        {sortOrderIndex != null && multiColumn && (
-          <Box component="span" sx={sortOrderBadgeSx}>
-            {`(${sortOrderIndex})`}
-          </Box>
-        )}
+        {/* Reserve space for sort order badge to prevent column width shift on multi-sort */}
+        <Box component="span" sx={{ minWidth: 28, flexShrink: 0 }}>
+          {sortOrderIndex != null && multiColumn ? (
+            <Box component="span" sx={sortOrderBadgeSx}>{`(${sortOrderIndex})`}</Box>
+          ) : null}
+        </Box>
         {headerComboSlot != null && <Box sx={{ flexShrink: 0 }}>{headerComboSlot}</Box>}
         <Box sx={flexSpacerSx} />
       </Box>
