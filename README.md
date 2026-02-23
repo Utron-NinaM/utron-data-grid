@@ -117,6 +117,7 @@ For `type: 'list'` (and list filters), options must be an array of **keyed optio
 - **`value`** (the key) must be **primitive and JSON-serializable** (string, number, or boolean). Do not use objects as keys.
 - **Row data** for that field must store the same **key** (e.g. `row.status === 'published'`), not the label.
 - **`label`** is the display text and can be translated per locale; the grid shows the label in cells and in the filter dropdown.
+- `onListInputChange(value)` – optional. Called when the user types in the list Autocomplete input. Use for dynamic option fetching or search-as-you-type. Called only on user input (`reason === 'input'`). Empty/whitespace input is omitted (consistent with EditContentModal).
 
 The grid persists list filter selections by **key** in local storage, so filters remain active when switching languages or direction (RTL/LTR). List filter value is always an array: empty array = no selection, one or more keys = selected.
 

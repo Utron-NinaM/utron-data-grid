@@ -28,6 +28,7 @@ import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck
  * editable?: boolean | ((row) => boolean)
  * validators?: Array<{ validate: (value, row) => boolean|string, message?: string }>
  * options?: any[] (for list)
+ * onListInputChange?: (value: string) => void — optional. For type 'list', called when the user types in the Autocomplete input (reason === 'input').
  * render?: (value, row) => ReactNode — must not return unsanitized HTML or use dangerouslySetInnerHTML with user/API data (React escapes by default).
  * rowStyle?: (row) => sx
  * cellStyle?: (value, row) => sx

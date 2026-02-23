@@ -65,13 +65,21 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           options={listOptions}
           value={valueOption}
           onChange={(_, v) => onChange(column.field, v != null ? getOptionValue(v) : undefined)}
+          onInputChange={(event, newInputValue, reason) => {
+            if (reason === 'input' && column.onListInputChange && newInputValue && newInputValue.trim() !== '') {
+              column.onListInputChange(newInputValue);
+            }
+          }}
           getOptionLabel={getOptionLabel}
           isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
-          renderOption={(props, option) => (
-            <li {...props} style={{ ...props.style, ...rtlSx }}>
-              {getOptionLabel(option)}
-            </li>
-          )}
+          renderOption={(props, option) => {
+            const { key, ...otherProps } = props;
+            return (
+              <li key={key} {...otherProps} style={{ ...otherProps.style, ...rtlSx }}>
+                {getOptionLabel(option)}
+              </li>
+            );
+          }}
           renderInput={(params) => (
             <TextField
               {...params}

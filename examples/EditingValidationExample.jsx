@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DataGrid } from '../src/DataGrid/DataGrid';
 import { editingValidationColumns } from './editingValidationColumns';
 import { editingValidationData } from './editingValidationData';
@@ -8,6 +8,14 @@ import { DIRECTION_RTL } from '../src/config/schema';
 export function EditingValidationExample() {
   const [data, setData] = useState(editingValidationData);
   const [validationMessage, setValidationMessage] = useState('');
+  const [lastListInput, setLastListInput] = useState('');
+
+  const columns = useMemo(() => editingValidationColumns.map((col) => {
+    if (col.field === 'department' && col.type === 'list') {
+      return { ...col, onListInputChange: (value) => setLastListInput(value) };
+    }
+    return col;
+  }), []);
 
   const handleEditCommit = (rowId, row) => {
     setData((prev) => prev.map((r) => (r.id === rowId ? { ...r, ...row } : r)));
@@ -41,14 +49,14 @@ export function EditingValidationExample() {
         <li><strong>Email:</strong> Required, must be valid email format</li>
         <li><strong>Age:</strong> Required, must be between 18 and 120</li>
         <li><strong>Salary:</strong> Required, must be between 0 and 1,000,000</li>
-        <li><strong>Department:</strong> Required</li>
+        <li><strong>Department:</strong> Required (type to see onListInputChange: {lastListInput || '—'})</li>
         <li><strong>Start Date:</strong> Required, cannot be in the future</li>
       </ul>
      
       <div style={{ marginTop: 16 }}>
         <DataGrid
           rows={data}
-          columns={editingValidationColumns}
+          columns={columns}
           getRowId={(row) => row.id}
           options={{
             gridId: 'editing-validation-grid',
