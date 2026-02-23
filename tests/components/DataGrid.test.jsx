@@ -163,6 +163,24 @@ describe('DataGrid Component Integration', () => {
       expect(screen.queryByText('Charlie')).not.toBeInTheDocument();
     });
 
+    it('should hide filters when options.filters is false', () => {
+      render(
+        <DataGrid
+          rows={basicRows}
+          columns={basicColumns}
+          getRowId={getRowId}
+          options={{ filters: false }}
+        />
+      );
+
+      // Clear all filters button should not be shown
+      expect(screen.queryByRole('button', { name: /clear all filters/i })).not.toBeInTheDocument();
+
+      // Filter row should not be rendered (no filter inputs in header)
+      const filterInputs = screen.queryAllByPlaceholderText(/filter/i);
+      expect(filterInputs).toHaveLength(0);
+    });
+
     it('should enable editing when editable is true', () => {
       const onEditCommit = vi.fn();
 

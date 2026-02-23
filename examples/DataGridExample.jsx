@@ -90,7 +90,7 @@ export function DataGridExample() {
             onRowSelect: handleRowSelect,
             onRowDoubleClick: handleRowDoubleClick,
             headerConfig: {
-              mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30 },
+              mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30, color: 'blue' },
               filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
               filterCells: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },
             },          

@@ -68,7 +68,7 @@ function GridTableInner({
   const translations = useTranslations();
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
-  const { columns, getRowId, multiSelectable, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
+  const { columns, getRowId, multiSelectable, filters, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
     headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions, direction } = ctx;
 
   const bodyColRefs = useRef(new Map());
@@ -242,9 +242,11 @@ function GridTableInner({
         <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0}>
           {translations('clearSort')}
         </Button>
-        <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
-          {translations('clearAllFilters')}
-        </Button>
+        {filters !== false && (
+          <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
+            {translations('clearAllFilters')}
+          </Button>
+        )}
         <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns}>
           {translations('clearColumnWidths')}
         </Button>

@@ -25,6 +25,7 @@ import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
  * @property {Function} [onSelectionChange] - (selectedIds) => void
  * @property {Function} [onRowSelect] - (rowId, row) => void when a row is clicked
  * @property {boolean} [editable] - Enable row editing
+ * @property {boolean} [filters=true] - Show filter row; when false, no filters are displayed
  * @property {boolean} [multiSelectable] - Allow multiple row selection
  * @property {boolean} [pagination] - Show pagination bar
  * @property {number} [pageSize] - Rows per page
@@ -123,7 +124,21 @@ export function DataGrid(props) {
       direction,
       ...typoOverrides,
       components: {
-        MuiTableSortLabel: { styleOverrides: { root: { '&.Mui-active': { color: 'inherit' } } } },
+        MuiTableSortLabel: {
+          styleOverrides: {
+            root: {
+              color: 'inherit !important',
+              '& .MuiTableSortLabel-icon': { color: 'inherit !important', fill: 'currentColor' },
+              '& .MuiTableSortLabel-icon:hover': { color: 'inherit !important' },
+              '&:hover': { color: 'inherit !important' },
+              '&:hover .MuiTableSortLabel-icon': { color: 'inherit !important', opacity: 1 },
+              '&.Mui-active': { color: 'inherit !important' },
+              '&.Mui-active .MuiTableSortLabel-icon': { color: 'inherit !important' },
+              '&.Mui-focusVisible': { color: 'inherit !important' },
+              '&.Mui-focusVisible .MuiTableSortLabel-icon': { color: 'inherit !important' },
+            },
+          },
+        },
         ...fontComponents,
       },
     });

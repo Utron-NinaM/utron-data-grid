@@ -36,6 +36,7 @@ export function useDataGrid(props) {
     onRowDoubleClick,
     getRowId,
     editable = defaultGridConfig.editable,
+    filters = defaultGridConfig.filters ?? true,
     multiSelectable = defaultGridConfig.multiSelectable,
     pagination = defaultGridConfig.pagination,
     pageSize: initialPageSize = defaultGridConfig.pageSize,
@@ -351,6 +352,7 @@ export function useDataGrid(props) {
       onPageChange,
       onPageSizeChange,
       editable,
+      filters,
       multiSelectable,
       filterInputHeight,
       onRowSelect,
@@ -394,6 +396,7 @@ export function useDataGrid(props) {
       onPageChange,
       onPageSizeChange,
       editable,
+      filters,
       multiSelectable,
       filterInputHeight,
       onRowSelect,
@@ -427,12 +430,20 @@ export function useDataGrid(props) {
 
   // Filter context - functions that change when filterModel changes
   const filterContextValue = useMemo(
-    () => ({
-      getHeaderComboSlot: getHeaderComboSlotForColumn,
-      getFilterInputSlot: getFilterInputSlotForColumn,
-      getFilterToInputSlot: getFilterToInputSlotForColumn,
-    }),
+    () =>
+      filters
+        ? {
+            getHeaderComboSlot: getHeaderComboSlotForColumn,
+            getFilterInputSlot: getFilterInputSlotForColumn,
+            getFilterToInputSlot: getFilterToInputSlotForColumn,
+          }
+        : {
+            getHeaderComboSlot: null,
+            getFilterInputSlot: null,
+            getFilterToInputSlot: null,
+          },
     [
+      filters,
       getHeaderComboSlotForColumn,
       getFilterInputSlotForColumn,
       getFilterToInputSlotForColumn,

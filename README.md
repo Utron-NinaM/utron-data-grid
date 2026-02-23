@@ -70,6 +70,7 @@ const rows = [
 | `onRowSelect` | `(rowId, row) => void` | When a row is clicked |
 | `onRowDoubleClick` | `(row) => void` | When a row is double-clicked |
 | `editable` | `boolean` | Master switch for inline edit (default false) |
+| `filters` | `boolean` | Show filter row (default true). Set to `false` to hide all filters. |
 | `multiSelectable` | `boolean` | Show checkboxes and selection (default false) |
 | `pagination` | `boolean` | Enable client-side pagination (default false) |
 | `pageSize` | `number` | Rows per page (default 10) |

@@ -175,8 +175,14 @@ export function getToSlotWrapperSx(direction) {
   };
 }
 
-/** Header clear-filter IconButton sx. */
-export const headerClearButtonSx = { flexShrink: 0 };
+/** Header clear-filter IconButton sx. Inherits header color for icons in all states. */
+export const headerClearButtonSx = {
+  flexShrink: 0,
+  color: 'inherit',
+  '&:hover': { color: 'inherit' },
+  '&.Mui-focusVisible': { color: 'inherit' },
+  '&.Mui-active': { color: 'inherit' },
+};
 
 /**
  * Shared sx for the filter row box (used in GridHeaderCell and GridHeaderCellFilter).

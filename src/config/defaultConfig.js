@@ -5,6 +5,7 @@ import { DEFAULT_FONT_SIZE } from '../constants';
 
 export const defaultGridConfig = {
   editable: false,
+  filters: true,
   multiSelectable: false,
   pagination: false,
   pageSize: 10,
