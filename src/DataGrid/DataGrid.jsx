@@ -163,7 +163,13 @@ export function DataGrid(props) {
           styleOverrides: {
             root: {
               color: 'inherit !important',
-              '& .MuiTableSortLabel-icon': { color: 'inherit !important', fill: 'currentColor' },
+              '& .MuiTableSortLabel-icon': {
+                color: 'inherit !important',
+                fill: 'currentColor',
+                fontSize: 14,
+                marginLeft: 2,
+                marginRight: 2,
+              },
               '& .MuiTableSortLabel-icon:hover': { color: 'inherit !important' },
               '&:hover': { color: 'inherit !important' },
               '&:hover .MuiTableSortLabel-icon': { color: 'inherit !important', opacity: 1 },

@@ -498,13 +498,13 @@ describe('GridHeaderCell Component', () => {
       // Third child should be headerComboSlot
       expect(children[2]).toContainElement(screen.getByTestId('header-combo'));
       
-      // Last child should be spacer with flex: 1
+      // Last child should be spacer (flexGrow: 0 so label gets available space)
       const spacer = children[children.length - 1];
       const spacerStyles = window.getComputedStyle(spacer);
-      expect(spacerStyles.flex).toBe('1 1 0%');
+      expect(spacerStyles.flexGrow).toBe('0');
     });
 
-    it('should have spacer element to fill remaining width', () => {
+    it('should have spacer that does not take space so label gets room', () => {
       const headerComboSlot = <div data-testid="header-combo">Combo</div>;
 
       renderWithContext(
@@ -520,14 +520,14 @@ describe('GridHeaderCell Component', () => {
       const contentBox = cell.querySelector('div[class*="MuiBox"]');
       const children = Array.from(contentBox.children);
       
-      // Last child should be spacer
+      // Last child should be spacer (flexGrow: 0 so TableSortLabel gets available space)
       const spacer = children[children.length - 1];
       const spacerStyles = window.getComputedStyle(spacer);
-      expect(spacerStyles.flex).toBe('1 1 0%');
+      expect(spacerStyles.flexGrow).toBe('0');
       expect(spacerStyles.minWidth).toBe('0');
     });
 
-    it('should have TableSortLabel with flexShrink: 0 (not flex: 1)', () => {
+    it('should have TableSortLabel with flexShrink: 1 and minWidth for icon', () => {
       const headerComboSlot = <div data-testid="header-combo">Combo</div>;
 
       renderWithContext(
@@ -543,9 +543,9 @@ describe('GridHeaderCell Component', () => {
       const sortLabel = cell.querySelector('[class*="MuiTableSortLabel"]');
       const sortLabelStyles = window.getComputedStyle(sortLabel);
       
-      // Should not have flex: 1, should have flexShrink: 0
-      expect(sortLabelStyles.flex).not.toBe('1 1 0%');
-      expect(sortLabelStyles.flexShrink).toBe('0');
+      // Label can shrink to truncate; minWidth reserves space for sort icon
+      expect(sortLabelStyles.flexShrink).toBe('1');
+      expect(parseInt(sortLabelStyles.minWidth, 10)).toBeGreaterThanOrEqual(22);
     });
 
     it('should maintain layout order without headerComboSlot', () => {
@@ -564,10 +564,10 @@ describe('GridHeaderCell Component', () => {
       // First child should be Tooltip containing TableSortLabel
       expect(children[0].querySelector('[class*="MuiTableSortLabel"]')).toBeInTheDocument();
       
-      // Last child should still be spacer
+      // Last child should still be spacer (flexGrow: 0)
       const spacer = children[children.length - 1];
       const spacerStyles = window.getComputedStyle(spacer);
-      expect(spacerStyles.flex).toBe('1 1 0%');
+      expect(spacerStyles.flexGrow).toBe('0');
     });
   });
 

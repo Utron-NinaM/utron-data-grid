@@ -38,7 +38,7 @@ const autoWidthEstimateCache = new Map();
 // Auto width estimation constants
 const DEFAULT_AVG_CHAR_WIDTH = 8; // Configurable, default 7-9px
 const HEADER_PADDING = 8; // Left + right cell padding (4px each)
-const ICON_ALLOWANCE = 32; // Sort arrows, filter indicators, combo slots (24-40px range)
+const ICON_ALLOWANCE = 56; // Sort icon ~26px + sort order badge slot 28px
 const AUTO_MAX_WIDTH_MULTIPLIER = 2.5; // Auto columns max = 2.5 × minWidth
 
 /**

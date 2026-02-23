@@ -150,15 +150,17 @@ export function getHeaderInnerBoxSx(mainRowHeight, headerComboSlot) {
   return {
     display: 'flex',
     alignItems: 'center',
-    gap: 0.5,
+    gap: 0,
     flexWrap: 'nowrap',
+    overflow: 'hidden',
+    minHeight: 0,
     py: mainRowHeight ? 0 : 0.5,
     boxSizing: 'border-box',
     height: '100%',
   };
 }
 
-export const sortLabelSx = { minHeight: 20, minWidth: 0, overflow: 'hidden', flexShrink: 0 };
+export const sortLabelSx = { minHeight: 20, minWidth: 22, overflow: 'hidden', flex: '1 1 22px' };
 
 export const headerLabelSx = {
   overflow: 'hidden',
@@ -168,9 +170,9 @@ export const headerLabelSx = {
   width: '100%',
 };
 
-export const sortOrderBadgeSx = { ml: 0.25, fontSize: '0.75rem', opacity: 0.8, flexShrink: 0 };
+export const sortOrderBadgeSx = { fontSize: '0.75rem', opacity: 0.8, flexShrink: 0 };
 
-export const flexSpacerSx = { flex: 1, minWidth: 0 };
+export const flexSpacerSx = { flex: '0 1 0', minWidth: 0 };
 
 export function getResizeHandleSx(direction, columnBackground, theme) {
   const isRTL = direction === DIRECTION_RTL;

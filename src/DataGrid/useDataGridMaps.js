@@ -112,7 +112,7 @@ export function useDataGridMaps({
           rowHeight: mainRowHeight,
           backgroundColor: mainRowBg,
           baseConfig: headerConfig?.base,
-          rowSx: mainRowSx,
+          rowSx: { ...mainRowSx, ...(mainRowHeight ? {} : { minHeight: 30 }) },
         },
         width,
         minWidth

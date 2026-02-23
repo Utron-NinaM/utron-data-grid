@@ -185,7 +185,7 @@ export function GridHeaderCell({
           </TableSortLabel>
         </Tooltip>
         {/* Reserve space for sort order badge to prevent column width shift on multi-sort */}
-        <Box component="span" sx={{ minWidth: 28, flexShrink: 0 }}>
+        <Box component="span" sx={{ minWidth: 20, flexShrink: 0 }}>
           {sortOrderIndex != null && multiColumn ? (
             <Box component="span" sx={sortOrderBadgeSx}>{`(${sortOrderIndex})`}</Box>
           ) : null}
