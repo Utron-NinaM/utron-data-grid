@@ -89,6 +89,7 @@ export function DataGridExample() {
             onEditCommit: handleEditCommit,
             onRowSelect: handleRowSelect,
             onRowDoubleClick: handleRowDoubleClick,
+            toolbarClearButtonsSx: { textTransform: 'none', minWidth: 80 , backgroundColor: 'pink'},
             headerConfig: {
               mainRow: { backgroundColor: 'rgb(255, 204, 8)', height: 30, color: 'blue' },
               filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },

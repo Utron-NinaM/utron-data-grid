@@ -37,6 +37,7 @@ import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
  * @property {Object} [selectedRowStyle] - MUI sx for selected rows
  * @property {string} [gridId] - Unique id for this grid; when set, filter, sort, and column width state are persisted in localStorage and restored on mount or refresh. Use a different id per grid when multiple grids exist.
  * @property {React.ReactNode|((params: { selectedRow: Object|null, selectedRowId: string|number|null }) => React.ReactNode)} [toolbarActions] - Optional content rendered on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id.
+ * @property {Object} [toolbarClearButtonsSx] - MUI sx applied to Clear sort, Clear all filters, and Reset column widths toolbar buttons.
  * @property {number} [fontSize=13] - Font size in px for cells, filters, inputs, and pagination. Overridable via CSS (e.g. [data-testid="data-grid-root"] or --data-grid-font-size).
  * @property {string} [fontFamily] - Font family for all grid components (e.g. 'Roboto, sans-serif', var(--app-font-family)). Cascades from root.
  * @property {number|string} [fontWeight] - Font weight (e.g. 400, 600, 'bold'). Cascades from root.

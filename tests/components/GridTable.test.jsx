@@ -433,4 +433,25 @@ describe('GridTable Component', () => {
       expect(onClearColumnWidths).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('toolbarClearButtonsSx', () => {
+    it('should apply toolbarClearButtonsSx to Clear sort, Clear all filters, and Reset column widths buttons', () => {
+      const stableValue = {
+        ...defaultStableValue,
+        toolbarClearButtonsSx: { minWidth: 200, backgroundColor: 'rgb(255, 192, 203)' },
+      };
+      renderGridTable({}, stableValue);
+
+      const clearSortBtn = screen.getByRole('button', { name: /clear sort/i });
+      const clearFiltersBtn = screen.getByRole('button', { name: /clear all filters/i });
+      const resetWidthsBtn = screen.getByRole('button', { name: /reset column widths/i });
+
+      expect(getComputedStyle(clearSortBtn).minWidth).toBe('200px');
+      expect(getComputedStyle(clearFiltersBtn).minWidth).toBe('200px');
+      expect(getComputedStyle(resetWidthsBtn).minWidth).toBe('200px');
+      expect(getComputedStyle(clearSortBtn).backgroundColor).toBe('rgb(255, 192, 203)');
+      expect(getComputedStyle(clearFiltersBtn).backgroundColor).toBe('rgb(255, 192, 203)');
+      expect(getComputedStyle(resetWidthsBtn).backgroundColor).toBe('rgb(255, 192, 203)');
+    });
+  });
 });

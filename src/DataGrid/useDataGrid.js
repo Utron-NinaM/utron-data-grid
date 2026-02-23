@@ -47,6 +47,7 @@ export function useDataGrid(props) {
     selectedRowStyle,
     gridId,
     toolbarActions,
+    toolbarClearButtonsSx,
     fontSize = defaultGridConfig.fontSize,
   } = props;
 
@@ -381,6 +382,7 @@ export function useDataGrid(props) {
       totalWidth, // Total width for scroll calculation
       enableHorizontalScroll, // Whether to enable horizontal scroll
       toolbarActions,
+      toolbarClearButtonsSx,
       fontSize,
     }),
     [
@@ -424,6 +426,7 @@ export function useDataGrid(props) {
       totalWidth,
       enableHorizontalScroll,
       toolbarActions,
+      toolbarClearButtonsSx,
       fontSize,
     ]
   );

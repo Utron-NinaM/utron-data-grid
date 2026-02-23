@@ -69,7 +69,7 @@ function GridTableInner({
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
   const { columns, getRowId, multiSelectable, filters, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
-    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions, direction } = ctx;
+    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions, toolbarClearButtonsSx, direction } = ctx;
 
   const bodyColRefs = useRef(new Map());
   const headerScrollRef = useRef(null);
@@ -239,15 +239,15 @@ function GridTableInner({
   const toolbarBox = (
     <Box sx={getToolbarBoxSx(containScroll)}>
       <Box sx={toolbarActionsBoxSx}>
-        <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0}>
+        <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
           {translations('clearSort')}
         </Button>
         {filters !== false && (
-          <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters}>
+          <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
             {translations('clearAllFilters')}
           </Button>
         )}
-        <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns}>
+        <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
           {translations('clearColumnWidths')}
         </Button>
       </Box>
