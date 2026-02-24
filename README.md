@@ -70,6 +70,8 @@ const rows = [
 | `onRowSelect` | `(rowId, row) => void` | When a row is clicked |
 | `onRowDoubleClick` | `(row) => void` | When a row is double-clicked |
 | `editable` | `boolean` | Master switch for inline edit (default false) |
+| `reserveEditToolbarSpace` | `boolean` | When true and editable, always reserve space for the edit toolbar so layout does not jump when entering/leaving edit mode |
+| `editToolbarHeight` | `number` | Height in px for the reserved edit toolbar slot when `reserveEditToolbarSpace` is true (default 30) |
 | `filters` | `boolean` | Show filter row (default true). Set to `false` to hide all filters. |
 | `fitToContainer` | `boolean` | When true, treat columns without width/flex as flexible (flex: 1) and cap total width to the container (default false). Use for grids that should always fit the available width. |
 | `multiSelectable` | `boolean` | Show checkboxes and selection (default false) |

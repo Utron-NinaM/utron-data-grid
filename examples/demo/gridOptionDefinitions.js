@@ -77,6 +77,20 @@ export const gridOptionDefinitions = [
     default: defaultGridConfig.editable,
   },
   {
+    key: 'reserveEditToolbarSpace',
+    label: 'Reserve edit toolbar space',
+    type: 'boolean',
+    group: 'behavior',
+    default: false,
+  },
+  {
+    key: 'editToolbarHeight',
+    label: 'Edit toolbar height (px)',
+    type: 'number',
+    group: 'behavior',
+    default: 30,
+  },
+  {
     key: 'pagination',
     label: 'Pagination',
     type: 'boolean',

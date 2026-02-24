@@ -25,6 +25,8 @@ import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
  * @property {Function} [onSelectionChange] - (selectedIds) => void
  * @property {Function} [onRowSelect] - (rowId, row) => void when a row is clicked
  * @property {boolean} [editable] - Enable row editing
+ * @property {boolean} [reserveEditToolbarSpace] - When true and editable, always reserve space for the edit toolbar so layout does not jump when entering/leaving edit mode
+ * @property {number} [editToolbarHeight=30] - Height in px for the reserved edit toolbar slot when reserveEditToolbarSpace is true
  * @property {boolean} [filters=true] - Show filter row; when false, no filters are displayed
  * @property {boolean} [multiSelectable] - Allow multiple row selection
  * @property {boolean} [pagination] - Show pagination bar
@@ -69,6 +71,8 @@ export function DataGrid(props) {
   const grid = useDataGrid(flatProps);
   const direction = flatProps.direction ?? DIRECTION_LTR;
   const editable = flatProps.editable ?? defaultGridConfig.editable;
+  const reserveEditToolbarSpace = flatProps.reserveEditToolbarSpace;
+  const editToolbarHeight = flatProps.editToolbarHeight ?? 30;
   const pagination = flatProps.pagination ?? defaultGridConfig.pagination;
   const pageSizeOptions = flatProps.pageSizeOptions ?? defaultGridConfig.pageSizeOptions;
 
@@ -245,7 +249,16 @@ export function DataGrid(props) {
           ) : (
             gridTable
           )}
-          {editable && grid.editRowId != null && (
+          {editable && reserveEditToolbarSpace && (
+            <Box sx={{ minHeight: editToolbarHeight }}>
+              {grid.editRowId != null ? (
+                <EditToolbar onSave={grid.handleEditSave} onCancel={grid.handleEditCancel} />
+              ) : (
+                <Box sx={{ height: editToolbarHeight }} aria-hidden />
+              )}
+            </Box>
+          )}
+          {editable && !reserveEditToolbarSpace && grid.editRowId != null && (
             <EditToolbar onSave={grid.handleEditSave} onCancel={grid.handleEditCancel} />
           )}
           {pagination && (
