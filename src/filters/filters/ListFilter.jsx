@@ -34,8 +34,19 @@ export function ListFilter({ value, onChange, options }) {
     [keysArray, optionMap]
   );
 
+  const autocompleteWrapperSx = {
+    flex: 1,
+    minWidth: 0,
+    height: contentHeight,
+    minHeight: contentHeight,
+    maxHeight: contentHeight,
+    overflow: 'hidden',
+    display: 'flex',
+  };
+
   return (
     <Box sx={filterRowWrapperSxNoPadding}>
+      <Box sx={autocompleteWrapperSx}>
       <Autocomplete
         multiple
         size="small"
@@ -88,6 +99,7 @@ export function ListFilter({ value, onChange, options }) {
           },
         }}
       />
+      </Box>
     </Box>
   );
 }
