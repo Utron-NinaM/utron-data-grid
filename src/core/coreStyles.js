@@ -29,6 +29,7 @@ export function getToolbarBoxSx(containScroll) {
   return {
     ...(containScroll ? {} : { position: 'sticky', top: 0, zIndex: 3 }),
     flexShrink: 0,
+    minWidth: 0,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -42,12 +43,12 @@ export function getToolbarBoxSx(containScroll) {
 export const toolbarActionsBoxSx = { display: 'flex', gap: 1 };
 
 export function getTableContainerSx(enableHorizontalScroll, totalWidth, opts = {}) {
-  const { hideTopBorder, noScroll } = opts;
+  const { hideTopBorder, noScroll, constrainToParent } = opts;
   return {
     overflowX: noScroll ? 'visible' : (enableHorizontalScroll ? 'scroll' : 'visible'),
     overflowY: 'visible',
     width: '100%',
-    ...(totalWidth && enableHorizontalScroll && { minWidth: `${totalWidth}px` }),
+    ...(totalWidth && enableHorizontalScroll && !constrainToParent && { minWidth: `${totalWidth}px` }),
     borderRight: 'none',
     borderLeft: 'none',
     ...(hideTopBorder && { borderTop: 'none' }),
@@ -100,6 +101,7 @@ export function getFilterRowSx(headerConfig) {
 export function getHeaderScrollWrapperSx(direction, scrollbarWidth) {
   const padding = scrollbarWidth && scrollbarWidth > 0 ? scrollbarWidth : 0;
   return {
+    minWidth: 0,
     overflowX: 'auto',
     overflowY: 'hidden',
     scrollbarWidth: 'none',
@@ -113,6 +115,7 @@ export const scrollContainerSx = {
   flex: 1,
   minHeight: 0,
   minWidth: 0,
+  overflowX: 'hidden',
   display: 'flex',
   flexDirection: 'column',
 };
@@ -124,7 +127,7 @@ export function getScrollInnerBoxSx(enableHorizontalScroll) {
     minWidth: 0,
     position: 'relative',
     overflow: 'auto',
-    overflowX: enableHorizontalScroll ? 'scroll' : 'auto',
+    overflowX: 'hidden',//enableHorizontalScroll ? 'scroll' : 'auto',
     // Reserve scrollbar space so width is stable when switching page size (10→25 rows); prevents brief horizontal scroll flash
     scrollbarGutter: 'stable',
   };

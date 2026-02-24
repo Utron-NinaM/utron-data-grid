@@ -7,6 +7,7 @@ export const scrollableContentSx = {
   flex: 1,
   minHeight: 0,
   minWidth: 0,
+  overflowX: 'hidden',
   display: 'flex',
   flexDirection: 'column',
 };

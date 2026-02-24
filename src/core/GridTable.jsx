@@ -260,7 +260,7 @@ function GridTableInner({
       <TableContainer
         component={Paper}
         variant="outlined"
-        sx={getTableContainerSx(enableHorizontalScroll, totalWidth)}
+        sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { constrainToParent: true })}
       >
         <Table
           size="small"

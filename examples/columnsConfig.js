@@ -62,17 +62,16 @@ export const columnsConfig = [
 ];
 
 export const columnsConfigHebrew = [
-  { field: 'make', headerName: 'יצרן', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 120 },
-  { field: 'model', headerName: 'דגם', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, minWidth: 70 },
-  { field: 'price', headerName: 'מחיר', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 100 },
-  { field: 'year', headerName: 'שנה', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 80 },
+  { field: 'make', headerName: 'יצרן', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, },
+  { field: 'model', headerName: 'דגם', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
+  { field: 'price', headerName: 'מחיר', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },
+  { field: 'year', headerName: 'שנה', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },
   {
     field: 'color',
     headerName: 'צבע',
     type: FIELD_TYPE_LIST,
     filter: FIELD_TYPE_LIST,
     editable: true,
-    width: 100,
     options: colorOptionsHe,
     filterOptions: { listValues: colorOptionsHe },
   },
@@ -82,7 +81,6 @@ export const columnsConfigHebrew = [
     type: FIELD_TYPE_LIST,
     filter: FIELD_TYPE_LIST,
     editable: true,
-    width: 90,
     options: electricOptionsHe,
     filterOptions: { listValues: electricOptionsHe },
     cellStyle: (value, row) => (value === 'yes' ? { backgroundColor: '#e8f5e9' } : {}),
@@ -93,11 +91,10 @@ export const columnsConfigHebrew = [
     type: FIELD_TYPE_LIST,
     filter: FIELD_TYPE_LIST,
     editable: true,
-    width: 100,
     options: statusOptionsHe,
     filterOptions: { listValues: statusOptionsHe },
     rowStyle: (row) => (row.status === 'pending' ? { backgroundColor: '#fff3e0' } : {}),
   },
-  { field: 'createdAt', headerName: 'תאריך', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true, width: 120 },
-  { field: 'description', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, flex: 1, minWidth: 150 },
+  { field: 'createdAt', headerName: 'תאריך', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true },
+  { field: 'description', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
 ];

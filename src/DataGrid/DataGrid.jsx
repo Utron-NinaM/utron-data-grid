@@ -214,7 +214,7 @@ export function DataGrid(props) {
     onRowDoubleClick={grid.handleRowDoubleClick}
     selectedRowId={grid.selectedRowId}
     hasActiveRangeFilter={grid.hasActiveRangeFilter}
-    containScroll={useScrollableLayout}
+    containScroll={useScrollableLayout}   
   />, [grid.displayRows, grid.selection, grid.handleSelect, grid.sortModel, grid.handleSort, grid.hasActiveFilters,
   grid.editRowId, grid.editValues, grid.validationErrors, grid.errorSet, grid.handleRowClick, grid.handleRowDoubleClick,
   grid.selectedRowId, grid.hasActiveRangeFilter, useScrollableLayout]);
