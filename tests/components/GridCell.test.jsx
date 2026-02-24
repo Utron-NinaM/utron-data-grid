@@ -327,7 +327,7 @@ describe('GridCell Component', () => {
   });
 
   describe('Test error border styling', () => {
-    it('should apply error border when hasError is true', () => {
+    it('should apply error outline when hasError is true', () => {
       const theme = createTheme();
       render(
         <ThemeProvider theme={theme}>
@@ -350,10 +350,9 @@ describe('GridCell Component', () => {
 
       const cell = screen.getByRole('cell');
       const styles = window.getComputedStyle(cell);
-      expect(styles.borderWidth).toBe('1px');
-      expect(styles.borderStyle).toBe('solid');
-      // borderColor will be resolved to theme color
-      expect(styles.borderColor).toBeTruthy();
+      expect(styles.outlineWidth).toBe('1px');
+      expect(styles.outlineStyle).toBe('solid');
+      expect(styles.outlineColor).toBeTruthy();
     });
 
     it('should not apply error border when hasError is false', () => {
@@ -378,7 +377,7 @@ describe('GridCell Component', () => {
       }
     });
 
-    it('should combine error border with cellStyle', () => {
+    it('should combine error outline with cellStyle', () => {
       const cellStyle = vi.fn(() => ({ backgroundColor: 'blue' }));
       const column = { ...defaultColumn, cellStyle };
 
@@ -393,10 +392,10 @@ describe('GridCell Component', () => {
 
       const cell = screen.getByRole('cell');
       const styles = window.getComputedStyle(cell);
-      expect(styles.borderWidth).toBe('1px');
-      expect(styles.borderStyle).toBe('solid');
+      expect(styles.outlineWidth).toBe('1px');
+      expect(styles.outlineStyle).toBe('solid');
       expect(styles.backgroundColor).toBe('rgb(0, 0, 255)');
-      expect(styles.borderColor).toBeTruthy();
+      expect(styles.outlineColor).toBeTruthy();
     });
 
     it('should handle cellStyle with conflicting border properties', () => {
@@ -414,9 +413,9 @@ describe('GridCell Component', () => {
 
       const cell = screen.getByRole('cell');
       const styles = window.getComputedStyle(cell);
-      // Error border should still be applied (hasError takes precedence for border)
-      expect(styles.borderWidth).toBe('1px');
-      expect(styles.borderStyle).toBe('solid');
+      // Error uses outline (does not affect layout); cellStyle border can coexist
+      expect(styles.outlineWidth).toBe('1px');
+      expect(styles.outlineStyle).toBe('solid');
     });
   });
 
@@ -555,15 +554,16 @@ describe('GridCell Component', () => {
         />
       );
 
-      // When editing, editor is returned directly without truncation Box or Tooltip
+      // When editing, editor is wrapped in a layout Box (no truncation styles)
       const editorElement = screen.getByTestId('editor');
       expect(editorElement).toBeInTheDocument();
       const cell = screen.getByRole('cell');
-      // Editor should be directly in the cell, not wrapped in truncation Box
       expect(cell.contains(editorElement)).toBe(true);
-      // Check that there's no Box with truncation styles
-      const truncationBox = cell.querySelector('div[class*="MuiBox"]');
-      expect(truncationBox).toBeNull();
+      // Editor wrapper Box should not have truncation styles (textOverflow ellipsis)
+      const wrapperBox = cell.querySelector('div[class*="MuiBox"]');
+      expect(wrapperBox).toBeInTheDocument();
+      const wrapperStyles = window.getComputedStyle(wrapperBox);
+      expect(wrapperStyles.textOverflow).not.toBe('ellipsis');
     });
 
     it('should handle unicode characters', () => {

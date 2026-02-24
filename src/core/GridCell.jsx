@@ -54,24 +54,28 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
   const scrollCtx = useContext(ScrollContainerContext);
   const columnAlignMap = ctx?.columnAlignMap;
   const columnWidthMap = ctx?.columnWidthMap;
+  const bodyCellSxMap = ctx?.bodyCellSxMap;
   const direction = ctx?.direction ?? DIRECTION_LTR;
 
   const align = columnAlignMap?.get(column.field) ?? (column.align ?? ALIGN_LEFT);
   const width = columnWidthMap?.get(column.field);
+  const bodyCellSx = bodyCellSxMap?.get(column.field);
 
   const sx = useMemo(() => {
     const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : column.cellStyle;
-    const finalSx = {
+    const baseSx = bodyCellSx ?? {
       paddingLeft: '4px',
       paddingRight: '4px',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       ...(width != null && { width: `${width}px` }),
-      ...cellStyle,
-      ...(hasError && { border: '1px solid', borderColor: 'error.light' }),
     };
-    return finalSx;
-  }, [hasError, column, value, row, width]);
+    return {
+      ...baseSx,
+      ...cellStyle,
+      ...(hasError && { outlineWidth: '1px', outlineStyle: 'solid', outlineColor: 'error.light' }),
+    };
+  }, [hasError, column, value, row, width, bodyCellSx]);
 
   const displayValue = useMemo(() => {
     if (isEditing && editor != null) return null;
@@ -107,9 +111,21 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
   }, [column, value, row, displayValue, isEditing, editor]);
 
   const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
+  const editorWrapperSx = useMemo(() => ({
+    height: '100%',
+    overflow: 'hidden',
+    width: '100%',
+    minWidth: 0,
+    display: 'flex',
+    alignItems: 'center',
+  }), []);
   const cellContent = useMemo(() => {
     if (isEditing && editor != null) {
-      return editor;
+      return (
+        <Box sx={editorWrapperSx}>
+          {editor}
+        </Box>
+      );
     }
 
     const content = (
@@ -130,7 +146,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
         </Box>
       </Tooltip>
     );
-  }, [isEditing, editor, displayValue, tooltipText, popperContainer, ctx?.fontSize]);
+  }, [isEditing, editor, editorWrapperSx, displayValue, tooltipText, popperContainer, ctx?.fontSize]);
 
   return (
     <TableCell align={align} sx={sx} padding="none" variant="body">

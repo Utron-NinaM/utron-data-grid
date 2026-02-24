@@ -44,6 +44,7 @@ export function useDataGrid(props) {
     onPageChange,
     onPageSizeChange,
     headerConfig,
+    bodyRow,
     selectedRowStyle,
     gridId,
     toolbarActions,
@@ -290,12 +291,15 @@ export function useDataGrid(props) {
     filters,
   });
 
+  const effectiveBodyRow = bodyRow ?? defaultGridConfig.bodyRow;
+
   const {
     sortOrderIndexMap,
     columnSortDirMap,
     columnAlignMap,
     headerCellSxMap,
     filterCellSxMap,
+    bodyCellSxMap,
     rowStylesMap,
     columnWidthMap,
   } = useDataGridMaps({
@@ -303,6 +307,7 @@ export function useDataGrid(props) {
     sortModel,
     direction,
     headerConfig,
+    bodyRow: effectiveBodyRow,
     displayRows,
     getRowId,
     columnWidthMap: layoutColumnWidthMap, // Pass layout-calculated widths
@@ -373,6 +378,7 @@ export function useDataGrid(props) {
       columnAlignMap,
       headerCellSxMap,
       filterCellSxMap,
+      bodyCellSxMap,
       columnWidthMap: layoutColumnWidthMap, // Use layout-calculated widths
       listColumnOptionMaps, // Map<field, optionMap> for list columns (key -> label)
       containerRef, // Container ref for ResizeObserver
@@ -418,6 +424,7 @@ export function useDataGrid(props) {
       columnAlignMap,
       headerCellSxMap,
       filterCellSxMap,
+      bodyCellSxMap,
       layoutColumnWidthMap,
       containerRef,
       scrollContainerRef,

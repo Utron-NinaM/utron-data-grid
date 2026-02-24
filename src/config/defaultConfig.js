@@ -12,6 +12,13 @@ export const defaultGridConfig = {
   pageSizeOptions: [10, 25, 50, 100],
   density: 'standard',
   fontSize: DEFAULT_FONT_SIZE,
+  bodyRow: {
+    height: 30,
+    paddingTop: '2px',
+    paddingBottom: '2px',
+    paddingLeft: '4px',
+    paddingRight: '4px',
+  },
 };
 
 export const defaultColumnConfig = {

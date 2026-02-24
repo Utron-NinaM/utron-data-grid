@@ -22,11 +22,17 @@ import {
 } from '../config/schema';
 import { DEFAULT_FONT_SIZE, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH } from '../constants';
 
+/** Compact sx so editors fit within default body row height (30px) */
+const compactEditorSx = {
+  '& .MuiInputBase-root': { minHeight: 'unset' },
+  '& .MuiInputBase-input': { py: '4px' },
+};
+
 export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize) {
   const value = editValues[column.field];
   const type = column.type ?? DEFAULT_FIELD_TYPE;
   const format = getDateFormat(direction);
-  const fontSx = { fontSize: fontSize ?? DEFAULT_FONT_SIZE };
+  const fontSx = { fontSize: fontSize ?? DEFAULT_FONT_SIZE, ...compactEditorSx };
 
   switch (type) {
     case FIELD_TYPE_NUMBER:
@@ -49,7 +55,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
             value={value != null ? dayjs(value) : null}
             onChange={(d) => onChange(column.field, d ? d.toISOString() : null)}
             format={format}
-            slotProps={{ textField: { size: 'small', fullWidth: true, sx: fontSx } }}
+            slotProps={{ textField: { size: 'small', fullWidth: true, sx: { ...fontSx, ...compactEditorSx } } }}
           />
         </LocalizationProvider>
       );
@@ -80,11 +86,12 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
               </li>
             );
           }}
+          sx={compactEditorSx}
           renderInput={(params) => (
             <TextField
               {...params}
               inputProps={{ ...params.inputProps, dir: direction }}
-              sx={{ ...params.sx, ...fontSx, ...getListFilterAutocompleteInputSx(isRtl) }}
+              sx={{ ...params.sx, ...fontSx, ...compactEditorSx, ...getListFilterAutocompleteInputSx(isRtl) }}
             />
           )}
           slotProps={{

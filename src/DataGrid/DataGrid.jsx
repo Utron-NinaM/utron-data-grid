@@ -34,6 +34,7 @@ import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
  * @property {Function} [onPageSizeChange] - (pageSize) => void when user changes page size; notification only
  * @property {Object} [sx] - MUI sx for root container. When pagination is true and sx includes height or maxHeight, the grid uses a flex layout so only the table body scrolls and the pagination bar stays visible at the bottom.
  * @property {Object} [headerConfig] - base (MUI sx for TableHead), mainRow, filterRows, filterCells (backgroundColor?, height?)
+ * @property {Object} [bodyRow] - Body row config (height?, paddingTop?, paddingBottom?, paddingLeft?, paddingRight?, ...sx). Default used when undefined.
  * @property {Object} [selectedRowStyle] - MUI sx for selected rows
  * @property {string} [gridId] - Unique id for this grid; when set, filter, sort, and column width state are persisted in localStorage and restored on mount or refresh. Use a different id per grid when multiple grids exist.
  * @property {React.ReactNode|((params: { selectedRow: Object|null, selectedRowId: string|number|null }) => React.ReactNode)} [toolbarActions] - Optional content rendered on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id.

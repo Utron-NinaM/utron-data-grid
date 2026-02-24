@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { DIRECTION_RTL } from '../config/schema';
+import { defaultGridConfig } from '../config/defaultConfig';
 import { getEffectiveMinWidth } from '../utils/columnWidthUtils';
 
 
@@ -14,13 +15,15 @@ import { getEffectiveMinWidth } from '../utils/columnWidthUtils';
  * @param {Function} params.getRowId
  * @param {Map<string, number>} [params.columnWidthMap] - Map of field -> width (numbers) from useColumnLayout
  * @param {boolean} [params.filters=true] - Whether filters are shown (affects built-in min width)
- * @returns {{ sortOrderIndexMap: Map, columnSortDirMap: Map, columnAlignMap: Map, headerCellSxMap: Map, filterCellSxMap: Map, rowStylesMap: Map, columnWidthMap: Map }}
+ * @param {Object} [params.bodyRow] - Body row config (height, paddingTop, paddingBottom, paddingLeft, paddingRight, ...sx). Uses default when undefined.
+ * @returns {{ sortOrderIndexMap: Map, columnSortDirMap: Map, columnAlignMap: Map, headerCellSxMap: Map, filterCellSxMap: Map, bodyCellSxMap: Map, rowStylesMap: Map, columnWidthMap: Map }}
  */
 export function useDataGridMaps({
   columns,
   sortModel,
   direction,
   headerConfig,
+  bodyRow,
   displayRows,
   getRowId,
   columnWidthMap: providedColumnWidthMap,
@@ -122,6 +125,35 @@ export function useDataGridMaps({
     return map;
   }, [columns, headerConfig, providedColumnWidthMap, filters]);
 
+  const bodyCellSxMap = useMemo(() => {
+    const map = new Map();
+    const bodyRowConfig = bodyRow ?? defaultGridConfig.bodyRow ?? {};
+    const { height: bodyRowHeight, paddingTop, paddingBottom, paddingLeft, paddingRight, ...bodyRowSx } = bodyRowConfig;
+    columns.forEach((col) => {
+      const width = providedColumnWidthMap?.get(col.field);
+      const minWidth = getEffectiveMinWidth(col, { filters });
+      const cellSx = createCellSx(
+        col,
+        {
+          rowHeight: bodyRowHeight,
+          baseConfig: {},
+          rowSx: {
+            paddingTop: paddingTop ?? '2px',
+            paddingBottom: paddingBottom ?? '2px',
+            paddingLeft: paddingLeft ?? '4px',
+            paddingRight: paddingRight ?? '4px',
+            ...bodyRowSx,
+          },
+          verticalAlign: 'middle',
+        },
+        width,
+        minWidth
+      );
+      map.set(col.field, cellSx);
+    });
+    return map;
+  }, [columns, bodyRow, providedColumnWidthMap, filters]);
+
   const filterCellSxMap = useMemo(() => {
     const map = new Map();
     const filterRows = headerConfig?.filterRows ?? {};
@@ -173,6 +205,7 @@ export function useDataGridMaps({
     columnAlignMap,
     headerCellSxMap,
     filterCellSxMap,
+    bodyCellSxMap,
     rowStylesMap,
     columnWidthMap,
   };

@@ -479,8 +479,56 @@ describe('useDataGridMaps', () => {
       const headerSx = result.current.headerCellSxMap.get('a');
       // mainRow.height should override base padding
       expect(headerSx.height).toBe(40);
-      expect(headerSx.padding).toBe('8px'); 
+      expect(headerSx.padding).toBe('8px');
       expect(headerSx.backgroundColor).toBe('#eee');
+    });
+  });
+
+  describe('bodyCellSxMap', () => {
+    it('uses default bodyRow when bodyRow is not provided', () => {
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns: defaultColumns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          displayRows: [],
+          getRowId: defaultGetRowId,
+          columnWidthMap: new Map([['a', 100], ['b', 150]]),
+        },
+      });
+      const bodySx = result.current.bodyCellSxMap.get('a');
+      expect(bodySx).toMatchObject({
+        paddingTop: '2px',
+        paddingBottom: '2px',
+        paddingLeft: '4px',
+        paddingRight: '4px',
+        height: 30,
+        maxHeight: 30,
+      });
+    });
+
+    it('merges bodyRow height and padding into bodyCellSxMap', () => {
+      const bodyRow = { height: 40, paddingTop: '4px', paddingBottom: '4px' };
+      const { result } = renderHook(useDataGridMaps, {
+        initialProps: {
+          columns: defaultColumns,
+          sortModel: [],
+          direction: 'ltr',
+          headerConfig: {},
+          bodyRow,
+          displayRows: [],
+          getRowId: defaultGetRowId,
+          columnWidthMap: new Map([['a', 100]]),
+        },
+      });
+      const bodySx = result.current.bodyCellSxMap.get('a');
+      expect(bodySx).toMatchObject({
+        paddingTop: '4px',
+        paddingBottom: '4px',
+        height: 40,
+        maxHeight: 40,
+      });
     });
   });
 
