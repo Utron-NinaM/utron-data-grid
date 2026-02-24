@@ -103,6 +103,14 @@ describe('columnWidthUtils', () => {
       const width2 = estimateAutoColumnWidth(column);
       expect(width1).toBe(width2);
     });
+
+    it('should use smaller icon allowance when filters: false', () => {
+      const col1 = { field: 'a', headerName: 'Col', filter: FILTER_TYPE_NONE };
+      const col2 = { field: 'b', headerName: 'Col', filter: FILTER_TYPE_NONE };
+      const widthWithFilters = estimateAutoColumnWidth(col1, { filters: true });
+      const widthNoFilters = estimateAutoColumnWidth(col2, { filters: false });
+      expect(widthNoFilters).toBeLessThan(widthWithFilters);
+    });
   });
 
   describe('getAutoMaxWidth', () => {

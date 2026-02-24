@@ -38,7 +38,8 @@ const autoWidthEstimateCache = new Map();
 // Auto width estimation constants
 const DEFAULT_AVG_CHAR_WIDTH = 8; // Configurable, default 7-9px
 const HEADER_PADDING = 8; // Left + right cell padding (4px each)
-const ICON_ALLOWANCE = 56; // Sort icon ~26px + sort order badge slot 28px
+const ICON_ALLOWANCE = 56; // Sort icon ~26px + sort order badge slot 28px + filter icon space
+const ICON_ALLOWANCE_NO_FILTERS = 46; // Sort icon ~26px + sort order badge slot 20px only (no filter icon)
 const AUTO_MAX_WIDTH_MULTIPLIER = 2.5; // Auto columns max = 2.5 × minWidth
 
 /**
@@ -132,7 +133,7 @@ export function estimateAutoColumnWidth(column, options = {}) {
   const effectiveMinWidth = getEffectiveMinWidth(column, options);
   const avgCharWidth = options.avgCharWidth ?? DEFAULT_AVG_CHAR_WIDTH;
   const headerPadding = options.headerPadding ?? HEADER_PADDING;
-  const iconAllowance = options.iconAllowance ?? ICON_ALLOWANCE;
+  const iconAllowance = options.iconAllowance ?? (filters ? ICON_ALLOWANCE : ICON_ALLOWANCE_NO_FILTERS);
 
   const headerText = column.headerName || '';
   const textWidth = headerText.length * avgCharWidth;
