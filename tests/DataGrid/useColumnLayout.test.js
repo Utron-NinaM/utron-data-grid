@@ -446,4 +446,44 @@ describe('useColumnLayout', () => {
       expect(result.current.totalWidth).toBeLessThanOrEqual(1000);
     });
   });
+
+  describe('fitToContainer', () => {
+    it('should treat no-width columns as flexible when fitToContainer: true', () => {
+      useContainerWidth.mockReturnValue(1000);
+      const columns = [
+        { field: 'a', headerName: 'A', filter: FILTER_TYPE_NONE },
+        { field: 'b', headerName: 'B', filter: FILTER_TYPE_NONE },
+      ];
+
+      const { result } = renderHook(() =>
+        useColumnLayout({ columns, containerRef, columnWidthState: new Map(), fitToContainer: true })
+      );
+
+      const total = result.current.columnWidthMap.get('a') + result.current.columnWidthMap.get('b');
+      expect(total).toBeLessThanOrEqual(1000);
+      expect(result.current.enableHorizontalScroll).toBe(false);
+    });
+
+    it('should recalculate when fitToContainer changes', () => {
+      useContainerWidth.mockReturnValue(1000);
+      const columns = [
+        { field: 'name', headerName: 'Name', filter: FILTER_TYPE_NONE },
+      ];
+
+      const { result, rerender } = renderHook(
+        ({ fitToContainer }) =>
+          useColumnLayout({ columns, containerRef, columnWidthState: new Map(), fitToContainer }),
+        { initialProps: { fitToContainer: false } }
+      );
+
+      const widthAuto = result.current.columnWidthMap.get('name');
+      rerender({ fitToContainer: true });
+      const widthFlex = result.current.columnWidthMap.get('name');
+
+      // With fitToContainer, column shares space; total fits container
+      expect(result.current.totalWidth).toBeLessThanOrEqual(1000);
+      // Widths can differ
+      expect(widthFlex).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+    });
+  });
 });

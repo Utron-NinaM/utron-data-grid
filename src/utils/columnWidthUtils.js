@@ -183,12 +183,14 @@ export function getAutoMaxWidth(column, minWidth) {
  * @param {Map<string, number>} columnState - Map of field -> width for user-resized columns (overrides only)
  * @param {Object} [options] - Optional configuration
  * @param {boolean} [options.filters=true] - Whether filters are shown
+ * @param {boolean} [options.fitToContainer=false] - When true, treat no-width/flex columns as flexible and cap total to container
  * @returns {{ columnWidthMap: Map<string, number>, totalWidth: number, enableHorizontalScroll: boolean }}
  */
 export function calculateColumnWidths(columns, containerWidth, columnState = new Map(), options = {}) {
   // CRITICAL: Always create new Map for results (never reuse) - React relies on reference equality
   const resultMap = new Map();
   const filters = options.filters !== false;
+  const fitToContainer = options.fitToContainer === true;
   const widthOptions = { filters };
 
   const safeColumnState = columnState || new Map();
@@ -212,8 +214,12 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
       // Default width - treat as fixed
       fixedCols.push({ col, width: col.defaultWidth });
     } else {
-      // Auto-sized column
-      autoCols.push(col);
+      // No explicit sizing: fitToContainer treats as flexible; otherwise auto
+      if (fitToContainer) {
+        flexCols.push({ col, flex: 1 });
+      } else {
+        autoCols.push(col);
+      }
     }
   });
 
@@ -391,6 +397,22 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
         }
         return true;
       });
+    }
+  }
+
+  // Step 10.5: When fitToContainer, cap total to container if overflowing
+  if (fitToContainer) {
+    let finalTotal = Array.from(resultMap.values()).reduce((sum, w) => sum + w, 0);
+    if (finalTotal > containerWidth && containerWidth > 0) {
+      const scale = containerWidth / finalTotal;
+      columns.forEach(col => {
+        if (resultMap.has(col.field)) {
+          const w = resultMap.get(col.field);
+          const minW = getEffectiveMinWidth(col, widthOptions);
+          resultMap.set(col.field, Math.max(minW, Math.floor(w * scale)));
+        }
+      });
+      totalWidth = Array.from(resultMap.values()).reduce((sum, w) => sum + w, 0);
     }
   }
 

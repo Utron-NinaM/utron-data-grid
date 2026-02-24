@@ -71,6 +71,7 @@ const rows = [
 | `onRowDoubleClick` | `(row) => void` | When a row is double-clicked |
 | `editable` | `boolean` | Master switch for inline edit (default false) |
 | `filters` | `boolean` | Show filter row (default true). Set to `false` to hide all filters. |
+| `fitToContainer` | `boolean` | When true, treat columns without width/flex as flexible (flex: 1) and cap total width to the container (default false). Use for grids that should always fit the available width. |
 | `multiSelectable` | `boolean` | Show checkboxes and selection (default false) |
 | `pagination` | `boolean` | Enable client-side pagination (default false) |
 | `pageSize` | `number` | Rows per page (default 10) |
@@ -85,6 +86,7 @@ const rows = [
 | `toolbarActions` | `ReactNode` or `(params: { selectedRow, selectedRowId }) => ReactNode` | Optional content on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id. |
 | `toolbarClearButtonsSx` | `object` | MUI sx applied to the Clear sort, Clear all filters, and Reset column widths toolbar buttons. |
 | `fontSize` | `number` | Font size in px for cells, filters, inputs, pagination (default 13). |
+| `showHorizontalScrollbar` | `boolean` | When true and horizontal scroll is enabled (e.g. containScroll with overflow), show the horizontal scrollbar on the header (default false). Useful for very narrow windows. |
 | `fontFamily` | `string` | Font family for all grid components (e.g. `'Roboto, sans-serif'`, `var(--app-font-family)`). Cascades from root. |
 | `fontWeight` | `number` or `string` | Font weight (e.g. `400`, `600`, `'bold'`). Cascades from root. |
 
@@ -140,7 +142,8 @@ The grid supports flexible column width management:
 
 - **Fixed width**: Set `width` (in pixels) for a column that maintains a constant size
 - **Flexible width**: Set `flex` (number) for columns that grow proportionally to fill remaining space
-- **Auto-sizing**: If neither `width` nor `flex` is provided, the column is auto-sized based on content
+- **Auto-sizing** (default when `fitToContainer: false`): If neither `width` nor `flex` is provided, the column is auto-sized based on content and can overshoot the container
+- **Fit-to-container** (when `fitToContainer: true`): Columns without `width` or `flex` are treated as `flex: 1`, sharing available width and staying within the container. Total width is capped to the container, preventing overflow
 - **Constraints**: Use `minWidth` and `maxWidth` to limit column sizes
 - **Manual resizing**: Users can drag column borders to resize (resized columns are automatically excluded from flex distribution)
 

@@ -68,8 +68,11 @@ function GridTableInner({
   const translations = useTranslations();
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
-  const { columns, getRowId, multiSelectable, filters, onClearSort, onClearAllFilters, onClearColumnWidths, hasResizedColumns,
-    headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, containerRef, scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap, toolbarActions, toolbarClearButtonsSx, direction } = ctx;
+  const { columns, getRowId, multiSelectable, filters, onClearSort, onClearAllFilters, onClearColumnWidths, 
+    hasResizedColumns, headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, 
+    scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
+    colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
+    toolbarActions, toolbarClearButtonsSx, direction } = ctx;
 
   const bodyColRefs = useRef(new Map());
   const headerScrollRef = useRef(null);
@@ -459,7 +462,7 @@ function GridTableInner({
         {toolbarBox}
         <Box
           ref={headerScrollRef}
-          sx={{ ...getHeaderScrollWrapperSx(direction, scrollbarWidth), flexShrink: 0 }}
+          sx={{ ...getHeaderScrollWrapperSx(direction, scrollbarWidth, enableHorizontalScroll && showHorizontalScrollbar), flexShrink: 0 }}
         >
           {headerTable}
         </Box>

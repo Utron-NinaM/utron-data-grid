@@ -534,5 +534,63 @@ describe('columnWidthUtils', () => {
         expect(result.columnWidthMap.get('name')).toBe(200);
       });
     });
+
+    describe('fitToContainer option', () => {
+      it('should treat no-width columns as flex when fitToContainer: true', () => {
+        const columns = [
+          { field: 'a', headerName: 'A', filter: FILTER_TYPE_NONE },
+          { field: 'b', headerName: 'B', filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000, new Map(), { fitToContainer: true });
+        const total = result.columnWidthMap.get('a') + result.columnWidthMap.get('b');
+        expect(total).toBeLessThanOrEqual(1000);
+        expect(result.columnWidthMap.get('a')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        expect(result.columnWidthMap.get('b')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        expect(result.enableHorizontalScroll).toBe(false);
+      });
+
+      it('should keep auto behavior when fitToContainer: false', () => {
+        const columns = [
+          { field: 'name', headerName: 'Name', filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000, new Map(), { fitToContainer: false });
+        const width = result.columnWidthMap.get('name');
+        expect(width).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        expect(width).toBeLessThanOrEqual(2.5 * MIN_WIDTH_DEFAULT_PX);
+      });
+
+      it('should cap total width to container when fitToContainer: true and total would exceed', () => {
+        const columns = [
+          { field: 'a', headerName: 'A', flex: 1, filter: FILTER_TYPE_NONE },
+          { field: 'b', headerName: 'B', flex: 1, filter: FILTER_TYPE_NONE },
+          { field: 'c', headerName: 'C', flex: 1, filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 500, new Map(), { fitToContainer: true });
+        const total = Array.from(result.columnWidthMap.values()).reduce((s, w) => s + w, 0);
+        expect(total).toBeLessThanOrEqual(500);
+        expect(result.enableHorizontalScroll).toBe(false);
+      });
+
+      it('should not cap total when fitToContainer: false (fixed columns can exceed)', () => {
+        const columns = [
+          { field: 'col1', headerName: 'Col1', width: 400, filter: FILTER_TYPE_NONE },
+          { field: 'col2', headerName: 'Col2', width: 400, filter: FILTER_TYPE_NONE },
+          { field: 'col3', headerName: 'Col3', width: 400, filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000, new Map(), { fitToContainer: false });
+        expect(result.totalWidth).toBe(1200);
+        expect(result.enableHorizontalScroll).toBe(true);
+      });
+
+      it('should respect minWidth when scaling down in fitToContainer mode', () => {
+        const columns = [
+          { field: 'a', headerName: 'A', flex: 1, minWidth: 150, filter: FILTER_TYPE_NONE },
+          { field: 'b', headerName: 'B', flex: 1, minWidth: 150, filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 400, new Map(), { fitToContainer: true });
+        expect(result.columnWidthMap.get('a')).toBeGreaterThanOrEqual(150);
+        expect(result.columnWidthMap.get('b')).toBeGreaterThanOrEqual(150);
+      });
+    });
   });
 }); 

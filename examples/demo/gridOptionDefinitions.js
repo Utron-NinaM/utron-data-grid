@@ -54,6 +54,20 @@ export const gridOptionDefinitions = [
     default: { height: '100%' },
     placeholder: 'MUI sx object (e.g. {"height":"100%","maxHeight":500})',
   },
+  {
+    key: 'fitToContainer',
+    label: 'Fit to container',
+    type: 'boolean',
+    group: 'layout',
+    default: defaultGridConfig.fitToContainer,
+  },
+  {
+    key: 'showHorizontalScrollbar',
+    label: 'Show horizontal scrollbar',
+    type: 'boolean',
+    group: 'layout',
+    default: defaultGridConfig.showHorizontalScrollbar,
+  },
   // Behavior
   {
     key: 'editable',

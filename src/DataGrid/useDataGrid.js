@@ -37,6 +37,7 @@ export function useDataGrid(props) {
     getRowId,
     editable = defaultGridConfig.editable,
     filters = defaultGridConfig.filters ?? true,
+    fitToContainer = defaultGridConfig.fitToContainer,
     multiSelectable = defaultGridConfig.multiSelectable,
     pagination = defaultGridConfig.pagination,
     pageSize: initialPageSize = defaultGridConfig.pageSize,
@@ -50,6 +51,7 @@ export function useDataGrid(props) {
     toolbarActions,
     toolbarClearButtonsSx,
     fontSize = defaultGridConfig.fontSize,
+    showHorizontalScrollbar = defaultGridConfig.showHorizontalScrollbar,
   } = props;
 
   const [internalSort, setInternalSort] = useState(() => getStoredSortModel(props.gridId, props.columns));
@@ -289,6 +291,7 @@ export function useDataGrid(props) {
     scrollContainerRef,
     scrollContainerReady,
     filters,
+    fitToContainer,
   });
 
   const effectiveBodyRow = bodyRow ?? defaultGridConfig.bodyRow;
@@ -389,6 +392,7 @@ export function useDataGrid(props) {
       onColumnResize: handleColumnResize, // Resize handler
       totalWidth, // Total width for scroll calculation
       enableHorizontalScroll, // Whether to enable horizontal scroll
+      showHorizontalScrollbar,
       toolbarActions,
       toolbarClearButtonsSx,
       fontSize,
@@ -434,6 +438,7 @@ export function useDataGrid(props) {
       handleColumnResize,
       totalWidth,
       enableHorizontalScroll,
+      showHorizontalScrollbar,
       toolbarActions,
       toolbarClearButtonsSx,
       fontSize,

@@ -6,12 +6,14 @@ import { DEFAULT_FONT_SIZE } from '../constants';
 export const defaultGridConfig = {
   editable: false,
   filters: true,
+  fitToContainer: false,
   multiSelectable: false,
   pagination: false,
   pageSize: 10,
   pageSizeOptions: [10, 25, 50, 100],
   density: 'standard',
   fontSize: DEFAULT_FONT_SIZE,
+  showHorizontalScrollbar: false,
   bodyRow: {
     height: 30,
     paddingTop: '2px',

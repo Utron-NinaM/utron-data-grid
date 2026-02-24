@@ -33,6 +33,7 @@ function getScrollbarWidth() {
  * @param {React.RefObject} [params.scrollContainerRef] - Ref to the body scroll container (populated when containScroll)
  * @param {boolean} [params.scrollContainerReady] - When true, scrollContainerRef.current is set
  * @param {boolean} [params.filters=true] - Whether filters are shown (affects built-in min width)
+ * @param {boolean} [params.fitToContainer=false] - When true, treat no-width/flex columns as flexible and cap total to container
  * @returns {{ columnWidthMap: Map<string, number>, totalWidth: number, enableHorizontalScroll: boolean }}
  */
 export function useColumnLayout({
@@ -44,6 +45,7 @@ export function useColumnLayout({
   scrollContainerRef,
   scrollContainerReady = false,
   filters = true,
+  fitToContainer = false,
 }) {
   const useScrollContainer = reserveScrollbarWidth && scrollContainerReady && scrollContainerRef?.current;
   const containerWidth = useContainerWidth(containerRef, {
@@ -97,7 +99,7 @@ export function useColumnLayout({
       - scrollbarReserve;
     const availableWidthForScrollCheck = rawWidth - scrollbarReserve;
 
-    const result = calculateColumnWidths(columns, effectiveContainerWidth, columnWidthState, { filters });
+    const result = calculateColumnWidths(columns, effectiveContainerWidth, columnWidthState, { filters, fitToContainer });
     const dataColumnsTotal = result.totalWidth;
     const totalTableWidth = multiSelectable ? dataColumnsTotal + CHECKBOX_COLUMN_WIDTH_PX : dataColumnsTotal;
 
@@ -108,7 +110,7 @@ export function useColumnLayout({
       totalWidth: totalTableWidth,
       enableHorizontalScroll: enableH
     };
-  }, [columns, containerWidth, columnWidthStateKey, containerRef, multiSelectable, reserveScrollbarWidth, scrollContainerReady, scrollContainerRef, filters]);
+  }, [columns, containerWidth, columnWidthStateKey, containerRef, multiSelectable, reserveScrollbarWidth, scrollContainerReady, scrollContainerRef, filters, fitToContainer]);
 
   return layoutResult;
 }

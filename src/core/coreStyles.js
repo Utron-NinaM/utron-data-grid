@@ -97,16 +97,18 @@ export function getFilterRowSx(headerConfig) {
   };
 }
 
-/** Header wrapper when containScroll: syncs horizontal scroll with body, hides own scrollbar, reserves space for body scrollbar */
-export function getHeaderScrollWrapperSx(direction, scrollbarWidth) {
+/** Header wrapper when containScroll: syncs horizontal scroll with body, hides own scrollbar unless showScrollbar, reserves space for body scrollbar */
+export function getHeaderScrollWrapperSx(direction, scrollbarWidth, showScrollbar = false) {
   const padding = scrollbarWidth && scrollbarWidth > 0 ? scrollbarWidth : 0;
   return {
     minWidth: 0,
     overflowX: 'auto',
     overflowY: 'hidden',
-    scrollbarWidth: 'none',
-    msOverflowStyle: 'none',
-    '&::-webkit-scrollbar': { display: 'none' },
+    ...(showScrollbar ? {} : {
+      scrollbarWidth: 'none',
+      msOverflowStyle: 'none',
+      '&::-webkit-scrollbar': { display: 'none' },
+    }),
     ...(padding > 0 && (direction === DIRECTION_RTL ? { paddingLeft: padding } : { paddingRight: padding })),
   };
 }
