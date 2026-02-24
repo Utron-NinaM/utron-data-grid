@@ -138,8 +138,8 @@ export function useDataGridMaps({
           rowHeight: bodyRowHeight,
           baseConfig: {},
           rowSx: {
-            paddingTop: paddingTop ?? '2px',
-            paddingBottom: paddingBottom ?? '2px',
+            paddingTop: paddingTop ?? '0',
+            paddingBottom: paddingBottom ?? '0',
             paddingLeft: paddingLeft ?? '4px',
             paddingRight: paddingRight ?? '4px',
             ...bodyRowSx,

@@ -120,8 +120,14 @@ export function DataGrid(props) {
           MuiAlert: { styleOverrides: { root: fontSx, title: fontSx } },
           MuiSelect: {
             styleOverrides: {
-              select: fontSx,
-              ...(direction === DIRECTION_RTL && { icon: { left: '9px !important', right: 'auto !important' } }),
+              select: ({ theme }) => ({
+                ...fontSx,
+                ...(direction === DIRECTION_RTL && {
+                  paddingLeft: `${theme.spacing(4)} !important`,
+                  paddingRight: `${theme.spacing(1.75)} !important`,
+                }),
+              }),
+              ...(direction === DIRECTION_RTL && { icon: ({ theme }) => ({ left: `${theme.spacing(1.125)} !important`, right: 'auto !important' }) }),
             },
           },
         }
@@ -132,7 +138,13 @@ export function DataGrid(props) {
         ? {
             ...(!fontSx && {
               MuiSelect: {
-                styleOverrides: { icon: { left: '9px !important', right: 'auto !important' } },
+                styleOverrides: {
+                  icon: ({ theme }) => ({ left: `${theme.spacing(1.125)} !important`, right: 'auto !important' }),
+                  select: ({ theme }) => ({
+                    paddingLeft: `${theme.spacing(4)} !important`,
+                    paddingRight: `${theme.spacing(1.75)} !important`,
+                  }),
+                },
               },
             }),
             MuiAutocomplete: {
