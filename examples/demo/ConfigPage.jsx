@@ -57,7 +57,7 @@ export function ConfigPage() {
   }
 
   return (
-    <Box sx={{ p: 2, pb: 4, maxWidth: 800, mx: 'auto', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+    <Box sx={{ p: 2, pb: 4, mx: 'auto', flex: 1, minHeight: 0, overflowY: 'auto' }}>
       <Typography variant="h5" gutterBottom>
         Grid Configuration
       </Typography>

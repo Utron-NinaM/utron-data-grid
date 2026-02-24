@@ -1,13 +1,15 @@
-// ─── Shared constants ───────────────────────────────────────────────────────
+import {
+  PADDING_INPUT_TOP_BOTTOM_PX,
+  FILTER_OPERATOR_WIDTH_PX,
+  FILTER_OPERATOR_WIDTH_PX_WITH_PADDING,
+  DEFAULT_FILTER_CONTENT_HEIGHT,
+  FILTER_INPUT_HORIZONTAL_PADDING_PX,
+  ICON_ARROW_SIZE_PX,
+  ICON_OPERATOR_SIZE_PX,
+  FILTER_TRANSITION_MS,
+} from '../constants';
 
-export const PADDING_INPUT_TOP_BOTTOM_PX = 4;
-
-/** Width reserved for operator dropdown in filter row; used to align "to" input with "from". */
-export const FILTER_OPERATOR_WIDTH_PX = 40;
-export const FILTER_OPERATOR_WIDTH_PX_WITH_PADDING = FILTER_OPERATOR_WIDTH_PX + 6;
-
-/** Default content height when headerConfig does not set filterInputHeight (match MUI small input). */
-const DEFAULT_FILTER_CONTENT_HEIGHT = 40;
+export { PADDING_INPUT_TOP_BOTTOM_PX, FILTER_OPERATOR_WIDTH_PX, FILTER_OPERATOR_WIDTH_PX_WITH_PADDING };
 
 // ─── Filter row box (GridHeaderCell / GridHeaderCellFilter) ──────────────────
 
@@ -39,18 +41,18 @@ export const operatorDropdownButtonSx = {
 
 /** Operator dropdown: ArrowDropDown icon base sx (add fontSize in component). */
 export const operatorDropdownArrowIconSx = {
-  minWidth: 20,
-  minHeight: 20,
-  width: 20,
-  height: 20,
+  minWidth: ICON_ARROW_SIZE_PX,
+  minHeight: ICON_ARROW_SIZE_PX,
+  width: ICON_ARROW_SIZE_PX,
+  height: ICON_ARROW_SIZE_PX,
 };
 
 /** Operator dropdown: operator icon Box base sx (add fontSize in component). */
 export const operatorIconBoxSx = {
-  minWidth: 18,
-  minHeight: 18,
-  width: 18,
-  height: 18,
+  minWidth: ICON_OPERATOR_SIZE_PX,
+  minHeight: ICON_OPERATOR_SIZE_PX,
+  width: ICON_OPERATOR_SIZE_PX,
+  height: ICON_OPERATOR_SIZE_PX,
   verticalAlign: 'middle',
   '& .svg-inline--fa': { verticalAlign: 'middle' },
 };
@@ -158,7 +160,7 @@ export function getOperatorWrapperSx(direction) {
     minWidth: 0,
     maxWidth: '100%',
     flexDirection: isRtl ? 'row-reverse' : 'row',
-    transition: 'opacity 120ms ease',
+    transition: `opacity ${FILTER_TRANSITION_MS}ms ease`,
   };
 }
 
@@ -192,7 +194,7 @@ export const headerClearButtonSx = {
  */
 export function getFilterRowBoxSx(filterInputHeight, fontSize) {
   const contentHeight = getFilterContentHeight(filterInputHeight);
-  const inputPadding = { height: '100%', padding: `${PADDING_INPUT_TOP_BOTTOM_PX}px 8px` };
+  const inputPadding = { height: '100%', padding: `${PADDING_INPUT_TOP_BOTTOM_PX}px ${FILTER_INPUT_HORIZONTAL_PADDING_PX}px` };
   const baseInputSx = {
     height: contentHeight,
     minHeight: contentHeight,

@@ -1,11 +1,28 @@
 import { alpha, getLuminance } from '@mui/system/colorManipulator';
 import { DIRECTION_RTL } from '../config/schema';
+import {
+  HEADER_STICKY_TOP_PX,
+  SORT_LABEL_MIN_HEIGHT,
+  SORT_LABEL_MIN_WIDTH,
+  SORT_ORDER_BADGE_FONT_SIZE_REM,
+  SORT_ORDER_BADGE_OPACITY,
+  HEADER_CELL_PADDING,
+  RESIZE_HANDLE_WIDTH_PX,
+  RESIZE_HANDLE_OFFSET_PX,
+  RESIZE_LINE_WIDTH_PX,
+  RESIZE_LINE_INSET_PX,
+  RESIZE_LINE_TOP_PERCENT,
+  RESIZE_LINE_HEIGHT_PERCENT,
+  LUMINANCE_DARK_THRESHOLD,
+  RESIZE_LINE_HOVER_ALPHA,
+  DIVIDER_ALPHA,
+} from '../constants';
 
 export function getResizeLineColor(columnBackground, theme) {
   if (columnBackground && typeof columnBackground === 'string' && theme?.palette) {
     try {
       const luminance = getLuminance(columnBackground);
-      if (luminance < 0.3) {
+      if (luminance < LUMINANCE_DARK_THRESHOLD) {
         const white = theme.palette.common?.white;
         if (white) return alpha(white, 0.5);
       }
@@ -20,7 +37,7 @@ export function getResizeLineColor(columnBackground, theme) {
       /* fall through */
     }
   }
-  return 'rgba(0, 0, 0, 0.1)';
+  return `rgba(0, 0, 0, ${DIVIDER_ALPHA})`;
 }
 
 // ----- GridTable -----
@@ -67,7 +84,7 @@ export function getTableHeadSx(containScroll, headerConfig) {
   return {
     ...headerConfig?.base,
     position: containScroll ? 'relative' : 'sticky',
-    top: containScroll ? 0 : 45,
+    top: containScroll ? 0 : HEADER_STICKY_TOP_PX,
     zIndex: 2,
     backgroundColor: headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper',
   };
@@ -149,7 +166,7 @@ export const cellContentWrapperSx = { display: 'block', width: '100%', minWidth:
 
 // ----- GridHeaderCell -----
 
-export const headerCellBaseSx = { paddingLeft: '4px', paddingRight: '4px', position: 'relative' };
+export const headerCellBaseSx = { paddingLeft: HEADER_CELL_PADDING, paddingRight: HEADER_CELL_PADDING, position: 'relative' };
 
 export function getHeaderInnerBoxSx(mainRowHeight, headerComboSlot) {
   return {
@@ -165,7 +182,7 @@ export function getHeaderInnerBoxSx(mainRowHeight, headerComboSlot) {
   };
 }
 
-export const sortLabelSx = { minHeight: 20, minWidth: 22, overflow: 'hidden', flex: '1 1 22px' };
+export const sortLabelSx = { minHeight: SORT_LABEL_MIN_HEIGHT, minWidth: SORT_LABEL_MIN_WIDTH, overflow: 'hidden', flex: `1 1 ${SORT_LABEL_MIN_WIDTH}px` };
 
 export const headerLabelSx = {
   overflow: 'hidden',
@@ -175,19 +192,19 @@ export const headerLabelSx = {
   width: '100%',
 };
 
-export const sortOrderBadgeSx = { fontSize: '0.75rem', opacity: 0.8, flexShrink: 0 };
+export const sortOrderBadgeSx = { fontSize: `${SORT_ORDER_BADGE_FONT_SIZE_REM}rem`, opacity: SORT_ORDER_BADGE_OPACITY, flexShrink: 0 };
 
 export const flexSpacerSx = { flex: '0 1 0', minWidth: 0 };
 
 export function getResizeHandleSx(direction, columnBackground, theme) {
   const isRTL = direction === DIRECTION_RTL;
   const base = getResizeLineColor(columnBackground, theme);
-  const hover = alpha(base, 0.85);
+  const hover = alpha(base, RESIZE_LINE_HOVER_ALPHA);
   return {
     position: 'absolute',
     top: 0,
-    [isRTL ? 'left' : 'right']: '-4px',
-    width: '8px',
+    [isRTL ? 'left' : 'right']: `${RESIZE_HANDLE_OFFSET_PX}px`,
+    width: `${RESIZE_HANDLE_WIDTH_PX}px`,
     height: '100%',
     cursor: 'col-resize',
     zIndex: 2,
@@ -196,10 +213,10 @@ export function getResizeHandleSx(direction, columnBackground, theme) {
     '&::after': {
       content: '""',
       position: 'absolute',
-      top: '15%',
-      ...(isRTL ? { right: '2px' } : { left: '2px' }),
-      width: '2px',
-      height: '70%',
+      top: RESIZE_LINE_TOP_PERCENT,
+      ...(isRTL ? { right: `${RESIZE_LINE_INSET_PX}px` } : { left: `${RESIZE_LINE_INSET_PX}px` }),
+      width: `${RESIZE_LINE_WIDTH_PX}px`,
+      height: RESIZE_LINE_HEIGHT_PERCENT,
       backgroundColor: base,
       pointerEvents: 'none',
     },

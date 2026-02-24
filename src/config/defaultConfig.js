@@ -1,5 +1,12 @@
 import { DEFAULT_FIELD_TYPE } from './schema';
-import { DEFAULT_FONT_SIZE } from '../constants';
+import {
+  DEFAULT_FONT_SIZE,
+  DEFAULT_PAGE_SIZE,
+  PAGE_SIZE_OPTIONS,
+  BODY_ROW_HEIGHT,
+  BODY_ROW_PADDING_VERTICAL_PX,
+  BODY_ROW_PADDING_HORIZONTAL_PX,
+} from '../constants';
 
 /** Sensible defaults for grid and column config */
 
@@ -9,17 +16,17 @@ export const defaultGridConfig = {
   fitToContainer: false,
   multiSelectable: false,
   pagination: false,
-  pageSize: 10,
-  pageSizeOptions: [10, 25, 50, 100],
+  pageSize: DEFAULT_PAGE_SIZE,
+  pageSizeOptions: PAGE_SIZE_OPTIONS,
   density: 'standard',
   fontSize: DEFAULT_FONT_SIZE,
   showHorizontalScrollbar: false,
   bodyRow: {
-    height: 30,
-    paddingTop: '2px',
-    paddingBottom: '2px',
-    paddingLeft: '4px',
-    paddingRight: '4px',
+    height: BODY_ROW_HEIGHT,
+    paddingTop: `${BODY_ROW_PADDING_VERTICAL_PX}px`,
+    paddingBottom: `${BODY_ROW_PADDING_VERTICAL_PX}px`,
+    paddingLeft: `${BODY_ROW_PADDING_HORIZONTAL_PX}px`,
+    paddingRight: `${BODY_ROW_PADDING_HORIZONTAL_PX}px`,
   },
 };
 

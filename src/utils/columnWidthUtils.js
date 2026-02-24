@@ -1,8 +1,15 @@
 import { DEFAULT_FIELD_TYPE } from '../config/schema';
+import {
+  MIN_WIDTH_DEFAULT_PX,
+  MIN_WIDTH_NO_FILTERS_PX,
+  AVG_CHAR_WIDTH_PX,
+  HEADER_CELL_PADDING_PX,
+  ICON_ALLOWANCE_PX,
+  ICON_ALLOWANCE_NO_FILTERS_PX,
+  AUTO_MAX_WIDTH_MULTIPLIER,
+} from '../constants';
 
-// Pre-compute constant values
-export const MIN_WIDTH_DEFAULT_PX = 110;
-export const MIN_WIDTH_NO_FILTERS_PX = 85;
+export { MIN_WIDTH_DEFAULT_PX, MIN_WIDTH_NO_FILTERS_PX };
 
 /**
  * Normalizes column width values to CSS-compatible strings.
@@ -35,12 +42,6 @@ const builtInMinWidthCache = new Map();
 const effectiveMinWidthCache = new Map();
 const autoWidthEstimateCache = new Map();
 
-// Auto width estimation constants
-const DEFAULT_AVG_CHAR_WIDTH = 8; // Configurable, default 7-9px
-const HEADER_PADDING = 8; // Left + right cell padding (4px each)
-const ICON_ALLOWANCE = 56; // Sort icon ~26px + sort order badge slot 28px + filter icon space
-const ICON_ALLOWANCE_NO_FILTERS = 46; // Sort icon ~26px + sort order badge slot 20px only (no filter icon)
-const AUTO_MAX_WIDTH_MULTIPLIER = 2.5; // Auto columns max = 2.5 × minWidth
 
 /**
  * Gets the cache key for a column
@@ -131,9 +132,9 @@ export function estimateAutoColumnWidth(column, options = {}) {
   }
 
   const effectiveMinWidth = getEffectiveMinWidth(column, options);
-  const avgCharWidth = options.avgCharWidth ?? DEFAULT_AVG_CHAR_WIDTH;
-  const headerPadding = options.headerPadding ?? HEADER_PADDING;
-  const iconAllowance = options.iconAllowance ?? (filters ? ICON_ALLOWANCE : ICON_ALLOWANCE_NO_FILTERS);
+  const avgCharWidth = options.avgCharWidth ?? AVG_CHAR_WIDTH_PX;
+  const headerPadding = options.headerPadding ?? HEADER_CELL_PADDING_PX;
+  const iconAllowance = options.iconAllowance ?? (filters ? ICON_ALLOWANCE_PX : ICON_ALLOWANCE_NO_FILTERS_PX);
 
   const headerText = column.headerName || '';
   const textWidth = headerText.length * avgCharWidth;

@@ -5,6 +5,7 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, ALIGN_LEFT, DIRECTION_RTL } from '../config/schema';
+import { SORT_ORDER_BADGE_MIN_WIDTH } from '../constants';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { getFilterRowBoxSx } from '../filters/filterBoxStyles';
 import { getEffectiveMinWidth } from '../utils/columnWidthUtils';
@@ -185,7 +186,7 @@ export function GridHeaderCell({
           </TableSortLabel>
         </Tooltip>
         {/* Reserve space for sort order badge to prevent column width shift on multi-sort */}
-        <Box component="span" sx={{ minWidth: 20, flexShrink: 0 }}>
+        <Box component="span" sx={{ minWidth: SORT_ORDER_BADGE_MIN_WIDTH, flexShrink: 0 }}>
           {sortOrderIndex != null && multiColumn ? (
             <Box component="span" sx={sortOrderBadgeSx}>{`(${sortOrderIndex})`}</Box>
           ) : null}

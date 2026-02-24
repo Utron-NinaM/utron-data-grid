@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
+import {
+  CHECKBOX_COLUMN_WIDTH_PX,
+  CONTAINER_WIDTH_FALLBACK_PX,
+  SCROLLBAR_BUFFER_PX,
+  SCROLLBAR_TOLERANCE_PX,
+} from '../constants';
 import { calculateColumnWidths } from '../utils/columnWidthUtils';
 import { useContainerWidth } from './useContainerWidth';
-
-// MUI TableCell padding="checkbox" column width (px) – reserve this when multiSelectable so data columns fit
-const CHECKBOX_COLUMN_WIDTH_PX = 48;
 
 let _scrollbarWidth = -1;
 function getScrollbarWidth() {
@@ -89,11 +92,11 @@ export function useColumnLayout({
     // If containerWidth is 0 but ref exists, use fallback for ResizeObserver initialization delay
     // This handles the case where ResizeObserver hasn't fired yet on initial render
     // Note: Negative containerWidth is allowed (may be used for scroll calculations)
-    const rawWidth = containerWidth > 0 ? containerWidth : 1000;
+    const rawWidth = containerWidth > 0 ? containerWidth : CONTAINER_WIDTH_FALLBACK_PX;
     // Always reserve scrollbar width when reserveScrollbarWidth: clientWidth can be reported before the
     // vertical scrollbar appears, so subtract it proactively. Add 2px buffer to avoid a brief horizontal
     // scroll flash when switching page size (10→25 rows) before ResizeObserver fires with the new width.
-    const scrollbarReserve = reserveScrollbarWidth ? getScrollbarWidth() + 2 : 0;
+    const scrollbarReserve = reserveScrollbarWidth ? getScrollbarWidth() + SCROLLBAR_BUFFER_PX : 0;
     const effectiveContainerWidth = rawWidth
       - (multiSelectable ? CHECKBOX_COLUMN_WIDTH_PX : 0)
       - scrollbarReserve;
@@ -104,7 +107,7 @@ export function useColumnLayout({
     const totalTableWidth = multiSelectable ? dataColumnsTotal + CHECKBOX_COLUMN_WIDTH_PX : dataColumnsTotal;
 
     // Use 1px tolerance to avoid spurious horizontal scroll from sub-pixel rounding
-    const enableH = totalTableWidth > availableWidthForScrollCheck + 1;
+    const enableH = totalTableWidth > availableWidthForScrollCheck + SCROLLBAR_TOLERANCE_PX;
     return {
       columnWidthMap: result.columnWidthMap,
       totalWidth: totalTableWidth,
