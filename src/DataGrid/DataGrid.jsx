@@ -90,6 +90,20 @@ export function DataGrid(props) {
         }
       : null;
 
+    const muiSelectRtlOverrides =
+      direction === DIRECTION_RTL
+        ? {
+            select: ({ theme }) => ({
+              paddingLeft: `${theme.spacing(4)} !important`,
+              paddingRight: `${theme.spacing(1.75)} !important`,
+            }),
+            icon: ({ theme }) => ({
+              left: `${theme.spacing(1.125)} !important`,
+              right: 'auto !important',
+            }),
+          }
+        : {};
+
     const typoOverrides = fontSx
       ? {
           typography: {
@@ -122,12 +136,9 @@ export function DataGrid(props) {
             styleOverrides: {
               select: ({ theme }) => ({
                 ...fontSx,
-                ...(direction === DIRECTION_RTL && {
-                  paddingLeft: `${theme.spacing(4)} !important`,
-                  paddingRight: `${theme.spacing(1.75)} !important`,
-                }),
+                ...(muiSelectRtlOverrides.select && muiSelectRtlOverrides.select({ theme })),
               }),
-              ...(direction === DIRECTION_RTL && { icon: ({ theme }) => ({ left: `${theme.spacing(1.125)} !important`, right: 'auto !important' }) }),
+              ...(muiSelectRtlOverrides.icon && { icon: muiSelectRtlOverrides.icon }),
             },
           },
         }
@@ -136,33 +147,25 @@ export function DataGrid(props) {
     const rtlComponents =
       direction === DIRECTION_RTL
         ? {
-            ...(!fontSx && {
-              MuiSelect: {
-                styleOverrides: {
-                  icon: ({ theme }) => ({ left: `${theme.spacing(1.125)} !important`, right: 'auto !important' }),
-                  select: ({ theme }) => ({
-                    paddingLeft: `${theme.spacing(4)} !important`,
-                    paddingRight: `${theme.spacing(1.75)} !important`,
-                  }),
-                },
-              },
+            ...(!fontSx && muiSelectRtlOverrides.select && {
+              MuiSelect: { styleOverrides: muiSelectRtlOverrides },
             }),
             MuiAutocomplete: {
               styleOverrides: {
-                root: {
+                root: ({ theme }) => ({
                   '& .MuiAutocomplete-endAdornment': {
-                    left: '9px !important',
+                    left: `${theme.spacing(1.125)} !important`,
                     right: 'auto !important',
                   },
                   '& .MuiOutlinedInput-root': {
-                    paddingLeft: '39px !important',
-                    paddingRight: '9px !important',
+                    paddingLeft: `${theme.spacing(4.875)} !important`,
+                    paddingRight: `${theme.spacing(1.125)} !important`,
                   },
                   '& .MuiOutlinedInput-root.MuiInputBase-sizeSmall': {
-                    paddingLeft: '35px !important',
-                    paddingRight: '6px !important',
+                    paddingLeft: `${theme.spacing(4.375)} !important`,
+                    paddingRight: `${theme.spacing(0.75)} !important`,
                   },
-                },
+                }),
               },
             },
           }
@@ -174,14 +177,14 @@ export function DataGrid(props) {
       components: {
         MuiTableSortLabel: {
           styleOverrides: {
-            root: {
+            root: ({ theme }) => ({
               color: 'inherit !important',
               '& .MuiTableSortLabel-icon': {
                 color: 'inherit !important',
                 fill: 'currentColor',
-                fontSize: 14,
-                marginLeft: 2,
-                marginRight: 2,
+                fontSize: theme.typography.body2.fontSize,
+                marginLeft: theme.spacing(0.25),
+                marginRight: theme.spacing(0.25),
               },
               '& .MuiTableSortLabel-icon:hover': { color: 'inherit !important' },
               '&:hover': { color: 'inherit !important' },
@@ -190,7 +193,7 @@ export function DataGrid(props) {
               '&.Mui-active .MuiTableSortLabel-icon': { color: 'inherit !important' },
               '&.Mui-focusVisible': { color: 'inherit !important' },
               '&.Mui-focusVisible .MuiTableSortLabel-icon': { color: 'inherit !important' },
-            },
+            }),
           },
         },
         ...fontComponents,
@@ -226,7 +229,7 @@ export function DataGrid(props) {
           ref={grid.stableContextValue.containerRef}
           sx={getDataGridRootSx({
             sx: flatProps.sx,
-            fontSize: flatProps.fontSize ?? defaultGridConfig.fontSize,
+            fontSize,
             fontFamily: flatProps.fontFamily,
             fontWeight: flatProps.fontWeight,
             useScrollableLayout,

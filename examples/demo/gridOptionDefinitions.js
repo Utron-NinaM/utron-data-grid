@@ -32,7 +32,7 @@ export const gridOptionDefinitions = [
     label: 'Direction',
     type: 'select',
     group: 'layout',
-    default: DIRECTION_LTR,
+    default: DIRECTION_RTL,
     options: [
       { value: DIRECTION_LTR, label: 'LTR' },
       { value: DIRECTION_RTL, label: 'RTL' },
