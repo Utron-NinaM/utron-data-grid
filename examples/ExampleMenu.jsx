@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { DataGridExample } from './DataGridExample';
 import { EditingValidationExample } from './EditingValidationExample';
 import { ConditionalEditingExample } from './ConditionalEditingExample';
+import { ConfigDemoApp } from './demo/ConfigDemoApp';
 
 const examples = [
+  { id: 'config-demo', name: 'Config Demo', component: ConfigDemoApp },
   { id: 'all-features', name: 'All Features', component: DataGridExample },
   { id: 'editing-validation', name: 'Editing & Validation', component: EditingValidationExample },
-  { id: 'conditional-editing', name: 'Conditional Editing', component: ConditionalEditingExample },
+  { id: 'conditional-editing', name: 'Conditional Editing', component: ConditionalEditingExample },  
 ];
 
 export function ExampleMenu() {
-  const [selectedExample, setSelectedExample] = useState('all-features');
+  const [selectedExample, setSelectedExample] = useState('config-demo');
 
   const ExampleComponent = examples.find((e) => e.id === selectedExample)?.component || DataGridExample;
 
@@ -56,7 +58,7 @@ export function ExampleMenu() {
           </button>
         ))}
       </div>
-      <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, overflow: 'hidden', position: 'relative' }}>
         <ExampleComponent />
       </div>
     </div>

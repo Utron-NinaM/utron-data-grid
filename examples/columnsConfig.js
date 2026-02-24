@@ -59,6 +59,17 @@ export const columnsConfig = [
     rowStyle: (row) => (row.status === 'pending' ? { backgroundColor: '#fff3e0' } : {}),
   },
   { field: 'description', headerName: 'Description', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, minWidth: 120 },
+  { field: 'mileage', headerName: 'Mileage', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 90 },
+  { field: 'engine', headerName: 'Engine', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 100 },
+  { field: 'seats', headerName: 'Seats', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 70 },
+  { field: 'doors', headerName: 'Doors', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 70 },
+  { field: 'fuel', headerName: 'Fuel', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 80 },
+  { field: 'warranty', headerName: 'Warranty', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 90 },
+  { field: 'rating', headerName: 'Rating', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 80 },
+  { field: 'notes', headerName: 'Notes', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 120 },
+  { field: 'category', headerName: 'Category', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 100 },
+  { field: 'region', headerName: 'Region', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 90 },
+  { field: 'dealer', headerName: 'Dealer', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 120 },
 ];
 
 export const columnsConfigHebrew = [
@@ -97,4 +108,15 @@ export const columnsConfigHebrew = [
   },
   { field: 'createdAt', headerName: 'תאריך', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true },
   { field: 'description', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
+  { field: 'mileage', headerName: 'קילומטראז׳', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },
+  { field: 'engine', headerName: 'מנוע', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
+  { field: 'seats', headerName: 'מושבים', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },
+  { field: 'doors', headerName: 'דלתות', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },
+  { field: 'fuel', headerName: 'דלק', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
+  { field: 'warranty', headerName: 'אחריות', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },
+  { field: 'rating', headerName: 'דירוג', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },
+  { field: 'notes', headerName: 'הערות', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
+  { field: 'category', headerName: 'קטגוריה', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
+  { field: 'region', headerName: 'אזור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
+  { field: 'dealer', headerName: 'סוכן', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
 ];
