@@ -12,6 +12,8 @@ import { getOptionMap } from '../utils/optionUtils';
 import { useDataGridMaps } from './useDataGridMaps';
 import { useDataGridEdit } from './useDataGridEdit';
 import { useColumnLayout } from './useColumnLayout';
+import { createSelectionStore } from './selectionStore';
+import { createEditStore } from './editStore';
 
 /**
  * Custom hook for DataGrid state management and business logic
@@ -61,7 +63,17 @@ export function useDataGrid(props) {
   const [selection, setSelection] = useState(new Set());
   const [internalPage, setInternalPage] = useState(0);
   const [internalPageSize, setInternalPageSize] = useState(initialPageSize);
-  const [selectedRowId, setSelectedRowId] = useState(null);
+  // Selection store (external, no React state) so selection changes don't re-render GridTable
+  const selectionStoreRef = useRef(null);
+  if (!selectionStoreRef.current) {
+    selectionStoreRef.current = createSelectionStore(null);
+  }
+  const selectionStore = selectionStoreRef.current;
+  const editStoreRef = useRef(null);
+  if (!editStoreRef.current) {
+    editStoreRef.current = createEditStore();
+  }
+  const editStore = editStoreRef.current;
   // Column width state: Map<field, width> for resized width overrides only (not full widths)
   const [columnWidthState, setColumnWidthState] = useState(() => getStoredColumnWidthState(props.gridId, props.columns));
   // Container ref for ResizeObserver (created here, passed to GridTable via context)
@@ -74,15 +86,8 @@ export function useDataGrid(props) {
   // Ref for column currently being resized (field name or null); prevents layout from overwriting DOM width during drag
   const resizingColumnRef = useRef(null);
 
-  const {
-    editRowId,
-    editValues,
-    validationErrors,
-    handleRowDoubleClick,
-    handleEditChange,
-    handleEditCancel,
-    handleEditSave,
-  } = useDataGridEdit({
+  const { handleRowDoubleClick, handleEditChange, handleEditCancel, handleEditSave } = useDataGridEdit({
+    editStore,
     editable,
     onEditCommit,
     onEditStart,
@@ -122,19 +127,6 @@ export function useDataGrid(props) {
   useEffect(() => {
     saveColumnWidthState(gridId, columnWidthState);
   }, [gridId, columnWidthState]);
-
-  // Clear selection when edit mode starts
-  const prevEditRowIdRef = useRef(null);
-  useEffect(() => {
-    // Clear selection when editRowId transitions from null to a value (edit starts)
-    if (editRowId && !prevEditRowIdRef.current) {
-      if (selection.size > 0) {
-        setSelection(new Set());
-        onSelectionChange?.([]);
-      }
-    }
-    prevEditRowIdRef.current = editRowId;
-  }, [editRowId, onSelectionChange]);
 
   const setSortModel = useCallback(
     (next) => {
@@ -227,15 +219,12 @@ export function useDataGrid(props) {
     [onPageChange, onPageSizeChange]
   );
 
-  const handleRowClick = useCallback(
-    (row) => {
-      console.log('[useDataGrid] handleRowClick start', performance.now());
-      const id = getRowId(row);
-      setSelectedRowId(id);
-      if (onRowSelect) onRowSelect(id, row);
-      console.log('[useDataGrid] handleRowClick after setState', performance.now());
+  const selectRow = useCallback(
+    (id, row = null) => {
+      selectionStoreRef.current.set(id);
+      if (onRowSelect && row) onRowSelect(id, row);
     },
-    [onRowSelect, getRowId]
+    [onRowSelect]
   );
 
   const handleColumnResize = useCallback(
@@ -251,18 +240,26 @@ export function useDataGrid(props) {
     [] // No dependencies needed - functional update pattern
   );
 
-  // Wrapper that calls user's onRowDoubleClick callback, then the edit handler
+  // Wrapper: set selection highlight, optionally enter edit, clear checkbox selection without causing sync re-render
   const handleRowDoubleClickWrapper = useCallback(
     (row) => {
       const id = getRowId(row);
-      setSelectedRowId(id);
-      if (editable && onEditCommit) handleRowDoubleClick(row);
+      selectionStoreRef.current.set(id);
+      if (editable && onEditCommit) {
+        handleRowDoubleClick(row);
+        if (selection.size > 0) {
+          setTimeout(() => {
+            setSelection(new Set());
+            onSelectionChange?.([]);
+          }, 0);
+        }
+      }
       queueMicrotask(() => {
         if (onRowSelect) onRowSelect(id, row);
         if (onRowDoubleClick) onRowDoubleClick(row);
       });
     },
-    [getRowId, onRowSelect, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit]
+    [getRowId, onRowSelect, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit, selection.size, onSelectionChange]
   );
 
   const filteredRows = useMemo(
@@ -398,6 +395,11 @@ export function useDataGrid(props) {
       toolbarActions,
       toolbarClearButtonsSx,
       fontSize,
+      selectionStore,
+      selectRow,
+      editStore,
+      handleEditSave,
+      handleEditCancel,
     }),
     [
       columns,
@@ -446,6 +448,11 @@ export function useDataGrid(props) {
       toolbarActions,
       toolbarClearButtonsSx,
       fontSize,
+      selectionStore,
+      selectRow,
+      editStore,
+      handleEditSave,
+      handleEditCancel,
     ]
   );
 
@@ -479,15 +486,9 @@ export function useDataGrid(props) {
     );
   }, [filterModel]);
 
-  const errorSet = useMemo(() => new Set(validationErrors.map((e) => e.field)), [validationErrors]);
-
   return {
     // State
     selection,
-    editRowId,
-    editValues,
-    validationErrors,
-    selectedRowId,
     sortModel,
     filterModel,
     page,
@@ -501,7 +502,6 @@ export function useDataGrid(props) {
     filterContextValue,
     hasActiveFilters,
     hasActiveRangeFilter,
-    errorSet,
 
     // Handlers
     handleSelect,
@@ -509,7 +509,7 @@ export function useDataGrid(props) {
     handleFilterChange,
     handlePageChange,
     handlePageSizeChange,
-    handleRowClick,
+    selectRow,
     handleRowDoubleClick: handleRowDoubleClickWrapper,
     handleEditSave,
     handleEditCancel,

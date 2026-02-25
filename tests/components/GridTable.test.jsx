@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { GridTable } from '../../src/core/GridTable';
 import { DataGridProvider } from '../../src/DataGrid/DataGridContext';
+import { createSelectionStore } from '../../src/DataGrid/selectionStore';
 import { DIRECTION_LTR } from '../../src/config/schema';
 
 describe('GridTable Component', () => {
@@ -50,6 +51,8 @@ describe('GridTable Component', () => {
     headerCellSxMap: new Map(),
     filterCellSxMap: new Map(),
     onColumnResize: null,
+    selectionStore: createSelectionStore(null),
+    selectRow: vi.fn(),
   };
 
   const defaultFilterValue = {
@@ -66,13 +69,7 @@ describe('GridTable Component', () => {
       sortModel: [],
       onSort: vi.fn(),
       hasActiveFilters: false,
-      editRowId: null,
-      editValues: {},
-      validationErrors: [],
-      errorSet: new Set(),
-      onRowClick: null,
       onRowDoubleClick: null,
-      selectedRowId: null,
       hasActiveRangeFilter: false,
       ...props,
     };
@@ -306,50 +303,49 @@ describe('GridTable Component', () => {
   });
 
   describe('Test row click and double-click handlers', () => {
-    it('should trigger onRowClick once on single click', () => {
-      const onRowClick = vi.fn();
-      renderGridTable({ onRowClick });
+    it('should trigger selectRow once on single click', () => {
+      const selectRow = vi.fn();
+      const stableValue = { ...defaultStableValue, selectRow };
+      renderGridTable({}, stableValue);
       const row = screen.getByText('Alice').closest('[data-row-id]');
       fireEvent.click(row);
-      expect(onRowClick).toHaveBeenCalledTimes(1);
-      expect(onRowClick).toHaveBeenCalledWith(basicRows[0]);
+      expect(selectRow).toHaveBeenCalledTimes(1);
+      expect(selectRow).toHaveBeenCalledWith(1, basicRows[0]);
     });
 
     it('should trigger onRowDoubleClick once on double-click (clicks fire immediately)', () => {
-      const onRowClick = vi.fn();
+      const selectRow = vi.fn();
       const onRowDoubleClick = vi.fn();
-      renderGridTable({ onRowClick, onRowDoubleClick });
+      const stableValue = { ...defaultStableValue, selectRow };
+      renderGridTable({ onRowDoubleClick }, stableValue);
       const row = screen.getByText('Alice').closest('[data-row-id]');
       fireEvent.click(row);
       fireEvent.click(row);
       fireEvent.doubleClick(row);
       expect(onRowDoubleClick).toHaveBeenCalledTimes(1);
       expect(onRowDoubleClick).toHaveBeenCalledWith(basicRows[0]);
-      // No delay: each click fires immediately, so two clicks + one dblclick
-      expect(onRowClick).toHaveBeenCalledTimes(2);
+      expect(selectRow).toHaveBeenCalledTimes(2);
     });
 
     it('should call onRowDoubleClick with correct row data', () => {
       const onRowDoubleClick = vi.fn();
-      
       renderGridTable({ onRowDoubleClick });
-      
       const bobRow = screen.getByText('Bob').closest('[data-row-id]');
       fireEvent.doubleClick(bobRow);
-      
       expect(onRowDoubleClick).toHaveBeenCalledTimes(1);
       expect(onRowDoubleClick).toHaveBeenCalledWith(basicRows[1]);
     });
 
-    it('should trigger onRowClick on each click (no delay)', () => {
-      const onRowClick = vi.fn();
-      renderGridTable({ onRowClick });
+    it('should trigger selectRow on each click (no delay)', () => {
+      const selectRow = vi.fn();
+      const stableValue = { ...defaultStableValue, selectRow };
+      renderGridTable({}, stableValue);
       const row = screen.getByText('Alice').closest('[data-row-id]');
       fireEvent.click(row);
       fireEvent.click(row);
-      expect(onRowClick).toHaveBeenCalledTimes(2);
-      expect(onRowClick).toHaveBeenNthCalledWith(1, basicRows[0]);
-      expect(onRowClick).toHaveBeenNthCalledWith(2, basicRows[0]);
+      expect(selectRow).toHaveBeenCalledTimes(2);
+      expect(selectRow).toHaveBeenNthCalledWith(1, 1, basicRows[0]);
+      expect(selectRow).toHaveBeenNthCalledWith(2, 1, basicRows[0]);
     });
   });
 
@@ -370,11 +366,13 @@ describe('GridTable Component', () => {
       const toolbarActionsFn = vi.fn(({ selectedRow, selectedRowId }) => (
         <span data-testid="toolbar-actions-fn">Selected: {selectedRowId ?? 'none'}</span>
       ));
+      const selectionStore = createSelectionStore(2);
       const stableValue = {
         ...defaultStableValue,
         toolbarActions: toolbarActionsFn,
+        selectionStore,
       };
-      renderGridTable({ selectedRowId: 2 }, stableValue);
+      renderGridTable({}, stableValue);
       expect(screen.getByTestId('toolbar-actions-fn')).toHaveTextContent('Selected: 2');
       expect(toolbarActionsFn).toHaveBeenCalledWith({ selectedRow: basicRows[1], selectedRowId: 2 });
       expect(screen.getByRole('button', { name: /clear sort/i })).toBeInTheDocument();

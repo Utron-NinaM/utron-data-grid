@@ -38,6 +38,11 @@ export const ScrollContainerContext = createContext(null);
  * @param {{ current: string|null }} [stableValue.resizingColumnRef] Ref whose .current is the column field being resized, or null
  * @param {React.ReactNode|Function} [stableValue.toolbarActions] Optional slot for right side of toolbar row (ReactNode or (params: { selectedRow, selectedRowId }) => ReactNode)
  * @param {number} [stableValue.fontSize] Font size in px for cells, filters, inputs, pagination
+ * @param {{ getSnapshot: () => string|number|null, subscribe: (fn: () => void) => () => void, set: (id: string|number|null) => void }} [stableValue.selectionStore] External store for single-row selection (use with useSyncExternalStore)
+ * @param {Function} [stableValue.selectRow] (id: string|number, row?: Object) => void – updates selection store and optionally calls onRowSelect
+ * @param {Object} [stableValue.editStore] External store for edit state (editRowId, editValues, validationErrors, originalRow); use with useSyncExternalStore
+ * @param {Function} [stableValue.handleEditSave] Save handler for edit toolbar
+ * @param {Function} [stableValue.handleEditCancel] Cancel handler for edit toolbar
  * @param {Object} filterValue Filter-related functions that change with filterModel
  * @param {Function} [filterValue.getHeaderComboSlot]
  * @param {Function} [filterValue.getFilterInputSlot]

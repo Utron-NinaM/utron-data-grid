@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import { createEditStore } from '../../src/DataGrid/editStore';
 import { useDataGridEdit } from '../../src/DataGrid/useDataGridEdit';
 
 /**
@@ -20,10 +21,12 @@ describe('useDataGridEdit with real validateRow', () => {
   ];
 
   it('sets validationErrors and calls onValidationFail when validateRow returns errors; onEditCommit when valid', () => {
+    const editStore = createEditStore();
     const onValidationFail = vi.fn();
     const onEditCommit = vi.fn();
     const { result } = renderHook(useDataGridEdit, {
       initialProps: {
+        editStore,
         editable: true,
         onEditCommit,
         onValidationFail,
@@ -39,14 +42,15 @@ describe('useDataGridEdit with real validateRow', () => {
       result.current.handleEditSave();
     });
 
-    expect(result.current.validationErrors).toHaveLength(1);
-    expect(result.current.validationErrors[0]).toMatchObject({
+    const s1 = editStore.getSnapshot();
+    expect(s1.validationErrors).toHaveLength(1);
+    expect(s1.validationErrors[0]).toMatchObject({
       field: 'score',
       message: 'Score must be >= 0',
     });
-    expect(onValidationFail).toHaveBeenCalledWith(1, result.current.validationErrors);
+    expect(onValidationFail).toHaveBeenCalledWith(1, s1.validationErrors);
     expect(onEditCommit).not.toHaveBeenCalled();
-    expect(result.current.editRowId).toBe(1);
+    expect(s1.editRowId).toBe(1);
 
     act(() => {
       result.current.handleEditChange('score', 10);
@@ -55,8 +59,9 @@ describe('useDataGridEdit with real validateRow', () => {
       result.current.handleEditSave();
     });
 
-    expect(result.current.validationErrors).toEqual([]);
-    expect(result.current.editRowId).toBeNull();
+    const s2 = editStore.getSnapshot();
+    expect(s2.validationErrors).toBeNull();
+    expect(s2.editRowId).toBeNull();
     expect(onEditCommit).toHaveBeenCalledWith(1, { id: 1, name: 'Alice', score: 10 });
   });
 });

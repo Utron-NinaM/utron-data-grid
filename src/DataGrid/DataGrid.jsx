@@ -4,11 +4,11 @@ import Box from '@mui/material/Box';
 import { DataGridProvider, DataGridStableContext } from './DataGridContext';
 import { GridTable } from '../core/GridTable';
 import { PaginationBar } from '../pagination/PaginationBar';
-import { ValidationAlert } from '../validation/ValidationAlert';
+import { ValidationAlertSubscriber } from './ValidationAlertSubscriber';
 import { defaultGridConfig } from '../config/defaultConfig';
 import { useDataGrid } from './useDataGrid';
 import { getDataGridRootSx, scrollableContentSx } from './dataGridStyles';
-import { EditToolbar } from './EditToolbar';
+import { EditToolbarSubscriber } from '../core/EditToolbarSubscriber';
 import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
 
 /**
@@ -208,25 +208,32 @@ export function DataGrid(props) {
     });
   }, [direction, fontFamily, fontSize, fontWeight]);
 
-  const gridTable = useMemo(() => <GridTable
-    rows={grid.displayRows}
-    selection={grid.selection}
-    onSelect={grid.handleSelect}
-    sortModel={grid.sortModel}
-    onSort={grid.handleSort}
-    hasActiveFilters={grid.hasActiveFilters}
-    editRowId={grid.editRowId}
-    editValues={grid.editValues}
-    validationErrors={grid.validationErrors}
-    errorSet={grid.errorSet}
-    onRowClick={grid.handleRowClick}
-    onRowDoubleClick={grid.handleRowDoubleClick}
-    selectedRowId={grid.selectedRowId}
-    hasActiveRangeFilter={grid.hasActiveRangeFilter}
-    containScroll={useScrollableLayout}   
-  />, [grid.displayRows, grid.selection, grid.handleSelect, grid.sortModel, grid.handleSort, grid.hasActiveFilters,
-  grid.editRowId, grid.editValues, grid.validationErrors, grid.errorSet, grid.handleRowClick, grid.handleRowDoubleClick,
-  grid.selectedRowId, grid.hasActiveRangeFilter, useScrollableLayout]);
+  const gridTable = useMemo(
+    () => (
+      <GridTable
+        rows={grid.displayRows}
+        selection={grid.selection}
+        onSelect={grid.handleSelect}
+        sortModel={grid.sortModel}
+        onSort={grid.handleSort}
+        hasActiveFilters={grid.hasActiveFilters}
+        onRowDoubleClick={grid.handleRowDoubleClick}
+        hasActiveRangeFilter={grid.hasActiveRangeFilter}
+        containScroll={useScrollableLayout}
+      />
+    ),
+    [
+      grid.displayRows,
+      grid.selection,
+      grid.handleSelect,
+      grid.sortModel,
+      grid.handleSort,
+      grid.hasActiveFilters,
+      grid.handleRowDoubleClick,
+      grid.hasActiveRangeFilter,
+      useScrollableLayout,
+    ]
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -243,7 +250,7 @@ export function DataGrid(props) {
           dir={direction}
           data-testid="data-grid-root"
         >
-          <ValidationAlert errors={grid.validationErrors} />
+          <ValidationAlertSubscriber />
           {useScrollableLayout ? (
             <Box sx={scrollableContentSx}>
               {gridTable}
@@ -253,16 +260,10 @@ export function DataGrid(props) {
           )}
           {editable && reserveEditToolbarSpace && (
             <Box sx={{ minHeight: editToolbarHeight }}>
-              {grid.editRowId != null ? (
-                <EditToolbar onSave={grid.handleEditSave} onCancel={grid.handleEditCancel} />
-              ) : (
-                <Box sx={{ height: editToolbarHeight }} aria-hidden />
-              )}
+              <EditToolbarSubscriber reserveSpaceHeight={editToolbarHeight} />
             </Box>
           )}
-          {editable && !reserveEditToolbarSpace && grid.editRowId != null && (
-            <EditToolbar onSave={grid.handleEditSave} onCancel={grid.handleEditCancel} />
-          )}
+          {editable && !reserveEditToolbarSpace && <EditToolbarSubscriber />}
           {pagination && (
             <PaginationBar
               page={grid.page}

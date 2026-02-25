@@ -13,6 +13,7 @@ import { DataGridStableContext, DataGridFilterContext, ScrollContainerContext } 
 import { GridHeaderCell } from './GridHeaderCell';
 import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBodyRow } from './GridBodyRow';
+import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
 import { ALIGN_CENTER } from '../config/schema';
 import {
@@ -29,8 +30,6 @@ import {
   getScrollInnerBoxSx,
 } from './coreStyles';
 
-const EMPTY_ERROR_SET = new Set();
-
 /**
  * @param {Object} props
  * @param {Object[]} props.rows
@@ -39,13 +38,7 @@ const EMPTY_ERROR_SET = new Set();
  * @param {Array<{ field: string, order: string }>} props.sortModel
  * @param {Function} props.onSort
  * @param {boolean} [props.hasActiveFilters]
- * @param {string|number|null} props.editRowId
- * @param {Object} props.editValues
- * @param {Array} props.validationErrors
- * @param {Set<string>} props.errorSet
- * @param {Function} [props.onRowClick]
  * @param {Function} [props.onRowDoubleClick]
- * @param {string|number|null} [props.selectedRowId]
  * @param {boolean} [props.hasActiveRangeFilter] Whether any column has an active range filter
  * @param {boolean} [props.containScroll] When true, toolbar stays fixed and only table body scrolls
  */
@@ -56,12 +49,7 @@ function GridTableInner({
   sortModel,
   onSort,
   hasActiveFilters,
-  editRowId,
-  editValues,
-  errorSet,
-  onRowClick,
   onRowDoubleClick,
-  selectedRowId,
   hasActiveRangeFilter,
   containScroll = false,
 }) {
@@ -72,7 +60,7 @@ function GridTableInner({
     hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
     colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
-    toolbarActions, toolbarClearButtonsSx, direction } = ctx;
+    toolbarClearButtonsSx, direction, selectRow } = ctx;
 
   const bodyColRefs = useRef(new Map());
   const headerScrollRef = useRef(null);
@@ -117,16 +105,15 @@ function GridTableInner({
     return map;
   }, [rows, rowStylesMap, disableRowHover, rowHoverStyle, getRowId]);
   const handleTableBodyClick = useMemo(() => {
-    if (!onRowClick) return undefined;
+    if (!selectRow) return undefined;
     return (event) => {
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
-      const rowId = rowElement.getAttribute('data-row-id');
-      const row = rows.find(r => String(getRowId(r)) === rowId);
-      console.log('[GridTable] rowClick', performance.now());
-      if (row) onRowClick(row);
+      const rowIdAttr = rowElement.getAttribute('data-row-id');
+      const row = rows.find((r) => String(getRowId(r)) === rowIdAttr);
+      if (row) selectRow(getRowId(row), row);
     };
-  }, [onRowClick, rows, getRowId]);
+  }, [selectRow, rows, getRowId]);
 
   const handleTableBodyDoubleClick = useMemo(() => {
     if (!onRowDoubleClick) return undefined;
@@ -156,13 +143,8 @@ function GridTableInner({
       </TableRow>
     );
   } else {
-    const errorSetToUse = errorSet || EMPTY_ERROR_SET;
-
     bodyRows = rows.map((row) => {
       const rowId = getRowId(row);
-      const isSelected = selectedRowId === rowId;
-      const isEditing = editRowId === rowId;
-
       return (
         <GridBodyRow
           key={rowId}
@@ -170,10 +152,6 @@ function GridTableInner({
           rowId={rowId}
           selected={selection?.has(rowId)}
           onSelectRow={handleSelectRow}
-          editRowId={isEditing ? editRowId : null}
-          editValues={isEditing ? editValues : undefined}
-          validationErrors={isEditing ? errorSetToUse : EMPTY_ERROR_SET}
-          isSelected={isSelected}
           rowSx={mergedRowStylesMap.get(rowId)}
           rowStyle={rowStylesMap?.get(rowId)}
           selectedRowStyle={selectedRowStyle}
@@ -213,13 +191,6 @@ function GridTableInner({
       }
     };
   }, [containScroll]);
-  const selectedRow = selectedRowId != null ? rows.find((r) => getRowId(r) === selectedRowId) ?? null : null;
-  const toolbarActionsContent = toolbarActions != null
-    ? (typeof toolbarActions === 'function'
-      ? toolbarActions({ selectedRow, selectedRowId })
-      : toolbarActions)
-    : null;
-
   const toolbarBox = (
     <Box sx={getToolbarBoxSx(containScroll)}>
       <Box sx={toolbarActionsBoxSx}>
@@ -235,7 +206,7 @@ function GridTableInner({
           {translations('clearColumnWidths')}
         </Button>
       </Box>
-      {toolbarActionsContent != null ? toolbarActionsContent : null}
+      <GridToolbarSubscriber rows={rows} getRowId={getRowId} />
     </Box>
   );
 

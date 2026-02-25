@@ -1,9 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { validateRow } from '../validation/validateRow';
 
 /**
- * Hook for DataGrid inline edit state and handlers.
+ * Hook for DataGrid inline edit handlers. Edit state lives in editStore (passed in) so GridTable does not re-render on edit changes.
  * @param {Object} props
+ * @param {Object} props.editStore - from createEditStore()
  * @param {boolean} props.editable
  * @param {Function} props.onEditCommit
  * @param {Function} [props.onEditStart]
@@ -12,9 +13,9 @@ import { validateRow } from '../validation/validateRow';
  * @param {Function} [props.isRowEditable]
  * @param {Function} props.getRowId
  * @param {Object[]} props.columns
- * @returns {{ editRowId: string|null, editValues: Object, validationErrors: Array, handleRowDoubleClick: Function, handleEditChange: Function, handleEditCancel: Function, handleEditSave: Function }}
  */
 export function useDataGridEdit({
+  editStore,
   editable,
   onEditCommit,
   onEditStart,
@@ -24,56 +25,46 @@ export function useDataGridEdit({
   getRowId,
   columns,
 }) {
-  const [editRowId, setEditRowId] = useState(null);
-  const [editValues, setEditValues] = useState({});
-  const [originalRow, setOriginalRow] = useState(null);
-  const [validationErrors, setValidationErrors] = useState([]);
-
   const handleRowDoubleClick = useCallback(
     (row) => {
       if (!editable || !onEditCommit) return;
       if (isRowEditable && !isRowEditable(row)) return;
       const id = getRowId(row);
-      setEditRowId(id);
-      setEditValues({ ...row });
-      setOriginalRow(row);
-      setValidationErrors([]);
+      const t0 = performance.now();
+      editStore.startEdit(id, row);
+      const t1 = performance.now();
       onEditStart?.(id, row);
     },
-    [editable, onEditCommit, getRowId, isRowEditable, onEditStart]
+    [editable, onEditCommit, getRowId, isRowEditable, onEditStart, editStore]
   );
 
-  const handleEditChange = useCallback((field, value) => {
-    setEditValues((prev) => ({ ...prev, [field]: value }));
-  }, []);
+  const handleEditChange = useCallback(
+    (field, value) => {
+      const current = editStore.getSnapshot().editValues;
+      editStore.setEditValues({ ...current, [field]: value });
+    },
+    [editStore]
+  );
 
   const handleEditCancel = useCallback(() => {
-    const id = editRowId;
-    setEditRowId(null);
-    setEditValues({});
-    setOriginalRow(null);
-    setValidationErrors([]);
+    const { editRowId: id } = editStore.getSnapshot();
+    editStore.clearEdit();
     onEditCancel?.(id);
-  }, [editRowId, onEditCancel]);
+  }, [editStore, onEditCancel]);
 
   const handleEditSave = useCallback(() => {
+    const { editRowId, editValues, originalRow } = editStore.getSnapshot();
     const errors = validateRow(editValues, columns, originalRow);
     if (errors.length > 0) {
       onValidationFail?.(editRowId, errors);
-      setValidationErrors(errors);
+      editStore.setValidationErrors(errors);
       return;
     }
-    setValidationErrors([]);
+    editStore.clearEdit();
     onEditCommit?.(editRowId, editValues);
-    setEditRowId(null);
-    setEditValues({});
-    setOriginalRow(null);
-  }, [editValues, editRowId, columns, originalRow, onEditCommit, onValidationFail]);
+  }, [editStore, columns, onEditCommit, onValidationFail]);
 
   return {
-    editRowId,
-    editValues,
-    validationErrors,
     handleRowDoubleClick,
     handleEditChange,
     handleEditCancel,

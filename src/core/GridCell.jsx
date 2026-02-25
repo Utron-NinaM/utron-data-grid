@@ -76,9 +76,6 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, rowSty
       ...(width != null && { width: `${width}px` }),
     };
     const hasCustomSelected = selectedRowStyle && Object.keys(selectedRowStyle).length > 0;
-    if (isSelected) {
-      console.log('[GridCell] applying selected style', performance.now());
-    }
     const appliedSelectedStyle =
       isSelected
         ? (hasCustomSelected ? selectedRowStyle : { backgroundColor: theme.palette.action.selected })
