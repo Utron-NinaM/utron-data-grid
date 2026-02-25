@@ -3,25 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
   TextField,
   Typography,
   Paper,
   FormControl,
   InputLabel,
-  Select,
-  MenuItem,
   Input,
+  Divider,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useDemoConfig } from './DemoConfigContext';
 import { gridOptionDefinitions, GROUP_LABELS } from './gridOptionDefinitions';
 import { CONTAINER_WIDTH_PRESETS, parseContainerWidth } from './demoConfigModel';
 import { OptionEditor } from './optionEditors/OptionEditor';
 
 const GROUP_ORDER = ['layout', 'behavior', 'filtering', 'selection', 'appearance', 'pagination', 'identity'];
+const MAX_COLUMN_COUNT = 20;
+const DEFAULT_COLUMN_COUNT = 10;
+
+const optionsGridSx = {
+  display: 'grid',
+  gap: 2,
+  gridTemplateColumns: {
+    xs: '1fr',
+    sm: '1fr 1fr',
+    md: '1fr 1fr 1fr',
+    lg: '1fr 1fr 1fr 1fr',
+  },
+};
 
 export function ConfigPage() {
   const navigate = useNavigate();
@@ -29,13 +37,13 @@ export function ConfigPage() {
   const [localGridOptions, setLocalGridOptions] = useState({});
   const [localContainerWidth, setLocalContainerWidth] = useState('100%');
   const [localSampleSize, setLocalSampleSize] = useState('105');
-  const [localColumnCount, setLocalColumnCount] = useState('20');
+  const [localColumnCount, setLocalColumnCount] = useState(String(DEFAULT_COLUMN_COUNT));
 
   useEffect(() => {
     setLocalGridOptions({ ...gridOptions });
     setLocalContainerWidth(containerWidth ?? '100%');
     setLocalSampleSize(String(sampleSize ?? 105));
-    setLocalColumnCount(String(columnCount ?? 20));
+    setLocalColumnCount(String(columnCount ?? DEFAULT_COLUMN_COUNT));
   }, [gridOptions, containerWidth, sampleSize, columnCount]);
 
   const handleOptionChange = (key, value) => {
@@ -57,19 +65,22 @@ export function ConfigPage() {
   }
 
   return (
-    <Box sx={{ p: 2, pb: 4, mx: 'auto', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+    <Box sx={{ p: 2, pb: 4, width: '100%', maxWidth: '100%', mx: 'auto', flex: 1, minHeight: 0, overflowY: 'auto' }}>
       <Typography variant="h5" gutterBottom>
         Grid Configuration
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Configure the grid options and container width, then click Apply to render the grid.
       </Typography>
+      <Button variant="contained" color="primary" onClick={handleApply} size="large" sx={{ mb: 3 }}>
+        Apply
+      </Button>
 
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Typography variant="subtitle2" gutterBottom>
+      <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
           Container width & sample size
         </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
           <TextField
             label="Sample size"
             value={localSampleSize}
@@ -84,7 +95,7 @@ export function ConfigPage() {
               label="Columns"
               value={localColumnCount}
               onChange={(e) => setLocalColumnCount(e.target.value)}
-              inputProps={{ min: 1, max: 20, step: 1 }}
+              inputProps={{ min: 1, max: MAX_COLUMN_COUNT, step: 1 }}
             />
           </FormControl>
           <TextField
@@ -108,31 +119,26 @@ export function ConfigPage() {
         </Box>
       </Paper>
 
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         {GROUP_ORDER.filter((g) => defsByGroup[g]?.length).map((group) => (
-          <Accordion key={group} defaultExpanded={group === 'layout'}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography fontWeight={500}>{GROUP_LABELS[group] ?? group}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {defsByGroup[group].map((def) => (
-                  <OptionEditor
-                    key={def.key}
-                    definition={def}
-                    value={localGridOptions[def.key]}
-                    onChange={handleOptionChange}
-                  />
-                ))}
-              </Box>
-            </AccordionDetails>
-          </Accordion>
+          <Paper key={group} variant="outlined" sx={{ p: 2 }}>
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+              {GROUP_LABELS[group] ?? group}
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={optionsGridSx}>
+              {defsByGroup[group].map((def) => (
+                <OptionEditor
+                  key={def.key}
+                  definition={def}
+                  value={localGridOptions[def.key]}
+                  onChange={handleOptionChange}
+                />
+              ))}
+            </Box>
+          </Paper>
         ))}
       </Box>
-
-      <Button variant="contained" color="primary" onClick={handleApply} size="large">
-        Apply
-      </Button>
     </Box>
   );
 }
