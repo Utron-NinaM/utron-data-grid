@@ -30,6 +30,8 @@ export const ScrollContainerContext = createContext(null);
  * @param {Function} [stableValue.onClearSort]
  * @param {Function} [stableValue.onClearAllFilters]
  * @param {Object} [stableValue.selectedRowStyle] MUI sx object for selected rows
+ * @param {boolean} [stableValue.disableRowHover] When true, no row hover styling
+ * @param {Object} [stableValue.rowHoverStyle] MUI sx for row hover (overrides default; selected row on hover keeps selected style)
  * @param {Object} [stableValue.headerConfig] Header configuration object (base, mainRow, filterRows, filterCells)
  * @param {number|string} [stableValue.filterInputHeight]
  * @param {Map<string, string>} [stableValue.columnWidthMap] Map of field -> normalized width string

@@ -1,27 +1,30 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { getDefaultDemoConfig, mergeConfigWithDefaults } from './demoConfigModel';
+import { DEFAULT_SAMPLE_SIZE } from './ConfigPage';
+import { DEFAULT_COLUMN_COUNT } from './ConfigPage';
+import { DEFAULT_CONTAINER_WIDTH } from './ConfigPage';
 
 const DemoConfigContext = createContext(null);
 
 export function DemoConfigProvider({ children }) {
   const [gridOptions, setGridOptionsState] = useState(() => getDefaultDemoConfig());
-  const [containerWidth, setContainerWidthState] = useState('100%');
-  const [sampleSize, setSampleSizeState] = useState(105);
-  const [columnCount, setColumnCountState] = useState(20);
+  const [containerWidth, setContainerWidthState] = useState(DEFAULT_CONTAINER_WIDTH);
+  const [sampleSize, setSampleSizeState] = useState(DEFAULT_SAMPLE_SIZE);
+  const [columnCount, setColumnCountState] = useState(DEFAULT_COLUMN_COUNT);
 
   const setGridOptions = useCallback((next) => {
     setGridOptionsState((prev) => mergeConfigWithDefaults({ ...prev, ...next }));
   }, []);
 
   const setContainerWidth = useCallback((next) => {
-    setContainerWidthState(next ?? '100%');
+    setContainerWidthState(next ?? DEFAULT_CONTAINER_WIDTH);
   }, []);
 
   const applyConfig = useCallback((options, width, size, cols) => {
     setGridOptionsState(mergeConfigWithDefaults(options ?? {}));
-    setContainerWidthState(width ?? '100%');
-    setSampleSizeState(size ?? 105);
-    setColumnCountState(cols ?? 20);
+    setContainerWidthState(width ?? DEFAULT_CONTAINER_WIDTH);
+    setSampleSizeState(size ?? DEFAULT_SAMPLE_SIZE);
+    setColumnCountState(cols ?? DEFAULT_COLUMN_COUNT);
   }, []);
 
   const value = {

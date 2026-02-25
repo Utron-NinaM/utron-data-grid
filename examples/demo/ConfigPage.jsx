@@ -18,7 +18,9 @@ import { OptionEditor } from './optionEditors/OptionEditor';
 
 const GROUP_ORDER = ['layout', 'behavior', 'filtering', 'selection', 'appearance', 'pagination', 'identity'];
 const MAX_COLUMN_COUNT = 20;
-const DEFAULT_COLUMN_COUNT = 10;
+export const DEFAULT_COLUMN_COUNT = 10;
+export const DEFAULT_SAMPLE_SIZE = 105;
+export const DEFAULT_CONTAINER_WIDTH = '100%';
 
 const optionsGridSx = {
   display: 'grid',
@@ -34,15 +36,15 @@ const optionsGridSx = {
 export function ConfigPage() {
   const navigate = useNavigate();
   const { gridOptions, containerWidth, sampleSize, columnCount, applyConfig } = useDemoConfig();
-  const [localGridOptions, setLocalGridOptions] = useState({});
-  const [localContainerWidth, setLocalContainerWidth] = useState('100%');
-  const [localSampleSize, setLocalSampleSize] = useState('105');
-  const [localColumnCount, setLocalColumnCount] = useState(String(DEFAULT_COLUMN_COUNT));
+  const [localGridOptions, setLocalGridOptions] = useState(() => ({ ...gridOptions }));
+  const [localContainerWidth, setLocalContainerWidth] = useState(() => String(containerWidth ?? DEFAULT_CONTAINER_WIDTH));
+  const [localSampleSize, setLocalSampleSize] = useState(() => String(sampleSize ?? DEFAULT_SAMPLE_SIZE));
+  const [localColumnCount, setLocalColumnCount] = useState(() => String(columnCount ?? DEFAULT_COLUMN_COUNT));
 
   useEffect(() => {
     setLocalGridOptions({ ...gridOptions });
-    setLocalContainerWidth(containerWidth ?? '100%');
-    setLocalSampleSize(String(sampleSize ?? 105));
+    setLocalContainerWidth(String(containerWidth ?? DEFAULT_CONTAINER_WIDTH));
+    setLocalSampleSize(String(sampleSize ?? DEFAULT_SAMPLE_SIZE));
     setLocalColumnCount(String(columnCount ?? DEFAULT_COLUMN_COUNT));
   }, [gridOptions, containerWidth, sampleSize, columnCount]);
 
@@ -54,7 +56,7 @@ export function ConfigPage() {
     const width = parseContainerWidth(localContainerWidth);
     const size = parseInt(localSampleSize, 10);
     const cols = parseInt(localColumnCount, 10);
-    applyConfig(localGridOptions, width, Number.isFinite(size) ? size : 105, Number.isFinite(cols) ? Math.min(20, Math.max(1, cols)) : 20);
+    applyConfig(localGridOptions, width, Number.isFinite(size) ? size : DEFAULT_SAMPLE_SIZE, Number.isFinite(cols) ? Math.min(20, Math.max(1, cols)) : 20);
     navigate('/example');
   };
 
@@ -87,7 +89,7 @@ export function ConfigPage() {
             onChange={(e) => setLocalSampleSize(e.target.value)}
             size="small"
             sx={{ width: 120 }}
-            placeholder="105"
+            placeholder={String(DEFAULT_SAMPLE_SIZE)}
           />
           <FormControl size="small" sx={{ minWidth: 140 }}>
             <InputLabel>Columns</InputLabel>

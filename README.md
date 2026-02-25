@@ -84,6 +84,8 @@ const rows = [
 | `headerConfig` | `object` | `base` (MUI sx for TableHead), `mainRow`, `filterRows`, `filterCells`. Each row object accepts `backgroundColor`, `height`, and any MUI sx (e.g. `fontSize`, `fontWeight`, `fontFamily`) to override grid-level typography for that row. |
 | `bodyRow` | `object` | Body row config: `height`, `paddingTop`, `paddingBottom`, `paddingLeft`, `paddingRight`, and any MUI sx. Used for both view and edit modes so row height and padding stay stable when editing. Default used when undefined (`height: 36`, padding 2px/4px). |
 | `selectedRowStyle` | `object` | MUI sx for selected rows |
+| `disableRowHover` | `boolean` | When true, no row hover styling (default false). |
+| `rowHoverStyle` | `object` | MUI sx for row hover (e.g. `{ '&:hover': { backgroundColor: '...' } }`). When set, overrides default hover; selected row on hover still uses selected style. Per-row overrides via column `rowStyle(row)` with `'&:hover'` also take precedence over the default. |
 | `gridId` | `string` | Unique id for this grid; when set, sort, filter, and column width overrides are persisted in localStorage (`utron-datagrid-sort-{gridId}`, `utron-datagrid-filters-{gridId}`, `utron-datagrid-column-widths-{gridId}`) and restored on load. Use a different id per grid when multiple grids exist. |
 | `toolbarActions` | `ReactNode` or `(params: { selectedRow, selectedRowId }) => ReactNode` | Optional content on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id. |
 | `toolbarClearButtonsSx` | `object` | MUI sx applied to the Clear sort, Clear all filters, and Reset column widths toolbar buttons. |

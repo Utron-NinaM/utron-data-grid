@@ -121,6 +121,21 @@ export const gridOptionDefinitions = [
     default: undefined,
     placeholder: 'MUI sx (e.g. {"backgroundColor":"#e3f2fd"})',
   },
+  {
+    key: 'disableRowHover',
+    label: 'Disable row hover',
+    type: 'boolean',
+    group: 'selection',
+    default: false,
+  },
+  {
+    key: 'rowHoverStyle',
+    label: 'Row hover style',
+    type: 'json',
+    group: 'selection',
+    default: undefined,
+    placeholder: 'e.g. {"&:hover":{"backgroundColor":"#fff3e0"}}',
+  },
   // Appearance
   {
     key: 'fontSize',

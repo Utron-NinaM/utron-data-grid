@@ -1,3 +1,5 @@
+import { DEFAULT_SAMPLE_SIZE } from './demo/ConfigPage';
+
 /** Example car-like rows. List fields (color, electric, status) store keys; labels come from column options. */
 
 const makes = ['Ford', 'Toyota', 'Tesla', 'Honda', 'BMW', 'Nissan', 'Chevrolet', 'Audi', 'Mercedes', 'Hyundai', 'Kia', 'Mazda', 'Subaru', 'Volkswagen', 'Jeep'];
@@ -38,8 +40,8 @@ function randomMileage() { return Math.floor(Math.random() * 150000) + 1000; }
 function randomWarranty() { return [0, 1, 2, 3, 5][Math.floor(Math.random() * 5)]; }
 function randomRating() { return (Math.random() * 3 + 2).toFixed(1); }
 
-export function generateSampleData(size = 105) {
-  const n = Math.max(1, Math.min(100000, parseInt(size, 10) || 105));
+export function generateSampleData(size = DEFAULT_SAMPLE_SIZE) {
+  const n = Math.max(1, Math.min(100000, parseInt(size, 10) || DEFAULT_SAMPLE_SIZE));
   return Array.from({ length: n }, (_, i) => ({
     id: i + 1,
     make: randomItem(makes),
@@ -65,4 +67,4 @@ export function generateSampleData(size = 105) {
   }));
 }
 
-export const sampleData = generateSampleData(105);
+export const sampleData = generateSampleData(DEFAULT_SAMPLE_SIZE);

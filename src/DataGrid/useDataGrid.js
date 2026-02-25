@@ -47,6 +47,8 @@ export function useDataGrid(props) {
     headerConfig,
     bodyRow,
     selectedRowStyle,
+    disableRowHover = false,
+    rowHoverStyle,
     gridId,
     toolbarActions,
     toolbarClearButtonsSx,
@@ -227,11 +229,9 @@ export function useDataGrid(props) {
 
   const handleRowClick = useCallback(
     (row) => {
-      if (onRowSelect) {
-        const id = getRowId(row);
-        setSelectedRowId(id);
-        onRowSelect(id, row);
-      }
+      const id = getRowId(row);
+      setSelectedRowId(id);
+      if (onRowSelect) onRowSelect(id, row);
     },
     [onRowSelect, getRowId]
   );
@@ -252,17 +252,15 @@ export function useDataGrid(props) {
   // Wrapper that calls user's onRowDoubleClick callback, then the edit handler
   const handleRowDoubleClickWrapper = useCallback(
     (row) => {
-      // First call the user's callback if provided
-      if (onRowDoubleClick) {
-        onRowDoubleClick(row);
-      }
-      // Then call the edit handler (which handles entering edit mode)
-      // Only call if editable is enabled to avoid unnecessary calls
-      if (editable && onEditCommit) {
-        handleRowDoubleClick(row);
-      }
+      const id = getRowId(row);
+      setSelectedRowId(id);
+      if (editable && onEditCommit) handleRowDoubleClick(row);
+      queueMicrotask(() => {
+        if (onRowSelect) onRowSelect(id, row);
+        if (onRowDoubleClick) onRowDoubleClick(row);
+      });
     },
-    [onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit]
+    [getRowId, onRowSelect, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit]
   );
 
   const filteredRows = useMemo(
@@ -374,6 +372,8 @@ export function useDataGrid(props) {
       onClearColumnWidths: handleClearColumnWidths,
       hasResizedColumns: columnWidthState.size > 0,
       selectedRowStyle,
+      disableRowHover,
+      rowHoverStyle,
       headerConfig,
       rowStylesMap,
       sortOrderIndexMap,
@@ -421,6 +421,8 @@ export function useDataGrid(props) {
       handleClearColumnWidths,
       columnWidthState,
       selectedRowStyle,
+      disableRowHover,
+      rowHoverStyle,
       headerConfig,
       rowStylesMap,
       sortOrderIndexMap,

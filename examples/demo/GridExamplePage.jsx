@@ -33,7 +33,7 @@ export function GridExamplePage() {
   const navigate = useNavigate();
   const { gridOptions, containerWidth, sampleSize, columnCount } = useDemoConfig();
   const data = useMemo(
-    () => generateSampleData(sampleSize ?? 105),
+    () => generateSampleData(sampleSize ?? DEFAULT_SAMPLE_SIZE),
     [sampleSize]
   );
 

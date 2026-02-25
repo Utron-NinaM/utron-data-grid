@@ -295,44 +295,27 @@ describe('GridTable Component', () => {
   });
 
   describe('Test row click and double-click handlers', () => {
-    it('should trigger onRowClick once on single click', async () => {
+    it('should trigger onRowClick once on single click', () => {
       const onRowClick = vi.fn();
-      
       renderGridTable({ onRowClick });
-      
       const row = screen.getByText('Alice').closest('[data-row-id]');
       fireEvent.click(row);
-      
-      // Wait for the delayed click handler (300ms delay)
-      await waitFor(() => {
-        expect(onRowClick).toHaveBeenCalledTimes(1);
-      }, { timeout: 500 });
-      
+      expect(onRowClick).toHaveBeenCalledTimes(1);
       expect(onRowClick).toHaveBeenCalledWith(basicRows[0]);
     });
 
-    it('should trigger onRowDoubleClick once on double-click and NOT trigger onRowClick', async () => {
+    it('should trigger onRowDoubleClick once on double-click (clicks fire immediately)', () => {
       const onRowClick = vi.fn();
       const onRowDoubleClick = vi.fn();
-      
       renderGridTable({ onRowClick, onRowDoubleClick });
-      
       const row = screen.getByText('Alice').closest('[data-row-id]');
-      
-      // Simulate double-click
       fireEvent.click(row);
       fireEvent.click(row);
       fireEvent.doubleClick(row);
-      
-      // Double-click should be called immediately
       expect(onRowDoubleClick).toHaveBeenCalledTimes(1);
       expect(onRowDoubleClick).toHaveBeenCalledWith(basicRows[0]);
-      
-      // Wait to ensure click handler doesn't fire after the delay
-      await new Promise(resolve => setTimeout(resolve, 350));
-      
-      // onRowClick should NOT have been called (double-click should cancel it)
-      expect(onRowClick).not.toHaveBeenCalled();
+      // No delay: each click fires immediately, so two clicks + one dblclick
+      expect(onRowClick).toHaveBeenCalledTimes(2);
     });
 
     it('should call onRowDoubleClick with correct row data', () => {
@@ -347,25 +330,15 @@ describe('GridTable Component', () => {
       expect(onRowDoubleClick).toHaveBeenCalledWith(basicRows[1]);
     });
 
-    it('should handle rapid clicks correctly - only one click should fire', async () => {
+    it('should trigger onRowClick on each click (no delay)', () => {
       const onRowClick = vi.fn();
-      
       renderGridTable({ onRowClick });
-      
       const row = screen.getByText('Alice').closest('[data-row-id]');
-      
-      // Two rapid clicks (but not a double-click)
-      // Second click cancels first timeout and sets new one
       fireEvent.click(row);
       fireEvent.click(row);
-      
-      // Wait for delayed click handler (300ms delay from last click)
-      await waitFor(() => {
-        // Should fire once after the delay (second click's timeout)
-        expect(onRowClick).toHaveBeenCalledTimes(1);
-      }, { timeout: 500 });
-      
-      expect(onRowClick).toHaveBeenCalledWith(basicRows[0]);
+      expect(onRowClick).toHaveBeenCalledTimes(2);
+      expect(onRowClick).toHaveBeenNthCalledWith(1, basicRows[0]);
+      expect(onRowClick).toHaveBeenNthCalledWith(2, basicRows[0]);
     });
   });
 

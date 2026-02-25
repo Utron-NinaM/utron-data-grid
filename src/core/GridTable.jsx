@@ -69,7 +69,7 @@ function GridTableInner({
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
   const { columns, getRowId, multiSelectable, filters, onClearSort, onClearAllFilters, onClearColumnWidths, 
-    hasResizedColumns, headerConfig, getEditor, selectedRowStyle, rowStylesMap, sortOrderIndexMap, 
+    hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
     colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
     toolbarActions, toolbarClearButtonsSx, direction } = ctx;
@@ -97,62 +97,43 @@ function GridTableInner({
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
 
-  // Ref to track pending click timeout and prevent click handler from firing on double-click
-  const clickTimeoutRef = useRef(null);
-  const DOUBLE_CLICK_DELAY = 300; // ms
-
   const mergedRowStylesMap = useMemo(() => {
+    // Selected block last so it wins over hover. Applied to both .Mui-selected and :hover.
+    const selectedBlock =
+      selectedRowStyle && Object.keys(selectedRowStyle).length > 0
+        ? { '&.Mui-selected, &.Mui-selected:hover': { ...selectedRowStyle } }
+        : (theme) => ({ '&.Mui-selected, &.Mui-selected:hover': { backgroundColor: theme.palette.action.selected } });
+    // Hover base first: explicit default hover when enabled, or user rowHoverStyle (nested '&:hover' or flat object).
+    const hasCustomHoverStyle = rowHoverStyle != null && typeof rowHoverStyle === 'object' && !Array.isArray(rowHoverStyle) && Object.keys(rowHoverStyle).length > 0;
+    const customHoverContent = hasCustomHoverStyle ? (rowHoverStyle['&:hover'] ?? rowHoverStyle) : null;
+    const hoverBaseSx = disableRowHover
+      ? null
+      : hasCustomHoverStyle && customHoverContent != null && Object.keys(customHoverContent).length > 0
+        ? { '&:hover': customHoverContent }
+        : (theme) => ({ '&:hover': { backgroundColor: theme.palette.action.hover } });
     const map = new Map();
     rows.forEach((row) => {
       const rowId = getRowId(row);
       const baseRowSx = rowStylesMap?.get(rowId);
-      map.set(rowId, [
-        baseRowSx,
-        {
-          '&.Mui-selected': {
-            ...selectedRowStyle,
-          },          
-        },
-      ]);
+      const rowSxArray = [hoverBaseSx, baseRowSx, selectedBlock].filter(Boolean);
+      map.set(rowId, rowSxArray);
     });
     return map;
-  }, [rows, rowStylesMap, selectedRowStyle, getRowId]);
-
-  // Event delegation handlers for row clicks - single handler for all rows
+  }, [rows, rowStylesMap, selectedRowStyle, disableRowHover, rowHoverStyle, getRowId]);
   const handleTableBodyClick = useMemo(() => {
     if (!onRowClick) return undefined;
     return (event) => {
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
-
-      // Clear any pending click timeout
-      if (clickTimeoutRef.current) {
-        clearTimeout(clickTimeoutRef.current);
-        clickTimeoutRef.current = null;
-      }
-
-      // Schedule the click handler with a delay to allow double-click to cancel it
       const rowId = rowElement.getAttribute('data-row-id');
       const row = rows.find(r => String(getRowId(r)) === rowId);
-
-      if (row) {
-        clickTimeoutRef.current = setTimeout(() => {
-          clickTimeoutRef.current = null;
-          onRowClick(row);
-        }, DOUBLE_CLICK_DELAY);
-      }
+      if (row) onRowClick(row);
     };
   }, [onRowClick, rows, getRowId]);
 
   const handleTableBodyDoubleClick = useMemo(() => {
     if (!onRowDoubleClick) return undefined;
     return (event) => {
-      // Cancel any pending click handler
-      if (clickTimeoutRef.current) {
-        clearTimeout(clickTimeoutRef.current);
-        clickTimeoutRef.current = null;
-      }
-
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
       const rowId = rowElement.getAttribute('data-row-id');
@@ -197,6 +178,8 @@ function GridTableInner({
           validationErrors={isEditing ? errorSetToUse : EMPTY_ERROR_SET}
           isSelected={isSelected}
           rowSx={mergedRowStylesMap.get(rowId)}
+          selectedRowStyle={selectedRowStyle}
+          disableRowHover={disableRowHover}
           columns={columns}
           multiSelectable={multiSelectable}
           getEditor={getEditor}
