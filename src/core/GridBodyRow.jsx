@@ -4,11 +4,6 @@ import TableCell from '@mui/material/TableCell';
 import Checkbox from '@mui/material/Checkbox';
 import { GridCell } from './GridCell';
 
-// Valid React/CSS style keys we can safely apply from selectedRowStyle to the row's style prop
-const SELECTED_ROW_STYLE_KEYS = ['backgroundColor', 'color', 'fontSize', 'fontSize', 'fontWeight', 'fontFamily',
-  'fontStyle', 'textDecoration', 'textTransform', 'textOverflow', 'whiteSpace', 'wordBreak', 'wordWrap', 'wordSpacing',
-];
-
 /**
  * @param {Object} props
  * @param {Object} props.row
@@ -19,9 +14,10 @@ const SELECTED_ROW_STYLE_KEYS = ['backgroundColor', 'color', 'fontSize', 'fontSi
  * @param {Object} props.editValues
  * @param {Set<string>} props.validationErrors
  * @param {boolean} [props.isSelected]
- * @param {Array} [props.rowSx] Pre-computed merged row styles (base styles + selected styles)
- * @param {Object} [props.selectedRowStyle] MUI sx for selected row; when set, applied inline so it wins over MUI default (no flash)
- * @param {boolean} [props.disableRowHover] When true, TableRow hover is disabled
+ * @param {Array} [props.rowSx] Pre-computed row styles (row style + hover via &:hover td; selected at cell level)
+ * @param {Object} [props.rowStyle] Row-specific sx for cells (from column rowStyle); applied before column cellStyle
+ * @param {Object} [props.selectedRowStyle] MUI sx for selected row; applied at cell level so it overrides row/column
+ * @param {boolean} [props.disableRowHover] When true, TableRow hover is disabled (used by GridTable for rowSx)
  * @param {Array} props.columns
  * @param {boolean} props.multiSelectable
  * @param {Function} props.getEditor
@@ -36,6 +32,7 @@ function GridBodyRowComponent({
   validationErrors,
   isSelected,
   rowSx,
+  rowStyle,
   selectedRowStyle,
   disableRowHover = false,
   columns,
@@ -44,24 +41,15 @@ function GridBodyRowComponent({
 }) {
   const isEditing = editRowId === rowId;
   const isRowSelected = selected || isSelected;
+  if (isRowSelected) {
+    console.log('[GridBodyRow] render selected', rowId, performance.now());
+  }
 
-  const selectedInlineStyle =
-    isRowSelected &&
-      selectedRowStyle &&
-      Object.keys(selectedRowStyle).length > 0
-      ? SELECTED_ROW_STYLE_KEYS.reduce((acc, key) => {
-        if (selectedRowStyle[key] != null) acc[key] = selectedRowStyle[key];
-        return acc;
-      }, {})
-      : undefined;
-
-  // Hover is driven by sx (rowSx) from GridTable; TableRow hover={true} would inject styles that override our sx, so keep it false.
   return (
     <TableRow
       hover={false}
       selected={isRowSelected}
       sx={rowSx}
-      style={selectedInlineStyle}
       data-row-id={rowId}
     >
       {multiSelectable && (
@@ -84,6 +72,9 @@ function GridBodyRowComponent({
             isEditing={isEditing && colEditable}
             editor={isEditing && colEditable ? getEditor(col, row, editValues) : null}
             hasError={isEditing && validationErrors?.has(col.field)}
+            rowStyle={rowStyle}
+            isSelected={isRowSelected}
+            selectedRowStyle={selectedRowStyle}
           />
         );
       })}

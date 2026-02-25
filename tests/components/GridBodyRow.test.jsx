@@ -310,6 +310,35 @@ describe('GridBodyRow Component', () => {
     });
   });
 
+  describe('Hover style hierarchy', () => {
+    it('applies row style as base when rowSx is [rowStyle, hoverStyle] (hover last)', () => {
+      const rowSx = [
+        { backgroundColor: 'rgb(80, 0, 0)' },
+        { '&:hover': { backgroundColor: 'rgb(0, 0, 80)' } },
+      ];
+      renderWithContext(<GridBodyRow {...defaultProps} rowSx={rowSx} />);
+      const row = screen.getByText('Alice').closest('tr');
+      expect(window.getComputedStyle(row).backgroundColor).toBe('rgb(80, 0, 0)');
+    });
+
+    it('row style overrides hover base when rowSx is [hoverStyle, rowStyle] (row last)', () => {
+      const rowSx = [
+        { '&:hover': { backgroundColor: 'rgb(0, 0, 80)' } },
+        { backgroundColor: 'rgb(0, 80, 0)' },
+      ];
+      renderWithContext(<GridBodyRow {...defaultProps} rowSx={rowSx} />);
+      const row = screen.getByText('Alice').closest('tr');
+      expect(window.getComputedStyle(row).backgroundColor).toBe('rgb(0, 80, 0)');
+    });
+
+    it('rowSx with only hover style still renders row', () => {
+      const rowSx = [{ '&:hover': { backgroundColor: 'rgb(0, 0, 100)' } }];
+      renderWithContext(<GridBodyRow {...defaultProps} rowSx={rowSx} />);
+      const row = screen.getByText('Alice').closest('tr');
+      expect(row).toBeInTheDocument();
+    });
+  });
+
   describe('Test editing state styling', () => {
     it('should render cells in editing mode when editRowId matches rowId', () => {
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} defaultValue={mockRow[col.field]} />);

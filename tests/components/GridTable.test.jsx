@@ -163,6 +163,17 @@ describe('GridTable Component', () => {
       });
     });
 
+    it('applies row style from rowStylesMap to body row', () => {
+      const rowStylesMap = new Map();
+      rowStylesMap.set(1, { backgroundColor: 'rgb(70, 70, 70)' });
+      const stableValue = { ...defaultStableValue, rowStylesMap };
+      renderGridTable({}, stableValue);
+
+      const row = screen.getByText('Alice').closest('tr');
+      expect(row).toBeInTheDocument();
+      expect(window.getComputedStyle(row).backgroundColor).toBe('rgb(70, 70, 70)');
+    });
+
     it('should render empty state message when rows array is empty', () => {
       renderGridTable({ rows: [] });
 

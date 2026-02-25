@@ -229,9 +229,11 @@ export function useDataGrid(props) {
 
   const handleRowClick = useCallback(
     (row) => {
+      console.log('[useDataGrid] handleRowClick start', performance.now());
       const id = getRowId(row);
       setSelectedRowId(id);
       if (onRowSelect) onRowSelect(id, row);
+      console.log('[useDataGrid] handleRowClick after setState', performance.now());
     },
     [onRowSelect, getRowId]
   );

@@ -1,6 +1,7 @@
 import React, { memo, useContext, useMemo } from 'react';
 import TableCell from '@mui/material/TableCell';
 import Box from '@mui/material/Box';
+import { useTheme } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
 import dayjs from 'dayjs';
 import { ALIGN_LEFT, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST } from '../config/schema';
@@ -48,8 +49,12 @@ export function getCellTooltipText(displayValue, value, isEditing, editor) {
  * @param {boolean} [props.isEditing]
  * @param {React.ReactNode} [props.editor]
  * @param {boolean} [props.hasError]
+ * @param {Object} [props.rowStyle] Row-specific sx (column rowStyle merged); column cellStyle overrides this
+ * @param {boolean} [props.isSelected]
+ * @param {Object} [props.selectedRowStyle] Selected row sx; overrides row and column style
  */
-function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
+function GridCellInner({ value, row, column, isEditing, editor, hasError, rowStyle, isSelected, selectedRowStyle }) {
+  const theme = useTheme();
   const ctx = useContext(DataGridStableContext);
   const scrollCtx = useContext(ScrollContainerContext);
   const columnAlignMap = ctx?.columnAlignMap;
@@ -70,12 +75,23 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError }) {
       textOverflow: 'ellipsis',
       ...(width != null && { width: `${width}px` }),
     };
+    const hasCustomSelected = selectedRowStyle && Object.keys(selectedRowStyle).length > 0;
+    if (isSelected) {
+      console.log('[GridCell] applying selected style', performance.now());
+    }
+    const appliedSelectedStyle =
+      isSelected
+        ? (hasCustomSelected ? selectedRowStyle : { backgroundColor: theme.palette.action.selected })
+        : {};
+    // Precedence: base → row style → column style → selected (hover is row-level via &:hover td)
     return {
       ...baseSx,
-      ...cellStyle,
+      ...(rowStyle ?? {}),
+      ...(cellStyle ?? {}),
+      ...appliedSelectedStyle,
       ...(hasError && { outlineWidth: '1px', outlineStyle: 'solid', outlineColor: 'error.light' }),
     };
-  }, [hasError, column, value, row, width, bodyCellSx]);
+  }, [hasError, column, value, row, width, bodyCellSx, rowStyle, isSelected, selectedRowStyle, theme]);
 
   const displayValue = useMemo(() => {
     if (isEditing && editor != null) return null;

@@ -97,29 +97,25 @@ function GridTableInner({
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
 
+  // Row sx: row style + row-level hover (selector styles cells on row hover so hover overrides row/cell without state).
   const mergedRowStylesMap = useMemo(() => {
-    // Selected block last so it wins over hover. Applied to both .Mui-selected and :hover.
-    const selectedBlock =
-      selectedRowStyle && Object.keys(selectedRowStyle).length > 0
-        ? { '&.Mui-selected, &.Mui-selected:hover': { ...selectedRowStyle } }
-        : (theme) => ({ '&.Mui-selected, &.Mui-selected:hover': { backgroundColor: theme.palette.action.selected } });
-    // Hover base first: explicit default hover when enabled, or user rowHoverStyle (nested '&:hover' or flat object).
-    const hasCustomHoverStyle = rowHoverStyle != null && typeof rowHoverStyle === 'object' && !Array.isArray(rowHoverStyle) && Object.keys(rowHoverStyle).length > 0;
-    const customHoverContent = hasCustomHoverStyle ? (rowHoverStyle['&:hover'] ?? rowHoverStyle) : null;
-    const hoverBaseSx = disableRowHover
-      ? null
-      : hasCustomHoverStyle && customHoverContent != null && Object.keys(customHoverContent).length > 0
-        ? { '&:hover': customHoverContent }
-        : (theme) => ({ '&:hover': { backgroundColor: theme.palette.action.hover } });
+    const hasCustomHover = rowHoverStyle != null && typeof rowHoverStyle === 'object' && !Array.isArray(rowHoverStyle) && Object.keys(rowHoverStyle).length > 0;
+    const hoverContent = hasCustomHover ? (rowHoverStyle['&:hover'] ?? rowHoverStyle) : null;
+    const hoverBlock =
+      disableRowHover
+        ? null
+        : hasCustomHover && hoverContent != null && Object.keys(hoverContent).length > 0
+          ? { '&:hover:not(.Mui-selected) td': hoverContent }
+          : (theme) => ({ '&:hover:not(.Mui-selected) td': { backgroundColor: theme.palette.action.hover } });
     const map = new Map();
     rows.forEach((row) => {
       const rowId = getRowId(row);
       const baseRowSx = rowStylesMap?.get(rowId);
-      const rowSxArray = [hoverBaseSx, baseRowSx, selectedBlock].filter(Boolean);
-      map.set(rowId, rowSxArray);
+      const rowSxArray = [baseRowSx, hoverBlock].filter(Boolean);
+      map.set(rowId, rowSxArray.length ? rowSxArray : undefined);
     });
     return map;
-  }, [rows, rowStylesMap, selectedRowStyle, disableRowHover, rowHoverStyle, getRowId]);
+  }, [rows, rowStylesMap, disableRowHover, rowHoverStyle, getRowId]);
   const handleTableBodyClick = useMemo(() => {
     if (!onRowClick) return undefined;
     return (event) => {
@@ -127,6 +123,7 @@ function GridTableInner({
       if (!rowElement) return;
       const rowId = rowElement.getAttribute('data-row-id');
       const row = rows.find(r => String(getRowId(r)) === rowId);
+      console.log('[GridTable] rowClick', performance.now());
       if (row) onRowClick(row);
     };
   }, [onRowClick, rows, getRowId]);
@@ -178,6 +175,7 @@ function GridTableInner({
           validationErrors={isEditing ? errorSetToUse : EMPTY_ERROR_SET}
           isSelected={isSelected}
           rowSx={mergedRowStylesMap.get(rowId)}
+          rowStyle={rowStylesMap?.get(rowId)}
           selectedRowStyle={selectedRowStyle}
           disableRowHover={disableRowHover}
           columns={columns}

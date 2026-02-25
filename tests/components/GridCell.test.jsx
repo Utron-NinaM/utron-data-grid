@@ -283,6 +283,116 @@ describe('GridCell Component', () => {
     });
   });
 
+  describe('Cell and row style hierarchy', () => {
+    it('applies row style when no column cellStyle', () => {
+      renderWithContext(
+        <GridCell value="x" row={mockRow} column={defaultColumn} rowStyle={{ backgroundColor: 'rgb(0, 128, 0)' }} />
+      );
+      const cell = screen.getByRole('cell');
+      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(0, 128, 0)');
+    });
+
+    it('column cellStyle overrides row style for same property', () => {
+      const column = { ...defaultColumn, cellStyle: { backgroundColor: 'rgb(255, 0, 0)' } };
+      renderWithContext(
+        <GridCell
+          value="x"
+          row={mockRow}
+          column={column}
+          rowStyle={{ backgroundColor: 'rgb(0, 128, 0)' }}
+        />
+      );
+      const cell = screen.getByRole('cell');
+      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(255, 0, 0)');
+    });
+
+    it('selected row style (default theme) overrides row style when isSelected and no selectedRowStyle', () => {
+      const theme = createTheme({
+        palette: { action: { selected: 'rgb(200, 200, 200)' } },
+      });
+      render(
+        <ThemeProvider theme={theme}>
+          <DataGridStableContext.Provider value={defaultContextValue}>
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <GridCell
+                    value="x"
+                    row={mockRow}
+                    column={defaultColumn}
+                    rowStyle={{ backgroundColor: 'rgb(0, 128, 0)' }}
+                    isSelected={true}
+                  />
+                </TableRow>
+              </TableBody>
+            </Table>
+          </DataGridStableContext.Provider>
+        </ThemeProvider>
+      );
+      const cell = screen.getByRole('cell');
+      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(200, 200, 200)');
+    });
+
+    it('selected row style (default theme) overrides column style when isSelected and no selectedRowStyle', () => {
+      const theme = createTheme({
+        palette: { action: { selected: 'rgb(180, 180, 180)' } },
+      });
+      const column = { ...defaultColumn, cellStyle: { backgroundColor: 'rgb(255, 0, 0)' } };
+      render(
+        <ThemeProvider theme={theme}>
+          <DataGridStableContext.Provider value={defaultContextValue}>
+            <Table>
+              <TableBody>
+                <TableRow>
+                  <GridCell
+                    value="x"
+                    row={mockRow}
+                    column={column}
+                    isSelected={true}
+                  />
+                </TableRow>
+              </TableBody>
+            </Table>
+          </DataGridStableContext.Provider>
+        </ThemeProvider>
+      );
+      const cell = screen.getByRole('cell');
+      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(180, 180, 180)');
+    });
+
+    it('custom selectedRowStyle overrides row style and column style when isSelected', () => {
+      const column = { ...defaultColumn, cellStyle: { backgroundColor: 'rgb(255, 0, 0)' } };
+      renderWithContext(
+        <GridCell
+          value="x"
+          row={mockRow}
+          column={column}
+          rowStyle={{ backgroundColor: 'rgb(0, 128, 0)' }}
+          isSelected={true}
+          selectedRowStyle={{ backgroundColor: 'rgb(255, 165, 0)' }}
+        />
+      );
+      const cell = screen.getByRole('cell');
+      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(255, 165, 0)');
+    });
+
+    it('row style is not overridden when not selected', () => {
+      const column = { ...defaultColumn, cellStyle: { backgroundColor: 'rgb(255, 0, 0)' } };
+      renderWithContext(
+        <GridCell
+          value="x"
+          row={mockRow}
+          column={column}
+          rowStyle={{ backgroundColor: 'rgb(0, 128, 0)' }}
+          isSelected={false}
+          selectedRowStyle={{ backgroundColor: 'rgb(255, 165, 0)' }}
+        />
+      );
+      const cell = screen.getByRole('cell');
+      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(255, 0, 0)');
+    });
+  });
+
   describe('Test cellStyle function', () => {
     it('should apply cellStyle when provided as function', () => {
       const cellStyle = vi.fn((value, row) => ({ backgroundColor: 'red', color: 'white' }));
