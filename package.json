@@ -1,6 +1,6 @@
 {
   "name": "utron-data-grid",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "description": "Reusable React Data Grid with MUI – sorting, filtering, inline editing, pagination, RTL",
   "main": "dist/utron-data-grid.js",
   "module": "dist/utron-data-grid.js",

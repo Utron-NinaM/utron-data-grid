@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo, useRef, useEffect, useState, useLayoutEffect } from 'react';
+import React, { memo, useContext, useMemo, useRef, useEffect, useState, useLayoutEffect, useSyncExternalStore } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -61,7 +61,14 @@ function GridTableInner({
     hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
     colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
-    toolbarClearButtonsSx, direction, selectRow, bodyRow } = ctx;
+    toolbarClearButtonsSx, direction, selectRow, bodyRow, editable, editStore } = ctx;
+
+  const editRowId = useSyncExternalStore(
+    editStore?.subscribe ?? (() => () => {}),
+    () => editStore?.getSnapshot?.()?.editRowId ?? null,
+    () => null
+  );
+  const selectionDisabled = Boolean(editable && editRowId != null);
 
   const bodyColRefs = useRef(new Map());
   const headerScrollRef = useRef(null);
@@ -109,13 +116,14 @@ function GridTableInner({
   const handleTableBodyClick = useMemo(() => {
     if (!selectRow) return undefined;
     return (event) => {
+      if (selectionDisabled) return;
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
       const rowIdAttr = rowElement.getAttribute('data-row-id');
       const row = rows.find((r) => String(getRowId(r)) === rowIdAttr);
       if (row) selectRow(getRowId(row), row);
     };
-  }, [selectRow, rows, getRowId]);
+  }, [selectRow, rows, getRowId, selectionDisabled]);
 
   const handleTableBodyDoubleClick = useMemo(() => {
     if (!onRowDoubleClick) return undefined;

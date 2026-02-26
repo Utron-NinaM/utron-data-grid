@@ -5,6 +5,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { GridTable } from '../../src/core/GridTable';
 import { DataGridProvider } from '../../src/DataGrid/DataGridContext';
 import { createSelectionStore } from '../../src/DataGrid/selectionStore';
+import { createEditStore } from '../../src/DataGrid/editStore';
 import { DIRECTION_LTR } from '../../src/config/schema';
 
 describe('GridTable Component', () => {
@@ -355,6 +356,17 @@ describe('GridTable Component', () => {
       expect(selectRow).toHaveBeenCalledTimes(2);
       expect(selectRow).toHaveBeenNthCalledWith(1, 1, basicRows[0]);
       expect(selectRow).toHaveBeenNthCalledWith(2, 1, basicRows[0]);
+    });
+
+    it('should not call selectRow on row click when editable and a row is in edit mode', () => {
+      const selectRow = vi.fn();
+      const editStore = createEditStore();
+      editStore.startEdit(1, basicRows[0]);
+      const stableValue = { ...defaultStableValue, selectRow, editable: true, editStore };
+      renderGridTable({}, stableValue);
+      const row = screen.getByText('Bob').closest('[data-row-id]');
+      fireEvent.click(row);
+      expect(selectRow).not.toHaveBeenCalled();
     });
   });
 
