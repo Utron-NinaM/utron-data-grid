@@ -10,18 +10,31 @@ const COLUMNS = [
   { field: 'value', headerName: 'Value', type: FIELD_TYPE_NUMBER },
 ];
 
-function generateRows(n) {
+// Seeded RNG for reproducible benchmarks (avoids variance from random data)
+function mulberry32(seed) {
+  return function () {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function generateRows(n, seed = 42) {
+  const rng = mulberry32(seed);
   const rows = [];
   for (let i = 0; i < n; i++) {
-    rows.push({ id: i, name: `name-${i}`, value: Math.floor(Math.random() * 1e6) });
+    rows.push({ id: i, name: `name-${i}`, value: Math.floor(rng() * 1e6) });
   }
   return rows;
 }
 
 describe('dataGridPipeline performance', () => {
-  const SORT_50K_MS = 150;
-  const FILTER_50K_MS = 110;
-  const FULL_PIPELINE_50K_MS = 200;
+  const SORT_10K_MS = 20 
+  const SORT_50K_MS = 100;
+  const FILTER_10K_MS = 30;
+  const FILTER_50K_MS = 50;  
+  const FULL_PIPELINE_50K_MS = 150;
 
   describe('applySort', () => {
     it('sorts 10k rows within threshold', () => {
@@ -31,7 +44,7 @@ describe('dataGridPipeline performance', () => {
       const result = applySort(rows, sortModel);
       const duration = performance.now() - start;
       expect(result.length).toBe(10_000);
-      expect(duration).toBeLessThan(SORT_50K_MS);
+      expect(duration).toBeLessThan(SORT_10K_MS);      
       // Verify results are actually sorted
       for (let i = 1; i < result.length; i++) {
         expect(result[i].value).toBeGreaterThanOrEqual(result[i - 1].value);
@@ -68,7 +81,7 @@ describe('dataGridPipeline performance', () => {
       const result = applyFilters(rows, filterModel, COLUMNS);
       const duration = performance.now() - start;
       expect(result.length).toBeLessThanOrEqual(10_000);
-      expect(duration).toBeLessThan(FILTER_50K_MS);
+      expect(duration).toBeLessThan(FILTER_10K_MS);      
       // Verify all results match filter criteria
       result.forEach((row) => {
         expect(row.value).toBeGreaterThanOrEqual(100_000);

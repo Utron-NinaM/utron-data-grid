@@ -57,7 +57,7 @@ describe('DataGrid re-render efficiency', () => {
 
     const countAfterSort = getRenderCount();
     const extraRenders = countAfterSort - countAfterMount;
-    expect(extraRenders).toBeLessThanOrEqual(PAGE_SIZE * 2);
+    expect(extraRenders).toBeLessThanOrEqual(PAGE_SIZE);
     
     // Verify component still works correctly after re-renders
     // Data should still be displayed
@@ -96,7 +96,7 @@ describe('DataGrid re-render efficiency', () => {
 
     const countAfterSelect = getRenderCount();
     const extraRenders = countAfterSelect - countAfterMount;
-    expect(extraRenders).toBeLessThanOrEqual(PAGE_SIZE * 2);
+    expect(extraRenders).toBeLessThanOrEqual(PAGE_SIZE);
     
     // Verify component still works correctly after re-renders
     // Data should still be displayed
