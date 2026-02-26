@@ -138,8 +138,11 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, rowSty
       : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
 
     return (
-      <Tooltip title={tooltipText} arrow PopperProps={popperProps} placement="top"
-        slotProps={{ tooltip: { sx: { fontSize: `${ctx?.fontSize ?? DEFAULT_FONT_SIZE}px` } } }}>
+      <Tooltip title={tooltipText} arrow PopperProps={popperProps} placement="top" disableInteractive
+        slotProps={{
+          tooltip: { sx: { fontSize: `${ctx?.fontSize ?? DEFAULT_FONT_SIZE}px` } },
+          popper: { sx: { pointerEvents: 'none' } },
+        }}>
         <Box component="span" sx={cellContentWrapperSx}>
           {content}
         </Box>
