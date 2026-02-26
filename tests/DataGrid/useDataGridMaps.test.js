@@ -394,8 +394,8 @@ describe('useDataGridMaps', () => {
         paddingBottom: '2px',
         paddingLeft: '4px',
         paddingRight: '4px',
-        height: 40,
-        maxHeight: 40,
+        height: '40px',
+        maxHeight: '40px',
         backgroundColor: '#eee',
       });
     });
@@ -420,8 +420,8 @@ describe('useDataGridMaps', () => {
         paddingBottom: '2px',
         paddingLeft: '4px',
         paddingRight: '4px',
-        height: 32,
-        maxHeight: 32,
+        height: '32px',
+        maxHeight: '32px',
         backgroundColor: '#f5f5f5',
       });
     });
@@ -441,7 +441,7 @@ describe('useDataGridMaps', () => {
         },
       });
       const filterSx = result.current.filterCellSxMap.get('a');
-      expect(filterSx).toMatchObject({ height: 28, maxHeight: 28 });
+      expect(filterSx).toMatchObject({ height: '28px', maxHeight: '28px' });
     });
 
     it('spreads headerConfig.base into both header and filter cell sx', () => {
@@ -478,7 +478,7 @@ describe('useDataGridMaps', () => {
       });
       const headerSx = result.current.headerCellSxMap.get('a');
       // mainRow.height should override base padding
-      expect(headerSx.height).toBe(40);
+      expect(headerSx.height).toBe('40px');
       expect(headerSx.padding).toBe('8px');
       expect(headerSx.backgroundColor).toBe('#eee');
     });
@@ -503,8 +503,8 @@ describe('useDataGridMaps', () => {
         paddingBottom: '2px',
         paddingLeft: '4px',
         paddingRight: '4px',
-        height: 30,
-        maxHeight: 30,
+        height: '30px',
+        maxHeight: '30px',
       });
     });
 
@@ -526,8 +526,8 @@ describe('useDataGridMaps', () => {
       expect(bodySx).toMatchObject({
         paddingTop: '4px',
         paddingBottom: '4px',
-        height: 40,
-        maxHeight: 40,
+        height: '40px',
+        maxHeight: '40px',
       });
     });
   });

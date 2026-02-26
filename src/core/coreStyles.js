@@ -152,6 +152,16 @@ export function getScrollInnerBoxSx(enableHorizontalScroll) {
   };
 }
 
+export function getBodyRowHeightSx(height) {
+  if (height == null) return null;
+  return {
+    height: `${height}px`,
+    maxHeight: `${height}px`,
+    minHeight: 0,
+    overflow: 'hidden',
+  };
+}
+
 // ----- GridCell -----
 
 export const truncationSx = {
@@ -163,6 +173,27 @@ export const truncationSx = {
 };
 
 export const cellContentWrapperSx = { display: 'block', width: '100%', minWidth: 0 };
+
+export const editorWrapperSx = {
+  height: '100%',
+  minHeight: 0,
+  overflow: 'hidden',
+  width: '100%',
+  minWidth: 0,
+  display: 'flex',
+  alignItems: 'center',
+};
+
+/** Default body cell base sx when bodyCellSx is not provided. width in px optional. */
+export function getBodyCellBaseSx(width) {
+  return {
+    paddingLeft: '4px',
+    paddingRight: '4px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    ...(width != null && { width: `${width}px` }),
+  };
+}
 
 // ----- GridHeaderCell -----
 

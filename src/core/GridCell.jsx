@@ -10,7 +10,7 @@ import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
 import { getOptionLabel } from '../utils/optionUtils';
 import { DIRECTION_LTR } from '../config/schema';
 import { DEFAULT_FONT_SIZE } from '../constants';
-import { truncationSx , cellContentWrapperSx} from './coreStyles';
+import { truncationSx, cellContentWrapperSx, editorWrapperSx, getBodyCellBaseSx } from './coreStyles';
 
 /**
  * @param {*} displayValue
@@ -68,13 +68,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, rowSty
 
   const sx = useMemo(() => {
     const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : column.cellStyle;
-    const baseSx = bodyCellSx ?? {
-      paddingLeft: '4px',
-      paddingRight: '4px',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      ...(width != null && { width: `${width}px` }),
-    };
+    const baseSx = bodyCellSx ?? getBodyCellBaseSx(width);
     const hasCustomSelected = selectedRowStyle && Object.keys(selectedRowStyle).length > 0;
     const appliedSelectedStyle =
       isSelected
@@ -124,14 +118,6 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, rowSty
   }, [column, value, row, displayValue, isEditing, editor]);
 
   const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
-  const editorWrapperSx = useMemo(() => ({
-    height: '100%',
-    overflow: 'hidden',
-    width: '100%',
-    minWidth: 0,
-    display: 'flex',
-    alignItems: 'center',
-  }), []);
   const cellContent = useMemo(() => {
     if (isEditing && editor != null) {
       return (
@@ -159,7 +145,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, rowSty
         </Box>
       </Tooltip>
     );
-  }, [isEditing, editor, editorWrapperSx, displayValue, tooltipText, popperContainer, ctx?.fontSize]);
+  }, [isEditing, editor, displayValue, tooltipText, popperContainer, ctx?.fontSize]);
 
   return (
     <TableCell align={align} sx={sx} padding="none" variant="body">

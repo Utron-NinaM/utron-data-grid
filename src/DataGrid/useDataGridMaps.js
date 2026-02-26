@@ -85,6 +85,7 @@ export function useDataGridMaps({
     const widthStr = width != null ? `${width}px` : undefined;
     const minWidthStr = minWidth != null ? `${minWidth}px` : undefined;
     
+    const heightVal = rowHeight != null ? (typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight) : undefined;
     return {
       verticalAlign,
       ...baseConfig,
@@ -97,7 +98,7 @@ export function useDataGridMaps({
       overflow: 'hidden',
       boxSizing: 'border-box',
       ...(backgroundColor && { backgroundColor }),
-      ...(rowHeight && { height: rowHeight, maxHeight: rowHeight }),
+      ...(heightVal && { height: heightVal, maxHeight: heightVal }),
       ...rowSx,
     };
   };

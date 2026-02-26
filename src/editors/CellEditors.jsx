@@ -21,14 +21,11 @@ import {
   LOCALE_EN,
 } from '../config/schema';
 import { DEFAULT_FONT_SIZE, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH } from '../constants';
+import { getCompactEditorSx } from './cellEditorStyles';
 
-/** Compact sx so editors fit within default body row height (30px) */
-const compactEditorSx = {
-  '& .MuiInputBase-root': { minHeight: 'unset' },
-  '& .MuiInputBase-input': { py: '4px' },
-};
-
-export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize) {
+export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize, editorContext) {
+  const contentHeightPx = editorContext?.contentHeightPx;
+  const compactEditorSx = getCompactEditorSx(contentHeightPx);
   const value = editValues[column.field];
   const type = column.type ?? DEFAULT_FIELD_TYPE;
   const format = getDateFormat(direction);

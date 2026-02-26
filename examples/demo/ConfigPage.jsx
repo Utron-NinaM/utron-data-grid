@@ -67,7 +67,7 @@ export function ConfigPage() {
   }
 
   return (
-    <Box sx={{ p: 2, pb: 4, width: '100%', maxWidth: '100%', mx: 'auto', flex: 1, minHeight: 0, overflowY: 'auto' }}>
+    <Box sx={{ p: 2, pb: 4, width: '100%', maxWidth: '100%', mx: 'auto', flex: 1, minHeight: 0, overflowX: 'hidden' }}>
       <Typography variant="h5" gutterBottom>
         Grid Configuration
       </Typography>
@@ -77,69 +77,70 @@ export function ConfigPage() {
       <Button variant="contained" color="primary" onClick={handleApply} size="large" sx={{ mb: 3 }}>
         Apply
       </Button>
-
-      <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
-        <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-          Container width & sample size
-        </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
-          <TextField
-            label="Sample size"
-            value={localSampleSize}
-            onChange={(e) => setLocalSampleSize(e.target.value)}
-            size="small"
-            sx={{ width: 120 }}
-            placeholder={String(DEFAULT_SAMPLE_SIZE)}
-          />
-          <FormControl size="small" sx={{ minWidth: 140 }}>
-            <InputLabel>Columns</InputLabel>
-            <Input
-              label="Columns"
-              value={localColumnCount}
-              onChange={(e) => setLocalColumnCount(e.target.value)}
-              inputProps={{ min: 1, max: MAX_COLUMN_COUNT, step: 1 }}
-            />
-          </FormControl>
-          <TextField
-            label="Width (px or %)"
-            value={localContainerWidth}
-            onChange={(e) => setLocalContainerWidth(e.target.value)}
-            size="small"
-            sx={{ width: 140 }}
-            placeholder="800px or 100%"
-          />
-          {CONTAINER_WIDTH_PRESETS.map((preset) => (
-            <Button
-              key={preset}
-              variant={localContainerWidth === preset ? 'contained' : 'outlined'}
+      <Box sx={{ p: 2, pb: 4, width: '98%', maxWidth: '100%', mx: 'auto', flex: 1, minHeight: 0, height: '100%', overflowY: 'auto' }}>
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+            Container width & sample size
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+            <TextField
+              label="Sample size"
+              value={localSampleSize}
+              onChange={(e) => setLocalSampleSize(e.target.value)}
               size="small"
-              onClick={() => setLocalContainerWidth(preset)}
-            >
-              {preset}
-            </Button>
+              sx={{ width: 120 }}
+              placeholder={String(DEFAULT_SAMPLE_SIZE)}
+            />
+            <FormControl size="small" sx={{ minWidth: 140 }}>
+              <InputLabel>Columns</InputLabel>
+              <Input
+                label="Columns"
+                value={localColumnCount}
+                onChange={(e) => setLocalColumnCount(e.target.value)}
+                inputProps={{ min: 1, max: MAX_COLUMN_COUNT, step: 1 }}
+              />
+            </FormControl>
+            <TextField
+              label="Width (px or %)"
+              value={localContainerWidth}
+              onChange={(e) => setLocalContainerWidth(e.target.value)}
+              size="small"
+              sx={{ width: 140 }}
+              placeholder="800px or 100%"
+            />
+            {CONTAINER_WIDTH_PRESETS.map((preset) => (
+              <Button
+                key={preset}
+                variant={localContainerWidth === preset ? 'contained' : 'outlined'}
+                size="small"
+                onClick={() => setLocalContainerWidth(preset)}
+              >
+                {preset}
+              </Button>
+            ))}
+          </Box>
+        </Paper>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {GROUP_ORDER.filter((g) => defsByGroup[g]?.length).map((group) => (
+            <Paper key={group} variant="outlined" sx={{ p: 2 }}>
+              <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
+                {GROUP_LABELS[group] ?? group}
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Box sx={optionsGridSx}>
+                {defsByGroup[group].map((def) => (
+                  <OptionEditor
+                    key={def.key}
+                    definition={def}
+                    value={localGridOptions[def.key]}
+                    onChange={handleOptionChange}
+                  />
+                ))}
+              </Box>
+            </Paper>
           ))}
         </Box>
-      </Paper>
-
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {GROUP_ORDER.filter((g) => defsByGroup[g]?.length).map((group) => (
-          <Paper key={group} variant="outlined" sx={{ p: 2 }}>
-            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
-              {GROUP_LABELS[group] ?? group}
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={optionsGridSx}>
-              {defsByGroup[group].map((def) => (
-                <OptionEditor
-                  key={def.key}
-                  definition={def}
-                  value={localGridOptions[def.key]}
-                  onChange={handleOptionChange}
-                />
-              ))}
-            </Box>
-          </Paper>
-        ))}
       </Box>
     </Box>
   );

@@ -171,6 +171,15 @@ describe('GridTable Component', () => {
       expect(window.getComputedStyle(row).backgroundColor).toBe('rgb(70, 70, 70)');
     });
 
+    it('applies bodyRow height to body rows so edited row preserves configured height', () => {
+      const stableValue = { ...defaultStableValue, bodyRow: { height: 30 } };
+      renderGridTable({}, stableValue);
+
+      const row = screen.getByText('Alice').closest('tr');
+      expect(row).toBeInTheDocument();
+      expect(window.getComputedStyle(row).height).toBe('30px');
+    });
+
     it('should render empty state message when rows array is empty', () => {
       renderGridTable({ rows: [] });
 

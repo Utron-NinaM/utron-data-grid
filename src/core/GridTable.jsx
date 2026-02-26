@@ -28,6 +28,7 @@ import {
   getHeaderScrollWrapperSx,
   scrollContainerSx,
   getScrollInnerBoxSx,
+  getBodyRowHeightSx,
 } from './coreStyles';
 
 /**
@@ -60,7 +61,7 @@ function GridTableInner({
     hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
     colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
-    toolbarClearButtonsSx, direction, selectRow } = ctx;
+    toolbarClearButtonsSx, direction, selectRow, bodyRow } = ctx;
 
   const bodyColRefs = useRef(new Map());
   const headerScrollRef = useRef(null);
@@ -95,15 +96,16 @@ function GridTableInner({
         : hasCustomHover && hoverContent != null && Object.keys(hoverContent).length > 0
           ? { '&:hover:not(.Mui-selected) td': hoverContent }
           : (theme) => ({ '&:hover:not(.Mui-selected) td': { backgroundColor: theme.palette.action.hover } });
+    const bodyRowHeightSx = getBodyRowHeightSx(bodyRow?.height);
     const map = new Map();
     rows.forEach((row) => {
       const rowId = getRowId(row);
       const baseRowSx = rowStylesMap?.get(rowId);
-      const rowSxArray = [baseRowSx, hoverBlock].filter(Boolean);
+      const rowSxArray = [bodyRowHeightSx, baseRowSx, hoverBlock].filter(Boolean);
       map.set(rowId, rowSxArray.length ? rowSxArray : undefined);
     });
     return map;
-  }, [rows, rowStylesMap, disableRowHover, rowHoverStyle, getRowId]);
+  }, [rows, rowStylesMap, disableRowHover, rowHoverStyle, getRowId, bodyRow]);
   const handleTableBodyClick = useMemo(() => {
     if (!selectRow) return undefined;
     return (event) => {

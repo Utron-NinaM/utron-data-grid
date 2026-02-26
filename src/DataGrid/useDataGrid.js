@@ -15,6 +15,13 @@ import { useColumnLayout } from './useColumnLayout';
 import { createSelectionStore } from './selectionStore';
 import { createEditStore } from './editStore';
 
+function parsePx(v) {
+  if (v == null) return 0;
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  const m = String(v).match(/^([\d.]+)px?$/i);
+  return m ? Number(m[1]) : 0;
+}
+
 /**
  * Custom hook for DataGrid state management and business logic
  * @param {Object} props
@@ -293,6 +300,17 @@ export function useDataGrid(props) {
 
   const effectiveBodyRow = bodyRow ?? defaultGridConfig.bodyRow;
 
+  const editorContentHeightPx = useMemo(() => {
+    const row = effectiveBodyRow;
+    if (row?.height == null) return undefined;
+    const rowHeightPx = parsePx(row.height);
+    const paddingTopPx = parsePx(row.paddingTop);
+    const paddingBottomPx = parsePx(row.paddingBottom);
+    // Subtract 1px for MUI input outline border so edited row height matches non-edited
+    const content = rowHeightPx - paddingTopPx - paddingBottomPx - 1;
+    return content > 0 ? content : undefined;
+  }, [effectiveBodyRow]);
+
   const {
     sortOrderIndexMap,
     columnSortDirMap,
@@ -317,8 +335,9 @@ export function useDataGrid(props) {
   const filterInputHeight = headerConfig?.filterCells?.height || headerConfig?.filterRows?.height;
 
   const getEditorForCell = useCallback(
-    (col, row, values) => getEditor(col, row, values, handleEditChange, direction, fontSize),
-    [handleEditChange, direction, fontSize]
+    (col, row, values) =>
+      getEditor(col, row, values, handleEditChange, direction, fontSize, { contentHeightPx: editorContentHeightPx }),
+    [handleEditChange, direction, fontSize, editorContentHeightPx]
   );
 
   const getHeaderComboSlotForColumn = useCallback(
