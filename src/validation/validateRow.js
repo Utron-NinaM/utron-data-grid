@@ -24,7 +24,7 @@ export function validateRow(row, columns, originalRow) {
     for (const { validate, message } of col.validators) {
       const result = validate(value, row);
       if (result === false || (typeof result === 'string' && result.length > 0)) {
-        errors.push({ field: col.field, message: typeof result === 'string' ? result : (message || 'Invalid') });
+        errors.push({ field: col.headerName, message: typeof result === 'string' ? result : (message || 'Invalid') });
         break;
       }
     }
