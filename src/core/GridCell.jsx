@@ -9,7 +9,7 @@ import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataG
 import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
 import { getOptionLabel } from '../utils/optionUtils';
 import { DIRECTION_LTR } from '../config/schema';
-import { DEFAULT_FONT_SIZE } from '../constants';
+import { DEFAULT_FONT_SIZE, TOOLTIP_OVER_HEADER_Z_INDEX } from '../constants';
 import { truncationSx, cellContentWrapperSx, editorWrapperSx, getBodyCellBaseSx } from './coreStyles';
 
 /**
@@ -141,7 +141,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, rowSty
       <Tooltip title={tooltipText} arrow PopperProps={popperProps} placement="top" disableInteractive
         slotProps={{
           tooltip: { sx: { fontSize: `${ctx?.fontSize ?? DEFAULT_FONT_SIZE}px` } },
-          popper: { sx: { pointerEvents: 'none' } },
+          popper: { sx: { pointerEvents: 'none', zIndex: TOOLTIP_OVER_HEADER_Z_INDEX } },
         }}>
         <Box component="span" sx={cellContentWrapperSx}>
           {content}

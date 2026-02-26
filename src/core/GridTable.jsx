@@ -174,6 +174,7 @@ function GridTableInner({
     });
   }
   const scrollContainerRef = useRef(null);
+  const tooltipContainerRef = useRef(null);
   const [scrollContainerReady, setScrollContainerReady] = useState(false);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
@@ -420,7 +421,7 @@ function GridTableInner({
     );
 
     return (
-      <Box sx={scrollContainerSx} data-testid="grid-scroll-container">
+      <Box ref={tooltipContainerRef} sx={scrollContainerSx} data-testid="grid-scroll-container">
         {toolbarBox}
         <Box
           ref={headerScrollRef}
@@ -441,7 +442,7 @@ function GridTableInner({
           onScroll={handleBodyScroll}
           sx={getScrollInnerBoxSx(enableHorizontalScroll)}
         >
-          <ScrollContainerContext.Provider value={{ ref: scrollContainerRef, ready: scrollContainerReady }}>
+          <ScrollContainerContext.Provider value={{ ref: tooltipContainerRef, ready: scrollContainerReady }}>
             {bodyTable}
           </ScrollContainerContext.Provider>
         </Box>

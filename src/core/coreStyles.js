@@ -16,6 +16,8 @@ import {
   LUMINANCE_DARK_THRESHOLD,
   RESIZE_LINE_HOVER_ALPHA,
   DIVIDER_ALPHA,
+  HEADER_Z_INDEX,
+  TOOLTIP_OVER_HEADER_Z_INDEX,
 } from '../constants';
 
 export function getResizeLineColor(columnBackground, theme) {
@@ -44,7 +46,7 @@ export function getResizeLineColor(columnBackground, theme) {
 
 export function getToolbarBoxSx(containScroll) {
   return {
-    ...(containScroll ? {} : { position: 'sticky', top: 0, zIndex: 3 }),
+    ...(containScroll ? {} : { position: 'sticky', top: 0, zIndex: TOOLTIP_OVER_HEADER_Z_INDEX }),
     flexShrink: 0,
     minWidth: 0,
     display: 'flex',
@@ -85,7 +87,7 @@ export function getTableHeadSx(containScroll, headerConfig) {
     ...headerConfig?.base,
     position: containScroll ? 'relative' : 'sticky',
     top: containScroll ? 0 : HEADER_STICKY_TOP_PX,
-    zIndex: 2,
+    zIndex: HEADER_Z_INDEX,
     backgroundColor: headerConfig?.mainRow?.backgroundColor ?? headerConfig?.base?.backgroundColor ?? 'background.paper',
   };
 }
@@ -238,7 +240,7 @@ export function getResizeHandleSx(direction, columnBackground, theme) {
     width: `${RESIZE_HANDLE_WIDTH_PX}px`,
     height: '100%',
     cursor: 'col-resize',
-    zIndex: 2,
+    zIndex: HEADER_Z_INDEX,
     backgroundColor: 'transparent',
 
     '&::after': {
