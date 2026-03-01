@@ -49,11 +49,12 @@ export function getCellTooltipText(displayValue, value, isEditing, editor) {
  * @param {boolean} [props.isEditing]
  * @param {React.ReactNode} [props.editor]
  * @param {boolean} [props.hasError]
+ * @param {string[]} [props.errorMessages] Validation messages for tooltip when hasError
  * @param {Object} [props.rowStyle] Row-specific sx (column rowStyle merged); column cellStyle overrides this
  * @param {boolean} [props.isSelected]
  * @param {Object} [props.selectedRowStyle] Selected row sx; overrides row and column style
  */
-function GridCellInner({ value, row, column, isEditing, editor, hasError, rowStyle, isSelected, selectedRowStyle }) {
+function GridCellInner({ value, row, column, isEditing, editor, hasError, errorMessages = [], rowStyle, isSelected, selectedRowStyle }) {
   const theme = useTheme();
   const ctx = useContext(DataGridStableContext);
   const scrollCtx = useContext(ScrollContainerContext);
@@ -110,12 +111,13 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, rowSty
   }, [isEditing, editor, column, value, row, direction, ctx?.listColumnOptionMaps]);
 
   const tooltipText = useMemo(() => {
+    if (hasError && errorMessages?.length) return errorMessages.join('\n');
     if (typeof column.getTooltipText === 'function') {
       const custom = column.getTooltipText(value, row);
       if (custom != null && String(custom).trim() !== '') return String(custom).trim();
     }
     return getCellTooltipText(displayValue, value, isEditing, editor);
-  }, [column, value, row, displayValue, isEditing, editor]);
+  }, [hasError, errorMessages, column, value, row, displayValue, isEditing, editor]);
 
   const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
   const cellContent = useMemo(() => {
@@ -151,7 +153,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, rowSty
   }, [isEditing, editor, displayValue, tooltipText, popperContainer, ctx?.fontSize]);
 
   return (
-    <TableCell align={align} sx={sx} padding="none" variant="body">
+    <TableCell align={align} sx={sx} padding="none" variant="body" aria-invalid={hasError || undefined}>
       {cellContent}
     </TableCell>
   );

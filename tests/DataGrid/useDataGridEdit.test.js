@@ -29,7 +29,7 @@ describe('useDataGridEdit', () => {
   });
 
   describe('initial state', () => {
-    it('returns null editRowId, empty editValues, empty validationErrors', () => {
+    it('returns null editRowId, empty editValues, empty validationState.rowErrors', () => {
       const editStore = createEditStore();
       renderHook(useDataGridEdit, {
         initialProps: getDefaultProps({ editStore }),
@@ -37,7 +37,7 @@ describe('useDataGridEdit', () => {
       const s = editStore.getSnapshot();
       expect(s.editRowId).toBeNull();
       expect(s.editValues).toBeNull();
-      expect(s.validationErrors).toBeNull();
+      expect(s.validationState.rowErrors).toEqual({});
     });
   });
 
@@ -94,7 +94,7 @@ describe('useDataGridEdit', () => {
       const s = editStore.getSnapshot();
       expect(s.editRowId).toBe('r1');
       expect(s.editValues).toEqual({ id: 'r1', name: 'Alice' });
-      expect(s.validationErrors).toBeNull();
+      expect(s.validationState.rowErrors).toEqual({});
       expect(onEditStart).toHaveBeenCalledWith('r1', row);
     });
   });
@@ -116,8 +116,8 @@ describe('useDataGridEdit', () => {
   });
 
   describe('handleEditSave', () => {
-    it('sets validationErrors and calls onValidationFail when validateRow returns errors', () => {
-      const errors = [{ field: 'name', message: 'Required' }];
+    it('sets validationState.rowErrors and calls onValidationFail when validateRow returns errors', () => {
+      const errors = [{ field: 'name', message: 'Required', severity: 'error' }];
       vi.mocked(validateRow).mockReturnValue(errors);
       const editStore = createEditStore();
       const onValidationFail = vi.fn();
@@ -131,7 +131,7 @@ describe('useDataGridEdit', () => {
       act(() => {
         result.current.handleEditSave();
       });
-      expect(editStore.getSnapshot().validationErrors).toEqual(errors);
+      expect(editStore.getSnapshot().validationState.rowErrors['1'].name).toEqual(errors);
       expect(onValidationFail).toHaveBeenCalledWith('1', errors);
       expect(onEditCommit).not.toHaveBeenCalled();
       expect(editStore.getSnapshot().editRowId).toBe('1');
@@ -158,7 +158,7 @@ describe('useDataGridEdit', () => {
       const s = editStore.getSnapshot();
       expect(s.editRowId).toBeNull();
       expect(s.editValues).toBeNull();
-      expect(s.validationErrors).toBeNull();
+      expect(s.validationState.rowErrors).toEqual({});
     });
   });
 
@@ -178,7 +178,7 @@ describe('useDataGridEdit', () => {
       const s = editStore.getSnapshot();
       expect(s.editRowId).toBeNull();
       expect(s.editValues).toBeNull();
-      expect(s.validationErrors).toBeNull();
+      expect(s.validationState.rowErrors).toEqual({});
       expect(onEditCancel).toHaveBeenCalledWith('1');
     });
   });

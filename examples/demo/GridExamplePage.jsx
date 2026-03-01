@@ -13,9 +13,11 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { DataGrid } from '../../src/DataGrid/DataGrid';
 import { columnsConfig, columnsConfigHebrew } from '../columnsConfig';
+import { addDemoValidators, addDemoRowValidators } from './DemoConfigContext';
 import { generateSampleData } from '../sampleData';
 import { en } from '../translations';
 import { useDemoConfig } from './DemoConfigContext';
+import { DEFAULT_SAMPLE_SIZE } from './ConfigPage';
 import { DIRECTION_RTL } from '../../src/config/schema';
 
 function buildGridOptions(gridOptions) {
@@ -40,7 +42,9 @@ export function GridExamplePage() {
   const direction = gridOptions.direction ?? 'ltr';
   const count = Math.min(20, Math.max(1, columnCount ?? 20));
   const columns = useMemo(
-    () => (direction === DIRECTION_RTL ? columnsConfigHebrew : columnsConfig).slice(0, count),
+    () => addDemoRowValidators(addDemoValidators(
+      (direction === DIRECTION_RTL ? columnsConfigHebrew : columnsConfig).slice(0, count)
+    )),
     [direction, count]
   );
 

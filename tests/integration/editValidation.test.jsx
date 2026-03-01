@@ -404,8 +404,8 @@ describe('Edit + Validation Integration', () => {
         expect(screen.getByRole('alert')).toBeInTheDocument();
       });
 
-      expect(screen.getByText(/please correct the following/i)).toBeInTheDocument();
-      expect(screen.getByText(/name: Name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/validation error/i)).toBeInTheDocument();
+      expect(screen.getByText(/Name is required/i)).toBeInTheDocument();
     });
 
     it('should display multiple validation errors', async () => {
@@ -447,8 +447,9 @@ describe('Edit + Validation Integration', () => {
         expect(screen.getByRole('alert')).toBeInTheDocument();
       });
 
-      const listItems = screen.getAllByRole('listitem');
-      expect(listItems.length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText(/validation error/i)).toBeInTheDocument();
+      expect(screen.getByText(/Name is required/i)).toBeInTheDocument();
+      expect(screen.getByText(/Invalid email format/i)).toBeInTheDocument();
     });
 
     it('should clear validation errors when entering edit mode again', async () => {

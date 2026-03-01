@@ -25,6 +25,7 @@ import { getCompactEditorSx } from './cellEditorStyles';
 
 export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize, editorContext) {
   const contentHeightPx = editorContext?.contentHeightPx;
+  const onBlur = editorContext?.onBlur;
   const compactEditorSx = getCompactEditorSx(contentHeightPx);
   const value = editValues[column.field];
   const type = column.type ?? DEFAULT_FIELD_TYPE;
@@ -40,6 +41,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           fullWidth
           value={value ?? ''}
           onChange={(e) => onChange(column.field, e.target.value === '' ? undefined : Number(e.target.value))}
+          onBlur={onBlur}
           inputProps={{ maxLength: MAX_NUMBER_INPUT_LENGTH }}
           sx={fontSx}
         />
@@ -51,8 +53,9 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           <DatePicker
             value={value != null ? dayjs(value) : null}
             onChange={(d) => onChange(column.field, d ? d.toISOString() : null)}
+            onClose={onBlur}
             format={format}
-            slotProps={{ textField: { size: 'small', fullWidth: true, sx: { ...fontSx, ...compactEditorSx } } }}
+            slotProps={{ textField: { size: 'small', fullWidth: true, onBlur, sx: { ...fontSx, ...compactEditorSx } } }}
           />
         </LocalizationProvider>
       );
@@ -68,6 +71,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           options={listOptions}
           value={valueOption}
           onChange={(_, v) => onChange(column.field, v != null ? getOptionValue(v) : undefined)}
+          onBlur={onBlur}
           onInputChange={(event, newInputValue, reason) => {
             if (reason === 'input' && column.onListInputChange && newInputValue && newInputValue.trim() !== '') {
               column.onListInputChange(newInputValue);
@@ -106,6 +110,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           fullWidth
           value={value ?? ''}
           onChange={(e) => onChange(column.field, e.target.value)}
+          onBlur={onBlur}
           inputProps={{ maxLength: MAX_TEXT_LENGTH }}
           sx={fontSx}
         />

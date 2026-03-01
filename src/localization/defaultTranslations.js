@@ -58,6 +58,8 @@ export const defaultTranslations = {
 
   // Validation
   validationErrors: 'Please correct the following:',
+  validationErrorsFound: '{{count}} validation error(s) found',
+  validationFieldErrorsCount: '{{count}} field error(s)',
   validationRequired: 'Required',
 };
 
@@ -120,5 +122,7 @@ export const hebrewTranslations = {
 
   // Validation
   validationErrors: 'יש לתקן את השגיאות הבאות:',
+  validationErrorsFound: 'נמצאו {{count}} שגיאות אימות',
+  validationFieldErrorsCount: '{{count}} שגיאות שדה',
   validationRequired: 'נדרש',
 };

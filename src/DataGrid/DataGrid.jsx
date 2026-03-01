@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import { DataGridProvider, DataGridStableContext } from './DataGridContext';
 import { GridTable } from '../core/GridTable';
 import { PaginationBar } from '../pagination/PaginationBar';
-import { ValidationAlertSubscriber } from './ValidationAlertSubscriber';
+import { GridValidationBanner } from './GridValidationBanner';
 import { defaultGridConfig } from '../config/defaultConfig';
 import { useDataGrid } from './useDataGrid';
 import { getDataGridRootSx, scrollableContentSx } from './dataGridStyles';
@@ -250,7 +250,11 @@ export function DataGrid(props) {
           dir={direction}
           data-testid="data-grid-root"
         >
-          <ValidationAlertSubscriber />
+          <GridValidationBanner
+            columns={flatProps.columns}
+            editStore={grid.stableContextValue.editStore}
+            onErrorClick={grid.handleValidationErrorClick}
+          />
           {useScrollableLayout ? (
             <Box sx={scrollableContentSx}>
               {gridTable}

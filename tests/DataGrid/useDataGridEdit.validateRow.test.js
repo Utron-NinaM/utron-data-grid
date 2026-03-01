@@ -5,7 +5,7 @@ import { useDataGridEdit } from '../../src/DataGrid/useDataGridEdit';
 
 /**
  * Integration test: useDataGridEdit with real validateRow (no mock).
- * Verifies the contract between the hook and validateRow.
+ * Verifies validationState.rowErrors, onValidationFail, clearFieldError on value change, clearEdit on success.
  */
 describe('useDataGridEdit with real validateRow', () => {
   const getRowId = (row) => row.id;
@@ -20,7 +20,7 @@ describe('useDataGridEdit with real validateRow', () => {
     },
   ];
 
-  it('sets validationErrors and calls onValidationFail when validateRow returns errors; onEditCommit when valid', () => {
+  it('sets validationState.rowErrors and calls onValidationFail when validateRow returns errors; onEditCommit when valid', () => {
     const editStore = createEditStore();
     const onValidationFail = vi.fn();
     const onEditCommit = vi.fn();
@@ -43,25 +43,42 @@ describe('useDataGridEdit with real validateRow', () => {
     });
 
     const s1 = editStore.getSnapshot();
-    expect(s1.validationErrors).toHaveLength(1);
-    expect(s1.validationErrors[0]).toMatchObject({
+    expect(s1.validationState.rowErrors[1]).toBeDefined();
+    expect(s1.validationState.rowErrors[1].score).toHaveLength(1);
+    expect(s1.validationState.rowErrors[1].score[0]).toMatchObject({
       field: 'score',
       message: 'Score must be >= 0',
     });
-    expect(onValidationFail).toHaveBeenCalledWith(1, s1.validationErrors);
+    expect(onValidationFail).toHaveBeenCalledWith(1, expect.any(Array));
+    expect(onValidationFail.mock.calls[0][1][0]).toMatchObject({
+      field: 'score',
+      message: 'Score must be >= 0',
+    });
     expect(onEditCommit).not.toHaveBeenCalled();
     expect(s1.editRowId).toBe(1);
 
     act(() => {
       result.current.handleEditChange('score', 10);
     });
+    expect(editStore.getCellError(1, 'score')).toHaveLength(0);
+
     act(() => {
       result.current.handleEditSave();
     });
 
     const s2 = editStore.getSnapshot();
-    expect(s2.validationErrors).toBeNull();
+    expect(Object.keys(s2.validationState.rowErrors)).toHaveLength(0);
     expect(s2.editRowId).toBeNull();
     expect(onEditCommit).toHaveBeenCalledWith(1, { id: 1, name: 'Alice', score: 10 });
+  });
+
+  it('clearValidation on edit start (startEdit clears validationState)', () => {
+    const editStore = createEditStore();
+    editStore.startEdit(1, { id: 1, name: 'A', score: -1 });
+    editStore.mergeRowErrors({ 1: { score: [{ field: 'score', message: 'Bad', severity: 'error' }] } });
+    expect(editStore.getCellError(1, 'score')).toHaveLength(1);
+    editStore.startEdit(2, { id: 2, name: 'B', score: 0 });
+    expect(editStore.getCellError(1, 'score')).toHaveLength(0);
+    expect(editStore.getSnapshot().validationState.rowErrors).toEqual({});
   });
 });

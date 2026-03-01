@@ -1,18 +1,10 @@
 import { useCallback } from 'react';
-import { validateRow } from '../validation/validateRow';
+import { validateRow, validateField } from '../validation/validateRow';
+import { toRowErrors } from './editStore';
 
 /**
- * Hook for DataGrid inline edit handlers. Edit state lives in editStore (passed in) so GridTable does not re-render on edit changes.
- * @param {Object} props
- * @param {Object} props.editStore - from createEditStore()
- * @param {boolean} props.editable
- * @param {Function} props.onEditCommit
- * @param {Function} [props.onEditStart]
- * @param {Function} [props.onEditCancel]
- * @param {Function} [props.onValidationFail]
- * @param {Function} [props.isRowEditable]
- * @param {Function} props.getRowId
- * @param {Object[]} props.columns
+ * Hook for DataGrid inline edit handlers. Edit state lives in editStore.
+ * Validation: field-level on blur, full row on Save; clear field error on value change.
  */
 export function useDataGridEdit({
   editStore,
@@ -30,9 +22,7 @@ export function useDataGridEdit({
       if (!editable || !onEditCommit) return;
       if (isRowEditable && !isRowEditable(row)) return;
       const id = getRowId(row);
-      const t0 = performance.now();
       editStore.startEdit(id, row);
-      const t1 = performance.now();
       onEditStart?.(id, row);
     },
     [editable, onEditCommit, getRowId, isRowEditable, onEditStart, editStore]
@@ -40,10 +30,29 @@ export function useDataGridEdit({
 
   const handleEditChange = useCallback(
     (field, value) => {
-      const current = editStore.getSnapshot().editValues;
+      const snap = editStore.getSnapshot();
+      const current = snap.editValues;
       editStore.setEditValues({ ...current, [field]: value });
+      if (snap.editRowId != null) {
+        editStore.clearFieldError(snap.editRowId, field);
+      }
     },
     [editStore]
+  );
+
+  const handleCellBlur = useCallback(
+    (rowId, field) => {
+      const { editValues, originalRow } = editStore.getSnapshot();
+      if (editValues == null) return;
+      const errors = validateField(
+        editValues,
+        columns,
+        originalRow ?? {},
+        field
+      );
+      editStore.setFieldErrors(rowId, field, errors);
+    },
+    [editStore, columns]
   );
 
   const handleEditCancel = useCallback(() => {
@@ -53,20 +62,24 @@ export function useDataGridEdit({
   }, [editStore, onEditCancel]);
 
   const handleEditSave = useCallback(() => {
-    const { editRowId, editValues, originalRow } = editStore.getSnapshot();
-    const errors = validateRow(editValues, columns, originalRow);
+    const snap = editStore.getSnapshot();
+    const { editRowId, editValues, originalRow, mode } = snap;
+    if (editRowId == null || editValues == null) return;
+    const orig = originalRow ?? {};
+    const errors = validateRow(editValues, columns, orig);
     if (errors.length > 0) {
       onValidationFail?.(editRowId, errors);
-      editStore.setValidationErrors(errors);
+      editStore.mergeRowErrors(toRowErrors(editRowId, errors));
       return;
     }
-    editStore.clearEdit();
     onEditCommit?.(editRowId, editValues);
+    editStore.clearEdit();
   }, [editStore, columns, onEditCommit, onValidationFail]);
 
   return {
     handleRowDoubleClick,
     handleEditChange,
+    handleCellBlur,
     handleEditCancel,
     handleEditSave,
   };

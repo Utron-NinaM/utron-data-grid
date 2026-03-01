@@ -93,7 +93,7 @@ export function useDataGrid(props) {
   // Ref for column currently being resized (field name or null); prevents layout from overwriting DOM width during drag
   const resizingColumnRef = useRef(null);
 
-  const { handleRowDoubleClick, handleEditChange, handleEditCancel, handleEditSave } = useDataGridEdit({
+  const { handleRowDoubleClick, handleEditChange, handleCellBlur, handleEditCancel, handleEditSave } = useDataGridEdit({
     editStore,
     editable,
     onEditCommit,
@@ -269,6 +269,15 @@ export function useDataGrid(props) {
     [getRowId, onRowSelect, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit, selection.size, onSelectionChange]
   );
 
+  const handleValidationErrorClick = useCallback((rowId, _field) => {
+    const container = containerRef?.current;
+    if (!container) return;
+    const rowEl = container.querySelector(`[data-row-id="${rowId}"]`);
+    if (rowEl) {
+      rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }, []);
+
   const filteredRows = useMemo(
     () => applyFilters(rows, debouncedFilterModel, columns),
     [rows, debouncedFilterModel, columns]
@@ -336,8 +345,11 @@ export function useDataGrid(props) {
 
   const getEditorForCell = useCallback(
     (col, row, values) =>
-      getEditor(col, row, values, handleEditChange, direction, fontSize, { contentHeightPx: editorContentHeightPx }),
-    [handleEditChange, direction, fontSize, editorContentHeightPx]
+      getEditor(col, row, values, handleEditChange, direction, fontSize, {
+        contentHeightPx: editorContentHeightPx,
+        onBlur: () => handleCellBlur(getRowId(row), col.field),
+      }),
+    [handleEditChange, handleCellBlur, getRowId, direction, fontSize, editorContentHeightPx]
   );
 
   const getHeaderComboSlotForColumn = useCallback(
@@ -419,6 +431,7 @@ export function useDataGrid(props) {
       editStore,
       handleEditSave,
       handleEditCancel,
+      handleValidationErrorClick,
     }),
     [
       columns,
@@ -472,6 +485,7 @@ export function useDataGrid(props) {
       editStore,
       handleEditSave,
       handleEditCancel,
+      handleValidationErrorClick,
     ]
   );
 
@@ -532,6 +546,7 @@ export function useDataGrid(props) {
     handleRowDoubleClick: handleRowDoubleClickWrapper,
     handleEditSave,
     handleEditCancel,
+    handleValidationErrorClick,
     handleClearSort,
     handleClearAllFilters,
     handleClearColumnWidths,

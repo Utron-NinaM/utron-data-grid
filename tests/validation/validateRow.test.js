@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { validateRow } from '../../src/validation/validateRow';
+import { validateRow, validateField } from '../../src/validation/validateRow';
+
+const err = (field, message) => ({ field, message, severity: 'error' });
 
 describe('validateRow', () => {
   describe('no validators', () => {
@@ -32,7 +34,7 @@ describe('validateRow', () => {
         },
       ];
       expect(validateRow(row, columns, row)).toEqual([
-        { field: 'score', message: 'Score must be positive' },
+        err('score', 'Score must be positive'),
       ]);
     });
 
@@ -45,7 +47,7 @@ describe('validateRow', () => {
         },
       ];
       expect(validateRow(row, columns, row)).toEqual([
-        { field: 'score', message: 'Invalid' },
+        err('score', 'Invalid'),
       ]);
     });
 
@@ -63,7 +65,7 @@ describe('validateRow', () => {
         },
       ];
       expect(validateRow(row, columns, row)).toEqual([
-        { field: 'email', message: 'Enter a valid email' },
+        err('email', 'Enter a valid email'),
       ]);
     });
 
@@ -139,8 +141,8 @@ describe('validateRow', () => {
       ];
       expect(validateRow(row, columns, row)).toEqual(
         expect.arrayContaining([
-          { field: 'name', message: 'Name required' },
-          { field: 'score', message: 'Score must be >= 0' },
+          err('name', 'Name required'),
+          err('score', 'Score must be >= 0'),
         ])
       );
       expect(validateRow(row, columns, row)).toHaveLength(2);
@@ -156,7 +158,7 @@ describe('validateRow', () => {
         },
       ];
       expect(validateRow(row, columns, row)).toEqual([
-        { field: 'score', message: 'Invalid score' },
+        err('score', 'Invalid score'),
       ]);
     });
   });
@@ -178,7 +180,7 @@ describe('validateRow', () => {
       expect(validateRow(row, columns, row)).toEqual([]);
       const badRow = { id: 2, min: 20, max: 10 };
       expect(validateRow(badRow, columns, badRow)).toEqual([
-        { field: 'max', message: 'Max must be >= min' },
+        err('max', 'Max must be >= min'),
       ]);
     });
   });
@@ -201,7 +203,7 @@ describe('validateRow', () => {
       ];
       const result = validateRow(row, columns, originalRow);
       // Only name should be validated (status is not editable)
-      expect(result).toEqual([{ field: 'name', message: 'Name required' }]);
+      expect(result).toEqual([err('name', 'Name required')]);
     });
 
     it('validates conditionally editable columns when function returns true', () => {
@@ -215,7 +217,7 @@ describe('validateRow', () => {
         },
       ];
       const result = validateRow(row, columns, originalRow);
-      expect(result).toEqual([{ field: 'notes', message: 'Notes required' }]);
+      expect(result).toEqual([err('notes', 'Notes required')]);
     });
 
     it('skips validation for conditionally editable columns when function returns false', () => {
@@ -256,9 +258,52 @@ describe('validateRow', () => {
       const result = validateRow(row, columns, originalRow);
       // name and priority should be validated, status should not
       expect(result).toEqual([
-        { field: 'name', message: 'Name required' },
-        { field: 'priority', message: 'Priority too low' },
+        err('name', 'Name required'),
+        err('priority', 'Priority too low'),
       ]);
+    });
+  });
+
+  describe('validateField', () => {
+    it('returns [] when column has no validators', () => {
+      const row = { id: 1, name: 'Alice' };
+      const columns = [{ field: 'name', headerName: 'Name' }];
+      expect(validateField(row, columns, row, 'name')).toEqual([]);
+    });
+
+    it('returns errors for the given field only', () => {
+      const row = { id: 1, score: -1, name: 'A' };
+      const columns = [
+        { field: 'name', validators: [{ validate: (v) => v.length > 1, message: 'Too short' }] },
+        { field: 'score', validators: [{ validate: (v) => v >= 0, message: 'Score must be >= 0' }] },
+      ];
+      expect(validateField(row, columns, row, 'score')).toEqual([
+        err('score', 'Score must be >= 0'),
+      ]);
+      expect(validateField(row, columns, row, 'name')).toEqual([
+        err('name', 'Too short'),
+      ]);
+    });
+
+    it('returns [] when field is valid', () => {
+      const row = { id: 1, score: 10 };
+      const columns = [
+        { field: 'score', validators: [{ validate: (v) => v >= 0, message: 'Invalid' }] },
+      ];
+      expect(validateField(row, columns, row, 'score')).toEqual([]);
+    });
+
+    it('respects editable function for originalRow', () => {
+      const row = { id: 1, notes: '' };
+      const originalRow = { id: 1, notes: '', status: 'Completed' };
+      const columns = [
+        {
+          field: 'notes',
+          editable: (r) => r.status === 'Pending',
+          validators: [{ validate: (v) => v.length > 0, message: 'Required' }],
+        },
+      ];
+      expect(validateField(row, columns, originalRow, 'notes')).toEqual([]);
     });
   });
 });

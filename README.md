@@ -109,7 +109,7 @@ Each column can define:
 - `minWidth` – number (px) for minimum width constraint. When set, fully overrides the built-in minimum (may be lower). Very small values may cause layout and usability issues.
 - `maxWidth` – number (px) for maximum width constraint
 - `defaultWidth` – number (px) for optional default width (useful for action/icon columns)
-- `validators` – `[{ validate: (value, row) => boolean|string, message? }]`
+- `validators` – `[{ validate: (value, row) => boolean|string, message? }]` – run on cell blur (that field only) and on Save (full row). Return `false` or a non-empty string for error; `message` is used when validator returns `false`. Errors use column `field` (not `headerName`).
 - `options` – for list type: array of `{ value, label }` (see List columns below)
 - `render(value, row)` – custom display (not used when editing)
 - `getTooltipText(value, row)` – optional. When set, used as the cell tooltip string (e.g. for columns that render React elements like Autocomplete, so the tooltip shows the label instead of "[object Object]").
@@ -175,6 +175,16 @@ Examples:
 { field: 'status', headerName: 'Status', type: 'list', width: 120, minWidth: 100, maxWidth: 200 }
 ```
 
+### Inline validation
+
+When `onEditCommit` is set and columns define `validators`, the grid runs **field-level validation on cell blur** and **full row validation on Save**:
+
+- **Blur:** Only the field that lost focus is validated; errors are merged for that field.
+- **Save:** All editable columns are validated; if any errors exist, commit is blocked and `onValidationFail(rowId, errors)` is called.
+- **On value change:** The error for that field is cleared immediately so the red border and banner update as the user fixes the value.
+
+**UI:** A sliding error banner appears above the table (no reserved space when there are no errors). The banner shows the total count and a list of errors (by row and field); clicking an error scrolls to that row. Cells with errors get a red border and show the message in a tooltip; the row is marked with a left border accent. Use `getCellError(rowId, field)` and `hasRowError(rowId)` from the edit store for custom UI.
+
 Conditional editing example:
 
 ```js
@@ -197,7 +207,7 @@ Pass `options={{ translations: { ... } }}` with keys overriding defaults. Main k
 - Pagination: `rowsPerPage`, `paginationRange`, `firstPage`, `lastPage`, `prevPage`, `nextPage`
 - State: `noRows`, `noResults`
 - Edit: `save`, `cancel`, `edit`
-- Validation: `validationErrors`, `validationRequired`
+- Validation: `validationErrors`, `validationErrorsFound` (title with `{{count}}`), `validationFieldErrorsCount` (badge with `{{count}}`), `validationRequired`
 
 `paginationRange` supports `{{from}}`, `{{to}}`, `{{count}}`.
 

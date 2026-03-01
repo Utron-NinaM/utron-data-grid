@@ -1,4 +1,4 @@
-import React, { memo, useContext } from 'react';
+import React, { memo, useContext, useMemo } from 'react';
 import { useSyncExternalStore } from 'react';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -54,15 +54,25 @@ function GridBodyRowComponent({
     () => NOT_EDITING
   );
 
+  const rowErrorsForRow = editState.isEditing && editState.rowErrorsForRow != null
+    ? editState.rowErrorsForRow
+    : null;
   const isEditing = editState.isEditing;
-
+  const hasRowErr = rowErrorsForRow ? Object.keys(rowErrorsForRow).length > 0 : false;
   const isRowSelected = selected || isSelected;
+
+  const rowSxWithError = useMemo(() => {
+    if (!hasRowErr || !rowSx) return rowSx;
+    const arr = Array.isArray(rowSx) ? [...rowSx] : [rowSx];
+    arr.push({ borderLeft: '3px solid', borderLeftColor: 'error.light' });
+    return arr;
+  }, [hasRowErr, rowSx]);
 
   return (
     <TableRow
       hover={false}
       selected={isRowSelected}
-      sx={rowSx}
+      sx={rowSxWithError}
       data-row-id={rowId}
     >
       {multiSelectable && (
@@ -77,7 +87,11 @@ function GridBodyRowComponent({
       {columns.map((col) => {
         const colEditable = typeof col.editable === 'function' ? col.editable(row) : col.editable;
         const editValues = editState.editValues ?? {};
-        const validationErrors = editState.validationErrors ?? new Set();
+        const cellErrors = rowErrorsForRow?.[col.field] ?? [];
+        const cellErrorsArr = Array.isArray(cellErrors) ? cellErrors : [];
+        const hasError = cellErrorsArr.length > 0;
+        
+        const errorMessages = cellErrorsArr.map((e) => e.message).filter(Boolean);
         return (
           <GridCell
             key={col.field}
@@ -86,7 +100,8 @@ function GridBodyRowComponent({
             column={col}
             isEditing={isEditing && colEditable}
             editor={isEditing && colEditable ? getEditor(col, row, editValues) : null}
-            hasError={isEditing && validationErrors.has(col.field)}
+            hasError={hasError}
+            errorMessages={errorMessages}
             rowStyle={rowStyle}
             isSelected={isRowSelected}
             selectedRowStyle={selectedRowStyle}

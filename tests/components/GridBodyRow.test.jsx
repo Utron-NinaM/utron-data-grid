@@ -343,9 +343,8 @@ describe('GridBodyRow Component', () => {
   describe('Test editing state styling', () => {
     it('should render cells in editing mode when editRowId matches rowId', () => {
       const editStore = createEditStore();
-      editStore.setEditRowId(1);
+      editStore.startEdit(1, mockRow);
       editStore.setEditValues({ name: 'Edited Name', age: 35 });
-      editStore.setOriginalRow(mockRow);
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} defaultValue={mockRow[col.field]} />);
       const editableColumns = mockColumns.map(col => ({ ...col, editable: true }));
       const ctx = { ...defaultContextValue, editStore };
@@ -361,8 +360,7 @@ describe('GridBodyRow Component', () => {
 
     it('should not render editors when editRowId does not match', () => {
       const editStore = createEditStore();
-      editStore.setEditRowId(2);
-      editStore.setEditValues({ name: 'Edited Name' });
+      editStore.startEdit(2, { id: 2, name: 'Edited Name', age: 25 });
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
       const ctx = { ...defaultContextValue, editStore };
 
@@ -374,9 +372,8 @@ describe('GridBodyRow Component', () => {
 
     it('should use editValues when in editing mode', () => {
       const editStore = createEditStore();
-      editStore.setEditRowId(1);
+      editStore.startEdit(1, mockRow);
       editStore.setEditValues({ name: 'Edited Name', age: 35 });
-      editStore.setOriginalRow(mockRow);
       const getEditor = vi.fn((col, row, editValues) => {
         const value = editValues[col.field] !== undefined ? editValues[col.field] : row[col.field];
         return <input data-testid={`editor-${col.field}`} defaultValue={value} />;
@@ -399,21 +396,23 @@ describe('GridBodyRow Component', () => {
 
     it('should show validation errors when in editing mode', () => {
       const editStore = createEditStore();
-      editStore.setEditRowId(1);
-      editStore.setEditValues({ name: 'Edited Name' });
-      editStore.setValidationErrors([{ field: 'name', message: 'Required' }]);
+      const row = { id: 1, name: 'Edited Name', age: 30 };
+      editStore.startEdit(1, row);
+      editStore.mergeRowErrors({
+        1: { name: [{ field: 'name', message: 'Required', severity: 'error' }] },
+      });
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
       const editableColumns = mockColumns.map(col => ({ ...col, editable: true }));
       const ctx = { ...defaultContextValue, editStore };
 
       renderWithContext(
-        <GridBodyRow {...defaultProps} columns={editableColumns} getEditor={getEditor} />,
+        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} />,
         ctx
       );
 
       const nameEditor = screen.getByTestId('editor-name');
       expect(nameEditor).toBeInTheDocument();
-      expect(nameEditor.closest('td')).toBeInTheDocument();
+      expect(nameEditor.closest('td')).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('should not show validation errors when not in editing mode', () => {
@@ -424,8 +423,7 @@ describe('GridBodyRow Component', () => {
 
     it('should handle editable function per column', () => {
       const editStore = createEditStore();
-      editStore.setEditRowId(1);
-      editStore.setEditValues({ name: 'Edited', age: 30 });
+      editStore.startEdit(1, { id: 1, name: 'Edited', age: 30 });
       const columns = [
         { field: 'name', headerName: 'Name', editable: true },
         { field: 'age', headerName: 'Age', editable: (row) => row.age > 25 },
@@ -441,8 +439,7 @@ describe('GridBodyRow Component', () => {
 
     it('should not render editor for non-editable column', () => {
       const editStore = createEditStore();
-      editStore.setEditRowId(1);
-      editStore.setEditValues({ name: 'Edited', age: 30 });
+      editStore.startEdit(1, { id: 1, name: 'Edited', age: 30 });
       const columns = [
         { field: 'name', headerName: 'Name', editable: false },
         { field: 'age', headerName: 'Age', editable: true },

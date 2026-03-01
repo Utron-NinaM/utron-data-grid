@@ -39,3 +39,22 @@ export function getDataGridRootSx({ sx, fontSize, fontFamily, fontWeight, useScr
     }),
   };
 }
+
+export function getGridValidationBannerSx({ hasErrors }) {
+  return {
+    flexShrink: 0,
+    maxHeight: hasErrors ? '1000px' : 0,
+    opacity: hasErrors ? 1 : 0,
+    transform: hasErrors ? 'translateY(0)' : 'translateY(-100%)',
+    transition: 'opacity 0.5s ease, max-height 0.5s ease, transform 0.6s ease',
+    overflow: 'hidden',
+  };
+}
+
+export function getAlertListItemSx({ onErrorClick }) {
+  return {    
+    cursor: onErrorClick ? 'pointer' : 'default',
+    textDecoration: onErrorClick ? 'underline' : 'none',
+    '&:hover': onErrorClick ? { opacity: 0.85 } : {},
+  };
+}
