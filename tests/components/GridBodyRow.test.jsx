@@ -454,4 +454,117 @@ describe('GridBodyRow Component', () => {
       expect(screen.getByTestId('editor-age')).toBeInTheDocument();
     });
   });
+
+  describe('row-level validation errors', () => {
+    it('should apply red border to entire row when row-level errors exist', () => {
+      const editStore = createEditStore();
+      const row = { id: 1, price: 60000, year: 1999 };
+      editStore.startEdit(1, row);
+      editStore.mergeRowErrors({
+        1: { null: [{ field: null, message: 'Row validation failed', severity: 'error' }] },
+      });
+      const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
+      const editableColumns = [
+        { field: 'price', headerName: 'Price', editable: true },
+        { field: 'year', headerName: 'Year', editable: true },
+      ];
+      const ctx = { ...defaultContextValue, editStore };
+
+      const { container } = renderWithContext(
+        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} rowSx={{}} />,
+        ctx
+      );
+
+      const tableRow = container.querySelector('tr[data-row-id="1"]');
+      expect(tableRow).toBeInTheDocument();
+      // Check for left border (LTR direction)
+      const styles = window.getComputedStyle(tableRow);
+      expect(styles.borderLeftWidth).toBe('3px');
+      expect(styles.borderLeftStyle).toBe('solid');
+    });
+
+    it('should not apply cell-level borders for row-level errors', () => {
+      const editStore = createEditStore();
+      const row = { id: 1, price: 60000, year: 1999 };
+      editStore.startEdit(1, row);
+      editStore.mergeRowErrors({
+        1: { null: [{ field: null, message: 'Row validation failed', severity: 'error' }] },
+      });
+      const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
+      const editableColumns = [
+        { field: 'price', headerName: 'Price', editable: true },
+        { field: 'year', headerName: 'Year', editable: true },
+      ];
+      const ctx = { ...defaultContextValue, editStore };
+
+      const { container } = renderWithContext(
+        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} />,
+        ctx
+      );
+
+      const cells = container.querySelectorAll('td');
+      cells.forEach((cell) => {
+        // Cells should not have aria-invalid for row-level errors
+        expect(cell).not.toHaveAttribute('aria-invalid', 'true');
+      });
+    });
+
+    it('should handle both field-level and row-level errors simultaneously', () => {
+      const editStore = createEditStore();
+      const row = { id: 1, name: '', price: 60000, year: 1999 };
+      editStore.startEdit(1, row);
+      editStore.mergeRowErrors({
+        1: {
+          name: [{ field: 'name', message: 'Name required', severity: 'error' }],
+          null: [{ field: null, message: 'Row validation failed', severity: 'error' }],
+        },
+      });
+      const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
+      const editableColumns = [
+        { field: 'name', headerName: 'Name', editable: true },
+        { field: 'price', headerName: 'Price', editable: true },
+        { field: 'year', headerName: 'Year', editable: true },
+      ];
+      const ctx = { ...defaultContextValue, editStore };
+
+      const { container } = renderWithContext(
+        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} rowSx={{}} />,
+        ctx
+      );
+
+      const tableRow = container.querySelector('tr[data-row-id="1"]');
+      expect(tableRow).toBeInTheDocument();
+      // Row should have border for row-level error
+      const rowStyles = window.getComputedStyle(tableRow);
+      expect(rowStyles.borderLeftWidth).toBe('3px');
+
+      // Name cell should have aria-invalid for field-level error
+      const nameCell = container.querySelector('td[aria-invalid="true"]');
+      expect(nameCell).toBeInTheDocument();
+    });
+
+    it('should not apply row border when only field-level errors exist', () => {
+      const editStore = createEditStore();
+      const row = { id: 1, name: '' };
+      editStore.startEdit(1, row);
+      editStore.mergeRowErrors({
+        1: { name: [{ field: 'name', message: 'Name required', severity: 'error' }] },
+      });
+      const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
+      const editableColumns = [{ field: 'name', headerName: 'Name', editable: true }];
+      const ctx = { ...defaultContextValue, editStore };
+
+      const { container } = renderWithContext(
+        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} />,
+        ctx
+      );
+
+      const tableRow = container.querySelector('tr[data-row-id="1"]');
+      expect(tableRow).toBeInTheDocument();
+      // Row should not have border when only field-level errors exist
+      const styles = window.getComputedStyle(tableRow);
+      // borderLeftWidth can be '0px' or empty string '' when no border is set
+      expect(styles.borderLeftWidth === '0px' || styles.borderLeftWidth === '').toBe(true);
+    });
+  });
 });

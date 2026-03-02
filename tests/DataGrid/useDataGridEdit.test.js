@@ -113,6 +113,44 @@ describe('useDataGridEdit', () => {
       });
       expect(editStore.getSnapshot().editValues).toMatchObject({ name: 'Bob' });
     });
+
+    it('clears field error when field value changes', () => {
+      const editStore = createEditStore();
+      const { result } = renderHook(useDataGridEdit, {
+        initialProps: getDefaultProps({ editStore }),
+      });
+      act(() => {
+        result.current.handleRowDoubleClick({ id: '1', name: '' });
+      });
+      // Set field error
+      editStore.setFieldErrors('1', 'name', [{ field: 'name', message: 'Required', severity: 'error' }]);
+      expect(editStore.getSnapshot().validationState.rowErrors['1'].name).toBeDefined();
+      
+      act(() => {
+        result.current.handleEditChange('name', 'Bob');
+      });
+      // Field error should be cleared
+      expect(editStore.getSnapshot().validationState.rowErrors['1']?.name).toBeUndefined();
+    });
+
+    it('clears row-level errors when any field value changes', () => {
+      const editStore = createEditStore();
+      const { result } = renderHook(useDataGridEdit, {
+        initialProps: getDefaultProps({ editStore }),
+      });
+      act(() => {
+        result.current.handleRowDoubleClick({ id: '1', price: 60000, year: 1999 });
+      });
+      // Set row-level error
+      editStore.setFieldErrors('1', null, [{ field: null, message: 'Row validation failed', severity: 'error' }]);
+      expect(editStore.getSnapshot().validationState.rowErrors['1'][null]).toBeDefined();
+      
+      act(() => {
+        result.current.handleEditChange('year', 2000);
+      });
+      // Row-level error should be cleared
+      expect(editStore.getSnapshot().validationState.rowErrors['1']?.[null]).toBeUndefined();
+    });
   });
 
   describe('handleEditSave', () => {
@@ -135,6 +173,53 @@ describe('useDataGridEdit', () => {
       expect(onValidationFail).toHaveBeenCalledWith('1', errors);
       expect(onEditCommit).not.toHaveBeenCalled();
       expect(editStore.getSnapshot().editRowId).toBe('1');
+    });
+
+    it('handles row-level errors (field: null) correctly', () => {
+      const errors = [{ field: null, message: 'Expensive cars must be from year 2000 or later', severity: 'error' }];
+      vi.mocked(validateRow).mockReturnValue(errors);
+      const editStore = createEditStore();
+      const onValidationFail = vi.fn();
+      const onEditCommit = vi.fn();
+      const { result } = renderHook(useDataGridEdit, {
+        initialProps: getDefaultProps({ editStore, onEditCommit, onValidationFail }),
+      });
+      act(() => {
+        result.current.handleRowDoubleClick({ id: '1', price: 60000, year: 1999 });
+      });
+      act(() => {
+        result.current.handleEditSave();
+      });
+      // Row-level errors should be stored under null key
+      expect(editStore.getSnapshot().validationState.rowErrors['1'][null]).toEqual(errors);
+      expect(onValidationFail).toHaveBeenCalledWith('1', errors);
+      expect(onEditCommit).not.toHaveBeenCalled();
+      expect(editStore.getSnapshot().editRowId).toBe('1');
+    });
+
+    it('handles mixed field-level and row-level errors', () => {
+      const errors = [
+        { field: 'name', message: 'Name required', severity: 'error' },
+        { field: null, message: 'Row validation failed', severity: 'error' },
+      ];
+      vi.mocked(validateRow).mockReturnValue(errors);
+      const editStore = createEditStore();
+      const onValidationFail = vi.fn();
+      const onEditCommit = vi.fn();
+      const { result } = renderHook(useDataGridEdit, {
+        initialProps: getDefaultProps({ editStore, onEditCommit, onValidationFail }),
+      });
+      act(() => {
+        result.current.handleRowDoubleClick({ id: '1', name: '' });
+      });
+      act(() => {
+        result.current.handleEditSave();
+      });
+      const rowErrors = editStore.getSnapshot().validationState.rowErrors['1'];
+      expect(rowErrors.name).toEqual([errors[0]]);
+      expect(rowErrors[null]).toEqual([errors[1]]);
+      expect(onValidationFail).toHaveBeenCalledWith('1', errors);
+      expect(onEditCommit).not.toHaveBeenCalled();
     });
 
     it('calls onEditCommit and clears edit state when validateRow returns no errors', () => {

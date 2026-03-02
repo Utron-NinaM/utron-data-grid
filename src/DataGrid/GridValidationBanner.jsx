@@ -21,22 +21,30 @@ export function GridValidationBanner({ columns, editStore, onErrorClick }) {
     () => ({})
   );
 
-  const { hasErrors, totalCount, items } = useMemo(() => {
+  const { hasErrors, totalCount, fieldErrorCount, rowErrorCount, items } = useMemo(() => {
     const rowIds = Object.keys(rowErrors);
     let count = 0;
+    let fieldCount = 0;
+    let rowCount = 0;
     const list = [];
     for (const rowId of rowIds) {
       const byField = rowErrors[rowId] || {};
       for (const [field, errs] of Object.entries(byField)) {
         const arr = Array.isArray(errs) ? errs : [];
         count += arr.length;
-        const headerName = columns?.find((c) => c.field === field)?.headerName ?? field;
+        const isRowLevel = field === null || field === 'null';
+        if (isRowLevel) {
+          rowCount += arr.length;
+        } else {
+          fieldCount += arr.length;
+        }
+        const headerName = isRowLevel ? null : (columns?.find((c) => c.field === field)?.headerName ?? field);
         for (const e of arr) {
-          list.push({ rowId, field, headerName, message: e.message ?? '' });
+          list.push({ rowId, field: isRowLevel ? null : field, headerName, message: e.message ?? '', isRowLevel });
         }
       }
     }
-    return { hasErrors: count > 0, totalCount: count, items: list };
+    return { hasErrors: count > 0, totalCount: count, fieldErrorCount: fieldCount, rowErrorCount: rowCount, items: list };
   }, [rowErrors, columns]);
 
   return (
@@ -54,13 +62,18 @@ export function GridValidationBanner({ columns, editStore, onErrorClick }) {
       >
         <AlertTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
           {t('validationErrorsFound', { count: totalCount })}
-          <Chip size="small" label={t('validationFieldErrorsCount', { count: totalCount })} color="error" variant="outlined" />
+          {fieldErrorCount > 0 && (
+            <Chip size="small" label={t('validationFieldErrorsCount', { count: fieldErrorCount })} color="error" variant="outlined" />
+          )}
+          {rowErrorCount > 0 && (
+            <Chip size="small" label={t('validationRowErrorsCount', { count: rowErrorCount })} color="error" variant="outlined" />
+          )}
         </AlertTitle>
         <Box component="ul" sx={{ margin: 0, paddingLeft: 2.5, listStyle: 'none' }} role="list">
           {items.map((item, i) => (
             <Box
               component="li"
-              key={`${item.rowId}-${item.field}-${i}`}
+              key={`${item.rowId}-${item.field ?? 'row'}-${i}`}
               role={onErrorClick ? 'button' : undefined}
               tabIndex={onErrorClick ? 0 : undefined}
               sx={{
@@ -74,7 +87,7 @@ export function GridValidationBanner({ columns, editStore, onErrorClick }) {
                 }
               }}
             >
-              {item.headerName}: {item.message}
+              {item.isRowLevel ? item.message : `${item.headerName}: ${item.message}`}
             </Box>
           ))}
         </Box>

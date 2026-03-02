@@ -1,10 +1,11 @@
 /**
  * Run column validators on a row. Returns array of { field, message, severity: 'error' }.
- * field is col.field (not headerName). Only validates columns that are editable for the original row.
+ * field is col.field (not headerName) for field-level errors, or null for row-level errors.
+ * Only validates columns that are editable for the original row.
  * @param {Object} row The row data to validate
  * @param {Object[]} columns Column definitions
  * @param {Object} originalRow Original row data to determine editable columns
- * @returns {Array<{ field: string, message: string, severity: 'error' }>}
+ * @returns {Array<{ field: string|null, message: string, severity: 'error' }>}
  */
 export function validateRow(row, columns, originalRow) {
   const errors = [];
@@ -17,12 +18,27 @@ export function validateRow(row, columns, originalRow) {
     if (!isEditable) continue;
 
     const value = row[col.field];
-    for (const { validate, message } of col.validators) {
+    for (const validator of col.validators) {
+      const { validate, message, rowLevel } = validator;
       const result = validate(value, row);
-      if (result === false || (typeof result === 'string' && result.length > 0)) {
+      // Check for error: false, non-empty string, or error object
+      const isError = result === false 
+        || (typeof result === 'string' && result.length > 0)
+        || (typeof result === 'object' && result !== null && (result.field === null || result.message));
+      
+      if (isError) {
+        // If validator has rowLevel flag or returns an object with field: null, treat as row-level error
+        const isRowLevel = rowLevel === true || (typeof result === 'object' && result !== null && result.field === null);
+        const errorField = isRowLevel ? null : col.field;
+        const errorMessage = typeof result === 'string' 
+          ? result 
+          : (typeof result === 'object' && result !== null && result.message) 
+            ? result.message 
+            : (message || 'Invalid');
+        
         errors.push({
-          field: col.field,
-          message: typeof result === 'string' ? result : (message || 'Invalid'),
+          field: errorField,
+          message: errorMessage,
           severity: 'error',
         });
         break;

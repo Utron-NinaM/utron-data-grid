@@ -34,7 +34,10 @@ export function useDataGridEdit({
       const current = snap.editValues;
       editStore.setEditValues({ ...current, [field]: value });
       if (snap.editRowId != null) {
+        // Clear field-specific error for this field
         editStore.clearFieldError(snap.editRowId, field);
+        // Clear row-level errors since they depend on multiple fields and may no longer be valid
+        editStore.clearFieldError(snap.editRowId, null);
       }
     },
     [editStore]

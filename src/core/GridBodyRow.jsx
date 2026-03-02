@@ -65,11 +65,14 @@ function GridBodyRowComponent({
     : null;
   const isEditing = editState.isEditing;
   const hasRowErr = rowErrorsForRow ? Object.keys(rowErrorsForRow).length > 0 : false;
+  // Check specifically for row-level errors (stored under null key)
+  const hasRowLevelErr = rowErrorsForRow?.[null] != null && Array.isArray(rowErrorsForRow[null]) && rowErrorsForRow[null].length > 0;
   const isRowSelected = selected || isSelected;
 
   const isRTL = direction === DIRECTION_RTL;
   const rowSxWithError = useMemo(() => {
-    if (!hasRowErr || !rowSx) return rowSx;
+    // Apply red border to entire row when row-level errors exist
+    if (!hasRowLevelErr || !rowSx) return rowSx;
     const arr = Array.isArray(rowSx) ? [...rowSx] : [rowSx];
     // RTL: border on right, LTR: border on left
     arr.push({
@@ -77,13 +80,15 @@ function GridBodyRowComponent({
       [isRTL ? 'borderRightColor' : 'borderLeftColor']: 'error.light',
     });
     return arr;
-  }, [hasRowErr, rowSx, isRTL]);
+  }, [hasRowLevelErr, rowSx, isRTL]);
 
   // Memoize errorMessages per column field to prevent unnecessary GridCell rerenders
+  // Exclude row-level errors (field: null) from cell-level error display
   const errorMessagesMap = useMemo(() => {
     const map = new Map();
     if (!rowErrorsForRow) return map;
     columns.forEach((col) => {
+      // Skip null field (row-level errors) - they're displayed at row level, not cell level
       const cellErrors = rowErrorsForRow[col.field];
       if (cellErrors != null) {
         const cellErrorsArr = Array.isArray(cellErrors) ? cellErrors : [];

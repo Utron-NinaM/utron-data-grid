@@ -3,6 +3,7 @@
  * Used with useSyncExternalStore so only subscribing components re-render.
  * validationState = { rowErrors: {} } (Option A); hasErrors derived when reading.
  * rowErrors[rowId][field] = array of { field, message, severity }.
+ * Row-level errors are stored with field: null.
  */
 
 /** Stable object returned by selector when row is not editing. */
@@ -10,15 +11,17 @@ export const NOT_EDITING = Object.freeze({ isEditing: false });
 
 /**
  * Returns { [editRowId]: { [field]: errors[] } } for merging into rowErrors. Do not replace entire rowErrors.
+ * Row-level errors (field: null) are stored under the null key.
  * @param {string|number} editRowId
- * @param {Array<{ field: string, message: string, severity: string }>} errors
+ * @param {Array<{ field: string|null, message: string, severity: string }>} errors
  */
 export function toRowErrors(editRowId, errors) {
   if (!errors?.length) return {};
   const byField = {};
   for (const e of errors) {
-    if (!byField[e.field]) byField[e.field] = [];
-    byField[e.field].push(e);
+    const field = e.field ?? null;
+    if (!byField[field]) byField[field] = [];
+    byField[field].push(e);
   }
   return { [editRowId]: byField };
 }
@@ -44,7 +47,14 @@ export function createEditStore() {
 
   function hasRowError(rowId) {
     const rowErrs = state.validationState.rowErrors[rowId];
-    return rowErrs ? Object.keys(rowErrs).length > 0 : false;
+    if (!rowErrs) return false;
+    // Check for both field errors and row-level errors (stored under null key)
+    return Object.keys(rowErrs).length > 0;
+  }
+
+  function hasRowLevelError(rowId) {
+    const rowErrs = state.validationState.rowErrors[rowId];
+    return rowErrs?.[null] != null && Array.isArray(rowErrs[null]) && rowErrs[null].length > 0;
   }
 
   function clearValidation() {
@@ -147,6 +157,7 @@ export function createEditStore() {
     },
     getCellError,
     hasRowError,
+    hasRowLevelError,
     clearValidation,
     clearFieldError,
     setFieldErrors,

@@ -264,6 +264,162 @@ describe('validateRow', () => {
     });
   });
 
+  describe('row-level validation', () => {
+    it('returns row-level error (field: null) when validator has rowLevel: true', () => {
+      const row = { id: 1, price: 60000, year: 1999 };
+      const columns = [
+        {
+          field: 'price',
+          validators: [
+            {
+              validate: (_value, r) => {
+                if (r.price > 50000 && r.year < 2000) {
+                  return 'Expensive cars must be from year 2000 or later';
+                }
+                return true;
+              },
+              message: 'Row validation failed',
+              rowLevel: true,
+            },
+          ],
+        },
+      ];
+      const result = validateRow(row, columns, row);
+      expect(result).toEqual([
+        { field: null, message: 'Expensive cars must be from year 2000 or later', severity: 'error' },
+      ]);
+    });
+
+    it('returns field-level error when rowLevel is not set (default behavior)', () => {
+      const row = { id: 1, price: -100 };
+      const columns = [
+        {
+          field: 'price',
+          validators: [
+            {
+              validate: (v) => v >= 0,
+              message: 'Price must be >= 0',
+              // rowLevel not set - should default to field-level
+            },
+          ],
+        },
+      ];
+      const result = validateRow(row, columns, row);
+      expect(result).toEqual([
+        { field: 'price', message: 'Price must be >= 0', severity: 'error' },
+      ]);
+    });
+
+    it('handles mixed field-level and row-level validators on same column', () => {
+      const row = { id: 1, price: 60000, year: 1999 };
+      const columns = [
+        {
+          field: 'price',
+          validators: [
+            {
+              validate: (v) => v >= 0,
+              message: 'Price must be >= 0',
+            },
+            {
+              validate: (_value, r) => {
+                if (r.price > 50000 && r.year < 2000) {
+                  return 'Expensive cars must be from year 2000 or later';
+                }
+                return true;
+              },
+              message: 'Row validation failed',
+              rowLevel: true,
+            },
+          ],
+        },
+      ];
+      // First validator passes (price >= 0), second fails (row-level)
+      const result = validateRow(row, columns, row);
+      expect(result).toEqual([
+        { field: null, message: 'Expensive cars must be from year 2000 or later', severity: 'error' },
+      ]);
+    });
+
+    it('handles row-level validator that returns object with field: null', () => {
+      const row = { id: 1, price: 60000, year: 1999 };
+      const columns = [
+        {
+          field: 'price',
+          validators: [
+            {
+              validate: (_value, r) => {
+                if (r.price > 50000 && r.year < 2000) {
+                  return { field: null, message: 'Expensive cars must be from year 2000 or later' };
+                }
+                return true;
+              },
+              message: 'Row validation failed',
+            },
+          ],
+        },
+      ];
+      const result = validateRow(row, columns, row);
+      expect(result).toEqual([
+        { field: null, message: 'Expensive cars must be from year 2000 or later', severity: 'error' },
+      ]);
+    });
+
+    it('returns both field-level and row-level errors from different columns', () => {
+      const row = { id: 1, name: '', price: 60000, year: 1999 };
+      const columns = [
+        {
+          field: 'name',
+          validators: [{ validate: (v) => v.length > 0, message: 'Name required' }],
+        },
+        {
+          field: 'price',
+          validators: [
+            {
+              validate: (_value, r) => {
+                if (r.price > 50000 && r.year < 2000) {
+                  return 'Expensive cars must be from year 2000 or later';
+                }
+                return true;
+              },
+              message: 'Row validation failed',
+              rowLevel: true,
+            },
+          ],
+        },
+      ];
+      const result = validateRow(row, columns, row);
+      expect(result).toEqual(
+        expect.arrayContaining([
+          { field: 'name', message: 'Name required', severity: 'error' },
+          { field: null, message: 'Expensive cars must be from year 2000 or later', severity: 'error' },
+        ])
+      );
+      expect(result).toHaveLength(2);
+    });
+
+    it('returns [] when row-level validator passes', () => {
+      const row = { id: 1, price: 60000, year: 2000 };
+      const columns = [
+        {
+          field: 'price',
+          validators: [
+            {
+              validate: (_value, r) => {
+                if (r.price > 50000 && r.year < 2000) {
+                  return 'Expensive cars must be from year 2000 or later';
+                }
+                return true;
+              },
+              message: 'Row validation failed',
+              rowLevel: true,
+            },
+          ],
+        },
+      ];
+      expect(validateRow(row, columns, row)).toEqual([]);
+    });
+  });
+
   describe('validateField', () => {
     it('returns [] when column has no validators', () => {
       const row = { id: 1, name: 'Alice' };

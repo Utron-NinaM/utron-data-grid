@@ -57,6 +57,7 @@ export function addDemoRowValidators(columns) {
       return true;
     },
     message: 'Row validation failed',
+    rowLevel: true, // Mark as row-level validator so error applies to entire row, not specific cell
   };
   
   return columns.map((col, index) => {

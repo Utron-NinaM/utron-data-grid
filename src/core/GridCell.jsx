@@ -49,8 +49,8 @@ export function getCellTooltipText(displayValue, value, isEditing, editor) {
  * @param {(value: *, row: Object) => string} [props.column.getTooltipText] - Optional. When set, used as tooltip text (e.g. for columns that render React elements or to show a label from value/row).
  * @param {boolean} [props.isEditing]
  * @param {React.ReactNode} [props.editor]
- * @param {boolean} [props.hasError]
- * @param {string[]} [props.errorMessages] Validation messages for tooltip when hasError
+ * @param {boolean} [props.hasError] Field-level error flag (row-level errors are handled at row level, not cell level)
+ * @param {string[]} [props.errorMessages] Field-level validation messages for tooltip when hasError
  * @param {Object} [props.rowStyle] Row-specific sx (column rowStyle merged); column cellStyle overrides this
  * @param {boolean} [props.isSelected]
  * @param {Object} [props.selectedRowStyle] Selected row sx; overrides row and column style
