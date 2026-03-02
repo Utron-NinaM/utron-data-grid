@@ -3,14 +3,15 @@ import TableCell from '@mui/material/TableCell';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
+import ErrorIcon from '@mui/icons-material/Error';
 import dayjs from 'dayjs';
-import { ALIGN_LEFT, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST } from '../config/schema';
+import { ALIGN_LEFT, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST, DIRECTION_RTL } from '../config/schema';
 import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
 import { getOptionLabel } from '../utils/optionUtils';
 import { DIRECTION_LTR } from '../config/schema';
 import { DEFAULT_FONT_SIZE, TOOLTIP_OVER_HEADER_Z_INDEX } from '../constants';
-import { truncationSx, cellContentWrapperSx, editorWrapperSx, getBodyCellBaseSx } from './coreStyles';
+import { truncationSx, cellContentWrapperSx, editorWrapperSx, getBodyCellBaseSx, getErrorIconSx } from './coreStyles';
 
 /**
  * @param {*} displayValue
@@ -81,7 +82,9 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
       ...(rowStyle ?? {}),
       ...(cellStyle ?? {}),
       ...appliedSelectedStyle,
-      ...(hasError && { outlineWidth: '1px', outlineStyle: 'solid', outlineColor: 'error.light' }),
+      ...(hasError && {
+        boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.error.light}`,
+      }),
     };
   }, [hasError, column, value, row, width, bodyCellSx, rowStyle, isSelected, selectedRowStyle, theme]);
 
@@ -110,8 +113,8 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
     return String(value ?? '');
   }, [isEditing, editor, column, value, row, direction, ctx?.listColumnOptionMaps]);
 
-  const tooltipText = useMemo(() => {
-    if (hasError && errorMessages?.length) return errorMessages.join('\n');
+  const contentTooltipText = useMemo(() => {
+    if (hasError && errorMessages?.length) return '';
     if (typeof column.getTooltipText === 'function') {
       const custom = column.getTooltipText(value, row);
       if (custom != null && String(custom).trim() !== '') return String(custom).trim();
@@ -119,12 +122,67 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
     return getCellTooltipText(displayValue, value, isEditing, editor);
   }, [hasError, errorMessages, column, value, row, displayValue, isEditing, editor]);
 
+  const errorTooltipText = useMemo(() => {
+    return hasError && errorMessages?.length ? errorMessages.join('\n') : '';
+  }, [hasError, errorMessages]);
+
+  const isRTL = direction === DIRECTION_RTL;
+
   const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
+  const popperProps = popperContainer
+    ? { container: popperContainer, popperOptions: { strategy: 'absolute' } }
+    : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
+
+  // Shared tooltip props for error icons
+  const errorTooltipProps = useMemo(() => ({
+    title: errorTooltipText,
+    arrow: true,
+    PopperProps: popperProps,
+    placement: 'top',
+    disableInteractive: true,
+    slotProps: {
+      tooltip: { sx: { fontSize: `${ctx?.fontSize ?? DEFAULT_FONT_SIZE}px` } },
+      popper: { sx: { pointerEvents: 'none', zIndex: TOOLTIP_OVER_HEADER_Z_INDEX } },
+    },
+  }), [errorTooltipText, popperProps, ctx?.fontSize]);
+
+  // Shared tooltip props factory for content
+  const getContentTooltipProps = useMemo(() => {
+    const baseProps = {
+      arrow: true,
+      PopperProps: popperProps,
+      placement: 'top',
+      disableInteractive: true,
+      slotProps: {
+        tooltip: { sx: { fontSize: `${ctx?.fontSize ?? DEFAULT_FONT_SIZE}px` } },
+        popper: { sx: { pointerEvents: 'none', zIndex: TOOLTIP_OVER_HEADER_Z_INDEX } },
+      },
+    };
+    return (title) => ({ ...baseProps, title });
+  }, [popperProps, ctx?.fontSize]);
+
+  // Reusable error icon component
+  const errorIcon = useMemo(() => {
+    if (!hasError || !errorMessages?.length) return null;
+    return (
+      <Tooltip {...errorTooltipProps}>
+        <ErrorIcon
+          sx={getErrorIconSx(isRTL)}
+          aria-label="Validation error"
+        />
+      </Tooltip>
+    );
+  }, [hasError, errorMessages, errorTooltipProps, isRTL]);
+
   const cellContent = useMemo(() => {
     if (isEditing && editor != null) {
+      // When editing, show editor and error icon if needed
       return (
         <Box sx={editorWrapperSx}>
-          {editor}
+          <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+            {editor}
+          </Box>
+          {errorIcon}
         </Box>
       );
     }
@@ -134,23 +192,26 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
         {displayValue}
       </Box>
     );
-    // When body scroll is contained, mount tooltip in scroll container so it clips and scrolls with rows
-    const popperProps = popperContainer
-      ? { container: popperContainer, popperOptions: { strategy: 'absolute' } }
-      : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
+
+    const contentWrapper = (
+      <Box component="span" sx={{ flex: 1, minWidth: 0 }}>
+        {content}
+      </Box>
+    );
 
     return (
-      <Tooltip title={tooltipText} arrow PopperProps={popperProps} placement="top" disableInteractive
-        slotProps={{
-          tooltip: { sx: { fontSize: `${ctx?.fontSize ?? DEFAULT_FONT_SIZE}px` } },
-          popper: { sx: { pointerEvents: 'none', zIndex: TOOLTIP_OVER_HEADER_Z_INDEX } },
-        }}>
-        <Box component="span" sx={cellContentWrapperSx}>
-          {content}
-        </Box>
-      </Tooltip>
+      <Box component="span" sx={cellContentWrapperSx}>
+        {contentTooltipText ? (
+          <Tooltip {...getContentTooltipProps(contentTooltipText)}>
+            {contentWrapper}
+          </Tooltip>
+        ) : (
+          contentWrapper
+        )}
+        {errorIcon}
+      </Box>
     );
-  }, [isEditing, editor, displayValue, tooltipText, popperContainer, ctx?.fontSize]);
+  }, [isEditing, editor, displayValue, contentTooltipText, errorIcon, getContentTooltipProps]);
 
   return (
     <TableCell align={align} sx={sx} padding="none" variant="body" aria-invalid={hasError || undefined}>

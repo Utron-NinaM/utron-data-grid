@@ -6,6 +6,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { NOT_EDITING } from '../DataGrid/editStore';
 import { GridCell } from './GridCell';
+import { DIRECTION_RTL, DIRECTION_LTR } from '../config/schema';
 
 // Stable constants to prevent unnecessary rerenders when there are no errors/values
 const EMPTY_ERROR_MESSAGES = [];
@@ -41,6 +42,7 @@ function GridBodyRowComponent({
   const ctx = useContext(DataGridStableContext);
   const selectionStore = ctx?.selectionStore;
   const editStore = ctx?.editStore;
+  const direction = ctx?.direction ?? DIRECTION_LTR;
 
   const isSelected = useSyncExternalStore(
     selectionStore?.subscribe ?? (() => () => {}),
@@ -65,12 +67,17 @@ function GridBodyRowComponent({
   const hasRowErr = rowErrorsForRow ? Object.keys(rowErrorsForRow).length > 0 : false;
   const isRowSelected = selected || isSelected;
 
+  const isRTL = direction === DIRECTION_RTL;
   const rowSxWithError = useMemo(() => {
     if (!hasRowErr || !rowSx) return rowSx;
     const arr = Array.isArray(rowSx) ? [...rowSx] : [rowSx];
-    arr.push({ borderLeft: '3px solid', borderLeftColor: 'error.light' });
+    // RTL: border on right, LTR: border on left
+    arr.push({
+      [isRTL ? 'borderRight' : 'borderLeft']: '3px solid',
+      [isRTL ? 'borderRightColor' : 'borderLeftColor']: 'error.light',
+    });
     return arr;
-  }, [hasRowErr, rowSx]);
+  }, [hasRowErr, rowSx, isRTL]);
 
   // Memoize errorMessages per column field to prevent unnecessary GridCell rerenders
   const errorMessagesMap = useMemo(() => {

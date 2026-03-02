@@ -437,7 +437,7 @@ describe('GridCell Component', () => {
   });
 
   describe('Test error border styling', () => {
-    it('should apply error outline when hasError is true', () => {
+    it('should apply error box shadow when hasError is true', () => {
       const theme = createTheme();
       render(
         <ThemeProvider theme={theme}>
@@ -460,9 +460,10 @@ describe('GridCell Component', () => {
 
       const cell = screen.getByRole('cell');
       const styles = window.getComputedStyle(cell);
-      expect(styles.outlineWidth).toBe('1px');
-      expect(styles.outlineStyle).toBe('solid');
-      expect(styles.outlineColor).toBeTruthy();
+      // Error border uses box-shadow inset instead of outline to prevent clipping
+      expect(styles.boxShadow).toBeTruthy();
+      expect(styles.boxShadow).toContain('inset');
+      expect(styles.boxShadow).toContain('1px');
     });
 
     it('should not apply error border when hasError is false', () => {
@@ -487,7 +488,7 @@ describe('GridCell Component', () => {
       }
     });
 
-    it('should combine error outline with cellStyle', () => {
+    it('should combine error box shadow with cellStyle', () => {
       const cellStyle = vi.fn(() => ({ backgroundColor: 'blue' }));
       const column = { ...defaultColumn, cellStyle };
 
@@ -502,10 +503,11 @@ describe('GridCell Component', () => {
 
       const cell = screen.getByRole('cell');
       const styles = window.getComputedStyle(cell);
-      expect(styles.outlineWidth).toBe('1px');
-      expect(styles.outlineStyle).toBe('solid');
+      // Error border uses box-shadow inset instead of outline
+      expect(styles.boxShadow).toBeTruthy();
+      expect(styles.boxShadow).toContain('inset');
+      expect(styles.boxShadow).toContain('1px');
       expect(styles.backgroundColor).toBe('rgb(0, 0, 255)');
-      expect(styles.outlineColor).toBeTruthy();
     });
 
     it('should handle cellStyle with conflicting border properties', () => {
@@ -523,9 +525,10 @@ describe('GridCell Component', () => {
 
       const cell = screen.getByRole('cell');
       const styles = window.getComputedStyle(cell);
-      // Error uses outline (does not affect layout); cellStyle border can coexist
-      expect(styles.outlineWidth).toBe('1px');
-      expect(styles.outlineStyle).toBe('solid');
+      // Error uses box-shadow inset (does not affect layout); cellStyle border can coexist
+      expect(styles.boxShadow).toBeTruthy();
+      expect(styles.boxShadow).toContain('inset');
+      expect(styles.boxShadow).toContain('1px');
     });
   });
 

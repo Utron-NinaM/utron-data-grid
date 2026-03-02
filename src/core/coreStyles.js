@@ -174,7 +174,12 @@ export const truncationSx = {
   minWidth: 0,
 };
 
-export const cellContentWrapperSx = { display: 'block', width: '100%', minWidth: 0 };
+export const cellContentWrapperSx = {
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  minWidth: 0,
+};
 
 export const editorWrapperSx = {
   height: '100%',
@@ -185,6 +190,15 @@ export const editorWrapperSx = {
   display: 'flex',
   alignItems: 'center',
 };
+
+export function getErrorIconSx(isRTL) {
+  return {
+  fontSize: '1.2rem',
+  color: 'error.light',
+  flexShrink: 0,
+  ...(isRTL ? { marginRight: '4px' } : { marginLeft: '4px' }),
+  };
+}
 
 /** Default body cell base sx when bodyCellSx is not provided. width in px optional. */
 export function getBodyCellBaseSx(width) {
