@@ -17,6 +17,22 @@ const electricOptionsHe = [{ value: 'yes', label: 'כן' }, { value: 'no', label
 const statusOptionsEn = [{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }, { value: 'pending', label: 'Pending' }];
 const statusOptionsHe = [{ value: 'active', label: 'פעיל' }, { value: 'inactive', label: 'לא פעיל' }, { value: 'pending', label: 'ממתין' }];
 
+// Complex list: options have value, label, description; row stores code in sku and description in skuDescription
+const skuOptionsEn = [
+  { value: '201', label: '201 Envelopes 3424 A4', description: 'Envelopes 3424 A4' },
+  { value: '202', label: '202 Folders C5', description: 'Folders C5' },
+  { value: '203', label: '203 Clips box', description: 'Clips box' },
+  { value: '204', label: '204 Staplers', description: 'Staplers' },
+  { value: '205', label: '205 Notepads', description: 'Notepads' },
+];
+const skuOptionsHe = [
+  { value: '201', label: '201 מעטפות כיס 3424 A4', description: 'מעטפות כיס 3424 A4' },
+  { value: '202', label: '202 תיקיות C5', description: 'תיקיות C5' },
+  { value: '203', label: '203 קופסת מהדקים', description: 'קופסת מהדקים' },
+  { value: '204', label: '204 מהדקות', description: 'מהדקות' },
+  { value: '205', label: '205 בלוקים', description: 'בלוקים' },
+];
+
 export const columnsConfig = [
   { field: 'make', headerName: 'Make', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 50 },
   { field: 'model', headerName: 'Model', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 200, minWidth: 150, maxWidth: 300, cellStyle: { fontSize: '20px' } },
@@ -58,6 +74,19 @@ export const columnsConfig = [
     filterOptions: { listValues: statusOptionsEn },
     rowStyle: (row) => (row.status === 'pending' ? { backgroundColor: '#fff3e0' } : {}),
   },
+  {
+    field: 'sku',
+    headerName: 'SKU',
+    type: FIELD_TYPE_LIST,
+    filter: FIELD_TYPE_LIST,
+    listDescriptionField: 'skuDescription',
+    editable: true,
+    width: 180,
+    minWidth: 140,
+    options: skuOptionsEn,
+    filterOptions: { listValues: skuOptionsEn },
+  },
+  { field: 'skuDescription', headerName: 'SKU Desc', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: false, width: 140 },
   { field: 'description', headerName: 'Description', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, minWidth: 120 },
   { field: 'mileage', headerName: 'Mileage', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, width: 90 },
   { field: 'engine', headerName: 'Engine', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 100 },
@@ -106,6 +135,17 @@ export const columnsConfigHebrew = [
     filterOptions: { listValues: statusOptionsHe },
     rowStyle: (row) => (row.status === 'pending' ? { backgroundColor: '#fff3e0' } : {}),
   },
+  {
+    field: 'sku',
+    headerName: 'מק״ט',
+    type: FIELD_TYPE_LIST,
+    filter: FIELD_TYPE_LIST,
+    listDescriptionField: 'skuDescription',
+    editable: true,
+    options: skuOptionsHe,
+    filterOptions: { listValues: skuOptionsHe },
+  },
+  { field: 'skuDescription', headerName: 'תיאור מק״ט', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: false },
   { field: 'createdAt', headerName: 'תאריך', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true },
   { field: 'description', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
   { field: 'mileage', headerName: 'קילומטראז׳', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },

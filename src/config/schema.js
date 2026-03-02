@@ -27,7 +27,8 @@ import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck
  * filterOptions?: { listValues?: any[] }
  * editable?: boolean | ((row) => boolean)
  * validators?: Array<{ validate: (value, row) => boolean|string, message?: string }>
- * options?: any[] (for list)
+ * options?: any[] (for list; items may be { value, label, description? })
+ * listDescriptionField?: string — for type 'list', row field name where the selected option's description is written when present; grid sets both column.field and this field in the same edit.
  * onListInputChange?: (value: string) => void — optional. For type 'list', called when the user types in the Autocomplete input (reason === 'input').
  * render?: (value, row) => ReactNode — must not return unsanitized HTML or use dangerouslySetInnerHTML with user/API data (React escapes by default).
  * rowStyle?: (row) => sx

@@ -1,12 +1,19 @@
 import { DEFAULT_SAMPLE_SIZE } from './demo/ConfigPage';
 
-/** Example car-like rows. List fields (color, electric, status) store keys; labels come from column options. */
+/** Example car-like rows. List fields (color, electric, status, sku) store keys; labels come from column options. skuDescription is the complex-list description field. */
 
 const makes = ['Ford', 'Toyota', 'Tesla', 'Honda', 'BMW', 'Nissan', 'Chevrolet', 'Audi', 'Mercedes', 'Hyundai', 'Kia', 'Mazda', 'Subaru', 'Volkswagen', 'Jeep'];
 const models = ['Altima', 'Camry', 'Model 3', 'Civic', 'X5', 'Leaf', 'F-150', 'Bolt', 'A4', 'C-Class', 'Elantra', 'Sorento', 'CX-5', 'Outback', 'Golf', 'Wrangler', 'Model Y', 'Accord', 'RAV4', 'Silverado', 'Corolla', 'Mustang', 'Explorer', 'Pilot', 'CR-V', 'Tucson', 'Optima', '3 Series', 'Q5', 'E-Class'];
 const colorKeys = ['white', 'black', 'red', 'silver', 'blue', 'green', 'gray', 'pearl', 'bronze', 'navy'];
 const statusKeys = ['active', 'inactive', 'pending'];
 const electricKeys = ['yes', 'no'];
+const skuOptions = [
+  { value: '201', description: 'Envelopes 3424 A4' },
+  { value: '202', description: 'Folders C5' },
+  { value: '203', description: 'Clips box' },
+  { value: '204', description: 'Staplers' },
+  { value: '205', description: 'Notepads' },
+];
 const engineTypes = ['2.0L I4', '2.5L I4', '3.0L V6', '2.0L Turbo', '1.5L Hybrid', 'Electric'];
 const fuelTypes = ['Gasoline', 'Diesel', 'Electric', 'Hybrid', 'Plug-in Hybrid'];
 const categories = ['Sedan', 'SUV', 'Truck', 'Hatchback', 'Coupe', 'Wagon'];
@@ -51,6 +58,10 @@ export function generateSampleData(size = DEFAULT_SAMPLE_SIZE) {
     color: randomItem(colorKeys),
     electric: randomItem(electricKeys),
     status: randomItem(statusKeys),
+    ...(function () {
+      const s = randomItem(skuOptions);
+      return { sku: s.value, skuDescription: s.description };
+    })(),
     description: randomItem(descriptions),
     createdAt: randomDateTime(),
     mileage: randomMileage(),

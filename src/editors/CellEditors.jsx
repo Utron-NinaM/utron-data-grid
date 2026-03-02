@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/he';
 import { getDateFormat } from '../utils/directionUtils';
 import { getListFilterAutocompleteInputSx } from '../filters/filterBoxStyles';
-import { getOptionLabel, getOptionValue, getOptionMap } from '../utils/optionUtils';
+import { getOptionLabel, getOptionValue, getOptionDescription, getOptionMap } from '../utils/optionUtils';
 import {
   DEFAULT_FIELD_TYPE,
   FIELD_TYPE_NUMBER,
@@ -71,7 +71,13 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
         <ListEditor
           options={listOptions}
           value={valueOption}
-          onChange={(v) => onChange(column.field, v != null ? getOptionValue(v) : undefined)}
+          onChange={(v) => {
+            const code = v != null ? getOptionValue(v) : undefined;
+            onChange(column.field, code);
+            if (column.listDescriptionField) {
+              onChange(column.listDescriptionField, v != null ? getOptionDescription(v) : undefined);
+            }
+          }}
           onBlur={onBlur}
           onListInputChange={column.onListInputChange}
           direction={direction}

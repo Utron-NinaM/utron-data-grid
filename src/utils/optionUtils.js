@@ -17,6 +17,17 @@ export function getOptionLabel(option) {
 }
 
 /**
+ * Returns the description for an option. For { value, label, description? } objects returns description when present; otherwise undefined.
+ * @param {{ value: string | number | boolean, label: string, description?: string } | string | number | boolean} option
+ * @returns {string | undefined}
+ */
+export function getOptionDescription(option) {
+  return typeof option === 'object' && option != null && 'description' in option
+    ? option.description
+    : undefined;
+}
+
+/**
  * Builds a Map from option key to option for O(1) lookup.
  * @param {Array<{ value: string | number | boolean, label: string } | string | number | boolean>} options
  * @returns {Map<string | number | boolean, { value: string | number | boolean, label: string } | string | number | boolean>}

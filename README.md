@@ -113,7 +113,8 @@ Each column can define:
 - `maxWidth` – number (px) for maximum width constraint
 - `defaultWidth` – number (px) for optional default width (useful for action/icon columns)
 - `validators` – `[{ validate: (value, row) => boolean|string, message? }]` – run on cell blur (that field only) and on Save (full row). Return `false` or a non-empty string for error; `message` is used when validator returns `false`. Errors use column `field` (not `headerName`).
-- `options` – for list type: array of `{ value, label }` (see List columns below)
+- `options` – for list type: array of `{ value, label, description? }` (see List columns below)
+- `listDescriptionField` – for list type only: row field name where the selected option's `description` is written when present (complex list; see List columns below)
 - `render(value, row)` – custom display (not used when editing)
 - `getTooltipText(value, row)` – optional. When set, used as the cell tooltip string (e.g. for columns that render React elements like Autocomplete, so the tooltip shows the label instead of "[object Object]").
 - `rowStyle(row)` – sx for the row (when this column's condition applies)
@@ -122,14 +123,18 @@ Each column can define:
 
 ### List columns and list filter options
 
-For `type: 'list'` (and list filters), options must be an array of **keyed options**: `Array<{ value: Key, label: string }>`.
+For `type: 'list'` (and list filters), options must be an array of **keyed options**: `Array<{ value: Key, label: string, description?: string }>`.
 
 - **`value`** (the key) must be **primitive and JSON-serializable** (string, number, or boolean). Do not use objects as keys.
 - **Row data** for that field must store the same **key** (e.g. `row.status === 'published'`), not the label.
 - **`label`** is the display text and can be translated per locale; the grid shows the label in cells and in the filter dropdown.
+- **`description`** (optional) – when used with **`listDescriptionField`**, the grid writes this into the named row field on selection (see Complex list below).
+- **`listDescriptionField`** (optional) – for list columns only. When set, selecting an option that has a `description` also sets `row[listDescriptionField] = option.description` in the same edit/commit. Use for "complex" list columns where the row stores code in the list field and description in a separate field (e.g. `field: 'sku'`, `listDescriptionField: 'skuDescription'`).
 - `onListInputChange(value)` – optional. Called when the user types in the list Autocomplete input. Use for dynamic option fetching or search-as-you-type. Called only on user input (`reason === 'input'`). Empty/whitespace input is omitted (consistent with EditContentModal).
 
 The grid persists list filter selections by **key** in local storage, so filters remain active when switching languages or direction (RTL/LTR). List filter value is always an array: empty array = no selection, one or more keys = selected.
+
+**Regular list** (only the list field is updated):
 
 ```js
 {
@@ -141,6 +146,21 @@ The grid persists list filter selections by **key** in local storage, so filters
   ],
   filterOptions: { listValues: [/* same { value, label } array */] }
 }
+```
+
+**Complex list** (list field + description field updated on selection):
+
+```js
+{
+  field: 'sku',
+  type: 'list',
+  listDescriptionField: 'skuDescription',
+  options: [
+    { value: '201', label: '201 Envelopes 3424 A4', description: 'Envelopes 3424 A4' },
+    { value: '202', label: '202 Folders C5', description: 'Folders C5' }
+  ]
+}
+// After user selects first option: row has sku: '201' and skuDescription: 'Envelopes 3424 A4'
 ```
 
 ### Column Width System
