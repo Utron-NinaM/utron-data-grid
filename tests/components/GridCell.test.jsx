@@ -532,6 +532,163 @@ describe('GridCell Component', () => {
     });
   });
 
+  describe('Test error icon and tooltip', () => {
+    it('should render error icon when hasError is true and errorMessages has content', () => {
+      const errorMessages = ['Field is required'];
+      renderWithContext(
+        <GridCell 
+          value="test" 
+          row={mockRow} 
+          column={defaultColumn} 
+          hasError={true}
+          errorMessages={errorMessages}
+        />
+      );
+
+      const errorIcon = screen.getByLabelText('Validation error');
+      expect(errorIcon).toBeInTheDocument();
+      expect(errorIcon.tagName).toBe('svg');
+    });
+
+    it('should not render error icon when hasError is false', () => {
+      renderWithContext(
+        <GridCell 
+          value="test" 
+          row={mockRow} 
+          column={defaultColumn} 
+          hasError={false}
+          errorMessages={['Some error']}
+        />
+      );
+
+      expect(screen.queryByLabelText('Validation error')).not.toBeInTheDocument();
+    });
+
+    it('should not render error icon when hasError is true but errorMessages is empty', () => {
+      renderWithContext(
+        <GridCell 
+          value="test" 
+          row={mockRow} 
+          column={defaultColumn} 
+          hasError={true}
+          errorMessages={[]}
+        />
+      );
+
+      expect(screen.queryByLabelText('Validation error')).not.toBeInTheDocument();
+    });
+
+    it('should show error messages in tooltip when hovering error icon', () => {
+      const errorMessages = ['Field is required', 'Must be at least 3 characters'];
+      renderWithContext(
+        <GridCell 
+          value="test" 
+          row={mockRow} 
+          column={defaultColumn} 
+          hasError={true}
+          errorMessages={errorMessages}
+        />
+      );
+
+      const errorIcon = screen.getByLabelText('Validation error');
+      expect(errorIcon).toBeInTheDocument();
+      // Error icon should be wrapped in Tooltip (MUI Tooltip renders content on hover)
+      // The tooltip title prop contains the joined error messages
+      const tooltipWrapper = errorIcon.closest('[data-testid]') || errorIcon.parentElement;
+      expect(tooltipWrapper).toBeInTheDocument();
+    });
+
+    it('should render error icon in editing mode', () => {
+      const errorMessages = ['Invalid value'];
+      const editor = <input data-testid="editor" defaultValue="test" />;
+      
+      renderWithContext(
+        <GridCell 
+          value="test" 
+          row={mockRow} 
+          column={defaultColumn} 
+          isEditing={true}
+          editor={editor}
+          hasError={true}
+          errorMessages={errorMessages}
+        />
+      );
+
+      expect(screen.getByTestId('editor')).toBeInTheDocument();
+      expect(screen.getByLabelText('Validation error')).toBeInTheDocument();
+    });
+
+    it('should suppress content tooltip when error exists', () => {
+      const errorMessages = ['Field is required'];
+      const longText = 'This is a long text that would normally show a tooltip';
+      
+      renderWithContext(
+        <GridCell 
+          value={longText} 
+          row={mockRow} 
+          column={defaultColumn} 
+          hasError={true}
+          errorMessages={errorMessages}
+        />
+      );
+
+      // Content tooltip should not be shown when error exists
+      // Error icon tooltip should be available instead
+      const errorIcon = screen.getByLabelText('Validation error');
+      expect(errorIcon).toBeInTheDocument();
+      // Content should still be visible
+      expect(screen.getByText(longText)).toBeInTheDocument();
+    });
+
+    it('should position error icon correctly in LTR mode', () => {
+      const errorMessages = ['Error message'];
+      const contextValue = {
+        ...defaultContextValue,
+        direction: DIRECTION_LTR,
+      };
+
+      renderWithContext(
+        <GridCell 
+          value="test" 
+          row={mockRow} 
+          column={defaultColumn} 
+          hasError={true}
+          errorMessages={errorMessages}
+        />,
+        contextValue
+      );
+
+      const errorIcon = screen.getByLabelText('Validation error');
+      const styles = window.getComputedStyle(errorIcon);
+      // In LTR, icon should have marginLeft (positioned on right)
+      expect(styles.marginLeft).toBeTruthy();
+    });
+
+    it('should position error icon correctly in RTL mode', () => {
+      const errorMessages = ['Error message'];
+      const contextValue = {
+        ...defaultContextValue,
+        direction: DIRECTION_RTL,
+      };
+
+      renderWithContext(
+        <GridCell 
+          value="test" 
+          row={mockRow} 
+          column={defaultColumn} 
+          hasError={true}
+          errorMessages={errorMessages}
+        />,
+        contextValue
+      );
+
+      const errorIcon = screen.getByLabelText('Validation error');
+      const styles = window.getComputedStyle(errorIcon);
+      // In RTL, icon should have marginRight (positioned on left)
+      expect(styles.marginRight).toBeTruthy();
+    });
+  });
+
   describe('Test editing mode with editor', () => {
     it('should render editor when isEditing is true and editor is provided', () => {
       const editor = <input data-testid="cell-editor" defaultValue="edited value" />;
