@@ -7,6 +7,10 @@ import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { NOT_EDITING } from '../DataGrid/editStore';
 import { GridCell } from './GridCell';
 
+// Stable constants to prevent unnecessary rerenders when there are no errors/values
+const EMPTY_ERROR_MESSAGES = [];
+const EMPTY_EDIT_VALUES = {};
+
 /**
  * @param {Object} props
  * @param {Object} props.row
@@ -68,6 +72,22 @@ function GridBodyRowComponent({
     return arr;
   }, [hasRowErr, rowSx]);
 
+  // Memoize errorMessages per column field to prevent unnecessary GridCell rerenders
+  const errorMessagesMap = useMemo(() => {
+    const map = new Map();
+    if (!rowErrorsForRow) return map;
+    columns.forEach((col) => {
+      const cellErrors = rowErrorsForRow[col.field];
+      if (cellErrors != null) {
+        const cellErrorsArr = Array.isArray(cellErrors) ? cellErrors : [];
+        if (cellErrorsArr.length > 0) {
+          map.set(col.field, cellErrorsArr.map((e) => e.message).filter(Boolean));
+        }
+      }
+    });
+    return map;
+  }, [rowErrorsForRow, columns]);
+
   return (
     <TableRow
       hover={false}
@@ -86,12 +106,9 @@ function GridBodyRowComponent({
       )}
       {columns.map((col) => {
         const colEditable = typeof col.editable === 'function' ? col.editable(row) : col.editable;
-        const editValues = editState.editValues ?? {};
-        const cellErrors = rowErrorsForRow?.[col.field] ?? [];
-        const cellErrorsArr = Array.isArray(cellErrors) ? cellErrors : [];
-        const hasError = cellErrorsArr.length > 0;
-        
-        const errorMessages = cellErrorsArr.map((e) => e.message).filter(Boolean);
+        const editValues = editState.editValues ?? EMPTY_EDIT_VALUES;
+        const errorMessages = errorMessagesMap.get(col.field) ?? EMPTY_ERROR_MESSAGES;
+        const hasError = errorMessages.length > 0;
         return (
           <GridCell
             key={col.field}
