@@ -105,6 +105,7 @@ export function useDataGrid(props) {
     isRowEditable,
     getRowId,
     columns,
+    onRowDoubleClick,
   });
 
   const sortModel = internalSort;
@@ -255,6 +256,7 @@ export function useDataGrid(props) {
       const id = getRowId(row);
       selectionStoreRef.current.set(id);
       if (editable && onEditCommit) {
+        // handleRowDoubleClick now calls onRowDoubleClick before starting edit mode
         handleRowDoubleClick(row);
         if (selection.size > 0) {
           setTimeout(() => {
@@ -262,10 +264,14 @@ export function useDataGrid(props) {
             onSelectionChange?.([]);
           }, 0);
         }
+      } else {
+        // If editing is not enabled, still call onRowDoubleClick
+        if (onRowDoubleClick) {
+          onRowDoubleClick(row);
+        }
       }
       queueMicrotask(() => {
         if (onRowSelect) onRowSelect(id, row);
-        if (onRowDoubleClick) onRowDoubleClick(row);
       });
     },
     [getRowId, onRowSelect, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit, selection.size, onSelectionChange]

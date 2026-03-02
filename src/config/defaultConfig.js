@@ -34,5 +34,6 @@ export const defaultColumnConfig = {
   type: DEFAULT_FIELD_TYPE,
   filter: true,
   editable: false,
+  addable: false,
   align: undefined, // use direction-based default
 };

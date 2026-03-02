@@ -3,6 +3,7 @@ import { getDefaultDemoConfig, mergeConfigWithDefaults } from './demoConfigModel
 import { DEFAULT_SAMPLE_SIZE } from './ConfigPage';
 import { DEFAULT_COLUMN_COUNT } from './ConfigPage';
 import { DEFAULT_CONTAINER_WIDTH } from './ConfigPage';
+import { DEFAULT_EMPTY_ROW_COUNT } from './ConfigPage';
 
 const DemoConfigContext = createContext(null);
 
@@ -33,6 +34,24 @@ export function addDemoValidators(columns) {
     const validators = validatorsByField[col.field];
     if (!validators?.length) return col;
     return { ...col, validators: [...(col.validators || []), ...validators] };
+  });
+}
+
+/**
+ * Adds demo columns that are addable only on new rows (create mode).
+ * This demonstrates the addable property.
+ */
+export function addDemoCreateOnlyColumns(columns) {
+  return columns.map((col) => {
+    // Make the "make" field only addable when creating new rows
+    if (col.field === 'make') {
+      return {
+        ...col,
+        editable: false, // Not editable in existing rows
+        addable: true, // But addable in new rows
+      };
+    }
+    return col;
   });
 }
 
@@ -76,6 +95,7 @@ export function DemoConfigProvider({ children }) {
   const [containerWidth, setContainerWidthState] = useState(DEFAULT_CONTAINER_WIDTH);
   const [sampleSize, setSampleSizeState] = useState(DEFAULT_SAMPLE_SIZE);
   const [columnCount, setColumnCountState] = useState(DEFAULT_COLUMN_COUNT);
+  const [emptyRowCount, setEmptyRowCountState] = useState(DEFAULT_EMPTY_ROW_COUNT);
 
   const setGridOptions = useCallback((next) => {
     setGridOptionsState((prev) => mergeConfigWithDefaults({ ...prev, ...next }));
@@ -85,11 +105,12 @@ export function DemoConfigProvider({ children }) {
     setContainerWidthState(next ?? DEFAULT_CONTAINER_WIDTH);
   }, []);
 
-  const applyConfig = useCallback((options, width, size, cols) => {
+  const applyConfig = useCallback((options, width, size, cols, emptyRows) => {
     setGridOptionsState(mergeConfigWithDefaults(options ?? {}));
     setContainerWidthState(width ?? DEFAULT_CONTAINER_WIDTH);
     setSampleSizeState(size ?? DEFAULT_SAMPLE_SIZE);
     setColumnCountState(cols ?? DEFAULT_COLUMN_COUNT);
+    setEmptyRowCountState(emptyRows ?? DEFAULT_EMPTY_ROW_COUNT);
   }, []);
 
   const value = {
@@ -97,6 +118,7 @@ export function DemoConfigProvider({ children }) {
     containerWidth,
     sampleSize,
     columnCount,
+    emptyRowCount,
     setGridOptions,
     setContainerWidth,
     applyConfig,

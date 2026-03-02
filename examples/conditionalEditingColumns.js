@@ -1,4 +1,4 @@
-/** Example column config with conditional editing rules */
+/** Example column config with editing and adding rules */
 /** Demonstrates column width system with fixed widths and constraints */
 
 export const conditionalEditingColumns = [
@@ -7,7 +7,7 @@ export const conditionalEditingColumns = [
     headerName: 'Project Name',
     type: 'text',
     filter: 'text',
-    editable: true, // Always editable
+    editable: true, // Editable in existing rows and addable in new rows
     width: 180,
     minWidth: 150,
     maxWidth: 300,
@@ -32,6 +32,7 @@ export const conditionalEditingColumns = [
     type: 'list',
     filter: 'list',
     editable: false, // Never editable (read-only)
+    addable: false, // Never addable
     width: 120,
     options: ['Pending', 'In Progress', 'Completed', 'On Hold'],
     filterOptions: { listValues: ['Pending', 'In Progress', 'Completed', 'On Hold'] },
@@ -50,7 +51,7 @@ export const conditionalEditingColumns = [
     headerName: 'Priority',
     type: 'list',
     filter: 'list',
-    editable: (row) => row.status === 'Pending', // Only editable for pending projects
+    editable: true, // Editable in existing rows and addable in new rows
     width: 100,
     options: ['Low', 'Medium', 'High'],
     filterOptions: { listValues: ['Low', 'Medium', 'High'] },
@@ -71,7 +72,7 @@ export const conditionalEditingColumns = [
     headerName: 'Assigned To',
     type: 'text',
     filter: 'text',
-    editable: (row) => row.status === 'Pending' || row.status === 'In Progress', // Editable for pending and in-progress
+    editable: true, // Editable in existing rows and addable in new rows
     width: 150,
     validators: [
       {
@@ -90,7 +91,7 @@ export const conditionalEditingColumns = [
     headerName: 'Notes',
     type: 'text',
     filter: 'text',
-    editable: (row) => row.status === 'Pending', // Only editable for pending projects
+    editable: true, // Editable in existing rows and addable in new rows
     flex: 1, // Flexible width - grows to fill remaining space
     minWidth: 150,
     validators: [
@@ -110,7 +111,7 @@ export const conditionalEditingColumns = [
     headerName: 'Budget',
     type: 'number',
     filter: 'number',
-    editable: (row) => row.status === 'Pending', // Only editable for pending projects
+    editable: true, // Editable in existing rows and addable in new rows
     width: 120,
     validators: [
       {
@@ -133,5 +134,14 @@ export const conditionalEditingColumns = [
         message: 'Budget must be between 0 and 1,000,000',
       },
     ],
+  },
+  {
+    field: 'id',
+    headerName: 'ID',
+    type: 'text',
+    filter: 'text',
+    editable: false, // Not editable in existing rows
+    addable: true, // But addable in new rows
+    width: 100,
   },
 ];

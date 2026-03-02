@@ -68,7 +68,7 @@ const rows = [
 | `isRowEditable` | `(row) => boolean` | Only these rows are editable |
 | `onSelectionChange` | `(selectedIds) => void` | Selection change |
 | `onRowSelect` | `(rowId, row) => void` | When a row is clicked |
-| `onRowDoubleClick` | `(row) => void` | When a row is double-clicked |
+| `onRowDoubleClick` | `(row) => void` | When a row is double-clicked. If `editable` is enabled and `onEditCommit` is provided, double-clicking will also start edit mode for the row (or create mode for empty placeholder rows). |
 | `editable` | `boolean` | Master switch for inline edit (default false) |
 | `reserveEditToolbarSpace` | `boolean` | When true and editable, always reserve space for the edit toolbar so layout does not jump when entering/leaving edit mode |
 | `editToolbarHeight` | `number` | Height in px for the reserved edit toolbar slot when `reserveEditToolbarSpace` is true (default 30) |
@@ -105,7 +105,8 @@ Each column can define:
 - `type` – `'text' | 'number' | 'date' | 'datetime' | 'list'`
 - `filter` – same as type or `false` to disable
 - `filterOptions.listValues` – for list filter options (same shape as `options` for list type)
-- `editable` – `boolean | ((row) => boolean)` – enables editing. Use a function for conditional editing based on row data
+- `editable` – `boolean` – enables editing and adding this field (default false). When true, the field can be edited in existing rows and added in new rows.
+- `addable` – `boolean` – enables adding this field in new rows only (default false). When true, the field can be added when creating new rows but cannot be edited in existing rows (unless `editable` is also true).
 - `width` – number (px) for fixed width
 - `flex` – number for proportional grow factor (columns share remaining space proportionally)
 - `minWidth` – number (px) for minimum width constraint. When set, fully overrides the built-in minimum (may be lower). Very small values may cause layout and usability issues.
@@ -187,14 +188,33 @@ When `onEditCommit` is set and columns define `validators`, the grid runs **fiel
 
 **UI:** A sliding error banner appears above the table (no reserved space when there are no errors). The banner shows the total count and a list of errors (by row and field); clicking an error scrolls to that row. Cells with errors get a red border and show the message in a tooltip; the row is marked with a left border accent. Use `getCellError(rowId, field)` and `hasRowError(rowId)` from the edit store for custom UI.
 
-Conditional editing example:
+Editing and adding examples:
 
 ```js
+// Editable in existing rows and addable in new rows
 { 
-  field: 'notes', 
-  headerName: 'Notes', 
+  field: 'name', 
+  headerName: 'Name', 
   type: 'text', 
-  editable: (row) => row.status === 'Pending'  // Only editable for pending rows
+  editable: true
+}
+
+// Only addable in new rows (not editable in existing rows)
+{ 
+  field: 'id', 
+  headerName: 'ID', 
+  type: 'text', 
+  addable: true,
+  editable: false
+}
+
+// Addable in new rows and also editable in existing rows
+{ 
+  field: 'status', 
+  headerName: 'Status', 
+  type: 'list', 
+  editable: true,
+  addable: true
 }
 ```
 
@@ -220,6 +240,45 @@ Pass `options={{ direction: 'rtl' }}` for right-to-left. Date format: LTR uses M
 ## Pagination
 
 Pass `options={{ pagination: true, pageSize: 10, pageSizeOptions: [10, 25, 50, 100] }}`. Use `onPageChange` and `onPageSizeChange` for notifications when the user changes page or page size.
+
+## Editing Empty Placeholder Rows
+
+The grid supports editing empty placeholder rows (rows where all fields are `null`, `undefined`, or empty strings). When you double-click an empty row:
+
+- Edit mode starts automatically (if `editable: true` and `onEditCommit` is provided)
+- The row enters "create" mode (`editMode === 'create'`)
+- The first editable cell automatically receives focus
+- Columns with `editable: true` or `addable: true` become editable
+
+This allows users to add new rows by double-clicking empty rows in the grid.
+
+## Programmatic Edit Control
+
+The `DataGrid` component supports a ref API for programmatic control:
+
+```jsx
+import { useRef } from 'react';
+
+const gridRef = useRef(null);
+
+<DataGrid
+  ref={gridRef}
+  rows={rows}
+  columns={columns}
+  getRowId={(row) => row.id}
+  options={{ editable: true, onEditCommit: handleEditCommit }}
+/>
+
+// Start editing a row programmatically
+gridRef.current?.startEditMode(rowId);
+```
+
+The `startEditMode(rowId)` method:
+- Finds the row by ID
+- Checks if the row is editable (respects `isRowEditable` if provided)
+- Automatically detects empty rows and uses create mode
+- Starts edit mode and calls `onEditStart` if provided
+- Focuses the first editable cell
 
 ## Exports
 

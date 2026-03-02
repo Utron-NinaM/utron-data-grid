@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, forwardRef, useImperativeHandle } from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { DataGridProvider, DataGridStableContext } from './DataGridContext';
@@ -59,13 +59,14 @@ import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
  * @param {Function} props.getRowId - (row) => string|number; required for selection/edit
  * @param {DataGridOptions} [props.options] - Callbacks and styling overrides
  * @param {Object} [props.sx] - MUI sx for root container (overridden by options.sx if both set)
+ * @param {Object} ref - Ref object with imperative handle methods
  *
  * @example
  * <DataGrid rows={rows} columns={columns} getRowId={(r) => r.id} options={{ editable: true }} />
  *
  * **Performance:** Use stable callbacks (e.g. useCallback) for options handlers and stable columns/getRowId to reduce re-renders.
  */
-export function DataGrid(props) {
+export const DataGrid = forwardRef(function DataGrid(props, ref) {
   const { rows, columns, getRowId, options = {}, sx } = props;
   const flatProps = useMemo(
     () => ({ rows, columns, getRowId, ...options, sx: options.sx ?? sx }),
@@ -79,6 +80,36 @@ export function DataGrid(props) {
   const editToolbarHeight = flatProps.editToolbarHeight ?? 30;
   const pagination = flatProps.pagination ?? defaultGridConfig.pagination;
   const pageSizeOptions = flatProps.pageSizeOptions ?? defaultGridConfig.pageSizeOptions;
+
+  // Expose imperative handle for programmatic control
+  useImperativeHandle(ref, () => ({
+    startEditMode: (rowId) => {
+      if (!editable || !flatProps.onEditCommit) return;
+      
+      const row = flatProps.rows.find(r => String(flatProps.getRowId(r)) === String(rowId));
+      if (!row) return;
+      
+      if (flatProps.isRowEditable && !flatProps.isRowEditable(row)) return;
+      
+      // Check if row is empty (only has id or all other fields are empty)
+      const idValue = flatProps.getRowId(row);
+      const entries = Object.entries(row);
+      const isEmpty = entries.length === 0 || 
+        (entries.length === 1 && entries[0][1] === idValue) ||
+        entries.every(([key, value]) => value === idValue || value == null || value === '');
+      const editStore = grid.stableContextValue.editStore;
+      
+      if (isEmpty) {
+        editStore.startNewRowEdit(rowId);
+      } else {
+        editStore.startEdit(rowId, row);
+      }
+      
+      if (flatProps.onEditStart) {
+        flatProps.onEditStart(rowId, row);
+      }
+    },
+  }), [editable, flatProps, grid.stableContextValue.editStore]);
 
   const hasHeightConstraint = Boolean(
     flatProps.sx && (flatProps.sx.height != null || flatProps.sx.maxHeight != null)
@@ -284,4 +315,4 @@ export function DataGrid(props) {
       </DataGridProvider>
     </ThemeProvider>
   );
-}
+});

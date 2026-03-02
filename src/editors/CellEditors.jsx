@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import TextField from '@mui/material/TextField';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -22,6 +22,7 @@ import {
 } from '../config/schema';
 import { DEFAULT_FONT_SIZE, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH } from '../constants';
 import { getCompactEditorSx } from './cellEditorStyles';
+import { ScrollContainerContext } from '../DataGrid/DataGridContext';
 
 export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize, editorContext) {
   const contentHeightPx = editorContext?.contentHeightPx;
@@ -65,41 +66,19 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
       const valueOption = value != null ? optionMap.get(value) ?? null : null;
       const isRtl = direction === DIRECTION_RTL;
       const rtlSx = { direction, textAlign: isRtl ? 'right' : 'left' };
+      // Return a component that can access ScrollContainerContext
       return (
-        <Autocomplete
-          size="small"
+        <ListEditor
           options={listOptions}
           value={valueOption}
-          onChange={(_, v) => onChange(column.field, v != null ? getOptionValue(v) : undefined)}
+          onChange={(v) => onChange(column.field, v != null ? getOptionValue(v) : undefined)}
           onBlur={onBlur}
-          onInputChange={(event, newInputValue, reason) => {
-            if (reason === 'input' && column.onListInputChange && newInputValue && newInputValue.trim() !== '') {
-              column.onListInputChange(newInputValue);
-            }
-          }}
-          getOptionLabel={getOptionLabel}
-          isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
-          renderOption={(props, option) => {
-            const { key, ...otherProps } = props;
-            return (
-              <li key={key} {...otherProps} style={{ ...otherProps.style, ...rtlSx }}>
-                {getOptionLabel(option)}
-              </li>
-            );
-          }}
-          sx={compactEditorSx}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              inputProps={{ ...params.inputProps, dir: direction }}
-              sx={{ ...params.sx, ...fontSx, ...compactEditorSx, ...getListFilterAutocompleteInputSx(isRtl) }}
-            />
-          )}
-          slotProps={{
-            popper: { sx: { direction } },
-            listbox: { sx: rtlSx },
-          }}
-          fullWidth
+          onListInputChange={column.onListInputChange}
+          direction={direction}
+          isRtl={isRtl}
+          rtlSx={rtlSx}
+          compactEditorSx={compactEditorSx}
+          fontSx={fontSx}
         />
       );
     }
@@ -116,4 +95,69 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
         />
       );
   }
+}
+
+/**
+ * List editor component that uses ScrollContainerContext for proper popper positioning.
+ */
+function ListEditor({
+  options,
+  value,
+  onChange,
+  onBlur,
+  onListInputChange,
+  direction,
+  isRtl,
+  rtlSx,
+  compactEditorSx,
+  fontSx,
+}) {
+  const scrollCtx = useContext(ScrollContainerContext);
+  
+  // Get popper container from ScrollContainerContext (same pattern as GridCell)
+  const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
+  const popperProps = popperContainer
+    ? { container: popperContainer, popperOptions: { strategy: 'absolute' } }
+    : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
+
+  return (
+    <Autocomplete
+      size="small"
+      options={options}
+      value={value}
+      onChange={(_, v) => onChange(v)}
+      onBlur={onBlur}
+      onInputChange={(event, newInputValue, reason) => {
+        if (reason === 'input' && onListInputChange && newInputValue && newInputValue.trim() !== '') {
+          onListInputChange(newInputValue);
+        }
+      }}
+      getOptionLabel={getOptionLabel}
+      isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
+      renderOption={(props, option) => {
+        const { key, ...otherProps } = props;
+        return (
+          <li key={key} {...otherProps} style={{ ...otherProps.style, ...rtlSx }}>
+            {getOptionLabel(option)}
+          </li>
+        );
+      }}
+      sx={compactEditorSx}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          inputProps={{ ...params.inputProps, dir: direction }}
+          sx={{ ...params.sx, ...fontSx, ...compactEditorSx, ...getListFilterAutocompleteInputSx(isRtl) }}
+        />
+      )}
+      slotProps={{
+        popper: {
+          sx: { direction },
+          ...popperProps,
+        },
+        listbox: { sx: rtlSx },
+      }}
+      fullWidth
+    />
+  );
 }

@@ -14,6 +14,7 @@ describe('useDataGridEdit with real validateRow', () => {
     {
       field: 'score',
       headerName: 'Score',
+      editable: true,
       validators: [
         { validate: (v) => v != null && Number(v) >= 0, message: 'Score must be >= 0' },
       ],

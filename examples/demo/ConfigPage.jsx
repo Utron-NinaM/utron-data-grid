@@ -21,6 +21,7 @@ const MAX_COLUMN_COUNT = 20;
 export const DEFAULT_COLUMN_COUNT = 10;
 export const DEFAULT_SAMPLE_SIZE = 105;
 export const DEFAULT_CONTAINER_WIDTH = '100%';
+export const DEFAULT_EMPTY_ROW_COUNT = 0;
 
 const optionsGridSx = {
   display: 'grid',
@@ -35,18 +36,20 @@ const optionsGridSx = {
 
 export function ConfigPage() {
   const navigate = useNavigate();
-  const { gridOptions, containerWidth, sampleSize, columnCount, applyConfig } = useDemoConfig();
+  const { gridOptions, containerWidth, sampleSize, columnCount, emptyRowCount, applyConfig } = useDemoConfig();
   const [localGridOptions, setLocalGridOptions] = useState(() => ({ ...gridOptions }));
   const [localContainerWidth, setLocalContainerWidth] = useState(() => String(containerWidth ?? DEFAULT_CONTAINER_WIDTH));
   const [localSampleSize, setLocalSampleSize] = useState(() => String(sampleSize ?? DEFAULT_SAMPLE_SIZE));
   const [localColumnCount, setLocalColumnCount] = useState(() => String(columnCount ?? DEFAULT_COLUMN_COUNT));
+  const [localEmptyRowCount, setLocalEmptyRowCount] = useState(() => String(emptyRowCount ?? DEFAULT_EMPTY_ROW_COUNT));
 
   useEffect(() => {
     setLocalGridOptions({ ...gridOptions });
     setLocalContainerWidth(String(containerWidth ?? DEFAULT_CONTAINER_WIDTH));
     setLocalSampleSize(String(sampleSize ?? DEFAULT_SAMPLE_SIZE));
     setLocalColumnCount(String(columnCount ?? DEFAULT_COLUMN_COUNT));
-  }, [gridOptions, containerWidth, sampleSize, columnCount]);
+    setLocalEmptyRowCount(String(emptyRowCount ?? DEFAULT_EMPTY_ROW_COUNT));
+  }, [gridOptions, containerWidth, sampleSize, columnCount, emptyRowCount]);
 
   const handleOptionChange = (key, value) => {
     setLocalGridOptions((prev) => ({ ...prev, [key]: value }));
@@ -56,7 +59,14 @@ export function ConfigPage() {
     const width = parseContainerWidth(localContainerWidth);
     const size = parseInt(localSampleSize, 10);
     const cols = parseInt(localColumnCount, 10);
-    applyConfig(localGridOptions, width, Number.isFinite(size) ? size : DEFAULT_SAMPLE_SIZE, Number.isFinite(cols) ? Math.min(20, Math.max(1, cols)) : 20);
+    const emptyRows = parseInt(localEmptyRowCount, 10);
+    applyConfig(
+      localGridOptions,
+      width,
+      Number.isFinite(size) ? size : DEFAULT_SAMPLE_SIZE,
+      Number.isFinite(cols) ? Math.min(20, Math.max(1, cols)) : 20,
+      Number.isFinite(emptyRows) ? Math.max(0, emptyRows) : DEFAULT_EMPTY_ROW_COUNT
+    );
     navigate('/example');
   };
 
@@ -118,6 +128,28 @@ export function ConfigPage() {
                 {preset}
               </Button>
             ))}
+          </Box>
+        </Paper>
+
+        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+            Empty Rows (for testing edit mode)
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Add empty placeholder rows to test editing empty rows. Double-click an empty row to start editing it in create mode.
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+            <TextField
+              label="Empty rows count"
+              type="number"
+              value={localEmptyRowCount}
+              onChange={(e) => setLocalEmptyRowCount(e.target.value)}
+              size="small"
+              sx={{ width: 150 }}
+              placeholder={String(DEFAULT_EMPTY_ROW_COUNT)}
+              inputProps={{ min: 0, max: 10, step: 1 }}
+              helperText="Empty rows are added at the end of the grid"
+            />
           </Box>
         </Paper>
 

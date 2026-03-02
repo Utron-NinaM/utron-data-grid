@@ -30,6 +30,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'score',
+          editable: true,
           validators: [{ validate: () => false, message: 'Score must be positive' }],
         },
       ];
@@ -43,6 +44,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'score',
+          editable: true,
           validators: [{ validate: () => false }],
         },
       ];
@@ -56,6 +58,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'email',
+          editable: true,
           validators: [
             {
               validate: (v) => (v.includes('@') ? true : 'Enter a valid email'),
@@ -74,6 +77,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'score',
+          editable: true,
           validators: [{ validate: (v) => v > 0, message: 'Must be positive' }],
         },
       ];
@@ -85,6 +89,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'name',
+          editable: true,
           validators: [{ validate: () => '', message: 'Required' }],
         },
       ];
@@ -98,6 +103,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'score',
+          editable: true,
           validators: [
             { validate: (v) => v >= 0, message: 'Non-negative' },
             { validate: (v) => v <= 100, message: 'At most 100' },
@@ -114,6 +120,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'score',
+          editable: true,
           validators: [
             { validate: (v) => v >= 0, message: 'Non-negative' },
             { validate: (v) => v <= 100, message: 'At most 100' },
@@ -132,10 +139,12 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'name',
+          editable: true,
           validators: [{ validate: (v) => (v && v.length > 0) || false, message: 'Name required' }],
         },
         {
           field: 'score',
+          editable: true,
           validators: [{ validate: (v) => v >= 0, message: 'Score must be >= 0' }],
         },
       ];
@@ -154,6 +163,7 @@ describe('validateRow', () => {
         { field: 'id' },
         {
           field: 'score',
+          editable: true,
           validators: [{ validate: (v) => v >= 0, message: 'Invalid score' }],
         },
       ];
@@ -169,6 +179,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'max',
+          editable: true,
           validators: [
             {
               validate: (value, r) => value >= r.min,
@@ -185,7 +196,7 @@ describe('validateRow', () => {
     });
   });
 
-  describe('conditional editing', () => {
+  describe('editable and addable properties', () => {
     it('skips validation for non-editable columns', () => {
       const row = { id: 1, name: '', status: 'Completed' };
       const originalRow = { id: 1, name: '', status: 'Completed' };
@@ -206,57 +217,76 @@ describe('validateRow', () => {
       expect(result).toEqual([err('name', 'Name required')]);
     });
 
-    it('validates conditionally editable columns when function returns true', () => {
-      const row = { id: 1, notes: '', status: 'Pending' };
-      const originalRow = { id: 1, notes: '', status: 'Pending' };
+    it('validates editable columns in update mode', () => {
+      const row = { id: 1, notes: '' };
+      const originalRow = { id: 1, notes: '' };
       const columns = [
         {
           field: 'notes',
-          editable: (r) => r.status === 'Pending',
+          editable: true,
           validators: [{ validate: (v) => v.length > 0 || 'Notes required' }],
         },
       ];
-      const result = validateRow(row, columns, originalRow);
+      const result = validateRow(row, columns, originalRow, 'update');
       expect(result).toEqual([err('notes', 'Notes required')]);
     });
 
-    it('skips validation for conditionally editable columns when function returns false', () => {
-      const row = { id: 1, notes: '', status: 'Completed' };
-      const originalRow = { id: 1, notes: '', status: 'Completed' };
+    it('validates addable columns in create mode', () => {
+      const row = { id: 1, notes: '' };
+      const originalRow = null;
       const columns = [
         {
           field: 'notes',
-          editable: (r) => r.status === 'Pending',
+          editable: false,
+          addable: true,
           validators: [{ validate: (v) => v.length > 0 || 'Notes required' }],
         },
       ];
-      const result = validateRow(row, columns, originalRow);
-      // Notes should not be validated (not editable for Completed status)
+      const result = validateRow(row, columns, originalRow, 'create');
+      expect(result).toEqual([err('notes', 'Notes required')]);
+    });
+
+    it('skips validation for non-editable and non-addable columns in create mode', () => {
+      const row = { id: 1, notes: '' };
+      const originalRow = null;
+      const columns = [
+        {
+          field: 'notes',
+          editable: false,
+          addable: false,
+          validators: [{ validate: (v) => v.length > 0 || 'Notes required' }],
+        },
+      ];
+      const result = validateRow(row, columns, originalRow, 'create');
+      // Notes should not be validated (not editable or addable)
       expect(result).toEqual([]);
     });
 
-    it('handles mixed editable types (boolean and function)', () => {
-      const row = { id: 1, name: '', priority: 'Low', status: 'Pending' };
-      const originalRow = { id: 1, name: '', priority: 'Low', status: 'Pending' };
+    it('validates editable columns in create mode even if addable is false', () => {
+      const row = { id: 1, name: '', priority: 'Low' };
+      const originalRow = null;
       const columns = [
         {
           field: 'name',
           editable: true,
+          addable: false,
           validators: [{ validate: (v) => v.length > 0 || 'Name required' }],
         },
         {
           field: 'priority',
-          editable: (r) => r.status === 'Pending',
+          editable: true,
+          addable: true,
           validators: [{ validate: (v) => v !== 'Low' || 'Priority too low' }],
         },
         {
           field: 'status',
           editable: false,
+          addable: false,
           validators: [{ validate: () => false || 'Should not validate' }],
         },
       ];
-      const result = validateRow(row, columns, originalRow);
-      // name and priority should be validated, status should not
+      const result = validateRow(row, columns, originalRow, 'create');
+      // name and priority should be validated (both editable or addable), status should not
       expect(result).toEqual([
         err('name', 'Name required'),
         err('priority', 'Priority too low'),
@@ -270,6 +300,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'price',
+          editable: true,
           validators: [
             {
               validate: (_value, r) => {
@@ -295,6 +326,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'price',
+          editable: true,
           validators: [
             {
               validate: (v) => v >= 0,
@@ -315,6 +347,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'price',
+          editable: true,
           validators: [
             {
               validate: (v) => v >= 0,
@@ -345,6 +378,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'price',
+          editable: true,
           validators: [
             {
               validate: (_value, r) => {
@@ -369,10 +403,12 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'name',
+          editable: true,
           validators: [{ validate: (v) => v.length > 0, message: 'Name required' }],
         },
         {
           field: 'price',
+          editable: true,
           validators: [
             {
               validate: (_value, r) => {
@@ -402,6 +438,7 @@ describe('validateRow', () => {
       const columns = [
         {
           field: 'price',
+          editable: true,
           validators: [
             {
               validate: (_value, r) => {
@@ -430,8 +467,8 @@ describe('validateRow', () => {
     it('returns errors for the given field only', () => {
       const row = { id: 1, score: -1, name: 'A' };
       const columns = [
-        { field: 'name', validators: [{ validate: (v) => v.length > 1, message: 'Too short' }] },
-        { field: 'score', validators: [{ validate: (v) => v >= 0, message: 'Score must be >= 0' }] },
+        { field: 'name', editable: true, validators: [{ validate: (v) => v.length > 1, message: 'Too short' }] },
+        { field: 'score', editable: true, validators: [{ validate: (v) => v >= 0, message: 'Score must be >= 0' }] },
       ];
       expect(validateField(row, columns, row, 'score')).toEqual([
         err('score', 'Score must be >= 0'),
@@ -444,18 +481,19 @@ describe('validateRow', () => {
     it('returns [] when field is valid', () => {
       const row = { id: 1, score: 10 };
       const columns = [
-        { field: 'score', validators: [{ validate: (v) => v >= 0, message: 'Invalid' }] },
+        { field: 'score', editable: true, validators: [{ validate: (v) => v >= 0, message: 'Invalid' }] },
       ];
       expect(validateField(row, columns, row, 'score')).toEqual([]);
     });
 
-    it('respects editable function for originalRow', () => {
+    it('respects editable and addable properties for originalRow', () => {
       const row = { id: 1, notes: '' };
       const originalRow = { id: 1, notes: '', status: 'Completed' };
       const columns = [
         {
           field: 'notes',
-          editable: (r) => r.status === 'Pending',
+          editable: false,
+          addable: false,
           validators: [{ validate: (v) => v.length > 0, message: 'Required' }],
         },
       ];

@@ -421,12 +421,12 @@ describe('GridBodyRow Component', () => {
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
 
-    it('should handle editable function per column', () => {
+    it('should handle editable and addable properties per column', () => {
       const editStore = createEditStore();
       editStore.startEdit(1, { id: 1, name: 'Edited', age: 30 });
       const columns = [
         { field: 'name', headerName: 'Name', editable: true },
-        { field: 'age', headerName: 'Age', editable: (row) => row.age > 25 },
+        { field: 'age', headerName: 'Age', editable: true },
       ];
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
       const ctx = { ...defaultContextValue, editStore };

@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo } from 'react';
+import React, { memo, useContext, useMemo, useEffect, useRef } from 'react';
 import { useSyncExternalStore } from 'react';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -60,11 +60,33 @@ function GridBodyRowComponent({
     () => NOT_EDITING
   );
 
+  // Get edit mode from editStore
+  const editMode = useSyncExternalStore(
+    editStore?.subscribe ?? (() => () => {}),
+    () => {
+      const s = editStore?.getSnapshot?.();
+      if (!s || s.editRowId !== rowId) return null;
+      return s.mode ?? null;
+    },
+    () => null
+  );
+
+  // Get originalRow from editStore
+  const originalRow = useSyncExternalStore(
+    editStore?.subscribe ?? (() => () => {}),
+    () => {
+      const s = editStore?.getSnapshot?.();
+      if (!s || s.editRowId !== rowId) return null;
+      return s.originalRow ?? null;
+    },
+    () => null
+  );
+
   const rowErrorsForRow = editState.isEditing && editState.rowErrorsForRow != null
     ? editState.rowErrorsForRow
     : null;
   const isEditing = editState.isEditing;
-  const hasRowErr = rowErrorsForRow ? Object.keys(rowErrorsForRow).length > 0 : false;
+  const rowRef = useRef(null);
   // Check specifically for row-level errors (stored under null key)
   const hasRowLevelErr = rowErrorsForRow?.[null] != null && Array.isArray(rowErrorsForRow[null]) && rowErrorsForRow[null].length > 0;
   const isRowSelected = selected || isSelected;
@@ -100,8 +122,25 @@ function GridBodyRowComponent({
     return map;
   }, [rowErrorsForRow, columns]);
 
+  // Focus first editable cell when entering edit mode
+  useEffect(() => {
+    if (isEditing && rowRef.current) {
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        const rowElement = rowRef.current;
+        if (!rowElement) return;
+        // Find first editable input/textarea in the row
+        const firstInput = rowElement.querySelector('input:not([type="checkbox"]), textarea, [role="combobox"] input');
+        if (firstInput) {
+          firstInput.focus();
+        }
+      });
+    }
+  }, [isEditing]);
+
   return (
     <TableRow
+      ref={rowRef}
       hover={false}
       selected={isRowSelected}
       sx={rowSxWithError}
@@ -117,7 +156,12 @@ function GridBodyRowComponent({
         </TableCell>
       )}
       {columns.map((col) => {
-        const colEditable = typeof col.editable === 'function' ? col.editable(row) : col.editable;
+        // Determine if column is editable based on editMode
+        // For create mode: editable if editable === true OR addable === true
+        // For update mode: editable if editable === true
+        const colEditable = editMode === 'create' 
+          ? (col.editable === true || col.addable === true)
+          : (col.editable === true);
         const editValues = editState.editValues ?? EMPTY_EDIT_VALUES;
         const errorMessages = errorMessagesMap.get(col.field) ?? EMPTY_ERROR_MESSAGES;
         const hasError = errorMessages.length > 0;

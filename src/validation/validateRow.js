@@ -5,16 +5,21 @@
  * @param {Object} row The row data to validate
  * @param {Object[]} columns Column definitions
  * @param {Object} originalRow Original row data to determine editable columns
+ * @param {string|null} [editMode] Edit mode: 'create' | 'update' | null
  * @returns {Array<{ field: string|null, message: string, severity: 'error' }>}
  */
-export function validateRow(row, columns, originalRow) {
+export function validateRow(row, columns, originalRow, editMode = null) {
   const errors = [];
 
   for (const col of columns) {
     if (!col.validators?.length) continue;
 
-    const isEditable =
-      typeof col.editable === 'function' ? col.editable(originalRow) : col.editable !== false;
+    // Determine if column is editable based on editMode
+    // For create mode: editable if editable === true OR addable === true
+    // For update mode: editable if editable === true
+    const isEditable = editMode === 'create'
+      ? (col.editable === true || col.addable === true)
+      : (col.editable === true);
     if (!isEditable) continue;
 
     const value = row[col.field];
@@ -54,14 +59,19 @@ export function validateRow(row, columns, originalRow) {
  * @param {Object[]} columns Column definitions
  * @param {Object} originalRow Original row data to determine editable columns
  * @param {string} field Column field name
+ * @param {string|null} [editMode] Edit mode: 'create' | 'update' | null
  * @returns {Array<{ field: string, message: string, severity: 'error' }>}
  */
-export function validateField(row, columns, originalRow, field) {
+export function validateField(row, columns, originalRow, field, editMode = null) {
   const col = columns.find((c) => c.field === field);
   if (!col?.validators?.length) return [];
 
-  const isEditable =
-    typeof col.editable === 'function' ? col.editable(originalRow) : col.editable !== false;
+  // Determine if column is editable based on editMode
+  // For create mode: editable if editable === true OR addable === true
+  // For update mode: editable if editable === true
+  const isEditable = editMode === 'create'
+    ? (col.editable === true || col.addable === true)
+    : (col.editable === true);
   if (!isEditable) return [];
 
   const value = row[field];
