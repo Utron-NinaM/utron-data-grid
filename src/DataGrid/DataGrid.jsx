@@ -10,6 +10,7 @@ import { useDataGrid } from './useDataGrid';
 import { getDataGridRootSx, scrollableContentSx } from './dataGridStyles';
 import { EditToolbarSubscriber } from '../core/EditToolbarSubscriber';
 import { DIRECTION_LTR, DIRECTION_RTL } from '../config/schema';
+import { isEmptyRow } from './useDataGridEdit';
 
 /**
  * @typedef {Object} DataGridOptions
@@ -89,14 +90,12 @@ export const DataGrid = forwardRef(function DataGrid(props, ref) {
       const row = flatProps.rows.find(r => String(flatProps.getRowId(r)) === String(rowId));
       if (!row) return;
       
-      if (flatProps.isRowEditable && !flatProps.isRowEditable(row)) return;
+      const isEmpty = isEmptyRow(row, flatProps.getRowId);
       
-      // Check if row is empty (only has id or all other fields are empty)
-      const idValue = flatProps.getRowId(row);
-      const entries = Object.entries(row);
-      const isEmpty = entries.length === 0 || 
-        (entries.length === 1 && entries[0][1] === idValue) ||
-        entries.every(([key, value]) => value === idValue || value == null || value === '');
+      // Empty rows should always be editable (to add new data)
+      // Only check isRowEditable for non-empty rows
+      if (!isEmpty && flatProps.isRowEditable && !flatProps.isRowEditable(row)) return;
+      
       const editStore = grid.stableContextValue.editStore;
       
       if (isEmpty) {

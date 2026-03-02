@@ -8,7 +8,7 @@ import { toRowErrors } from './editStore';
  * @param {Object} row - The row object
  * @param {Function} getRowId - Function to get the row ID field value
  */
-function isEmptyRow(row, getRowId) {
+export function isEmptyRow(row, getRowId) {
   if (!row || typeof row !== 'object') return true;
   
   // Get the ID value to identify which field/value is the ID
@@ -61,10 +61,13 @@ export function useDataGridEdit({
 
       // If editing is not enabled or no commit handler, don't start edit mode
       if (!editable || !onEditCommit) return;
-      if (isRowEditable && !isRowEditable(row)) return;
 
       const id = getRowId(row);
       const isEmpty = isEmptyRow(row, getRowId);
+
+      // Empty rows should always be editable (to add new data)
+      // Only check isRowEditable for non-empty rows
+      if (!isEmpty && isRowEditable && !isRowEditable(row)) return;
 
       // Use startNewRowEdit for empty rows, startEdit for existing rows
       if (isEmpty) {
