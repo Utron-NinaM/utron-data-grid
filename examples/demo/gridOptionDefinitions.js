@@ -184,6 +184,22 @@ export const gridOptionDefinitions = [
     default: undefined,
     placeholder: 'MUI sx for toolbar buttons',
   },
+  {
+    key: 'editToolbarSaveButtonSx',
+    label: 'Edit toolbar save button sx',
+    type: 'json',
+    group: 'appearance',
+    default: undefined,
+    placeholder: 'MUI sx for save button',
+  },
+  {
+    key: 'editToolbarCancelButtonSx',
+    label: 'Edit toolbar cancel button sx',
+    type: 'json',
+    group: 'appearance',
+    default: undefined,
+    placeholder: 'MUI sx for cancel button',
+  },
   // Pagination
   {
     key: 'pageSize',

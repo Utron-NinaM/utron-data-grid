@@ -89,6 +89,8 @@ const rows = [
 | `gridId` | `string` | Unique id for this grid; when set, sort, filter, and column width overrides are persisted in localStorage (`utron-datagrid-sort-{gridId}`, `utron-datagrid-filters-{gridId}`, `utron-datagrid-column-widths-{gridId}`) and restored on load. Use a different id per grid when multiple grids exist. |
 | `toolbarActions` | `ReactNode` or `(params: { selectedRow, selectedRowId }) => ReactNode` | Optional content on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id. |
 | `toolbarClearButtonsSx` | `object` | MUI sx applied to the Clear sort, Clear all filters, and Reset column widths toolbar buttons. |
+| `editToolbarSaveButtonSx` | `object` | MUI sx applied to the Save button in the edit toolbar. |
+| `editToolbarCancelButtonSx` | `object` | MUI sx applied to the Cancel button in the edit toolbar. |
 | `fontSize` | `number` | Font size in px for cells, filters, inputs, pagination (default 13). |
 | `showHorizontalScrollbar` | `boolean` | When true and horizontal scroll is enabled (e.g. containScroll with overflow), show the horizontal scrollbar on the header (default false). Useful for very narrow windows. |
 | `fontFamily` | `string` | Font family for all grid components (e.g. `'Roboto, sans-serif'`, `var(--app-font-family)`). Cascades from root. |

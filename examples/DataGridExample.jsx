@@ -91,6 +91,8 @@ export function DataGridExample() {
             onRowSelect: handleRowSelect,
             onRowDoubleClick: handleRowDoubleClick,
             toolbarClearButtonsSx: { textTransform: 'none', minWidth: 80 , backgroundColor: 'pink'},
+            editToolbarSaveButtonSx: { textTransform: 'none', minWidth: 100, backgroundColor: '#4caf50', color: 'white' },
+            editToolbarCancelButtonSx: { textTransform: 'none', minWidth: 100 },
             headerConfig: {
               mainRow: { backgroundColor: 'rgb(139, 0, 0)', height: 30, color: 'white' },
               filterRows: { backgroundColor: 'rgb(250, 250, 250)', height: 30 },

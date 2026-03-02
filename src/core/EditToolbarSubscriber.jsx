@@ -14,6 +14,8 @@ export function EditToolbarSubscriber({ reserveSpaceHeight }) {
   const editStore = ctx?.editStore;
   const onSave = ctx?.handleEditSave;
   const onCancel = ctx?.handleEditCancel;
+  const saveButtonSx = ctx?.editToolbarSaveButtonSx;
+  const cancelButtonSx = ctx?.editToolbarCancelButtonSx;
 
   const editRowId = useSyncExternalStore(
     editStore?.subscribe ?? (() => () => {}),
@@ -27,5 +29,5 @@ export function EditToolbarSubscriber({ reserveSpaceHeight }) {
     }
     return null;
   }
-  return <EditToolbar onSave={onSave} onCancel={onCancel} />;
+  return <EditToolbar onSave={onSave} onCancel={onCancel} saveButtonSx={saveButtonSx} cancelButtonSx={cancelButtonSx} />;
 }
