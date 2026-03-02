@@ -231,10 +231,15 @@ export function useDataGrid(props) {
 
   const selectRow = useCallback(
     (id, row = null) => {
+      // Prevent selection changes when editing is active, unless selecting the editing row itself
+      const editSnapshot = editStore.getSnapshot();
+      if (editSnapshot.editRowId != null && String(editSnapshot.editRowId) !== String(id)) {
+        return;
+      }
       selectionStoreRef.current.set(id);
       if (onRowSelect && row) onRowSelect(id, row);
     },
-    [onRowSelect]
+    [onRowSelect, editStore]
   );
 
   const handleColumnResize = useCallback(

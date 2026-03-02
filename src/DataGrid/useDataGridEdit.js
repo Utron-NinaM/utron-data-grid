@@ -63,6 +63,13 @@ export function useDataGridEdit({
       if (!editable || !onEditCommit) return;
 
       const id = getRowId(row);
+      
+      // Prevent starting edit on a different row when editing is already active
+      const editSnapshot = editStore.getSnapshot();
+      if (editSnapshot.editRowId != null && String(editSnapshot.editRowId) !== String(id)) {
+        return;
+      }
+
       const isEmpty = isEmptyRow(row, getRowId);
 
       // Empty rows should always be editable (to add new data)

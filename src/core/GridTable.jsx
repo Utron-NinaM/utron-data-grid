@@ -128,19 +128,23 @@ function GridTableInner({
   const handleTableBodyDoubleClick = useMemo(() => {
     if (!onRowDoubleClick) return undefined;
     return (event) => {
+      if (selectionDisabled) return;
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
       const rowId = rowElement.getAttribute('data-row-id');
       const row = rows.find(r => String(getRowId(r)) === rowId);
       if (row) onRowDoubleClick(row);
     };
-  }, [onRowDoubleClick, rows, getRowId]);
+  }, [onRowDoubleClick, rows, getRowId, selectionDisabled]);
 
   // Stable callback for checkbox selection - takes (rowId, checked)
   const handleSelectRow = useMemo(() => {
     if (!onSelect) return undefined;
-    return (rowId, checked) => onSelect(rowId, checked);
-  }, [onSelect]);
+    return (rowId, checked) => {
+      if (selectionDisabled) return;
+      onSelect(rowId, checked);
+    };
+  }, [onSelect, selectionDisabled]);
 
   // Compute body rows inline - React reconciliation handles optimization efficiently
   let bodyRows;

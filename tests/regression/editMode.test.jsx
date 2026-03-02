@@ -51,7 +51,7 @@ describe('Edit Mode Regression Tests', () => {
   });
 
   describe('Test only one row editable at a time', () => {
-    it('should close previous edit mode when starting edit on another row', async () => {
+    it('should prevent starting edit on another row when a row is already being edited', async () => {
       const onEditCommit = vi.fn();
       const onEditStart = vi.fn();
       const onEditCancel = vi.fn();
@@ -79,23 +79,26 @@ describe('Edit Mode Regression Tests', () => {
       });
 
       expect(onEditStart).toHaveBeenCalledWith(1, expect.objectContaining({ id: 1, name: 'Alice' }));
+      expect(onEditStart).toHaveBeenCalledTimes(1);
 
-      // Start editing second row while first is still in edit mode
+      // Try to start editing second row while first is still in edit mode
       const bobRow = screen.getByText('Bob').closest('[data-row-id]');
       fireEvent.doubleClick(bobRow);
 
-      // Only Bob's row should be in edit mode now (previous edit is replaced, not canceled)
+      // Alice's row should still be in edit mode (cannot switch rows during edit)
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
       });
 
-      // Verify Bob's row is in edit mode by checking for Bob's input value
-      const bobNameInput = screen.getByDisplayValue('Bob');
-      expect(bobNameInput).toBeInTheDocument();
+      // Verify Alice's row is still in edit mode
+      const aliceNameInput = screen.getByDisplayValue('Alice');
+      expect(aliceNameInput).toBeInTheDocument();
 
-      // Alice's input should not be present (edit mode closed)
-      // Note: onEditCancel is not called when switching rows - the edit state is just replaced
-      expect(screen.queryByDisplayValue('Alice')).not.toBeInTheDocument();
+      // Bob's input should not be present (edit mode did not switch)
+      expect(screen.queryByDisplayValue('Bob')).not.toBeInTheDocument();
+      
+      // onEditStart should not have been called again (no new edit started)
+      expect(onEditStart).toHaveBeenCalledTimes(1);
       expect(onEditCancel).not.toHaveBeenCalled();
     });
 

@@ -40,15 +40,21 @@ export function getDataGridRootSx({ sx, fontSize, fontFamily, fontWeight, useScr
   };
 }
 
-export function getGridValidationBannerSx({ hasErrors }) {
-  return {
-    flexShrink: 0,
-    maxHeight: hasErrors ? '1000px' : 0,
-    opacity: hasErrors ? 1 : 0,
-    transform: hasErrors ? 'translateY(0)' : 'translateY(-100%)',
-    transition: 'opacity 0.5s ease, max-height 0.5s ease, transform 0.6s ease',
-    overflow: 'hidden',
-  };
+
+export const validationAlertSx = {
+  borderRadius: 0,
+  '& .MuiAlert-message': { width: '100%' },
+  animation: 'slideDown 0.4s ease-out',
+  '@keyframes slideDown': {
+    from: {
+      opacity: 0,
+      transform: 'translateY(-10px)',
+    },
+    to: {
+      opacity: 1,
+      transform: 'translateY(0)',
+    },
+  },
 }
 
 export function getAlertListItemSx({ onErrorClick }) {
