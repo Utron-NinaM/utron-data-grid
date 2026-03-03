@@ -65,6 +65,7 @@ export function useDataGrid(props) {
     editToolbarCancelButtonSx,
     fontSize = defaultGridConfig.fontSize,
     showHorizontalScrollbar = defaultGridConfig.showHorizontalScrollbar,
+    dropdownBoundaryRef,
   } = props;
 
   const [internalSort, setInternalSort] = useState(() => getStoredSortModel(props.gridId, props.columns));
@@ -441,6 +442,7 @@ export function useDataGrid(props) {
       editToolbarSaveButtonSx,
       editToolbarCancelButtonSx,
       fontSize,
+      dropdownBoundaryRef,
       selectionStore,
       selectRow,
       editStore,
@@ -497,6 +499,7 @@ export function useDataGrid(props) {
       editToolbarSaveButtonSx,
       editToolbarCancelButtonSx,
       fontSize,
+      dropdownBoundaryRef,
       selectionStore,
       selectRow,
       editStore,

@@ -95,6 +95,7 @@ const rows = [
 | `showHorizontalScrollbar` | `boolean` | When true and horizontal scroll is enabled (e.g. containScroll with overflow), show the horizontal scrollbar on the header (default false). Useful for very narrow windows. |
 | `fontFamily` | `string` | Font family for all grid components (e.g. `'Roboto, sans-serif'`, `var(--app-font-family)`). Cascades from root. |
 | `fontWeight` | `number` or `string` | Font weight (e.g. `400`, `600`, `'bold'`). Cascades from root. |
+| `dropdownBoundaryRef` | `React.RefObject<HTMLElement \| null>` | Ref to the element that defines the clipping area for list and filter dropdowns (e.g. the main content wrapper that excludes sidebars). When set, dropdowns stay within this element's bounds; omit to use the viewport. Works for RTL and LTR. |
 
 ## Configuration (columns)
 
@@ -258,6 +259,39 @@ Pass `options={{ translations: { ... } }}` with keys overriding defaults. Main k
 ## RTL / LTR
 
 Pass `options={{ direction: 'rtl' }}` for right-to-left. Date format: LTR uses MM-DD-YYYY, RTL uses DD-MM-YYYY. Column alignment and pagination controls follow direction.
+
+## Dropdowns and sidebars
+
+When the grid is inside a layout with a fixed sidebar (e.g. a collapsed or expanded nav strip), list and filter dropdowns can be partially hidden by the sidebar because they are positioned relative to the viewport. To keep dropdowns inside the main content area, pass a ref to that area as **`dropdownBoundaryRef`**:
+
+```jsx
+import { useRef } from 'react';
+import { DataGrid } from 'utron-data-grid';
+import { Box } from '@mui/material';
+
+const mainContentRef = useRef(null);
+
+// Layout: sidebar + main content (works for both LTR and RTL)
+<Box sx={{ display: 'flex', width: '100%', minHeight: '100vh', direction: direction }}>
+  <Box sx={{ width: 56, flexShrink: 0, backgroundColor: '#c62828', minHeight: '100vh' }} />
+  <Box ref={mainContentRef} sx={{ flex: 1, minWidth: 0, padding: 2, direction }}>
+    <DataGrid
+      rows={rows}
+      columns={columns}
+      getRowId={(row) => row.id}
+      options={{
+        direction,
+        dropdownBoundaryRef: mainContentRef,
+        // ...other options
+      }}
+    />
+  </Box>
+</Box>
+```
+
+- Attach the ref to the **main content** container (the element that contains the grid and does **not** include the sidebar).
+- In RTL, place the sidebar on the right (e.g. use `direction: 'rtl'` on the flex container so the first child appears on the right).
+- When the sidebar opens or closes, the main content resizes; the next time a dropdown opens it will use the updated bounds. If the user toggles the sidebar while a dropdown is open, close and reopen the dropdown to reposition.
 
 ## Pagination
 

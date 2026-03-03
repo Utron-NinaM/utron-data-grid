@@ -21,7 +21,7 @@ import {
 } from '../config/schema';
 import { DEFAULT_FONT_SIZE, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH, MAX_WIDTH_LIST_DROPDOWN_PX } from '../constants';
 import { getCompactEditorSx, listEditorSx, getListEditorInputSx } from './cellEditorStyles';
-import { ScrollContainerContext } from '../DataGrid/DataGridContext';
+import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 
 export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize, editorContext) {
   const contentHeightPx = editorContext?.contentHeightPx;
@@ -124,12 +124,21 @@ function ListEditor({
   fontSx,
   listDropdownSx,
 }) {
+  const stableCtx = useContext(DataGridStableContext);
   const scrollCtx = useContext(ScrollContainerContext);
+  const boundaryEl = stableCtx?.dropdownBoundaryRef?.current ?? undefined;
 
   const popperOptions = {
     strategy: 'absolute',
     modifiers: [
-      { name: 'preventOverflow', options: { rootBoundary: 'viewport', padding: 8 } },
+      {
+        name: 'preventOverflow',
+        options: {
+          rootBoundary: 'viewport',
+          padding: 8,
+          ...(boundaryEl ? { boundary: boundaryEl } : {}),
+        },
+      },
       { name: 'flip', options: { fallbackPlacements: ['top', 'bottom-start', 'top-start'] } },
     ],
   };

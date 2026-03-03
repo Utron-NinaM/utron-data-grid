@@ -49,6 +49,7 @@ import { isEmptyRow } from './useDataGridEdit';
  * @property {number} [fontSize=13] - Font size in px for cells, filters, inputs, and pagination. Overridable via CSS (e.g. [data-testid="data-grid-root"] or --data-grid-font-size).
  * @property {string} [fontFamily] - Font family for all grid components (e.g. 'Roboto, sans-serif', var(--app-font-family)). Cascades from root.
  * @property {number|string} [fontWeight] - Font weight (e.g. 400, 600, 'bold'). Cascades from root.
+ * @property {React.RefObject<HTMLElement|null>} [dropdownBoundaryRef] - Ref to the element that defines the clipping area for dropdowns (e.g. the main content wrapper that excludes sidebars). When set, list and filter dropdowns stay within this element's bounds. Omit to use viewport.
  */
 
 /**

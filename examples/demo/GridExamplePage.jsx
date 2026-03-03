@@ -59,6 +59,7 @@ export function GridExamplePage() {
   );
 
   const gridRef = useRef(null);
+  const mainContentRef = useRef(null);
 
   const [editedData, setEditedData] = useState(null);
   useEffect(() => {
@@ -110,6 +111,7 @@ export function GridExamplePage() {
       translations: en,
       sx: base.sx ?? { height: '100%' },
       onEditCommit: handleEditCommit,
+      dropdownBoundaryRef: mainContentRef,
     };
   }, [gridOptions, handleEditCommit]);
 
@@ -194,17 +196,49 @@ export function GridExamplePage() {
           flex: 1,
           minHeight: 0,
           minWidth: 0,
-          width: containerWidth ?? '100%',
-          maxWidth: '100%',
+          display: 'flex',
+          flexDirection: 'row',
+          direction,
         }}
       >
-        <DataGrid
-          ref={gridRef}
-          rows={editedData ?? data}
-          columns={columns}
-          getRowId={(row) => row.id}
-          options={options}
+        <Box
+          sx={{
+            width: 56,
+            flexShrink: 0,
+            backgroundColor: '#c62828',
+            minHeight: '100%',
+          }}
         />
+        <Box
+          ref={mainContentRef}
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            padding: 2,
+            direction,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              minWidth: 0,
+              width: containerWidth ?? '100%',
+              maxWidth: '100%',
+            }}
+          >
+            <DataGrid
+              ref={gridRef}
+              rows={editedData ?? data}
+              columns={columns}
+              getRowId={(row) => row.id}
+              options={options}
+            />
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

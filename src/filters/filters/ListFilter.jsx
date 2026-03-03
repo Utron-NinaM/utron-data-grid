@@ -25,6 +25,7 @@ export function ListFilter({ value, onChange, options }) {
   const contentHeight = getFilterContentHeight(filterInputHeight);
   const direction = ctx?.direction ?? DIRECTION_LTR;
   const isRtl = direction === DIRECTION_RTL;
+  const boundaryEl = ctx?.dropdownBoundaryRef?.current ?? undefined;
   const [inputValue, setInputValue] = React.useState('');
   const listOptions = options ?? [];
   const optionMap = useMemo(() => getOptionMap(listOptions), [listOptions]);
@@ -93,7 +94,13 @@ export function ListFilter({ value, onChange, options }) {
           popper: {
             disablePortal: false,
             placement: 'bottom-start',
-            modifiers: [{ name: 'flip', enabled: false }],
+            modifiers: [
+              {
+                name: 'preventOverflow',
+                options: { rootBoundary: 'viewport', padding: 8, ...(boundaryEl ? { boundary: boundaryEl } : {}) },
+              },
+              { name: 'flip', enabled: false },
+            ],
             sx: { minWidth: 'max-content', direction},
           },
           listbox: {

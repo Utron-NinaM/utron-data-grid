@@ -100,6 +100,17 @@ export const columnsConfig = [
 ];
 
 export const columnsConfigHebrew = [
+  {
+    field: 'sku',
+    headerName: 'מק״ט',
+    type: FIELD_TYPE_LIST,
+    filter: FIELD_TYPE_LIST,
+    listDescriptionField: 'skuDescription',
+    editable: true,
+    options: skuOptionsHe,
+    filterOptions: { listValues: skuOptionsHe },
+  },
+  { field: 'skuDescription', headerName: 'תיאור מק״ט', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: false },
   { field: 'make', headerName: 'יצרן', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, },
   { field: 'model', headerName: 'דגם', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
   { field: 'price', headerName: 'מחיר', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },
@@ -132,18 +143,7 @@ export const columnsConfigHebrew = [
     options: statusOptionsHe,
     filterOptions: { listValues: statusOptionsHe },
     rowStyle: (row) => (row.status === 'pending' ? { backgroundColor: '#fff3e0' } : {}),
-  },
-  {
-    field: 'sku',
-    headerName: 'מק״ט',
-    type: FIELD_TYPE_LIST,
-    filter: FIELD_TYPE_LIST,
-    listDescriptionField: 'skuDescription',
-    editable: true,
-    options: skuOptionsHe,
-    filterOptions: { listValues: skuOptionsHe },
-  },
-  { field: 'skuDescription', headerName: 'תיאור מק״ט', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: false },
+  }, 
   { field: 'createdAt', headerName: 'תאריך', type: FIELD_TYPE_DATE, filter: FIELD_TYPE_DATE, editable: true },
   { field: 'description', headerName: 'תיאור', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true },
   { field: 'mileage', headerName: 'קילומטראז׳', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true },

@@ -145,7 +145,7 @@ export function ConfigPage() {
               value={localEmptyRowCount}
               onChange={(e) => setLocalEmptyRowCount(e.target.value)}
               size="small"
-              sx={{ width: 150 }}
+              sx={{ width: 400 }}
               placeholder={String(DEFAULT_EMPTY_ROW_COUNT)}
               inputProps={{ min: 0, max: 10, step: 1 }}
               helperText="Empty rows are added at the end of the grid"
