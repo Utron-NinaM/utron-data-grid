@@ -30,6 +30,7 @@ import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck
  * options?: any[] (for list; items may be { value, label, description? })
  * listDescriptionField?: string — for type 'list', row field name where the selected option's description is written when present; grid sets both column.field and this field in the same edit.
  * onListInputChange?: (value: string) => void — optional. For type 'list', called when the user types in the Autocomplete input (reason === 'input').
+ * listDropdownSx?: object — optional. For type 'list', MUI sx applied to the list editor dropdown (popper and listbox). Use to override width, fontSize, fontWeight, etc.
  * render?: (value, row) => ReactNode — must not return unsanitized HTML or use dangerouslySetInnerHTML with user/API data (React escapes by default).
  * rowStyle?: (row) => sx
  * cellStyle?: (value, row) => sx

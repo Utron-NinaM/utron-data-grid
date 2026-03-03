@@ -22,6 +22,7 @@ export const RESIZE_FALLBACK_WIDTH_PX = 100;
 
 export const MIN_WIDTH_DEFAULT_PX = 110;
 export const MIN_WIDTH_NO_FILTERS_PX = 85;
+export const MAX_WIDTH_LIST_DROPDOWN_PX = 200;
 
 // ─── Column width estimation ────────────────────────────────────────────────
 
@@ -57,7 +58,7 @@ export const TOOLTIP_OVER_HEADER_Z_INDEX = 3;
 export const PADDING_INPUT_TOP_BOTTOM_PX = 4;
 export const FILTER_OPERATOR_WIDTH_PX = 40;
 export const FILTER_OPERATOR_WIDTH_PX_WITH_PADDING = FILTER_OPERATOR_WIDTH_PX + 6;
-export const DEFAULT_FILTER_CONTENT_HEIGHT = 40;
+export const DEFAULT_FILTER_CONTENT_HEIGHT = 30;
 export const FILTER_INPUT_HORIZONTAL_PADDING_PX = 8;
 export const ICON_ARROW_SIZE_PX = 20;
 export const ICON_OPERATOR_SIZE_PX = 18;

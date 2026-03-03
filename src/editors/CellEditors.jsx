@@ -20,7 +20,7 @@ import {
   LOCALE_HE,
   LOCALE_EN,
 } from '../config/schema';
-import { DEFAULT_FONT_SIZE, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH } from '../constants';
+import { DEFAULT_FONT_SIZE, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH, MAX_WIDTH_LIST_DROPDOWN_PX } from '../constants';
 import { getCompactEditorSx } from './cellEditorStyles';
 import { ScrollContainerContext } from '../DataGrid/DataGridContext';
 
@@ -85,6 +85,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           rtlSx={rtlSx}
           compactEditorSx={compactEditorSx}
           fontSx={fontSx}
+          listDropdownSx={column.listDropdownSx}
         />
       );
     }
@@ -106,6 +107,11 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
 /**
  * List editor component that uses ScrollContainerContext for proper popper positioning.
  */
+const LIST_DROPDOWN_BASE_POPPER_SX = {
+  minWidth: 'max-content',
+  maxWidth: MAX_WIDTH_LIST_DROPDOWN_PX,
+};
+
 function ListEditor({
   options,
   value,
@@ -117,6 +123,7 @@ function ListEditor({
   rtlSx,
   compactEditorSx,
   fontSx,
+  listDropdownSx,
 }) {
   const scrollCtx = useContext(ScrollContainerContext);
   
@@ -125,6 +132,9 @@ function ListEditor({
   const popperProps = popperContainer
     ? { container: popperContainer, popperOptions: { strategy: 'absolute' } }
     : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
+
+  const popperSx = { direction, ...LIST_DROPDOWN_BASE_POPPER_SX, ...listDropdownSx };
+  const listboxSx = { ...rtlSx, ...listDropdownSx };
 
   return (
     <Autocomplete
@@ -143,8 +153,10 @@ function ListEditor({
       renderOption={(props, option) => {
         const { key, ...otherProps } = props;
         return (
-          <li key={key} {...otherProps} style={{ ...otherProps.style, ...rtlSx }}>
-            {getOptionLabel(option)}
+          <li key={key} {...otherProps} style={{ ...otherProps.style, ...rtlSx, minWidth: 0 }}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
+              {getOptionLabel(option)}
+            </span>
           </li>
         );
       }}
@@ -158,10 +170,10 @@ function ListEditor({
       )}
       slotProps={{
         popper: {
-          sx: { direction },
+          sx: popperSx,
           ...popperProps,
         },
-        listbox: { sx: rtlSx },
+        listbox: { sx: listboxSx },
       }}
       fullWidth
     />

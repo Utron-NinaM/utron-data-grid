@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import { ALIGN_LEFT, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST, DIRECTION_RTL } from '../config/schema';
 import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
-import { getOptionLabel } from '../utils/optionUtils';
+import { getOptionLabel, getOptionValue } from '../utils/optionUtils';
 import { DIRECTION_LTR } from '../config/schema';
 import { DEFAULT_FONT_SIZE, TOOLTIP_OVER_HEADER_Z_INDEX } from '../constants';
 import { truncationSx, cellContentWrapperSx, editorWrapperSx, getBodyCellBaseSx, getErrorIconSx } from './coreStyles';
@@ -96,7 +96,8 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
       const optionMap = ctx?.listColumnOptionMaps?.get(column.field);
       if (optionMap) {
         const option = optionMap.get(value);
-        return option != null ? getOptionLabel(option) : String(value ?? '');
+        if (option == null) return String(value ?? '');
+        return column.listDescriptionField ? String(getOptionValue(option)) : getOptionLabel(option);
       }
     }
     if ((type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME) && value != null) {
