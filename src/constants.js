@@ -52,6 +52,7 @@ export const RESIZE_LINE_HOVER_ALPHA = 0.85;
 export const DIVIDER_ALPHA = 0.1;
 export const HEADER_Z_INDEX = 2;
 export const TOOLTIP_OVER_HEADER_Z_INDEX = 3;
+export const DROPDOWN_POPPER_Z_INDEX = 1400;
 
 // ─── Filter ─────────────────────────────────────────────────────────────────
 

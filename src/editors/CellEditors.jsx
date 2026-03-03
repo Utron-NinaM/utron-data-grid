@@ -19,7 +19,7 @@ import {
   LOCALE_HE,
   LOCALE_EN,
 } from '../config/schema';
-import { DEFAULT_FONT_SIZE, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH, MAX_WIDTH_LIST_DROPDOWN_PX } from '../constants';
+import { DEFAULT_FONT_SIZE, DROPDOWN_POPPER_Z_INDEX, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH, MAX_WIDTH_LIST_DROPDOWN_PX } from '../constants';
 import { getCompactEditorSx, listEditorSx, getListEditorInputSx } from './cellEditorStyles';
 import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 
@@ -145,7 +145,7 @@ function ListEditor({
   const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
   const popperProps = popperContainer
     ? { container: popperContainer, popperOptions }
-    : { disablePortal: true, popperOptions };
+    : { popperOptions };
 
   const popperSx = { direction, ...LIST_DROPDOWN_BASE_POPPER_SX, ...listDropdownSx };
   const listboxSx = { ...rtlSx, ...listDropdownSx };
@@ -214,7 +214,7 @@ function ListEditor({
           },
         },
         popper: {
-          sx: popperSx,
+          sx: { ...popperSx, zIndex: DROPDOWN_POPPER_Z_INDEX },
           ...popperProps,
         },
         listbox: { sx: listboxSx },
