@@ -1,7 +1,7 @@
 /**
  * MUI sx for cell editors (TextField, Autocomplete, DatePicker) so they fit within body row height.
  */
-
+import { getListFilterAutocompleteInputSx } from '../filters/filterBoxStyles';
 /**
  * Compact sx so editors fit within body row. Overrides MUI small input min-height.
  * When contentHeightPx is set, caps editor height so edited row matches non-edited row height.
@@ -23,5 +23,29 @@ export function getCompactEditorSx(contentHeightPx) {
     '& .MuiOutlinedInput-root': inputVariantSx,
     '& .MuiFilledInput-root': inputVariantSx,
     '& .MuiInputBase-input': { py: 0, boxSizing: 'border-box' },
+  };
+}
+
+export const listEditorSx = {
+  minWidth: 0,
+  ...getCompactEditorSx(),
+  '& .MuiOutlinedInput-root': { overflow: 'visible !important' },
+  '& .MuiAutocomplete-inputRoot': { overflow: 'visible !important' },
+  '& .MuiAutocomplete-clearIndicator': {
+    visibility: 'visible !important',
+    opacity: '1 !important',
+    pointerEvents: 'auto',
+  },
+};
+
+export function getListEditorInputSx(isRtl) {
+  return {
+    ...getListFilterAutocompleteInputSx(isRtl),
+    '& .MuiInputBase-input': {
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+    },
   };
 }

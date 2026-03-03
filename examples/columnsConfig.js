@@ -81,8 +81,6 @@ export const columnsConfig = [
     filter: FIELD_TYPE_LIST,
     listDescriptionField: 'skuDescription',
     editable: true,
-    width: 180,
-    minWidth: 140,
     options: skuOptionsEn,
     filterOptions: { listValues: skuOptionsEn },
   },

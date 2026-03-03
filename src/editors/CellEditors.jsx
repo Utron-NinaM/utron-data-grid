@@ -7,7 +7,6 @@ import Autocomplete from '@mui/material/Autocomplete';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
 import { getDateFormat } from '../utils/directionUtils';
-import { getListFilterAutocompleteInputSx } from '../filters/filterBoxStyles';
 import { getOptionLabel, getOptionValue, getOptionDescription, getOptionMap } from '../utils/optionUtils';
 import {
   DEFAULT_FIELD_TYPE,
@@ -21,7 +20,7 @@ import {
   LOCALE_EN,
 } from '../config/schema';
 import { DEFAULT_FONT_SIZE, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH, MAX_WIDTH_LIST_DROPDOWN_PX } from '../constants';
-import { getCompactEditorSx } from './cellEditorStyles';
+import { getCompactEditorSx, listEditorSx, getListEditorInputSx } from './cellEditorStyles';
 import { ScrollContainerContext } from '../DataGrid/DataGridContext';
 
 export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize, editorContext) {
@@ -126,15 +125,31 @@ function ListEditor({
   listDropdownSx,
 }) {
   const scrollCtx = useContext(ScrollContainerContext);
-  
-  // Get popper container from ScrollContainerContext (same pattern as GridCell)
+
+  const popperOptions = {
+    strategy: 'absolute',
+    modifiers: [
+      { name: 'preventOverflow', options: { rootBoundary: 'viewport', padding: 8 } },
+      { name: 'flip', options: { fallbackPlacements: ['top', 'bottom-start', 'top-start'] } },
+    ],
+  };
   const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
   const popperProps = popperContainer
-    ? { container: popperContainer, popperOptions: { strategy: 'absolute' } }
-    : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
+    ? { container: popperContainer, popperOptions }
+    : { disablePortal: true, popperOptions };
 
   const popperSx = { direction, ...LIST_DROPDOWN_BASE_POPPER_SX, ...listDropdownSx };
   const listboxSx = { ...rtlSx, ...listDropdownSx };
+
+  const handleInputSelect = (e) => {
+    const input = e.target;
+    if (input && typeof input.scrollLeft === 'number') {
+      requestAnimationFrame(() => {
+        if (isRtl) input.scrollLeft = input.scrollWidth - input.clientWidth;
+        else input.scrollLeft = 0;
+      });
+    }
+  };
 
   return (
     <Autocomplete
@@ -143,6 +158,8 @@ function ListEditor({
       value={value}
       onChange={(_, v) => onChange(v)}
       onBlur={onBlur}
+      disableClearable={false}
+      clearOnBlur={false}
       onInputChange={(event, newInputValue, reason) => {
         if (reason === 'input' && onListInputChange && newInputValue && newInputValue.trim() !== '') {
           onListInputChange(newInputValue);
@@ -160,15 +177,33 @@ function ListEditor({
           </li>
         );
       }}
-      sx={compactEditorSx}
+      sx={listEditorSx}
       renderInput={(params) => (
         <TextField
           {...params}
-          inputProps={{ ...params.inputProps, dir: direction }}
-          sx={{ ...params.sx, ...fontSx, ...compactEditorSx, ...getListFilterAutocompleteInputSx(isRtl) }}
+          inputProps={{
+            ...params.inputProps,
+            dir: direction,
+            onSelect: (e) => {
+              params.inputProps?.onSelect?.(e);
+              handleInputSelect(e);
+            },
+          }}
+          sx={{
+            ...fontSx,
+            ...compactEditorSx,
+            ...getListEditorInputSx(isRtl),
+          }}
         />
       )}
       slotProps={{
+        clearIndicator: {
+          sx: {
+            color: 'text.secondary',
+            visibility: 'visible !important',
+            opacity: '1 !important',
+          },
+        },
         popper: {
           sx: popperSx,
           ...popperProps,
