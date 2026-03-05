@@ -12,7 +12,7 @@ export const MAX_LIST_FILTER_INPUT_LENGTH = 200;
 
 // ─── Layout / Column ────────────────────────────────────────────────────────
 
-export const CHECKBOX_COLUMN_WIDTH_PX = 48;
+export const CHECKBOX_COLUMN_WIDTH_PX = 38;
 export const CONTAINER_WIDTH_FALLBACK_PX = 1000;
 export const SCROLLBAR_BUFFER_PX = 2;
 export const SCROLLBAR_TOLERANCE_PX = 1;

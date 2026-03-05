@@ -16,6 +16,7 @@ import { GridBodyRow } from './GridBodyRow';
 import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
 import { ALIGN_CENTER } from '../config/schema';
+import { CHECKBOX_COLUMN_WIDTH_PX } from '../constants';
 import {
   getToolbarBoxSx,
   toolbarActionsBoxSx,
@@ -247,7 +248,7 @@ function GridTableInner({
           sx={getTableSx(totalWidth, enableHorizontalScroll)}
         >
           <colgroup>
-            {multiSelectable && <col />}
+            {multiSelectable && <col style={{ width: `${CHECKBOX_COLUMN_WIDTH_PX}px`, minWidth: `${CHECKBOX_COLUMN_WIDTH_PX}px` }} />}
             {columns.map((col) => (
               <col
                 key={col.field}
@@ -348,7 +349,7 @@ function GridTableInner({
             sx={getTableSx(totalWidth, enableHorizontalScroll)}
           >
             <colgroup>
-              {multiSelectable && <col />}
+              {multiSelectable && <col style={{ width: `${CHECKBOX_COLUMN_WIDTH_PX}px`, minWidth: `${CHECKBOX_COLUMN_WIDTH_PX}px` }} />}
               {columns.map((col) => (
                 <col
                   key={col.field}
@@ -412,7 +413,7 @@ function GridTableInner({
         >
           <Table size="small" aria-label="Data grid body" sx={getTableSx(totalWidth, enableHorizontalScroll)}>
             <colgroup>
-              {multiSelectable && <col />}
+              {multiSelectable && <col style={{ width: `${CHECKBOX_COLUMN_WIDTH_PX}px`, minWidth: `${CHECKBOX_COLUMN_WIDTH_PX}px` }} />}
               {columns.map((col) => (
                 <col
                   key={col.field}

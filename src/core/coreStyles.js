@@ -7,6 +7,8 @@ import {
   SORT_ORDER_BADGE_FONT_SIZE_REM,
   SORT_ORDER_BADGE_OPACITY,
   HEADER_CELL_PADDING,
+  HEADER_CELL_PADDING_PX,
+  CHECKBOX_COLUMN_WIDTH_PX,
   RESIZE_HANDLE_WIDTH_PX,
   RESIZE_HANDLE_OFFSET_PX,
   RESIZE_LINE_WIDTH_PX,
@@ -107,6 +109,14 @@ export function getHeaderCheckboxCellSx(headerConfig, rowType = 'mainRow') {
     ...headerConfig?.base,
     backgroundColor: rowBg || headerConfig?.base?.backgroundColor || 'inherit',
     ...rowSx,
+    boxSizing: 'border-box',
+    width: `${CHECKBOX_COLUMN_WIDTH_PX}px`,
+    minWidth: `${CHECKBOX_COLUMN_WIDTH_PX}px`,
+    padding: '0 !important',
+    paddingLeft: `${HEADER_CELL_PADDING_PX}px !important`,
+    paddingRight: `${HEADER_CELL_PADDING_PX}px !important`,
+    paddingInlineStart: `${HEADER_CELL_PADDING_PX}px !important`,
+    paddingInlineEnd: `${HEADER_CELL_PADDING_PX}px !important`,
   };
 }
 

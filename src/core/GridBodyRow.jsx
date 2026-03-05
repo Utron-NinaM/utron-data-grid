@@ -8,6 +8,7 @@ import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { NOT_EDITING } from '../DataGrid/editStore';
 import { GridCell } from './GridCell';
 import { DIRECTION_RTL, DIRECTION_LTR } from '../config/schema';
+import { HEADER_CELL_PADDING_PX, CHECKBOX_COLUMN_WIDTH_PX } from '../constants';
 
 // Stable constants to prevent unnecessary rerenders when there are no errors/values
 const EMPTY_ERROR_MESSAGES = [];
@@ -133,8 +134,14 @@ function GridBodyRowComponent({
     return {
       ...(rowStyle ?? {}),
       ...appliedSelectedStyle,
-      paddingLeft: theme.spacing(1),
-      paddingRight: theme.spacing(1),
+      boxSizing: 'border-box',
+      width: `${CHECKBOX_COLUMN_WIDTH_PX}px`,
+      minWidth: `${CHECKBOX_COLUMN_WIDTH_PX}px`,
+      padding: '0 !important',
+      paddingLeft: `${HEADER_CELL_PADDING_PX}px !important`,
+      paddingRight: `${HEADER_CELL_PADDING_PX}px !important`,
+      paddingInlineStart: `${HEADER_CELL_PADDING_PX}px !important`,
+      paddingInlineEnd: `${HEADER_CELL_PADDING_PX}px !important`,
     };
   }, [rowStyle, isRowSelected, selectedRowStyle, theme]);
 
@@ -168,6 +175,7 @@ function GridBodyRowComponent({
             checked={selected}
             onChange={(e) => onSelectRow(rowId, e.target.checked)}
             inputProps={{ 'aria-label': 'Select row' }}
+            sx={{ '&:hover': { backgroundColor: 'transparent' } }}
           />
         </TableCell>
       )}
