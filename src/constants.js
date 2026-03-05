@@ -31,6 +31,7 @@ export const HEADER_CELL_PADDING_PX = 8;
 export const ICON_ALLOWANCE_PX = 56;
 export const ICON_ALLOWANCE_NO_FILTERS_PX = 46;
 export const AUTO_MAX_WIDTH_MULTIPLIER = 2.5;
+export const LIST_EDITOR_RTL_ADORNMENT_PADDING_PX = 44;
 
 // ─── Header / Core styles ───────────────────────────────────────────────────
 

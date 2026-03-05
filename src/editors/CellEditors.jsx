@@ -64,7 +64,7 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
       const optionMap = getOptionMap(listOptions);
       const valueOption = value != null ? optionMap.get(value) ?? null : null;
       const isRtl = direction === DIRECTION_RTL;
-      const rtlSx = { direction, textAlign: isRtl ? 'right' : 'left' };
+      const listEditorDirectionSx = { direction, textAlign: isRtl ? 'right' : 'left' };
       // Return a component that can access ScrollContainerContext
       return (
         <ListEditor
@@ -81,10 +81,9 @@ export function getEditor(column, row, editValues, onChange, direction = DIRECTI
           onListInputChange={column.onListInputChange}
           direction={direction}
           isRtl={isRtl}
-          rtlSx={rtlSx}
+          listEditorSx={listEditorDirectionSx}
+          listEditorRootSx={listEditorSx}
           compactEditorSx={compactEditorSx}
-          fontSx={fontSx}
-          listDropdownSx={column.listDropdownSx}
         />
       );
     }
@@ -119,7 +118,8 @@ function ListEditor({
   onListInputChange,
   direction,
   isRtl,
-  rtlSx,
+  listEditorSx,
+  listEditorRootSx,
   compactEditorSx,
   fontSx,
   listDropdownSx,
@@ -148,14 +148,13 @@ function ListEditor({
     : { popperOptions };
 
   const popperSx = { direction, ...LIST_DROPDOWN_BASE_POPPER_SX, ...listDropdownSx };
-  const listboxSx = { ...rtlSx, ...listDropdownSx };
+  const listboxSx = { ...listEditorSx, ...listDropdownSx };
 
   const handleInputSelect = (e) => {
     const input = e.target;
     if (input && typeof input.scrollLeft === 'number') {
       requestAnimationFrame(() => {
-        if (isRtl) input.scrollLeft = input.scrollWidth - input.clientWidth;
-        else input.scrollLeft = 0;
+        input.scrollLeft = 0;
       });
     }
   };
@@ -179,14 +178,14 @@ function ListEditor({
       renderOption={(props, option) => {
         const { key, ...otherProps } = props;
         return (
-          <li key={key} {...otherProps} style={{ ...otherProps.style, ...rtlSx, minWidth: 0 }}>
+          <li key={key} {...otherProps} style={{ ...otherProps.style, ...listEditorSx, minWidth: 0 }}>
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
               {getOptionLabel(option)}
             </span>
           </li>
         );
       }}
-      sx={listEditorSx}
+      sx={{ ...listEditorRootSx, ...listEditorSx }}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -211,6 +210,16 @@ function ListEditor({
             color: 'text.secondary',
             visibility: 'visible !important',
             opacity: '1 !important',
+            padding: '2px',
+            minWidth: 24,
+            '& .MuiSvgIcon-root': { fontSize: 16 },
+          },
+        },
+        popupIndicator: {
+          sx: {
+            padding: '2px',
+            minWidth: 24,
+            '& .MuiSvgIcon-root': { fontSize: 16 },
           },
         },
         popper: {

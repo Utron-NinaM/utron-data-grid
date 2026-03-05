@@ -186,28 +186,20 @@ export const DataGrid = forwardRef(function DataGrid(props, ref) {
     const rtlComponents =
       direction === DIRECTION_RTL
         ? {
-            ...(!fontSx && muiSelectRtlOverrides.select && {
-              MuiSelect: { styleOverrides: muiSelectRtlOverrides },
-            }),
-            MuiAutocomplete: {
-              styleOverrides: {
-                root: ({ theme }) => ({
-                  '& .MuiAutocomplete-endAdornment': {
-                    left: `${theme.spacing(1.125)} !important`,
-                    right: 'auto !important',
-                  },
-                  '& .MuiOutlinedInput-root': {
-                    paddingLeft: `${theme.spacing(4.875)} !important`,
-                    paddingRight: `${theme.spacing(1.125)} !important`,
-                  },
-                  '& .MuiOutlinedInput-root.MuiInputBase-sizeSmall': {
-                    paddingLeft: `${theme.spacing(4.375)} !important`,
-                    paddingRight: `${theme.spacing(0.75)} !important`,
-                  },
-                }),
-              },
+          ...(!fontSx && muiSelectRtlOverrides.select && {
+            MuiSelect: { styleOverrides: muiSelectRtlOverrides },
+          }),
+          MuiAutocomplete: {
+            styleOverrides: {
+              root: ({ theme }) => ({
+                '& .MuiAutocomplete-endAdornment': {
+                  left: `${theme.spacing(1.125)} !important`,
+                  right: 'auto !important',
+                },
+              }),
             },
-          }
+          },
+        }
         : {};
 
     return createTheme({

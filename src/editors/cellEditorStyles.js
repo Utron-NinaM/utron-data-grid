@@ -2,6 +2,7 @@
  * MUI sx for cell editors (TextField, Autocomplete, DatePicker) so they fit within body row height.
  */
 import { getListFilterAutocompleteInputSx } from '../filters/filterBoxStyles';
+import { LIST_EDITOR_RTL_ADORNMENT_PADDING_PX } from '../constants';
 /**
  * Compact sx so editors fit within body row. Overrides MUI small input min-height.
  * When contentHeightPx is set, caps editor height so edited row matches non-edited row height.
@@ -26,11 +27,29 @@ export function getCompactEditorSx(contentHeightPx) {
   };
 }
 
+const _compactSx = getCompactEditorSx();
 export const listEditorSx = {
   minWidth: 0,
-  ...getCompactEditorSx(),
-  '& .MuiOutlinedInput-root': { overflow: 'visible !important' },
-  '& .MuiAutocomplete-inputRoot': { overflow: 'visible !important' },
+  ..._compactSx,
+  '& .MuiInputBase-root': {
+    ..._compactSx['& .MuiInputBase-root'],
+    minWidth: 0
+  },
+  '& .MuiOutlinedInput-root': {
+    ..._compactSx['& .MuiOutlinedInput-root'],
+    overflow: 'visible !important',
+    minWidth: 0,
+    paddingLeft: 2,
+    paddingRight: 2,
+  },
+  '& .MuiOutlinedInput-root.MuiInputBase-sizeSmall': {
+    paddingLeft: 2,
+    paddingRight: 2,
+  },
+  '& .MuiAutocomplete-inputRoot': {
+    overflow: 'visible !important',
+    minWidth: 0,
+  },
   '& .MuiAutocomplete-clearIndicator': {
     visibility: 'visible !important',
     opacity: '1 !important',
@@ -43,9 +62,24 @@ export function getListEditorInputSx(isRtl) {
     ...getListFilterAutocompleteInputSx(isRtl),
     '& .MuiInputBase-input': {
       minWidth: 0,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
+      flex: '1 1 0%',   // add this – ensures constrained width in both LTR and RTL
+      width: '100%',    // can keep for fallback or remove if you prefer only flex
+      overflow: 'hidden !important',
+      overflowX: 'hidden',
+      overflowY: 'hidden',
+      textOverflow: 'ellipsis !important',
+      whiteSpace: 'nowrap !important',
+      boxSizing: 'border-box !important',
     },
+    ...(isRtl && {
+      '& .MuiOutlinedInput-root': {
+        minWidth: 0,
+        paddingLeft: `${LIST_EDITOR_RTL_ADORNMENT_PADDING_PX}px !important`,
+        paddingRight: '2px !important',
+        paddingTop: '2px !important',
+        paddingBottom: '2px !important',
+        boxSizing: 'border-box !important',
+      },
+    }),
   };
 }
