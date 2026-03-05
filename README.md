@@ -74,7 +74,7 @@ const rows = [
 | `editToolbarHeight` | `number` | Height in px for the reserved edit toolbar slot when `reserveEditToolbarSpace` is true (default 30) |
 | `filters` | `boolean` | Show filter row (default true). Set to `false` to hide all filters. |
 | `fitToContainer` | `boolean` | When true, treat columns without width/flex as flexible (flex: 1) and cap total width to the container (default false). Use for grids that should always fit the available width. |
-| `multiSelectable` | `boolean` | Show checkboxes and selection (default false) |
+| `multiSelectable` | `boolean` | Show checkboxes and allow multi-row selection (default false). When true, clicking a row toggles its selection (same as using the checkbox); the checkbox still works as before. |
 | `pagination` | `boolean` | Enable client-side pagination (default false) |
 | `pageSize` | `number` | Rows per page (default 10) |
 | `pageSizeOptions` | `number[]` | Page size dropdown options (e.g. [10, 25, 50]) |

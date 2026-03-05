@@ -121,9 +121,17 @@ function GridTableInner({
       if (!rowElement) return;
       const rowIdAttr = rowElement.getAttribute('data-row-id');
       const row = rows.find((r) => String(getRowId(r)) === rowIdAttr);
-      if (row) selectRow(getRowId(row), row);
+      if (!row) return;
+      const rowId = getRowId(row);
+      if (multiSelectable && onSelect) {
+        const cell = event.target.closest('td');
+        if (cell?.cellIndex === 0) return;
+        onSelect(rowId, !selection?.has(rowId));
+        return;
+      }
+      selectRow(rowId, row);
     };
-  }, [selectRow, rows, getRowId, selectionDisabled]);
+  }, [selectRow, rows, getRowId, selectionDisabled, multiSelectable, onSelect, selection]);
 
   const handleTableBodyDoubleClick = useMemo(() => {
     if (!onRowDoubleClick) return undefined;
