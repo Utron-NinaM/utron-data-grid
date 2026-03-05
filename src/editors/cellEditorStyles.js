@@ -37,6 +37,7 @@ export const listEditorSx = {
   },
   '& .MuiOutlinedInput-root': {
     ..._compactSx['& .MuiOutlinedInput-root'],
+    alignItems: 'center',
     overflow: 'visible !important',
     minWidth: 0,
     paddingLeft: 2,
@@ -46,6 +47,10 @@ export const listEditorSx = {
     paddingLeft: 2,
     paddingRight: 2,
   },
+  '& .MuiOutlinedInput-notchedOutline': {
+    paddingLeft: '2px',
+    paddingRight: '2px',
+  },
   '& .MuiAutocomplete-inputRoot': {
     overflow: 'visible !important',
     minWidth: 0,
@@ -54,6 +59,10 @@ export const listEditorSx = {
     visibility: 'visible !important',
     opacity: '1 !important',
     pointerEvents: 'auto',
+  },
+  '& .MuiAutocomplete-endAdornment': {
+    display: 'flex',
+    alignItems: 'center',
   },
 };
 

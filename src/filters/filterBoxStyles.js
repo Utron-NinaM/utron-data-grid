@@ -214,5 +214,9 @@ export function getFilterRowBoxSx(filterInputHeight, fontSize) {
     ...(fontSize != null && { fontSize }),
     '& .MuiInputBase-root': baseInputSx,
     '& .MuiInputBase-input': filterInputHeight ? inputPadding : {},
+    '& .MuiOutlinedInput-notchedOutline': {
+      paddingLeft: '2px',
+      paddingRight: '2px',
+    },
   };
 }
