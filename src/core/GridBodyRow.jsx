@@ -3,6 +3,7 @@ import { useSyncExternalStore } from 'react';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Checkbox from '@mui/material/Checkbox';
+import { useTheme } from '@mui/material/styles';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { NOT_EDITING } from '../DataGrid/editStore';
 import { GridCell } from './GridCell';
@@ -39,6 +40,7 @@ function GridBodyRowComponent({
   multiSelectable,
   getEditor,
 }) {
+  const theme = useTheme();
   const ctx = useContext(DataGridStableContext);
   const selectionStore = ctx?.selectionStore;
   const editStore = ctx?.editStore;
@@ -122,6 +124,20 @@ function GridBodyRowComponent({
     return map;
   }, [rowErrorsForRow, columns]);
 
+  // Checkbox cell sx: same precedence as GridCell (row style then selected). Minimum padding so cell looks correct when app theme overrides MuiTableCell-paddingCheck.
+  const checkboxCellSx = useMemo(() => {
+    const hasCustomSelected = selectedRowStyle && Object.keys(selectedRowStyle).length > 0;
+    const appliedSelectedStyle = isRowSelected
+      ? (hasCustomSelected ? selectedRowStyle : { backgroundColor: theme.palette.action.selected })
+      : {};
+    return {
+      ...(rowStyle ?? {}),
+      ...appliedSelectedStyle,
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    };
+  }, [rowStyle, isRowSelected, selectedRowStyle, theme]);
+
   // Focus first editable cell when entering edit mode
   useEffect(() => {
     if (isEditing && rowRef.current) {
@@ -147,7 +163,7 @@ function GridBodyRowComponent({
       data-row-id={rowId}
     >
       {multiSelectable && (
-        <TableCell padding="checkbox">
+        <TableCell padding="checkbox" sx={checkboxCellSx}>
           <Checkbox
             checked={selected}
             onChange={(e) => onSelectRow(rowId, e.target.checked)}
