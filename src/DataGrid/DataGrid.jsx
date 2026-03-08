@@ -87,24 +87,24 @@ export const DataGrid = forwardRef(function DataGrid(props, ref) {
   useImperativeHandle(ref, () => ({
     startEditMode: (rowId) => {
       if (!editable || !flatProps.onEditCommit) return;
-      
+
       const row = flatProps.rows.find(r => String(flatProps.getRowId(r)) === String(rowId));
       if (!row) return;
-      
+
       const isEmpty = isEmptyRow(row, flatProps.getRowId);
-      
+
       // Empty rows should always be editable (to add new data)
       // Only check isRowEditable for non-empty rows
       if (!isEmpty && flatProps.isRowEditable && !flatProps.isRowEditable(row)) return;
-      
+
       const editStore = grid.stableContextValue.editStore;
-      
+
       if (isEmpty) {
         editStore.startNewRowEdit(rowId);
       } else {
         editStore.startEdit(rowId, row);
       }
-      
+
       if (flatProps.onEditStart) {
         flatProps.onEditStart(rowId, row);
       }
@@ -123,86 +123,84 @@ export const DataGrid = forwardRef(function DataGrid(props, ref) {
   const theme = useMemo(() => {
     const fontSx = [fontFamily, fontSize, fontWeight].some((v) => v != null)
       ? {
-          ...(fontFamily != null && { fontFamily }),
-          ...(fontSize != null && { fontSize }),
-          ...(fontWeight != null && { fontWeight }),
-        }
+        ...(fontFamily != null && { fontFamily }),
+        ...(fontSize != null && { fontSize }),
+        ...(fontWeight != null && { fontWeight }),
+      }
       : null;
 
     const muiSelectRtlOverrides =
       direction === DIRECTION_RTL
         ? {
-            select: ({ theme }) => ({
-              paddingLeft: `${theme.spacing(4)} !important`,
-              paddingRight: `${theme.spacing(1.75)} !important`,
-            }),
-            icon: ({ theme }) => ({
-              left: `${theme.spacing(1.125)} !important`,
-              right: 'auto !important',
-            }),
-          }
+          select: ({ theme }) => ({
+            paddingLeft: `${theme.spacing(4)} !important`,
+            paddingRight: `${theme.spacing(1.75)} !important`,
+          }),
+          icon: ({ theme }) => ({
+            left: `${theme.spacing(1.125)} !important`,
+            right: 'auto !important',
+          }),
+        }
         : {};
 
     const typoOverrides = fontSx
       ? {
-          typography: {
-            ...(fontFamily != null && { fontFamily }),
-            ...(fontSize != null && { fontSize }),
-            ...(fontWeight != null && {
-              body1: { fontWeight },
-              body2: { fontWeight },
-              caption: { fontWeight },
-              subtitle1: { fontWeight },
-              subtitle2: { fontWeight },
-              h6: { fontWeight },
-              button: { fontWeight },
-            }),
-          },
-        }
+        typography: {
+          ...(fontFamily != null && { fontFamily }),
+          ...(fontSize != null && { fontSize }),
+          ...(fontWeight != null && {
+            body1: { fontWeight },
+            body2: { fontWeight },
+            caption: { fontWeight },
+            subtitle1: { fontWeight },
+            subtitle2: { fontWeight },
+            h6: { fontWeight },
+            button: { fontWeight },
+          }),
+        },
+      }
       : {};
 
     const fontComponents = fontSx
       ? {
-          MuiTableCell: { styleOverrides: { root: fontSx } },
-          MuiInputBase: { styleOverrides: { root: fontSx, input: fontSx } },
-          MuiTypography: { styleOverrides: { root: fontSx } },
-          MuiButton: { styleOverrides: { root: fontSx } },
-          MuiIconButton: { styleOverrides: { root: fontSx } },
-          MuiFormControlLabel: { styleOverrides: { label: fontSx } },
-          MuiMenuItem: { styleOverrides: { root: fontSx } },
-          MuiAlert: { styleOverrides: { root: fontSx, title: fontSx } },
-          MuiSelect: {
-            styleOverrides: {
-              select: ({ theme }) => ({
-                ...fontSx,
-                ...(muiSelectRtlOverrides.select && muiSelectRtlOverrides.select({ theme })),
-              }),
-              ...(muiSelectRtlOverrides.icon && { icon: muiSelectRtlOverrides.icon }),
-            },
+        MuiTableCell: { styleOverrides: { root: fontSx } },
+        MuiInputBase: { styleOverrides: { root: fontSx, input: fontSx } },
+        MuiTypography: { styleOverrides: { root: fontSx } },
+        MuiButton: { styleOverrides: { root: fontSx } },
+        MuiIconButton: { styleOverrides: { root: fontSx } },
+        MuiFormControlLabel: { styleOverrides: { label: fontSx } },
+        MuiMenuItem: { styleOverrides: { root: fontSx } },
+        MuiAlert: { styleOverrides: { root: fontSx, title: fontSx } },
+        MuiSelect: {
+          styleOverrides: {
+            select: ({ theme }) => ({
+              ...fontSx,
+              ...(muiSelectRtlOverrides.select && muiSelectRtlOverrides.select({ theme })),
+            }),
+            ...(muiSelectRtlOverrides.icon && { icon: muiSelectRtlOverrides.icon }),
           },
-        }
+        },
+      }
       : {};
 
     const rtlComponents =
-      direction === DIRECTION_RTL
-        ? {
-          ...(!fontSx && muiSelectRtlOverrides.select && {
-            MuiSelect: { styleOverrides: muiSelectRtlOverrides },
-          }),
-          MuiAutocomplete: {
-            styleOverrides: {
-              root: ({ theme }) => ({
-                '& .MuiAutocomplete-endAdornment': {
-                  left: `${theme.spacing(1.125)} !important`,
-                  right: 'auto !important',
-                  display: 'flex',
-                  alignItems: 'center',
-                },
-              }),
+    {
+      ...(!fontSx && muiSelectRtlOverrides.select && {
+        MuiSelect: { styleOverrides: muiSelectRtlOverrides },
+      }),
+      MuiAutocomplete: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '& .MuiAutocomplete-endAdornment': {
+              left: direction === DIRECTION_RTL ? `${theme.spacing(0.25)} !important` : 'auto !important',
+              right: direction === DIRECTION_LTR ? `${theme.spacing(0.25)} !important` : 'auto !important',
+              display: 'flex',
+              alignItems: 'center',
             },
-          },
-        }
-        : {};
+          }),
+        },
+      },
+    };
 
     return createTheme({
       direction,

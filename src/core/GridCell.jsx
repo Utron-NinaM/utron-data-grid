@@ -180,7 +180,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
       // When editing, show editor and error icon if needed
       return (
         <Box sx={editorWrapperSx}>
-          <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+          <Box sx={{ flex: 1, minWidth: 0, minHeight: 0, height: '100%', overflow: 'hidden' }}>
             {editor}
           </Box>
           {errorIcon}

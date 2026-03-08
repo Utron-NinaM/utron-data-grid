@@ -52,6 +52,7 @@ export const listEditorSx = {
     paddingRight: '2px',
   },
   '& .MuiAutocomplete-inputRoot': {
+    position: 'relative',
     overflow: 'visible !important',
     minWidth: 0,
   },
@@ -59,10 +60,41 @@ export const listEditorSx = {
     visibility: 'visible !important',
     opacity: '1 !important',
     pointerEvents: 'auto',
-  },
-  '& .MuiAutocomplete-endAdornment': {
     display: 'flex',
     alignItems: 'center',
+    alignSelf: 'center',
+    marginTop: '-1px',
+  },
+  '& .MuiAutocomplete-popupIndicator': {
+    display: 'flex',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
+  '& .MuiAutocomplete-endAdornment': {
+    position: 'absolute',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    height: '100%',
+    maxHeight: '100%',
+    display: 'flex',
+    alignItems: 'center',
+  },
+  '& .MuiAutocomplete-endAdornment .MuiSvgIcon-root': {
+    display: 'block',
+  },
+  '& .MuiAutocomplete-endAdornment .MuiIconButton-root': {
+    minHeight: '0',
+    height: '100%',
+    maxHeight: '100%',
+    padding: '0',
+    margin: '0',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  '& .MuiInputBase-input': {
+    ...(_compactSx['& .MuiInputBase-input'] || {}),
+    alignSelf: 'center',
   },
 };
 

@@ -7,6 +7,7 @@ import { slicePage } from '../pagination/paginationUtils';
 import { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } from '../filters/FilterBar';
 import { getEditor } from '../editors/CellEditors';
 import { defaultGridConfig } from '../config/defaultConfig';
+import { EDITOR_OUTLINE_BORDER_PX } from '../constants';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, OPERATOR_PERIOD, DIRECTION_LTR, FIELD_TYPE_LIST } from '../config/schema';
 import { getOptionMap } from '../utils/optionUtils';
 import { useDataGridMaps } from './useDataGridMaps';
@@ -329,8 +330,8 @@ export function useDataGrid(props) {
     const rowHeightPx = parsePx(row.height);
     const paddingTopPx = parsePx(row.paddingTop);
     const paddingBottomPx = parsePx(row.paddingBottom);
-    // Subtract 1px for MUI input outline border so edited row height matches non-edited
-    const content = rowHeightPx - paddingTopPx - paddingBottomPx - 1;
+    // Match body cell content height minus outline so edited row height matches non-edited
+    const content = rowHeightPx - paddingTopPx - paddingBottomPx - EDITOR_OUTLINE_BORDER_PX;
     return content > 0 ? content : undefined;
   }, [effectiveBodyRow]);
 

@@ -73,3 +73,4 @@ export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 export const BODY_ROW_HEIGHT = 30;
 export const BODY_ROW_PADDING_VERTICAL_PX = 2;
 export const BODY_ROW_PADDING_HORIZONTAL_PX = 4;
+export const EDITOR_OUTLINE_BORDER_PX = 1;

@@ -185,7 +185,7 @@ function ListEditor({
           </li>
         );
       }}
-      sx={{ ...listEditorRootSx, ...listEditorSx }}
+      sx={{ ...listEditorRootSx, ...listEditorSx, ...compactEditorSx }}
       renderInput={(params) => (
         <TextField
           {...params}
@@ -210,14 +210,13 @@ function ListEditor({
             color: 'text.secondary',
             visibility: 'visible !important',
             opacity: '1 !important',
-            padding: '2px',
             minWidth: 24,
+            marginTop: '-1px', // optical nudge so clear (X) aligns with dropdown (▼)
             '& .MuiSvgIcon-root': { fontSize: 16 },
           },
         },
         popupIndicator: {
           sx: {
-            padding: '2px',
             minWidth: 24,
             '& .MuiSvgIcon-root': { fontSize: 16 },
           },

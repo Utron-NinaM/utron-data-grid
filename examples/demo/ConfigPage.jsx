@@ -19,7 +19,7 @@ import { OptionEditor } from './optionEditors/OptionEditor';
 const GROUP_ORDER = ['layout', 'behavior', 'filtering', 'selection', 'appearance', 'pagination', 'identity'];
 const MAX_COLUMN_COUNT = 20;
 export const DEFAULT_COLUMN_COUNT = 10;
-export const DEFAULT_SAMPLE_SIZE = 105;
+export const DEFAULT_SAMPLE_SIZE = 25;
 export const DEFAULT_CONTAINER_WIDTH = '100%';
 export const DEFAULT_EMPTY_ROW_COUNT = 0;
 
