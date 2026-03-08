@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
@@ -27,13 +27,28 @@ export function ListFilter({ value, onChange, options }) {
   const direction = ctx?.direction ?? DIRECTION_LTR;
   const isRtl = direction === DIRECTION_RTL;
   const boundaryEl = ctx?.dropdownBoundaryRef?.current ?? undefined;
-  const [inputValue, setInputValue] = React.useState('');
   const listOptions = options ?? [];
   const optionMap = useMemo(() => getOptionMap(listOptions), [listOptions]);
   const keysArray = Array.isArray(value) ? value : value != null ? [value] : [];
   const valueResolved = useMemo(
     () => keysArray.map((key) => optionMap.get(key)).filter(Boolean),
     [keysArray, optionMap]
+  );
+
+  const filterOptions = useCallback(
+    (options, state) => {
+      const search = (state.inputValue ?? '').trim().toLowerCase();
+      const filtered = !search
+        ? options
+        : options.filter((option) => {
+            const label = getOptionLabel(option).toLowerCase();
+            const code = String(getOptionValue(option)).toLowerCase();
+            return label.includes(search) || code.includes(search);
+          });      
+      const selectedMissing = valueResolved.filter((o) => !filtered.some((f) => getOptionValue(f) === getOptionValue(o)));
+      return selectedMissing.length ? [...selectedMissing, ...filtered] : filtered;
+    },
+    [valueResolved]
   );
 
   return (
@@ -43,16 +58,14 @@ export function ListFilter({ value, onChange, options }) {
           multiple
           size="small"
           options={listOptions}
+          filterOptions={filterOptions}
           value={valueResolved}
-          inputValue={inputValue}
-          onInputChange={(_, newInputValue) => setInputValue(newInputValue)}
           disableCloseOnSelect
           disableClearable
           getOptionLabel={getOptionLabel}
           isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
           onChange={(_, newVal) => {
             onChange(newVal ? newVal.map(getOptionValue) : []);
-            setInputValue('');
           }}
           renderOption={(props, option, { selected: isSelected }) => {
             const { key, ...restProps } = props;
