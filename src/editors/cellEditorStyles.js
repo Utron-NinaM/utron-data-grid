@@ -80,15 +80,15 @@ export function getListEditorInputSx(isRtl) {
       whiteSpace: 'nowrap !important',
       boxSizing: 'border-box !important',
     },
-    ...(isRtl && {
+    ...{
       '& .MuiOutlinedInput-root': {
         minWidth: 0,
-        paddingLeft: `${LIST_EDITOR_RTL_ADORNMENT_PADDING_PX}px !important`,
-        paddingRight: '2px !important',
+        paddingLeft: isRtl ? `${LIST_EDITOR_RTL_ADORNMENT_PADDING_PX}px !important` : '2px !important',
+        paddingRight: isRtl ? '2px !important' : `${LIST_EDITOR_RTL_ADORNMENT_PADDING_PX}px !important`,
         paddingTop: '2px !important',
         paddingBottom: '2px !important',
         boxSizing: 'border-box !important',
       },
-    }),
+    },
   };
 }

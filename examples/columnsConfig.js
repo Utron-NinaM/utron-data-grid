@@ -35,7 +35,7 @@ const skuOptionsHe = [
 
 export const columnsConfig = [
   { field: 'make', headerName: 'Make', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 50 },
-  { field: 'model', headerName: 'Model', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 200, minWidth: 150, maxWidth: 300, cellStyle: { fontSize: '20px' } },
+  { field: 'model', headerName: 'Model', type: FIELD_TYPE_TEXT, filter: FIELD_TYPE_TEXT, editable: true, width: 200, minWidth: 150, maxWidth: 300, cellStyle: { fontSize: '14px' } },
   { field: 'price', headerName: 'Price', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, flex: 1 },
   { field: 'year', headerName: 'Year', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_NUMBER, editable: true, flex: 2 },
   {
