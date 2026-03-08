@@ -9,10 +9,11 @@ import { DataGridStableContext } from '../../DataGrid/DataGridContext';
 import { getOptionLabel, getOptionValue, getOptionMap } from '../../utils/optionUtils';
 import { DIRECTION_RTL, DIRECTION_LTR } from '../../config/schema';
 import {
-  getFilterContentHeight,
   filterRowWrapperSxNoPadding,
   getListFilterAutocompleteInputSx,
   getListFilterAutocompleteSx,
+  getAutocompleteWrapperSx,
+  getFilterContentHeight,
 } from '../filterBoxStyles';
 import { MAX_LIST_FILTER_INPUT_LENGTH } from '../../constants';
 
@@ -35,79 +36,71 @@ export function ListFilter({ value, onChange, options }) {
     [keysArray, optionMap]
   );
 
-  const autocompleteWrapperSx = {
-    flex: 1,
-    minWidth: 0,
-    height: contentHeight,
-    minHeight: contentHeight,
-    maxHeight: contentHeight,
-    overflow: 'hidden',
-    display: 'flex',
-  };
-
   return (
     <Box sx={filterRowWrapperSxNoPadding}>
-      <Box sx={autocompleteWrapperSx}>
-      <Autocomplete
-        multiple
-        size="small"
-        options={listOptions}
-        value={valueResolved}
-        inputValue={inputValue}
-        onInputChange={(_, newInputValue) => setInputValue(newInputValue)}
-        disableCloseOnSelect
-        disableClearable
-        getOptionLabel={getOptionLabel}
-        isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
-        onChange={(_, newVal) => {
-          onChange(newVal ? newVal.map(getOptionValue) : []);
-          setInputValue('');
-        }}
-        renderOption={(props, option, { selected: isSelected }) => {
-          const { key, ...restProps } = props;          
-          return (
-            <li key={key} {...restProps} style={{ direction, textAlign: isRtl ? 'right' : 'left', 
-                                                 paddingRight: 12, paddingLeft: 12, paddingTop: 0, paddingBottom: 0}}>             
-                <>                  
-                <Checkbox
-              icon={icon}
-              checkedIcon={checkedIcon}
-              style={{ [isRtl ? 'marginLeft' : 'marginRight']: 2}}
-              checked={isSelected}
-            />
-            
-            {getOptionLabel(option)}
+      <Box sx={getAutocompleteWrapperSx(contentHeight)}>
+        <Autocomplete
+          multiple
+          size="small"
+          options={listOptions}
+          value={valueResolved}
+          inputValue={inputValue}
+          onInputChange={(_, newInputValue) => setInputValue(newInputValue)}
+          disableCloseOnSelect
+          disableClearable
+          getOptionLabel={getOptionLabel}
+          isOptionEqualToValue={(a, b) => getOptionValue(a) === getOptionValue(b)}
+          onChange={(_, newVal) => {
+            onChange(newVal ? newVal.map(getOptionValue) : []);
+            setInputValue('');
+          }}
+          renderOption={(props, option, { selected: isSelected }) => {
+            const { key, ...restProps } = props;
+            return (
+              <li key={key} {...restProps} style={{
+                direction, textAlign: isRtl ? 'right' : 'left',
+                paddingRight: 12, paddingLeft: 12, paddingTop: 0, paddingBottom: 0
+              }}>
+                <>
+                  <Checkbox
+                    icon={icon}
+                    checkedIcon={checkedIcon}
+                    style={{ [isRtl ? 'marginLeft' : 'marginRight']: 2 }}
+                    checked={isSelected}
+                  />
+
+                  {getOptionLabel(option)}
                 </>
-            </li>
-          );
-        }}
-        renderTags={() => null}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            inputProps={{ ...params.inputProps, maxLength: MAX_LIST_FILTER_INPUT_LENGTH, dir: direction }}
-            sx={getListFilterAutocompleteInputSx(isRtl)}
-          />
-        )}
-        sx={getListFilterAutocompleteSx(contentHeight)}
-        slotProps={{
-          popper: {
-            disablePortal: false,
-            placement: 'bottom-start',
-            modifiers: [
-              {
-                name: 'preventOverflow',
-                options: { rootBoundary: 'viewport', padding: 8, ...(boundaryEl ? { boundary: boundaryEl } : {}) },
-              },
-              { name: 'flip', enabled: false },
-            ],
-            sx: { minWidth: 'max-content', direction},
-          },
-          listbox: {
-            sx: { direction, px: 2 },
-          },
-        }}
-      />
+              </li>
+            );
+          }}
+          renderTags={() => null}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              inputProps={{ ...params.inputProps, maxLength: MAX_LIST_FILTER_INPUT_LENGTH, dir: direction }}
+              sx={getListFilterAutocompleteInputSx(isRtl)}
+            />
+          )}
+          sx={getListFilterAutocompleteSx(contentHeight)}
+          slotProps={{
+            popper: {
+              disablePortal: false,
+              placement: 'bottom-start',
+              modifiers: [
+                {
+                  name: 'preventOverflow',
+                  options: { rootBoundary: 'viewport', padding: 8, ...(boundaryEl ? { boundary: boundaryEl } : {}) },
+                },
+                { name: 'flip', enabled: false },
+              ],
+              sx: { minWidth: 'max-content', direction },
+            },
+            listbox: {
+              sx: { direction, px: 2 },
+            },
+          }}
+        />
       </Box>
     </Box>
   );

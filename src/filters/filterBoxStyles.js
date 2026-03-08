@@ -83,6 +83,7 @@ export const operatorMenuItemLabelSx = {
 export const filterRowWrapperSx = {
   display: 'flex',
   alignItems: 'center',
+  alignContent: 'center',
   gap: 0.5,
   width: '100%',
   minWidth: 0,
@@ -94,6 +95,20 @@ export const filterRowWrapperSxNoPadding = {
   ...filterRowWrapperSx,
   padding: 0,
 };
+
+export function getAutocompleteWrapperSx(contentHeight) {
+  return {
+    flex: 1,
+    minWidth: 0,
+    height: contentHeight,
+    minHeight: contentHeight,
+    maxHeight: contentHeight,
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    alignContent: 'center',
+  };
+}
 
 /** Input/control that fills remaining space in filter row. */
 export const filterInputFlexSx = {
@@ -123,6 +138,7 @@ export function getListFilterAutocompleteInputSx(isRtl) {
     '& .MuiInputBase-root': {
       display: 'flex',
       alignItems: 'center',
+      alignContent: 'center',
     },
     '& .MuiInputBase-input': {
       textAlign: isRtl ? 'right' : 'left',
