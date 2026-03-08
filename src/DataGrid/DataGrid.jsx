@@ -195,6 +195,8 @@ export const DataGrid = forwardRef(function DataGrid(props, ref) {
                 '& .MuiAutocomplete-endAdornment': {
                   left: `${theme.spacing(1.125)} !important`,
                   right: 'auto !important',
+                  display: 'flex',
+                  alignItems: 'center',
                 },
               }),
             },
