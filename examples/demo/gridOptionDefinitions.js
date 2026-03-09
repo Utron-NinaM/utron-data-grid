@@ -68,6 +68,13 @@ export const gridOptionDefinitions = [
     group: 'layout',
     default: defaultGridConfig.showHorizontalScrollbar,
   },
+  {
+    key: 'virtualization',
+    label: 'Virtualization',
+    type: 'boolean',
+    group: 'layout',
+    default: defaultGridConfig.virtualization,
+  },
   // Behavior
   {
     key: 'editable',

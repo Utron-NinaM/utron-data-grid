@@ -19,7 +19,8 @@ import { generateSampleData } from '../sampleData';
 import { en } from '../translations';
 import { useDemoConfig } from './DemoConfigContext';
 import { DEFAULT_SAMPLE_SIZE } from './ConfigPage';
-import { DIRECTION_RTL } from '../../src/config/schema';
+import { DIRECTION_RTL, FIELD_TYPE_NUMBER, FILTER_TYPE_NONE } from '../../src/config/schema';
+import { getDefaultAlign } from '../../src/utils/directionUtils';
 
 function buildGridOptions(gridOptions) {
   const opts = { ...gridOptions };
@@ -51,17 +52,36 @@ export function GridExamplePage() {
 
   const direction = gridOptions.direction ?? 'ltr';
   const count = Math.min(20, Math.max(1, columnCount ?? 20));
+  const indexColumn = useMemo(
+    () => ({
+      field: '_index',
+      headerName: '#',
+      type: FIELD_TYPE_NUMBER,
+      filter: FILTER_TYPE_NONE,
+      editable: false,
+      width: 48,
+      align: getDefaultAlign(direction),
+    }),
+    [direction]
+  );
   const columns = useMemo(
-    () => addDemoCreateOnlyColumns(addDemoRowValidators(addDemoValidators(
-      (direction === DIRECTION_RTL ? columnsConfigHebrew : columnsConfig).slice(0, count)
-    ))),
-    [direction, count]
+    () => [
+      indexColumn,
+      ...addDemoCreateOnlyColumns(addDemoRowValidators(addDemoValidators(
+        (direction === DIRECTION_RTL ? columnsConfigHebrew : columnsConfig).slice(0, count)
+      ))),
+    ],
+    [direction, count, indexColumn]
   );
 
   const gridRef = useRef(null);
   const mainContentRef = useRef(null);
 
   const [editedData, setEditedData] = useState(null);
+  const rowsWithIndex = useMemo(
+    () => (editedData ?? data).map((r, i) => ({ ...r, _index: i + 1 })),
+    [editedData, data]
+  );
   useEffect(() => {
     setEditedData(null);
   }, [sampleSize]);
@@ -232,7 +252,7 @@ export function GridExamplePage() {
           >
             <DataGrid
               ref={gridRef}
-              rows={editedData ?? data}
+              rows={rowsWithIndex}
               columns={columns}
               getRowId={(row) => row.id}
               options={options}

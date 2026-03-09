@@ -50,6 +50,7 @@ import { isEmptyRow } from './useDataGridEdit';
  * @property {string} [fontFamily] - Font family for all grid components (e.g. 'Roboto, sans-serif', var(--app-font-family)). Cascades from root.
  * @property {number|string} [fontWeight] - Font weight (e.g. 400, 600, 'bold'). Cascades from root.
  * @property {React.RefObject<HTMLElement|null>} [dropdownBoundaryRef] - Ref to the element that defines the clipping area for dropdowns (e.g. the main content wrapper that excludes sidebars). When set, list and filter dropdowns stay within this element's bounds. Omit to use viewport.
+ * @property {boolean} [virtualization=false] - When true and the grid has a height constraint (e.g. sx with height or maxHeight), only visible rows plus a small overscan are rendered for better performance with large datasets. Requires fixed row height (bodyRow.height).
  */
 
 /**

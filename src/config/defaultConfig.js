@@ -16,6 +16,7 @@ export const defaultGridConfig = {
   fitToContainer: false,
   multiSelectable: false,
   pagination: false,
+  virtualization: false,
   pageSize: DEFAULT_PAGE_SIZE,
   pageSizeOptions: PAGE_SIZE_OPTIONS,
   density: 'standard',

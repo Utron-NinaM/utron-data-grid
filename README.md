@@ -81,6 +81,7 @@ const rows = [
 | `onPageChange` | `(page) => void` | Page change callback (notification only) |
 | `onPageSizeChange` | `(pageSize) => void` | Page size change callback |
 | `sx` | `object` | MUI sx for root container. When pagination is true and `sx` includes `height` or `maxHeight`, the table body scrolls and the pagination bar stays visible. |
+| `virtualization` | `boolean` | When true and the grid has a height constraint (`sx` with `height` or `maxHeight`), only visible rows plus a small overscan are rendered for better performance with large datasets. Requires fixed row height (`bodyRow.height`). Default false. |
 | `headerConfig` | `object` | `base` (MUI sx for TableHead), `mainRow`, `filterRows`, `filterCells`. Each row object accepts `backgroundColor`, `height`, and any MUI sx (e.g. `fontSize`, `fontWeight`, `fontFamily`) to override grid-level typography for that row. |
 | `bodyRow` | `object` | Body row config: `height`, `paddingTop`, `paddingBottom`, `paddingLeft`, `paddingRight`, and any MUI sx. Used for both view and edit modes so row height and padding stay stable when editing. Default used when undefined (`height: 36`, padding 2px/4px). |
 | `selectedRowStyle` | `object` | MUI sx for selected rows |

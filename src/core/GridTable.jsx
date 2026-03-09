@@ -15,8 +15,9 @@ import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBodyRow } from './GridBodyRow';
 import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
+import { useVirtualWindow,  } from './useVirtualWindow';
 import { ALIGN_CENTER } from '../config/schema';
-import { CHECKBOX_COLUMN_WIDTH_PX } from '../constants';
+import { BODY_ROW_HEIGHT, CHECKBOX_COLUMN_WIDTH_PX } from '../constants';
 import {
   getToolbarBoxSx,
   toolbarActionsBoxSx,
@@ -62,7 +63,7 @@ function GridTableInner({
     hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
     colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
-    toolbarClearButtonsSx, direction, selectRow, bodyRow, editable, editStore } = ctx;
+    toolbarClearButtonsSx, direction, selectRow, bodyRow, editable, editStore, virtualization, rowHeightPx: ctxRowHeightPx } = ctx;
 
   const editRowId = useSyncExternalStore(
     editStore?.subscribe ?? (() => () => {}),
@@ -94,26 +95,6 @@ function GridTableInner({
   const { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } = filterCtx;
   const sortModelLength = sortModel?.length ?? 0;
 
-  // Row sx: row style + row-level hover (selector styles cells on row hover so hover overrides row/cell without state).
-  const mergedRowStylesMap = useMemo(() => {
-    const hasCustomHover = rowHoverStyle != null && typeof rowHoverStyle === 'object' && !Array.isArray(rowHoverStyle) && Object.keys(rowHoverStyle).length > 0;
-    const hoverContent = hasCustomHover ? (rowHoverStyle['&:hover'] ?? rowHoverStyle) : null;
-    const hoverBlock =
-      disableRowHover
-        ? null
-        : hasCustomHover && hoverContent != null && Object.keys(hoverContent).length > 0
-          ? { '&:hover:not(.Mui-selected) td': hoverContent }
-          : (theme) => ({ '&:hover:not(.Mui-selected) td': { backgroundColor: theme.palette.action.hover } });
-    const bodyRowHeightSx = getBodyRowHeightSx(bodyRow?.height);
-    const map = new Map();
-    rows.forEach((row) => {
-      const rowId = getRowId(row);
-      const baseRowSx = rowStylesMap?.get(rowId);
-      const rowSxArray = [bodyRowHeightSx, baseRowSx, hoverBlock].filter(Boolean);
-      map.set(rowId, rowSxArray.length ? rowSxArray : undefined);
-    });
-    return map;
-  }, [rows, rowStylesMap, disableRowHover, rowHoverStyle, getRowId, bodyRow]);
   const handleTableBodyClick = useMemo(() => {
     if (!selectRow) return undefined;
     return (event) => {
@@ -155,37 +136,6 @@ function GridTableInner({
     };
   }, [onSelect, selectionDisabled]);
 
-  // Compute body rows inline - React reconciliation handles optimization efficiently
-  let bodyRows;
-  if (rows.length === 0) {
-    bodyRows = (
-      <TableRow>
-        <TableCell colSpan={columns.length + (multiSelectable ? 1 : 0)} align={ALIGN_CENTER}>
-          {translations('noRows')}
-        </TableCell>
-      </TableRow>
-    );
-  } else {
-    bodyRows = rows.map((row) => {
-      const rowId = getRowId(row);
-      return (
-        <GridBodyRow
-          key={rowId}
-          row={row}
-          rowId={rowId}
-          selected={selection?.has(rowId)}
-          onSelectRow={handleSelectRow}
-          rowSx={mergedRowStylesMap.get(rowId)}
-          rowStyle={rowStylesMap?.get(rowId)}
-          selectedRowStyle={selectedRowStyle}
-          disableRowHover={disableRowHover}
-          columns={columns}
-          multiSelectable={multiSelectable}
-          getEditor={getEditor}
-        />
-      );
-    });
-  }
   const scrollContainerRef = useRef(null);
   const tooltipContainerRef = useRef(null);
   const [scrollContainerReady, setScrollContainerReady] = useState(false);
@@ -215,6 +165,122 @@ function GridTableInner({
       }
     };
   }, [containScroll]);
+
+  const rowHeightPx = ctxRowHeightPx ?? BODY_ROW_HEIGHT;
+  const virtualWindow = useVirtualWindow({
+    scrollContainerRef: ctxScrollContainerRef,
+    scrollContainerReady: containScroll ? scrollContainerReady : false,
+    rowCount: rows.length,
+    rowHeightPx,
+  });
+
+  const rowsForStyleMap =
+    virtualization && containScroll
+      ? rows.slice(virtualWindow.startIndex, virtualWindow.endIndex)
+      : rows;
+  const mergedRowStylesMap = useMemo(() => {
+    const hasCustomHover = rowHoverStyle != null && typeof rowHoverStyle === 'object' && !Array.isArray(rowHoverStyle) && Object.keys(rowHoverStyle).length > 0;
+    const hoverContent = hasCustomHover ? (rowHoverStyle['&:hover'] ?? rowHoverStyle) : null;
+    const hoverBlock =
+      disableRowHover
+        ? null
+        : hasCustomHover && hoverContent != null && Object.keys(hoverContent).length > 0
+          ? { '&:hover:not(.Mui-selected) td': hoverContent }
+          : (theme) => ({ '&:hover:not(.Mui-selected) td': { backgroundColor: theme.palette.action.hover } });
+    const bodyRowHeightSx = getBodyRowHeightSx(bodyRow?.height);
+    const map = new Map();
+    rowsForStyleMap.forEach((row) => {
+      const rowId = getRowId(row);
+      const baseRowSx = rowStylesMap?.get(rowId);
+      const rowSxArray = [bodyRowHeightSx, baseRowSx, hoverBlock].filter(Boolean);
+      map.set(rowId, rowSxArray.length ? rowSxArray : undefined);
+    });
+    return map;
+  }, [rowsForStyleMap, rowStylesMap, disableRowHover, rowHoverStyle, getRowId, bodyRow]);
+
+  const colSpanAll = columns.length + (multiSelectable ? 1 : 0);
+  const spacerRowSx = (heightPx) => ({
+    height: `${heightPx}px`,
+    minHeight: `${heightPx}px`,
+    maxHeight: `${heightPx}px`,
+    padding: 0,
+    lineHeight: 0,
+    border: 'none',
+    overflow: 'hidden',
+    verticalAlign: 'top',
+  });
+
+  // Compute body rows inline - React reconciliation handles optimization efficiently
+  let bodyRows;
+  if (rows.length === 0) {
+    bodyRows = (
+      <TableRow>
+        <TableCell colSpan={colSpanAll} align={ALIGN_CENTER}>
+          {translations('noRows')}
+        </TableCell>
+      </TableRow>
+    );
+  } else if (virtualization && containScroll) {
+    const { startIndex, endIndex, totalHeight } = virtualWindow;
+    const topHeight = startIndex * rowHeightPx;
+    const bottomHeight = (rows.length - endIndex) * rowHeightPx;
+    const visibleRows = rows.slice(startIndex, endIndex);
+
+    bodyRows = (
+      <>
+        {topHeight > 0 && (
+          <TableRow sx={{ ...spacerRowSx(topHeight), visibility: 'hidden' }}>
+            <TableCell colSpan={colSpanAll} sx={spacerRowSx(topHeight)} aria-hidden="true" />
+          </TableRow>
+        )}
+        {visibleRows.map((row) => {
+          const rowId = getRowId(row);
+          return (
+            <GridBodyRow
+              key={rowId}
+              row={row}
+              rowId={rowId}
+              selected={selection?.has(rowId)}
+              onSelectRow={handleSelectRow}
+              rowSx={mergedRowStylesMap.get(rowId)}
+              rowStyle={rowStylesMap?.get(rowId)}
+              selectedRowStyle={selectedRowStyle}
+              disableRowHover={disableRowHover}
+              columns={columns}
+              multiSelectable={multiSelectable}
+              getEditor={getEditor}
+            />
+          );
+        })}
+        {bottomHeight > 0 && (
+          <TableRow sx={{ ...spacerRowSx(bottomHeight), visibility: 'hidden' }}>
+            <TableCell colSpan={colSpanAll} sx={spacerRowSx(bottomHeight)} aria-hidden="true" />
+          </TableRow>
+        )}
+      </>
+    );
+  } else {
+    bodyRows = rows.map((row) => {
+      const rowId = getRowId(row);
+      return (
+        <GridBodyRow
+          key={rowId}
+          row={row}
+          rowId={rowId}
+          selected={selection?.has(rowId)}
+          onSelectRow={handleSelectRow}
+          rowSx={mergedRowStylesMap.get(rowId)}
+          rowStyle={rowStylesMap?.get(rowId)}
+          selectedRowStyle={selectedRowStyle}
+          disableRowHover={disableRowHover}
+          columns={columns}
+          multiSelectable={multiSelectable}
+          getEditor={getEditor}
+        />
+      );
+    });
+  }
+
   const toolbarBox = (
     <Box sx={getToolbarBoxSx(containScroll)}>
       <Box sx={toolbarActionsBoxSx}>

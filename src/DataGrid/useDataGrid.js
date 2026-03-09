@@ -7,7 +7,7 @@ import { slicePage } from '../pagination/paginationUtils';
 import { getHeaderComboSlot, getFilterInputSlot, getFilterToInputSlot } from '../filters/FilterBar';
 import { getEditor } from '../editors/CellEditors';
 import { defaultGridConfig } from '../config/defaultConfig';
-import { EDITOR_OUTLINE_BORDER_PX } from '../constants';
+import { BODY_ROW_HEIGHT, EDITOR_OUTLINE_BORDER_PX } from '../constants';
 import { SORT_ORDER_ASC, SORT_ORDER_DESC, OPERATOR_IN_RANGE, OPERATOR_PERIOD, DIRECTION_LTR, FIELD_TYPE_LIST } from '../config/schema';
 import { getOptionMap } from '../utils/optionUtils';
 import { useDataGridMaps } from './useDataGridMaps';
@@ -67,6 +67,7 @@ export function useDataGrid(props) {
     fontSize = defaultGridConfig.fontSize,
     showHorizontalScrollbar = defaultGridConfig.showHorizontalScrollbar,
     dropdownBoundaryRef,
+    virtualization = defaultGridConfig.virtualization,
   } = props;
 
   const [internalSort, setInternalSort] = useState(() => getStoredSortModel(props.gridId, props.columns));
@@ -284,15 +285,6 @@ export function useDataGrid(props) {
     [getRowId, onRowSelect, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit, selection.size, onSelectionChange]
   );
 
-  const handleValidationErrorClick = useCallback((rowId, _field) => {
-    const container = containerRef?.current;
-    if (!container) return;
-    const rowEl = container.querySelector(`[data-row-id="${rowId}"]`);
-    if (rowEl) {
-      rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }
-  }, []);
-
   const filteredRows = useMemo(
     () => applyFilters(rows, debouncedFilterModel, columns),
     [rows, debouncedFilterModel, columns]
@@ -323,6 +315,29 @@ export function useDataGrid(props) {
   });
 
   const effectiveBodyRow = bodyRow ?? defaultGridConfig.bodyRow;
+
+  const rowHeightPx = useMemo(
+    () => parsePx(effectiveBodyRow?.height) || BODY_ROW_HEIGHT,
+    [effectiveBodyRow]
+  );
+
+  const handleValidationErrorClick = useCallback((rowId, _field) => {
+    const scrollEl = scrollContainerRef?.current;
+    if (virtualization && scrollEl) {
+      const index = displayRows.findIndex((r) => String(getRowId(r)) === String(rowId));
+      if (index >= 0) {
+        const targetTop = index * rowHeightPx;
+        scrollEl.scrollTo({ top: targetTop, behavior: 'smooth' });
+      }
+      return;
+    }
+    const container = containerRef?.current;
+    if (!container) return;
+    const rowEl = container.querySelector(`[data-row-id="${rowId}"]`);
+    if (rowEl) {
+      rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }, [virtualization, displayRows, getRowId, rowHeightPx]);
 
   const editorContentHeightPx = useMemo(() => {
     const row = effectiveBodyRow;
@@ -450,6 +465,9 @@ export function useDataGrid(props) {
       handleEditSave,
       handleEditCancel,
       handleValidationErrorClick,
+      bodyRow: effectiveBodyRow,
+      virtualization,
+      rowHeightPx,
     }),
     [
       columns,
@@ -507,6 +525,9 @@ export function useDataGrid(props) {
       handleEditSave,
       handleEditCancel,
       handleValidationErrorClick,
+      effectiveBodyRow,
+      virtualization,
+      rowHeightPx,
     ]
   );
 
