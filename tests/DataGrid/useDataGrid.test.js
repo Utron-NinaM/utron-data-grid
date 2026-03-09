@@ -186,7 +186,10 @@ describe('useDataGrid', () => {
       });
       expect(result.current.filterModel).toEqual({ name: { value: 'A', operator: OPERATOR_CONTAINS } });
       expect(result.current.page).toBe(0);
-      expect(onFilterChange).toHaveBeenCalledWith({ name: { value: 'A', operator: OPERATOR_CONTAINS } });
+      expect(onFilterChange).toHaveBeenCalledWith(
+        { name: { value: 'A', operator: OPERATOR_CONTAINS } },
+        expect.objectContaining({ filteredRowCount: expect.any(Number), filteredRows: expect.any(Array) })
+      );
       expect(onPageChange).toHaveBeenCalledWith(0);
     });
 
@@ -239,7 +242,10 @@ describe('useDataGrid', () => {
       act(() => result.current.handleClearAllFilters());
       expect(result.current.filterModel).toEqual({});
       expect(result.current.page).toBe(0);
-      expect(onFilterChange).toHaveBeenCalledWith({});
+      expect(onFilterChange).toHaveBeenCalledWith(
+        {},
+        expect.objectContaining({ filteredRowCount: expect.any(Number), filteredRows: expect.any(Array) })
+      );
     });
   });
 

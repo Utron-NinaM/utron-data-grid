@@ -17,7 +17,7 @@ import { isEmptyRow } from './useDataGridEdit';
  * @property {Object} [translations] - i18n map
  * @property {DIRECTION_LTR|DIRECTION_RTL} [direction=DIRECTION_LTR] - Layout direction
  * @property {Function} [onSortChange] - (sortModel) => void when user changes sort; notification only
- * @property {Function} [onFilterChange] - (filterModel) => void when user changes filters; notification only
+ * @property {Function} [onFilterChange] - (filterModel, result?: { filteredRowCount: number, filteredRows?: Object[] }) => void when filters or data change. result.filteredRowCount is the number of rows matching the current filters (before pagination). result.filteredRows is optional and may be provided for export/summary.
  * @property {Function} [onEditCommit] - (rowId, row) => void
  * @property {Function} [onEditStart] - (rowId, row) => void when entering edit
  * @property {Function} [onEditCancel] - (rowId) => void when user cancels edit

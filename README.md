@@ -60,7 +60,7 @@ const rows = [
 | `translations` | `Object` | i18n map (see Translations) |
 | `direction` | `'ltr' \| 'rtl'` | Layout direction (default `'ltr'`) |
 | `onSortChange` | `(sortModel) => void` | Sort change callback (notification only) |
-| `onFilterChange` | `(filterModel) => void` | Filter change callback (notification only) |
+| `onFilterChange` | `(filterModel, result?) => void` | Called when the user changes filters, clears filters, or when `rows`/filter state change (e.g. initial load, restored filters). Second argument: `result.filteredRowCount` is the number of rows matching the current filters (before pagination). `result.filteredRows` is optional and may be provided for export/summary. |
 | `onEditCommit` | `(rowId, row) => void` | Commit edited row (enables inline edit when provided) |
 | `onEditStart` | `(rowId, row) => void` | When entering edit |
 | `onEditCancel` | `(rowId) => void` | When user cancels edit |

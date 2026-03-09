@@ -156,11 +156,10 @@ export function useDataGrid(props) {
       if (value == null) delete next[field];
       else next[field] = value;
       setInternalFilter(next);
-      onFilterChange?.(next);
       setInternalPage(0);
       onPageChange?.(0);
     },
-    [filterModel, onFilterChange, onPageChange]
+    [filterModel, onPageChange]
   );
 
   const handleSort = useCallback(
@@ -191,12 +190,10 @@ export function useDataGrid(props) {
   const handleClearSort = useCallback(() => setSortModel([]), [setSortModel]);
 
   const handleClearAllFilters = useCallback(() => {
-    const next = {};
-    setInternalFilter(next);
-    onFilterChange?.(next);
+    setInternalFilter({});
     setInternalPage(0);
     onPageChange?.(0);
-  }, [onFilterChange, onPageChange]);
+  }, [onPageChange]);
 
   const handleClearColumnWidths = useCallback(() => setColumnWidthState(new Map()), []);
 
@@ -297,6 +294,14 @@ export function useDataGrid(props) {
     () => applyFilters(rows, debouncedFilterModel, columns),
     [rows, debouncedFilterModel, columns]
   );
+
+  useEffect(() => {
+    onFilterChange?.(filterModel, {
+      filteredRowCount: filteredRows.length,
+      filteredRows,
+    });
+  }, [filterModel, filteredRows, onFilterChange]);
+
   const sortedRows = useMemo(() => applySort(filteredRows, sortModel), [filteredRows, sortModel]);
   const paginationResult = useMemo(
     () => (pagination ? slicePage(sortedRows, page, pageSize) : { rows: sortedRows, total: sortedRows.length, from: 1, to: sortedRows.length }),
