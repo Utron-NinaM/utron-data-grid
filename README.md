@@ -80,7 +80,7 @@ const rows = [
 | `pageSizeOptions` | `number[]` | Page size dropdown options (e.g. [10, 25, 50]) |
 | `onPageChange` | `(page) => void` | Page change callback (notification only) |
 | `onPageSizeChange` | `(pageSize) => void` | Page size change callback |
-| `sx` | `object` | MUI sx for root container. When pagination is true and `sx` includes `height` or `maxHeight`, the table body scrolls and the pagination bar stays visible. |
+| `sx` | `object` | MUI sx for root container. When `sx` includes `height` or `maxHeight`, the grid uses scrollable layout and vertical body virtualization (see Virtualization). When pagination is true, the table body scrolls and the pagination bar stays visible. |
 | `headerConfig` | `object` | `base` (MUI sx for TableHead), `mainRow`, `filterRows`, `filterCells`. Each row object accepts `backgroundColor`, `height`, and any MUI sx (e.g. `fontSize`, `fontWeight`, `fontFamily`) to override grid-level typography for that row. |
 | `bodyRow` | `object` | Body row config: `height`, `paddingTop`, `paddingBottom`, `paddingLeft`, `paddingRight`, and any MUI sx. Used for both view and edit modes so row height and padding stay stable when editing. Default used when undefined (`height: 36`, padding 2px/4px). |
 | `selectedRowStyle` | `object` | MUI sx for selected rows |
@@ -296,6 +296,17 @@ const mainContentRef = useRef(null);
 ## Pagination
 
 Pass `options={{ pagination: true, pageSize: 10, pageSizeOptions: [10, 25, 50, 100] }}`. Use `onPageChange` and `onPageSizeChange` for notifications when the user changes page or page size.
+
+## Virtualization (vertical)
+
+When the grid has a height constraint (`options.sx` with `height` or `maxHeight`), the body uses a **scrollable layout**: the toolbar and header stay fixed and only the table body scrolls. In that mode, the body is **vertically virtualized**:
+
+- Only rows in and near the viewport are rendered (plus a small overscan). Scrolling (wheel, trackpad, Page Up/Down, Home/End, scrollbar drag) updates the visible slice immediately so the viewport does not outrun the rendered content.
+- **No spacer rows** – a single translated layer positions the visible slice; `totalBodyHeight` keeps scroll height correct.
+- **Overscan** – a few extra rows above and below the viewport reduce the chance of gaps during fast or large scroll jumps.
+- **Editing** – the row being edited is always kept in the rendered range so it never disappears during edit mode.
+
+You do not enable virtualization explicitly: it is on whenever the grid root has a height constraint (e.g. `sx: { height: '100%' }` inside a flex container with `minHeight: 0`). Use a constrained height when you need smooth scrolling over large datasets without rendering every row.
 
 ## Editing Empty Placeholder Rows
 

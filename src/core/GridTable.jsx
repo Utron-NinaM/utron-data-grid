@@ -15,6 +15,7 @@ import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBody } from './GridBody';
 import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
+import { useVirtualRows } from './useVirtualRows';
 import { CHECKBOX_COLUMN_WIDTH_PX, BODY_ROW_HEIGHT } from '../constants';
 import {
   getToolbarBoxSx,
@@ -156,10 +157,26 @@ function GridTableInner({
     };
   }, [onSelect, selectionDisabled]);
 
-  const visibleRows = rows;
+  const scrollContainerRef = useRef(null);
+  const tooltipContainerRef = useRef(null);
+  const [scrollContainerReady, setScrollContainerReady] = useState(false);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+
   const rowHeight = bodyRow?.height ?? BODY_ROW_HEIGHT;
-  const totalBodyHeight = rows.length * rowHeight;
-  const offsetY = 0;
+  const editRowIndex = editRowId != null
+    ? rows.findIndex((r) => String(getRowId(r)) === String(editRowId))
+    : -1;
+  const virtualRows = useVirtualRows({
+    scrollContainerRef,
+    rowCount: rows.length,
+    rowHeight,
+    containScroll,
+    editRowIndex: editRowIndex >= 0 ? editRowIndex : null,
+  });
+  const { startIndex, endIndex, offsetY, totalBodyHeight } = virtualRows;
+  const visibleRows = containScroll && rows.length > 0
+    ? rows.slice(startIndex, endIndex)
+    : rows;
 
   const bodyContent = (
     <GridBody
@@ -182,10 +199,6 @@ function GridTableInner({
       colSpan={columns.length + (multiSelectable ? 1 : 0)}
     />
   );
-  const scrollContainerRef = useRef(null);
-  const tooltipContainerRef = useRef(null);
-  const [scrollContainerReady, setScrollContainerReady] = useState(false);
-  const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   const measureScrollbarWidth = useMemo(() => () => {
     if (!scrollContainerRef.current) return;
