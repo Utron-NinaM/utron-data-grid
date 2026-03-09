@@ -1,199 +1,395 @@
 import { useState, useLayoutEffect, useCallback, useRef } from 'react';
-import { flushSync } from 'react-dom';
 
 const DEFAULT_VISIBLE_COUNT = 25;
-/** Velocity (px/ms) above which we use medium overscan (~1 viewport). */
-const VELOCITY_MEDIUM_PX_MS = 0.1;
-/** Velocity (px/ms) above which we use fast overscan (~2 viewports). */
-const VELOCITY_FAST_PX_MS = 0.25;
-const IDLE_MS = 200;
 
-function computeWindow(rowCount, rowHeightPx, scrollTop, containerHeight, overscan) {
+const BASE_OVERSCAN_ROWS = 12;
+const SEEK_IDLE_MS = 120;
+
+// Placeholder mode should be rare.
+// Only enable it for true large jumps, mainly thumb dragging or Home/End.
+const LARGE_JUMP_ROWS = 80;
+const LARGE_JUMP_VIEWPORTS = 2;
+
+const DEBUG_VIRT_PERF = true;
+
+function virtPerfLog(label, ...data) {
+  if (!DEBUG_VIRT_PERF) return;
+  const t = performance.now().toFixed(1);
+  // eslint-disable-next-line no-console
+  console.log(`[VirtPerf] ${t} ${label}`, data);
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function getVisibleCount(containerHeight, rowHeightPx) {
+  if (containerHeight <= 0 || rowHeightPx <= 0) return DEFAULT_VISIBLE_COUNT;
+  return Math.max(1, Math.ceil(containerHeight / rowHeightPx));
+}
+
+function computeVirtualWindow({
+  rowCount,
+  rowHeightPx,
+  scrollTop,
+  containerHeight,
+  overscanRows,
+  isScrollSeeking,
+}) {
   if (rowCount === 0 || rowHeightPx <= 0) {
-    return { startIndex: 0, endIndex: 0, totalHeight: 0 };
+    return {
+      startIndex: 0,
+      endIndex: 0,
+      totalHeight: 0,
+      topSpacerHeight: 0,
+      bottomSpacerHeight: 0,
+      visibleCount: 0,
+      overscanRows: 0,
+      isScrollSeeking,
+    };
   }
+
   const totalHeight = rowCount * rowHeightPx;
-  const visibleCount = Math.ceil(containerHeight / rowHeightPx);
-  const startIndex = Math.max(0, Math.floor(scrollTop / rowHeightPx) - overscan);
-  const endIndex = Math.min(rowCount, startIndex + visibleCount + 2 * overscan);
-  return { startIndex, endIndex, totalHeight };
+  const visibleCount = getVisibleCount(containerHeight, rowHeightPx);
+
+  const unclampedStart = Math.floor(scrollTop / rowHeightPx) - overscanRows;
+  const startIndex = clamp(unclampedStart, 0, rowCount);
+
+  const desiredCount = visibleCount + overscanRows * 2;
+  const endIndex = clamp(startIndex + desiredCount, 0, rowCount);
+
+  const topSpacerHeight = startIndex * rowHeightPx;
+  const bottomSpacerHeight = Math.max(0, totalHeight - (endIndex * rowHeightPx));
+
+  return {
+    startIndex,
+    endIndex,
+    totalHeight,
+    topSpacerHeight,
+    bottomSpacerHeight,
+    visibleCount,
+    overscanRows,
+    isScrollSeeking,
+  };
 }
 
-function getOverscanForVelocity(velocityPxMs, visibleCount, overscanBase) {
-  const overscanMedium = Math.max(overscanBase, visibleCount);
-  const overscanFast = Math.max(overscanMedium, visibleCount * 2);
-  const absV = Math.abs(velocityPxMs);
-  if (absV >= VELOCITY_FAST_PX_MS) return overscanFast;
-  if (absV >= VELOCITY_MEDIUM_PX_MS) return overscanMedium;
-  return overscanBase;
+function areWindowsEqual(a, b) {
+  return (
+    a.startIndex === b.startIndex &&
+    a.endIndex === b.endIndex &&
+    a.totalHeight === b.totalHeight &&
+    a.topSpacerHeight === b.topSpacerHeight &&
+    a.bottomSpacerHeight === b.bottomSpacerHeight &&
+    a.visibleCount === b.visibleCount &&
+    a.overscanRows === b.overscanRows &&
+    a.isScrollSeeking === b.isScrollSeeking
+  );
 }
 
-/** Add extra overscan when scroll jumped many rows in one frame to cover the next frame. */
-function getDeltaOverscan(scrollTop, lastScrollTop, rowHeightPx, visibleCount, maxExtraRows = 50) {
-  if (lastScrollTop == null || rowHeightPx <= 0) return 0;
-  const deltaPx = Math.abs(scrollTop - lastScrollTop);
-  const deltaRows = Math.floor(deltaPx / rowHeightPx);
-  return Math.min(maxExtraRows, Math.max(0, deltaRows - visibleCount));
+function isLargeJump(deltaRows, visibleCount) {
+  return (
+    deltaRows >= LARGE_JUMP_ROWS ||
+    deltaRows >= Math.max(visibleCount * LARGE_JUMP_VIEWPORTS, LARGE_JUMP_ROWS)
+  );
 }
 
-function updateFromContainer(container, rowCount, rowHeightPx, overscan, setWindow) {
-  if (!container || rowCount === 0 || rowHeightPx <= 0) return;
-  const scrollTop = container.scrollTop;
-  const containerHeight = container.clientHeight;
-  const target = computeWindow(rowCount, rowHeightPx, scrollTop, containerHeight, overscan);
+function getOverscanRows({
+  visibleCount,
+  deltaRows,
+  source,
+  baseOverscan,
+  isDraggingScrollbar,
+  settle,
+}) {
+  if (settle) {
+    return Math.max(baseOverscan, 8);
+  }
 
-  setWindow((prev) => {
-    const next = target;
-    const changed = !(prev.startIndex === next.startIndex &&
-      prev.endIndex === next.endIndex &&
-      prev.totalHeight === next.totalHeight);
-    return changed ? next : prev;
-  });
+  let overscan = Math.max(baseOverscan, 8);
+
+  // Wheel should stay full-rendered, just add some buffer.
+  if (source === 'wheel') {
+    if (deltaRows >= 2) overscan = Math.max(overscan, 16);
+    if (deltaRows >= 6) overscan = Math.max(overscan, visibleCount);
+    return Math.ceil(overscan);
+  }
+
+  // Keyboard navigation like PageUp/PageDown should still render real rows.
+  if (source === 'keyboard') {
+    overscan = Math.max(overscan, visibleCount);
+    if (deltaRows >= visibleCount) {
+      overscan = Math.max(overscan, visibleCount * 2);
+    }
+    return Math.ceil(overscan);
+  }
+
+  // Scrollbar dragging may jump far, so overscan much more aggressively.
+  if (isDraggingScrollbar) {
+    overscan = Math.max(overscan, visibleCount * 2);
+    if (deltaRows >= visibleCount) {
+      overscan = Math.max(overscan, visibleCount * 3);
+    }
+    return Math.ceil(overscan);
+  }
+
+  // Unknown/pointer/programmatic scroll, stay conservative.
+  if (deltaRows >= visibleCount) overscan = Math.max(overscan, visibleCount);
+  if (deltaRows >= visibleCount * 2) overscan = Math.max(overscan, visibleCount * 2);
+
+  return Math.ceil(overscan);
 }
 
 /**
- * Hook to compute the visible window of rows for virtualization.
- * @param {Object} params
- * @param {React.RefObject<HTMLElement|null>} params.scrollContainerRef - Ref to the scrolling element
- * @param {boolean} params.scrollContainerReady - When true, ref is attached
- * @param {number} params.rowCount - Total number of rows
- * @param {number} params.rowHeightPx - Fixed row height in px
- * @param {number} [params.overscan] - Base extra rows to render above/below viewport (default 8)
- * @param {boolean} [params.useFlushSyncOnScroll=true] - When true, flush React updates synchronously on scroll to avoid viewport gap
- * @returns {{ startIndex: number, endIndex: number, totalHeight: number }}
+ * Virtual row window:
+ * - immediate range updates on every scroll
+ * - no flushSync
+ * - real rows for wheel / PageUp / PageDown
+ * - placeholders only for true large jumps, mainly scrollbar thumb dragging
  */
 export function useVirtualWindow({
   scrollContainerRef,
   scrollContainerReady,
   rowCount,
   rowHeightPx,
-  overscan = 8,
-  useFlushSyncOnScroll = true,
+  overscan = BASE_OVERSCAN_ROWS,
 }) {
-  const [window, setWindow] = useState(() => {
+  const [windowState, setWindowState] = useState(() => {
     const totalHeight = rowCount * rowHeightPx;
-    const end = Math.min(rowCount, DEFAULT_VISIBLE_COUNT + 2 * overscan);
-    return { startIndex: 0, endIndex: end, totalHeight };
+    const endIndex = Math.min(rowCount, DEFAULT_VISIBLE_COUNT + 2 * overscan);
+
+    return {
+      startIndex: 0,
+      endIndex,
+      totalHeight,
+      topSpacerHeight: 0,
+      bottomSpacerHeight: Math.max(0, totalHeight - (endIndex * rowHeightPx)),
+      visibleCount: DEFAULT_VISIBLE_COUNT,
+      overscanRows: overscan,
+      isScrollSeeking: false,
+    };
   });
 
-  const rafScheduled = useRef(false);
-  const lastScrollTopRef = useRef(null);
-  const lastTimeRef = useRef(null);
+  const lastScrollTopRef = useRef(0);
+  const lastTimeRef = useRef(0);
   const idleTimeoutRef = useRef(null);
-  const paramsRef = useRef({ rowCount, rowHeightPx, overscan });
-  // const wheelDeltaAccumRef = useRef(0); // debug: wheel delta for logging
-  const scrollSourceRef = useRef('unknown');
 
-  paramsRef.current = { rowCount, rowHeightPx, overscan };
+  const lastInputSourceRef = useRef('unknown');
+  const isPointerDownRef = useRef(false);
+  const isDraggingScrollbarRef = useRef(false);
+  const pointerDownXRef = useRef(0);
+  const pointerDownYRef = useRef(0);
 
-  const updateFromScroll = useCallback(() => {
-    if (rafScheduled.current) return;
-    rafScheduled.current = true;
-    requestAnimationFrame(() => {
-      rafScheduled.current = false;
-      const container = scrollContainerRef?.current;
-      if (!container || rowCount === 0 || rowHeightPx <= 0) return;
-
-      const scrollTop = container.scrollTop;
-      const containerHeight = container.clientHeight;
-      const now = performance.now();
-      const lastScrollTop = lastScrollTopRef.current;
-      const lastTime = lastTimeRef.current;
-      const velocityPxMs =
-        lastTime != null && now > lastTime
-          ? (scrollTop - lastScrollTop) / (now - lastTime)
-          : 0;
-      lastScrollTopRef.current = scrollTop;
-      lastTimeRef.current = now;
-
-      const visibleCount = Math.ceil(containerHeight / rowHeightPx);
-      let effectiveOverscan = getOverscanForVelocity(
-        velocityPxMs,
-        visibleCount,
-        overscan
-      );
-      const deltaOverscan = getDeltaOverscan(scrollTop, lastScrollTop, rowHeightPx, visibleCount);
-      effectiveOverscan = Math.max(effectiveOverscan, overscan + deltaOverscan);
-      const isKeyboard = scrollSourceRef.current === 'keyboard';
-      if (isKeyboard) {
-        const overscanMedium = Math.max(overscan, visibleCount);
-        effectiveOverscan = Math.max(effectiveOverscan, overscanMedium);
-      }
-      const useSync = useFlushSyncOnScroll && !isKeyboard;
-      const doUpdate = () => updateFromContainer(container, rowCount, rowHeightPx, effectiveOverscan, setWindow);
-      if (useSync) {
-        flushSync(doUpdate);
-        void container.scrollHeight;
-      } else {
-        doUpdate();
-      }
-      scrollSourceRef.current = 'unknown';
-
-      if (idleTimeoutRef.current != null) clearTimeout(idleTimeoutRef.current);
-      idleTimeoutRef.current = setTimeout(() => {
-        idleTimeoutRef.current = null;
-        const c = scrollContainerRef?.current;
-        if (!c) return;
-        const { rowCount: rc, rowHeightPx: rh, overscan: base } = paramsRef.current;
-        if (rc === 0 || rh <= 0) return;
-        updateFromContainer(c, rc, rh, base, setWindow);
-      }, IDLE_MS);
-    });
-  }, [scrollContainerRef, rowCount, rowHeightPx, overscan, useFlushSyncOnScroll]);
-
-  useLayoutEffect(() => {
-    const container = scrollContainerRef?.current;
-    if (!scrollContainerReady || !container) {
-      const totalHeight = rowCount * rowHeightPx;
-      const end = Math.min(rowCount, DEFAULT_VISIBLE_COUNT + 2 * overscan);
-      setWindow({ startIndex: 0, endIndex: end, totalHeight });
+  const updateWindow = useCallback((container, { settle = false } = {}) => {
+    if (!container || rowCount === 0 || rowHeightPx <= 0) {
+      setWindowState({
+        startIndex: 0,
+        endIndex: 0,
+        totalHeight: 0,
+        topSpacerHeight: 0,
+        bottomSpacerHeight: 0,
+        visibleCount: 0,
+        overscanRows: 0,
+        isScrollSeeking: false,
+      });
       return;
     }
 
-    lastScrollTopRef.current = null;
-    lastTimeRef.current = null;
-    updateFromContainer(container, rowCount, rowHeightPx, overscan, setWindow);
+    const now = performance.now();
+    const scrollTop = container.scrollTop;
+    const containerHeight = container.clientHeight;
 
-    const handleWheel = () => {
-      scrollSourceRef.current = 'wheel';
-    };
-    const handleKeyDown = (e) => {
-      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown'].includes(e.key)) {
-        scrollSourceRef.current = 'keyboard';
-      }
-    };
-    const handleScroll = () => updateFromScroll();
-    const resizeObserver = new ResizeObserver(() => {
-      scrollSourceRef.current = 'resize';
-      updateFromScroll();
+    const previousTop = lastScrollTopRef.current;
+    const previousTime = lastTimeRef.current;
+
+    const deltaPx = Math.abs(scrollTop - previousTop);
+    const deltaRows = rowHeightPx > 0 ? Math.floor(deltaPx / rowHeightPx) : 0;
+    const deltaTime = previousTime > 0 ? Math.max(1, now - previousTime) : 16;
+    const velocityPxMs = deltaPx / deltaTime;
+    const visibleCount = getVisibleCount(containerHeight, rowHeightPx);
+
+    lastScrollTopRef.current = scrollTop;
+    lastTimeRef.current = now;
+
+    const source = lastInputSourceRef.current;
+
+    const largeJump = isLargeJump(deltaRows, visibleCount);
+
+    // Only allow placeholder mode for true large jumps while dragging the scrollbar,
+    // or explicit Home/End keyboard jumps.
+    const shouldSeek =
+      !settle &&
+      (
+        (isDraggingScrollbarRef.current && largeJump) ||
+        (source === 'keyboard' && largeJump)
+      );
+
+    const overscanRows = getOverscanRows({
+      visibleCount,
+      deltaRows,
+      source,
+      baseOverscan: overscan,
+      isDraggingScrollbar: isDraggingScrollbarRef.current,
+      settle,
     });
 
-    container.addEventListener('wheel', handleWheel, { passive: true });
-    container.addEventListener('keydown', handleKeyDown);
-    container.addEventListener('scroll', handleScroll, { passive: true });
+    const nextWindow = computeVirtualWindow({
+      rowCount,
+      rowHeightPx,
+      scrollTop,
+      containerHeight,
+      overscanRows,
+      isScrollSeeking: shouldSeek,
+    });
+
+    setWindowState((prev) => (areWindowsEqual(prev, nextWindow) ? prev : nextWindow));
+
+    virtPerfLog(
+      settle ? 'SCROLL_SETTLE' : 'SCROLL_UPDATE',
+      'source:',
+      source,
+      'scrollTop:',
+      scrollTop,
+      'deltaRows:',
+      deltaRows,
+      'velocityPxMs:',
+      velocityPxMs.toFixed(2),
+      'startIndex:',
+      nextWindow.startIndex,
+      'endIndex:',
+      nextWindow.endIndex,
+      'rowCountInWindow:',
+      nextWindow.endIndex - nextWindow.startIndex,
+      'isScrollSeeking:',
+      nextWindow.isScrollSeeking,
+      'draggingScrollbar:',
+      isDraggingScrollbarRef.current
+    );
+
+    if (idleTimeoutRef.current != null) {
+      clearTimeout(idleTimeoutRef.current);
+    }
+
+    if (!settle) {
+      idleTimeoutRef.current = setTimeout(() => {
+        idleTimeoutRef.current = null;
+        const currentContainer = scrollContainerRef?.current;
+        if (!currentContainer) return;
+        updateWindow(currentContainer, { settle: true });
+      }, SEEK_IDLE_MS);
+    }
+
+    // Reset transient source after processing the scroll event.
+    // Drag state remains until pointerup.
+    lastInputSourceRef.current = 'unknown';
+  }, [overscan, rowCount, rowHeightPx, scrollContainerRef]);
+
+  useLayoutEffect(() => {
+    const container = scrollContainerRef?.current;
+
+    if (!scrollContainerReady || !container) {
+      const totalHeight = rowCount * rowHeightPx;
+      const endIndex = Math.min(rowCount, DEFAULT_VISIBLE_COUNT + 2 * overscan);
+
+      setWindowState({
+        startIndex: 0,
+        endIndex,
+        totalHeight,
+        topSpacerHeight: 0,
+        bottomSpacerHeight: Math.max(0, totalHeight - (endIndex * rowHeightPx)),
+        visibleCount: DEFAULT_VISIBLE_COUNT,
+        overscanRows: overscan,
+        isScrollSeeking: false,
+      });
+      return undefined;
+    }
+
+    lastScrollTopRef.current = container.scrollTop;
+    lastTimeRef.current = performance.now();
+
+    updateWindow(container, { settle: true });
+
+    const onWheel = () => {
+      lastInputSourceRef.current = 'wheel';
+    };
+
+    const onKeyDown = (e) => {
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.key)) {
+        lastInputSourceRef.current = 'keyboard';
+      }
+    };
+
+    const onPointerDown = (e) => {
+      isPointerDownRef.current = true;
+      pointerDownXRef.current = e.clientX;
+      pointerDownYRef.current = e.clientY;
+      lastInputSourceRef.current = 'pointer';
+
+      const rect = container.getBoundingClientRect();
+      const verticalScrollbarWidth = container.offsetWidth - container.clientWidth;
+      const horizontalScrollbarHeight = container.offsetHeight - container.clientHeight;
+
+      const onVerticalScrollbar =
+        verticalScrollbarWidth > 0 &&
+        e.clientX >= rect.right - verticalScrollbarWidth &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom - horizontalScrollbarHeight;
+
+      const onHorizontalScrollbar =
+        horizontalScrollbarHeight > 0 &&
+        e.clientY >= rect.bottom - horizontalScrollbarHeight &&
+        e.clientY <= rect.bottom &&
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right - verticalScrollbarWidth;
+
+      isDraggingScrollbarRef.current = onVerticalScrollbar || onHorizontalScrollbar;
+    };
+
+    const onPointerUp = () => {
+      isPointerDownRef.current = false;
+      isDraggingScrollbarRef.current = false;
+    };
+
+    const onPointerCancel = () => {
+      isPointerDownRef.current = false;
+      isDraggingScrollbarRef.current = false;
+    };
+
+    const onScroll = () => {
+      updateWindow(container, { settle: false });
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      lastInputSourceRef.current = 'resize';
+      updateWindow(container, { settle: true });
+    });
+
+    container.addEventListener('wheel', onWheel, { passive: true });
+    container.addEventListener('keydown', onKeyDown);
+    container.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('pointerup', onPointerUp, { passive: true });
+    window.addEventListener('pointercancel', onPointerCancel, { passive: true });
+    container.addEventListener('scroll', onScroll, { passive: true });
     resizeObserver.observe(container);
 
     return () => {
-      container.removeEventListener('wheel', handleWheel);
-      container.removeEventListener('keydown', handleKeyDown);
-      container.removeEventListener('scroll', handleScroll);
+      container.removeEventListener('wheel', onWheel);
+      container.removeEventListener('keydown', onKeyDown);
+      container.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerCancel);
+      container.removeEventListener('scroll', onScroll);
       resizeObserver.disconnect();
+
       if (idleTimeoutRef.current != null) {
         clearTimeout(idleTimeoutRef.current);
         idleTimeoutRef.current = null;
       }
+
+      isPointerDownRef.current = false;
+      isDraggingScrollbarRef.current = false;
     };
-  }, [scrollContainerReady, scrollContainerRef, rowCount, rowHeightPx, overscan, updateFromScroll]);
+  }, [overscan, rowCount, rowHeightPx, scrollContainerReady, scrollContainerRef, updateWindow]);
 
-  useLayoutEffect(() => {
-    const totalHeight = rowCount * rowHeightPx;
-    setWindow((prev) => {
-      const start = Math.min(prev.startIndex, Math.max(0, rowCount - 1));
-      const end = Math.min(rowCount, prev.endIndex);
-      if (prev.totalHeight === totalHeight && prev.startIndex === start && prev.endIndex === end) return prev;
-      return { startIndex: start, endIndex: end, totalHeight };
-    });
-  }, [rowCount, rowHeightPx]);
-
-  return window;
+  return windowState;
 }
