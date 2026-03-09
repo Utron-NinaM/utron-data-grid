@@ -174,6 +174,21 @@ export function getBodyRowHeightSx(height) {
   };
 }
 
+/** Inner wrapper for body scroll area: full logical height so scrollHeight is correct (virtualization-ready). */
+export function getBodyScrollInnerHeightSx(totalBodyHeight) {
+  return {
+    height: totalBodyHeight,
+    minHeight: totalBodyHeight,
+  };
+}
+
+/** Translated layer for body content: positions visible slice (virtualization-ready). */
+export function getBodyTranslatedLayerSx(offsetY) {
+  return {
+    transform: `translateY(${offsetY}px)`,
+  };
+}
+
 // ----- GridCell -----
 
 export const truncationSx = {

@@ -10,9 +10,11 @@ import { ALIGN_CENTER } from '../config/schema';
 /**
  * Body layer: single subscription point for editStore and selectionStore.
  * Derives snapshot and error map for the editing row; renders TableBody wrapping GridBodyContent.
+ * Renders the slice given by visibleRows (parent-controlled).
  */
 export function GridBody({
   rows,
+  visibleRows,
   columns,
   getRowId,
   selection,
@@ -85,7 +87,7 @@ export function GridBody({
   return (
     <TableBody onClick={onClick} onDoubleClick={onDoubleClick}>
       <GridBodyContent
-        rows={rows}
+        visibleRows={visibleRows}
         getRowId={getRowId}
         columns={columns}
         selection={selection}

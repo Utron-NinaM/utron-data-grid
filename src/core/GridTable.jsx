@@ -15,7 +15,7 @@ import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBody } from './GridBody';
 import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
-import { CHECKBOX_COLUMN_WIDTH_PX } from '../constants';
+import { CHECKBOX_COLUMN_WIDTH_PX, BODY_ROW_HEIGHT } from '../constants';
 import {
   getToolbarBoxSx,
   toolbarActionsBoxSx,
@@ -29,6 +29,8 @@ import {
   scrollContainerSx,
   getScrollInnerBoxSx,
   getBodyRowHeightSx,
+  getBodyScrollInnerHeightSx,
+  getBodyTranslatedLayerSx,
 } from './coreStyles';
 
 /**
@@ -154,9 +156,15 @@ function GridTableInner({
     };
   }, [onSelect, selectionDisabled]);
 
+  const visibleRows = rows;
+  const rowHeight = bodyRow?.height ?? BODY_ROW_HEIGHT;
+  const totalBodyHeight = rows.length * rowHeight;
+  const offsetY = 0;
+
   const bodyContent = (
     <GridBody
       rows={rows}
+      visibleRows={visibleRows}
       columns={columns}
       getRowId={getRowId}
       selection={selection}
@@ -437,7 +445,15 @@ function GridTableInner({
           sx={getScrollInnerBoxSx(enableHorizontalScroll)}
         >
           <ScrollContainerContext.Provider value={{ ref: tooltipContainerRef, ready: scrollContainerReady }}>
-            {bodyTable}
+            {rows.length > 0 ? (
+              <Box sx={getBodyScrollInnerHeightSx(totalBodyHeight)}>
+                <Box sx={getBodyTranslatedLayerSx(offsetY)}>
+                  {bodyTable}
+                </Box>
+              </Box>
+            ) : (
+              bodyTable
+            )}
           </ScrollContainerContext.Provider>
         </Box>
       </Box>

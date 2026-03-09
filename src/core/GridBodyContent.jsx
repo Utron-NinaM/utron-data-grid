@@ -6,11 +6,11 @@ const EMPTY_EDIT_VALUES = {};
 const EMPTY_ERROR_MAP = new Map();
 
 /**
- * Stateless body content: maps rows to GridBodyRow with derived props only.
- * No store subscriptions.
+ * Stateless body content: maps the given slice of rows to GridBodyRow with derived props only.
+ * Parent controls which rows are rendered via visibleRows. No store subscriptions.
  *
  * @param {Object} props
- * @param {Object[]} props.rows
+ * @param {Object[]} props.visibleRows - Slice of rows to render (parent-controlled; may be full list or virtual window)
  * @param {Function} props.getRowId
  * @param {import('../config/schema').ColumnDef[]} props.columns
  * @param {Set<string|number>} [props.selection]
@@ -30,7 +30,7 @@ const EMPTY_ERROR_MAP = new Map();
  * @param {string} [props.direction]
  */
 export function GridBodyContent({
-  rows,
+  visibleRows,
   getRowId,
   columns,
   selection,
@@ -57,7 +57,7 @@ export function GridBodyContent({
 
   return (
     <>
-      {rows.map((row) => {
+      {visibleRows.map((row) => {
         const rowId = getRowId(row);
         const selected = selection?.has(rowId) ?? false;
         const isRowSelected = selected || (selectedRowId != null && String(selectedRowId) === String(rowId));
