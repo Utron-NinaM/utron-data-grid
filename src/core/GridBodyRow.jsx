@@ -31,6 +31,7 @@ const EMPTY_EDIT_VALUES = {};
  * @param {Object} [props.editValues]
  * @param {string|null} [props.editMode] 'create' | 'update'
  * @param {Map<string, string[]>} [props.errorMessagesMap] Field -> error messages for this row
+ * @param {boolean} [props.cellsOnly] When true, render only cell content (no outer TableRow); for use inside virtual table row wrapper
  */
 function GridBodyRowComponent({
   row,
@@ -49,6 +50,7 @@ function GridBodyRowComponent({
   editValues = EMPTY_EDIT_VALUES,
   editMode = null,
   errorMessagesMap = new Map(),
+  cellsOnly = false,
 }) {
   const theme = useTheme();
   const rowRef = useRef(null);
@@ -85,16 +87,10 @@ function GridBodyRowComponent({
         }
       });
     }
-  }, [isEditing]);
+  }, [cellsOnly, isEditing]);
 
-  return (
-    <TableRow
-      ref={rowRef}
-      hover={false}
-      selected={isRowSelected}
-      sx={rowSx}
-      data-row-id={rowId}
-    >
+  const cells = (
+    <>
       {multiSelectable && (
         <TableCell padding="checkbox" sx={checkboxCellSx}>
           <Checkbox
@@ -127,6 +123,20 @@ function GridBodyRowComponent({
           />
         );
       })}
+    </>
+  );
+
+  if (cellsOnly) return cells;
+
+  return (
+    <TableRow
+      ref={rowRef}
+      hover={false}
+      selected={isRowSelected}
+      sx={rowSx}
+      data-row-id={rowId}
+    >
+      {cells}
     </TableRow>
   );
 }

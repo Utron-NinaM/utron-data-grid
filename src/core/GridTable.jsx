@@ -13,9 +13,9 @@ import { DataGridStableContext, DataGridFilterContext, ScrollContainerContext } 
 import { GridHeaderCell } from './GridHeaderCell';
 import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBody } from './GridBody';
+import { GridTableBodyVirtuoso } from './GridTableBodyVirtuoso';
 import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
-import { useVirtualRows } from './useVirtualRows';
 import { CHECKBOX_COLUMN_WIDTH_PX, BODY_ROW_HEIGHT } from '../constants';
 import {
   getToolbarBoxSx,
@@ -30,8 +30,6 @@ import {
   scrollContainerSx,
   getScrollInnerBoxSx,
   getBodyRowHeightSx,
-  getBodyScrollInnerHeightSx,
-  getBodyTranslatedLayerSx,
 } from './coreStyles';
 
 /**
@@ -163,20 +161,7 @@ function GridTableInner({
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
 
   const rowHeight = bodyRow?.height ?? BODY_ROW_HEIGHT;
-  const editRowIndex = editRowId != null
-    ? rows.findIndex((r) => String(getRowId(r)) === String(editRowId))
-    : -1;
-  const virtualRows = useVirtualRows({
-    scrollContainerRef,
-    rowCount: rows.length,
-    rowHeight,
-    containScroll,
-    editRowIndex: editRowIndex >= 0 ? editRowIndex : null,
-  });
-  const { startIndex, endIndex, offsetY, totalBodyHeight } = virtualRows;
-  const visibleRows = containScroll && rows.length > 0
-    ? rows.slice(startIndex, endIndex)
-    : rows;
+  const visibleRows = containScroll ? rows : rows;
 
   const bodyContent = (
     <GridBody
@@ -408,7 +393,7 @@ function GridTableInner({
       </GridErrorBoundary>
     );
 
-    const bodyTable = (
+    const bodyTableEmpty = (
       <GridErrorBoundary>
         <TableContainer
           component={Paper}
@@ -419,14 +404,7 @@ function GridTableInner({
             <colgroup>
               {multiSelectable && <col style={{ width: `${CHECKBOX_COLUMN_WIDTH_PX}px`, minWidth: `${CHECKBOX_COLUMN_WIDTH_PX}px` }} />}
               {columns.map((col) => (
-                <col
-                  key={col.field}
-                  data-field={col.field}
-                  ref={(el) => {
-                    if (el) bodyColRefs.current.set(col.field, el);
-                    else bodyColRefs.current.delete(col.field);
-                  }}
-                />
+                <col key={col.field} data-field={col.field} />
               ))}
             </colgroup>
             {bodyContent}
@@ -450,7 +428,7 @@ function GridTableInner({
             if (ctxScrollContainerRef) ctxScrollContainerRef.current = el;
             if (onScrollContainerReadyForLayout) {
               const ready = Boolean(el);
-              // eslint-disable-next-line no-console              
+              // eslint-disable-next-line no-console
               onScrollContainerReadyForLayout(ready);
             }
           }}
@@ -459,13 +437,36 @@ function GridTableInner({
         >
           <ScrollContainerContext.Provider value={{ ref: tooltipContainerRef, ready: scrollContainerReady }}>
             {rows.length > 0 ? (
-              <Box sx={getBodyScrollInnerHeightSx(totalBodyHeight)}>
-                <Box sx={getBodyTranslatedLayerSx(offsetY)}>
-                  {bodyTable}
-                </Box>
-              </Box>
+              <TableContainer
+                component={Paper}
+                variant="outlined"
+                sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { hideTopBorder: true })}
+              >
+                <GridTableBodyVirtuoso
+                  rows={rows}
+                  columns={columns}
+                  getRowId={getRowId}
+                  rowHeight={rowHeight}
+                  multiSelectable={multiSelectable}
+                  selection={selection}
+                  mergedRowStylesMap={mergedRowStylesMap}
+                  rowStylesMap={rowStylesMap}
+                  selectedRowStyle={selectedRowStyle}
+                  disableRowHover={disableRowHover}
+                  onSelectRow={handleSelectRow}
+                  getEditor={getEditor}
+                  direction={direction}
+                  onClick={handleTableBodyClick}
+                  onDoubleClick={handleTableBodyDoubleClick}
+                  scrollContainerRef={scrollContainerRef}
+                  scrollContainerReady={scrollContainerReady}
+                  enableHorizontalScroll={enableHorizontalScroll}
+                  totalWidth={totalWidth}
+                  bodyColRefs={bodyColRefs}
+                />
+              </TableContainer>
             ) : (
-              bodyTable
+              bodyTableEmpty
             )}
           </ScrollContainerContext.Provider>
         </Box>
