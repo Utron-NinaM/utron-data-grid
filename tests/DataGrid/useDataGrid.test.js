@@ -85,20 +85,17 @@ describe('useDataGrid', () => {
 
   describe('handleSort', () => {
     it('single-column: first call sets asc, second desc, third clears', () => {
-      const onSortChange = vi.fn();
       const { result } = renderHook(useDataGrid, {
         initialProps: {
           rows: defaultRows,
           columns: defaultColumns,
           getRowId: defaultGetRowId,
-          onSortChange,
         },
       });
       act(() => {
         result.current.handleSort('score', false);
       });
       expect(result.current.sortModel).toEqual([{ field: 'score', order: SORT_ORDER_ASC }]);
-      expect(onSortChange).toHaveBeenCalledWith([{ field: 'score', order: SORT_ORDER_ASC }]);
 
       act(() => {
         result.current.handleSort('score', false);
@@ -143,14 +140,12 @@ describe('useDataGrid', () => {
     });
 
     it('resets page to 0 when sort changes', () => {
-      const onPageChange = vi.fn();
       const { result } = renderHook(useDataGrid, {
         initialProps: {
           rows: defaultRows,
           columns: defaultColumns,
           getRowId: defaultGetRowId,
           pagination: true,
-          onPageChange,
         },
       });
       act(() => {
@@ -161,21 +156,18 @@ describe('useDataGrid', () => {
         result.current.handleSort('name', false);
       });
       expect(result.current.page).toBe(0);
-      expect(onPageChange).toHaveBeenCalledWith(0);
     });
   });
 
   describe('handleFilterChange', () => {
     it('updates filterModel and resets page', () => {
       const onFilterChange = vi.fn();
-      const onPageChange = vi.fn();
       const { result } = renderHook(useDataGrid, {
         initialProps: {
           rows: defaultRows,
           columns: defaultColumns,
           getRowId: defaultGetRowId,
           onFilterChange,
-          onPageChange,
         },
       });
       act(() => {
@@ -190,7 +182,6 @@ describe('useDataGrid', () => {
         { name: { value: 'A', operator: OPERATOR_CONTAINS } },
         expect.objectContaining({ filteredRowCount: expect.any(Number), filteredRows: expect.any(Array) })
       );
-      expect(onPageChange).toHaveBeenCalledWith(0);
     });
 
     it('removes field when value is null/undefined', () => {
@@ -250,24 +241,20 @@ describe('useDataGrid', () => {
   });
 
   describe('handlePageChange and handlePageSizeChange', () => {
-    it('handlePageChange updates page and calls onPageChange', () => {
-      const onPageChange = vi.fn();
+    it('handlePageChange updates page', () => {
       const { result } = renderHook(useDataGrid, {
         initialProps: {
           rows: defaultRows,
           columns: defaultColumns,
           getRowId: defaultGetRowId,
           pagination: true,
-          onPageChange,
         },
       });
       act(() => result.current.handlePageChange(2));
       expect(result.current.page).toBe(2);
-      expect(onPageChange).toHaveBeenCalledWith(2);
     });
 
     it('handlePageSizeChange updates pageSize, resets page to 0, calls onPageSizeChange', () => {
-      const onPageChange = vi.fn();
       const onPageSizeChange = vi.fn();
       const { result } = renderHook(useDataGrid, {
         initialProps: {
@@ -275,7 +262,6 @@ describe('useDataGrid', () => {
           columns: defaultColumns,
           getRowId: defaultGetRowId,
           pagination: true,
-          onPageChange,
           onPageSizeChange,
         },
       });
@@ -283,7 +269,6 @@ describe('useDataGrid', () => {
       act(() => result.current.handlePageSizeChange(25));
       expect(result.current.pageSize).toBe(25);
       expect(result.current.page).toBe(0);
-      expect(onPageChange).toHaveBeenCalledWith(0);
       expect(onPageSizeChange).toHaveBeenCalledWith(25);
     });
   });
@@ -312,20 +297,20 @@ describe('useDataGrid', () => {
   });
 
   describe('selectRow', () => {
-    it('updates selection store and calls onRowSelect when onRowSelect provided', () => {
-      const onRowSelect = vi.fn();
+    it('updates selection store and calls onRowClick when onRowClick provided', () => {
+      const onRowClick = vi.fn();
       const { result } = renderHook(useDataGrid, {
         initialProps: {
           rows: defaultRows,
           columns: defaultColumns,
           getRowId: defaultGetRowId,
-          onRowSelect,
+          onRowClick,
         },
       });
       const row = defaultRows[1];
       act(() => result.current.selectRow(2, row));
       expect(result.current.stableContextValue.selectionStore.getSnapshot()).toBe(2);
-      expect(onRowSelect).toHaveBeenCalledWith(2, row);
+      expect(onRowClick).toHaveBeenCalledWith(2, row);
     });
   });
 

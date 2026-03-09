@@ -34,7 +34,6 @@ export function useDataGrid(props) {
     columns = [],
     translations,
     direction = DIRECTION_LTR,
-    onSortChange,
     onFilterChange,
     onEditCommit,
     onEditStart,
@@ -42,7 +41,7 @@ export function useDataGrid(props) {
     onValidationFail,
     isRowEditable,
     onSelectionChange,
-    onRowSelect,
+    onRowClick,
     onRowDoubleClick,
     getRowId,
     editable = defaultGridConfig.editable,
@@ -52,7 +51,6 @@ export function useDataGrid(props) {
     pagination = defaultGridConfig.pagination,
     pageSize: initialPageSize = defaultGridConfig.pageSize,
     pageSizeOptions = defaultGridConfig.pageSizeOptions,
-    onPageChange,
     onPageSizeChange,
     headerConfig,
     bodyRow,
@@ -140,15 +138,10 @@ export function useDataGrid(props) {
     saveColumnWidthState(gridId, columnWidthState);
   }, [gridId, columnWidthState]);
 
-  const setSortModel = useCallback(
-    (next) => {
-      setInternalSort(next);
-      onSortChange?.(next);
-      setInternalPage(0);
-      onPageChange?.(0);
-    },
-    [onSortChange, onPageChange]
-  );
+  const setSortModel = useCallback((next) => {
+    setInternalSort(next);
+    setInternalPage(0);
+  }, []);
 
   const handleFilterChange = useCallback(
     (field, value) => {
@@ -157,9 +150,8 @@ export function useDataGrid(props) {
       else next[field] = value;
       setInternalFilter(next);
       setInternalPage(0);
-      onPageChange?.(0);
     },
-    [filterModel, onPageChange]
+    [filterModel]
   );
 
   const handleSort = useCallback(
@@ -192,8 +184,7 @@ export function useDataGrid(props) {
   const handleClearAllFilters = useCallback(() => {
     setInternalFilter({});
     setInternalPage(0);
-    onPageChange?.(0);
-  }, [onPageChange]);
+  }, []);
 
   const handleClearColumnWidths = useCallback(() => setColumnWidthState(new Map()), []);
 
@@ -210,22 +201,15 @@ export function useDataGrid(props) {
     [onSelectionChange]
   );
 
-  const handlePageChange = useCallback(
-    (p) => {
-      setInternalPage(p);
-      onPageChange?.(p);
-    },
-    [onPageChange]
-  );
+  const handlePageChange = useCallback((p) => setInternalPage(p), []);
 
   const handlePageSizeChange = useCallback(
     (size) => {
       setInternalPageSize(size);
       setInternalPage(0);
-      onPageChange?.(0);
       onPageSizeChange?.(size);
     },
-    [onPageChange, onPageSizeChange]
+    [onPageSizeChange]
   );
 
   const selectRow = useCallback(
@@ -236,9 +220,9 @@ export function useDataGrid(props) {
         return;
       }
       selectionStoreRef.current.set(id);
-      if (onRowSelect && row) onRowSelect(id, row);
+      if (onRowClick && row) onRowClick(id, row);
     },
-    [onRowSelect, editStore]
+    [onRowClick, editStore]
   );
 
   const handleColumnResize = useCallback(
@@ -275,10 +259,10 @@ export function useDataGrid(props) {
         }
       }
       queueMicrotask(() => {
-        if (onRowSelect) onRowSelect(id, row);
+        if (onRowClick) onRowClick(id, row);
       });
     },
-    [getRowId, onRowSelect, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit, selection.size, onSelectionChange]
+    [getRowId, onRowClick, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit, selection.size, onSelectionChange]
   );
 
   const handleValidationErrorClick = useCallback((rowId, _field) => {
@@ -404,17 +388,15 @@ export function useDataGrid(props) {
       translations,
       direction,
       getRowId,
-      onSortChange,
       onFilterChange,
       onEditCommit,
       onSelectionChange,
-      onPageChange,
       onPageSizeChange,
       editable,
       filters,
       multiSelectable,
       filterInputHeight,
-      onRowSelect,
+      onRowClick,
       onRowDoubleClick,
       getEditor: getEditorForCell,
       onClearSort: handleClearSort,
@@ -462,17 +444,15 @@ export function useDataGrid(props) {
       translations,
       direction,
       getRowId,
-      onSortChange,
       onFilterChange,
       onEditCommit,
       onSelectionChange,
-      onPageChange,
       onPageSizeChange,
       editable,
       filters,
       multiSelectable,
       filterInputHeight,
-      onRowSelect,
+      onRowClick,
       onRowDoubleClick,
       getEditorForCell,
       handleClearSort,

@@ -16,15 +16,14 @@ import { isEmptyRow } from './useDataGridEdit';
  * @typedef {Object} DataGridOptions
  * @property {Object} [translations] - i18n map
  * @property {DIRECTION_LTR|DIRECTION_RTL} [direction=DIRECTION_LTR] - Layout direction
- * @property {Function} [onSortChange] - (sortModel) => void when user changes sort; notification only
  * @property {Function} [onFilterChange] - (filterModel, result?: { filteredRowCount: number, filteredRows?: Object[] }) => void when filters or data change. result.filteredRowCount is the number of rows matching the current filters (before pagination). result.filteredRows is optional and may be provided for export/summary.
  * @property {Function} [onEditCommit] - (rowId, row) => void
  * @property {Function} [onEditStart] - (rowId, row) => void when entering edit
  * @property {Function} [onEditCancel] - (rowId) => void when user cancels edit
  * @property {Function} [onValidationFail] - (rowId, errors) => void when Save fails validation
  * @property {Function} [isRowEditable] - (row) => boolean
- * @property {Function} [onSelectionChange] - (selectedIds) => void
- * @property {Function} [onRowSelect] - (rowId, row) => void when a row is clicked
+ * @property {Function} [onSelectionChange] - (selectedIds) => void when selection set changes
+ * @property {Function} [onRowClick] - (rowId, row) => void when a row is clicked (distinct from selection; use onSelectionChange for selection changes)
  * @property {boolean} [editable] - Enable row editing
  * @property {boolean} [reserveEditToolbarSpace] - When true and editable, always reserve space for the edit toolbar so layout does not jump when entering/leaving edit mode
  * @property {number} [editToolbarHeight=30] - Height in px for the reserved edit toolbar slot when reserveEditToolbarSpace is true
@@ -33,8 +32,7 @@ import { isEmptyRow } from './useDataGridEdit';
  * @property {boolean} [pagination] - Show pagination bar
  * @property {number} [pageSize] - Rows per page
  * @property {number[]} [pageSizeOptions] - Page size dropdown options
- * @property {Function} [onPageChange] - (page) => void when user changes page; notification only
- * @property {Function} [onPageSizeChange] - (pageSize) => void when user changes page size; notification only
+ * @property {Function} [onPageSizeChange] - (pageSize) => void when user changes page size
  * @property {Object} [sx] - MUI sx for root container. When pagination is true and sx includes height or maxHeight, the grid uses a flex layout so only the table body scrolls and the pagination bar stays visible at the bottom.
  * @property {Object} [headerConfig] - base (MUI sx for TableHead), mainRow, filterRows, filterCells (backgroundColor?, height?)
  * @property {Object} [bodyRow] - Body row config (height?, paddingTop?, paddingBottom?, paddingLeft?, paddingRight?, ...sx). Default used when undefined.

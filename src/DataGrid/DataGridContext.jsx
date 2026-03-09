@@ -17,15 +17,13 @@ export const ScrollContainerContext = createContext(null);
  * @param {Object} stableValue.translations
  * @param {DIRECTION_LTR|DIRECTION_RTL} stableValue.direction
  * @param {Function} stableValue.getRowId
- * @param {Function} [stableValue.onSortChange]
  * @param {Function} [stableValue.onFilterChange]
  * @param {Function} [stableValue.onEditCommit]
  * @param {Function} [stableValue.onSelectionChange]
- * @param {Function} [stableValue.onPageChange]
  * @param {Function} [stableValue.onPageSizeChange]
  * @param {boolean} stableValue.editable
  * @param {boolean} stableValue.multiSelectable
- * @param {Function} [stableValue.onRowSelect]
+ * @param {Function} [stableValue.onRowClick]
  * @param {Function} [stableValue.getEditor]
  * @param {Function} [stableValue.onClearSort]
  * @param {Function} [stableValue.onClearAllFilters]
@@ -40,7 +38,7 @@ export const ScrollContainerContext = createContext(null);
  * @param {number} [stableValue.fontSize] Font size in px for cells, filters, inputs, pagination
  * @param {React.RefObject<HTMLElement|null>} [stableValue.dropdownBoundaryRef] Ref to element defining clipping area for list/filter dropdowns (e.g. main content wrapper excluding sidebars)
  * @param {{ getSnapshot: () => string|number|null, subscribe: (fn: () => void) => () => void, set: (id: string|number|null) => void }} [stableValue.selectionStore] External store for single-row selection (use with useSyncExternalStore)
- * @param {Function} [stableValue.selectRow] (id: string|number, row?: Object) => void – updates selection store and optionally calls onRowSelect
+ * @param {Function} [stableValue.selectRow] (id: string|number, row?: Object) => void – updates selection store and optionally calls onRowClick
  * @param {Object} [stableValue.editStore] External store for edit state (editRowId, editValues, validationErrors, originalRow); use with useSyncExternalStore
  * @param {Function} [stableValue.handleEditSave] Save handler for edit toolbar
  * @param {Function} [stableValue.handleEditCancel] Cancel handler for edit toolbar

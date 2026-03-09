@@ -526,8 +526,6 @@ describe('Sort Regression Tests', () => {
 
   describe('Test sort clears page to 0', () => {
     it('should reset to page 0 when sort is applied', async () => {
-      const onPageChange = vi.fn();
-      
       render(
         <DataGrid
           rows={rows}
@@ -536,7 +534,6 @@ describe('Sort Regression Tests', () => {
           options={{
             pagination: true,
             pageSize: 2,
-            onPageChange,
           }}
         />
       );
@@ -548,8 +545,6 @@ describe('Sort Regression Tests', () => {
         expect(screen.getByText(/3–4 of 6/)).toBeInTheDocument();
       });
 
-      expect(onPageChange).toHaveBeenCalledWith(1);
-
       // Sort by name
       const nameHeader = screen.getByText('Name');
       fireEvent.click(nameHeader);
@@ -557,13 +552,10 @@ describe('Sort Regression Tests', () => {
       await waitFor(() => {
         // Should reset to page 0
         expect(screen.getByText(/1–2 of 6/)).toBeInTheDocument();
-        expect(onPageChange).toHaveBeenCalledWith(0);
       });
     });
 
     it('should reset to page 0 when sort direction changes', async () => {
-      const onPageChange = vi.fn();
-      
       render(
         <DataGrid
           rows={rows}
@@ -572,7 +564,6 @@ describe('Sort Regression Tests', () => {
           options={{
             pagination: true,
             pageSize: 2,
-            onPageChange,
           }}
         />
       );
@@ -597,13 +588,10 @@ describe('Sort Regression Tests', () => {
       await waitFor(() => {
         // Should reset to page 0
         expect(screen.getByText(/1–2 of 6/)).toBeInTheDocument();
-        expect(onPageChange).toHaveBeenCalledWith(0);
       });
     });
 
     it('should reset to page 0 when sort is cleared', async () => {
-      const onPageChange = vi.fn();
-      
       render(
         <DataGrid
           rows={rows}
@@ -612,7 +600,6 @@ describe('Sort Regression Tests', () => {
           options={{
             pagination: true,
             pageSize: 2,
-            onPageChange,
           }}
         />
       );
@@ -647,13 +634,10 @@ describe('Sort Regression Tests', () => {
       await waitFor(() => {
         // Should reset to page 0
         expect(screen.getByText(/1–2 of 6/)).toBeInTheDocument();
-        expect(onPageChange).toHaveBeenCalledWith(0);
       });
     });
 
     it('should reset to page 0 when adding multi-column sort', async () => {
-      const onPageChange = vi.fn();
-      
       render(
         <DataGrid
           rows={rows}
@@ -662,7 +646,6 @@ describe('Sort Regression Tests', () => {
           options={{
             pagination: true,
             pageSize: 2,
-            onPageChange,
           }}
         />
       );
@@ -688,7 +671,6 @@ describe('Sort Regression Tests', () => {
       await waitFor(() => {
         // Should reset to page 0
         expect(screen.getByText(/1–2 of 6/)).toBeInTheDocument();
-        expect(onPageChange).toHaveBeenCalledWith(0);
       });
     });
   });

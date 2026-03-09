@@ -21,7 +21,7 @@ export function DataGridExample() {
     setData((prev) => prev.map((r) => (r.id === rowId ? { ...r, ...row } : r)));
   };
 
-  const handleRowSelect = (rowId, row) => {   
+  const handleRowClick = (rowId, row) => {
     setSelectedRow(row);
   };
 
@@ -88,7 +88,7 @@ export function DataGridExample() {
             pageSizeOptions: [10, 25, 50, 100],
             sx: { height: '100%' },
             onEditCommit: handleEditCommit,
-            onRowSelect: handleRowSelect,
+            onRowClick: handleRowClick,
             onRowDoubleClick: handleRowDoubleClick,
             toolbarClearButtonsSx: { textTransform: 'none', minWidth: 80 , backgroundColor: 'pink'},
             editToolbarSaveButtonSx: { textTransform: 'none', minWidth: 100, backgroundColor: '#4caf50', color: 'white' },

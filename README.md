@@ -59,15 +59,14 @@ const rows = [
 |-----|------|-------------|
 | `translations` | `Object` | i18n map (see Translations) |
 | `direction` | `'ltr' \| 'rtl'` | Layout direction (default `'ltr'`) |
-| `onSortChange` | `(sortModel) => void` | Sort change callback (notification only) |
 | `onFilterChange` | `(filterModel, result?) => void` | Called when the user changes filters, clears filters, or when `rows`/filter state change (e.g. initial load, restored filters). Second argument: `result.filteredRowCount` is the number of rows matching the current filters (before pagination). `result.filteredRows` is optional and may be provided for export/summary. |
 | `onEditCommit` | `(rowId, row) => void` | Commit edited row (enables inline edit when provided) |
 | `onEditStart` | `(rowId, row) => void` | When entering edit |
 | `onEditCancel` | `(rowId) => void` | When user cancels edit |
 | `onValidationFail` | `(rowId, errors) => void` | When Save fails validation |
 | `isRowEditable` | `(row) => boolean` | Only these rows are editable |
-| `onSelectionChange` | `(selectedIds) => void` | Selection change |
-| `onRowSelect` | `(rowId, row) => void` | When a row is clicked |
+| `onSelectionChange` | `(selectedIds) => void` | When the selection set changes (e.g. user selects/deselects rows) |
+| `onRowClick` | `(rowId, row) => void` | When a row is clicked (single click). Distinct from selection: use `onSelectionChange` for selection changes. |
 | `onRowDoubleClick` | `(row) => void` | When a row is double-clicked. If `editable` is enabled and `onEditCommit` is provided, double-clicking will also start edit mode for the row (or create mode for empty placeholder rows). |
 | `editable` | `boolean` | Master switch for inline edit (default false) |
 | `reserveEditToolbarSpace` | `boolean` | When true and editable, always reserve space for the edit toolbar so layout does not jump when entering/leaving edit mode |
@@ -78,8 +77,7 @@ const rows = [
 | `pagination` | `boolean` | Enable client-side pagination (default false) |
 | `pageSize` | `number` | Rows per page (default 10) |
 | `pageSizeOptions` | `number[]` | Page size dropdown options (e.g. [10, 25, 50]) |
-| `onPageChange` | `(page) => void` | Page change callback (notification only) |
-| `onPageSizeChange` | `(pageSize) => void` | Page size change callback |
+| `onPageSizeChange` | `(pageSize) => void` | When the user changes page size |
 | `sx` | `object` | MUI sx for root container. When `sx` includes `height` or `maxHeight`, the grid uses scrollable layout and vertical body virtualization (see Virtualization). When pagination is true, the table body scrolls and the pagination bar stays visible. |
 | `headerConfig` | `object` | `base` (MUI sx for TableHead), `mainRow`, `filterRows`, `filterCells`. Each row object accepts `backgroundColor`, `height`, and any MUI sx (e.g. `fontSize`, `fontWeight`, `fontFamily`) to override grid-level typography for that row. |
 | `bodyRow` | `object` | Body row config: `height`, `paddingTop`, `paddingBottom`, `paddingLeft`, `paddingRight`, and any MUI sx. Used for both view and edit modes so row height and padding stay stable when editing. Default used when undefined (`height: 36`, padding 2px/4px). |
@@ -295,7 +293,7 @@ const mainContentRef = useRef(null);
 
 ## Pagination
 
-Pass `options={{ pagination: true, pageSize: 10, pageSizeOptions: [10, 25, 50, 100] }}`. Use `onPageChange` and `onPageSizeChange` for notifications when the user changes page or page size.
+Pass `options={{ pagination: true, pageSize: 10, pageSizeOptions: [10, 25, 50, 100] }}`. Use `onPageSizeChange` to be notified when the user changes page size.
 
 ## Virtualization (vertical)
 
