@@ -12,10 +12,9 @@ import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 import { GridHeaderCell } from './GridHeaderCell';
 import { GridHeaderCellFilter } from './GridHeaderCellFilter';
-import { GridBodyRow } from './GridBodyRow';
+import { GridBody } from './GridBody';
 import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
-import { ALIGN_CENTER } from '../config/schema';
 import { CHECKBOX_COLUMN_WIDTH_PX } from '../constants';
 import {
   getToolbarBoxSx,
@@ -155,37 +154,26 @@ function GridTableInner({
     };
   }, [onSelect, selectionDisabled]);
 
-  // Compute body rows inline - React reconciliation handles optimization efficiently
-  let bodyRows;
-  if (rows.length === 0) {
-    bodyRows = (
-      <TableRow>
-        <TableCell colSpan={columns.length + (multiSelectable ? 1 : 0)} align={ALIGN_CENTER}>
-          {translations('noRows')}
-        </TableCell>
-      </TableRow>
-    );
-  } else {
-    bodyRows = rows.map((row) => {
-      const rowId = getRowId(row);
-      return (
-        <GridBodyRow
-          key={rowId}
-          row={row}
-          rowId={rowId}
-          selected={selection?.has(rowId)}
-          onSelectRow={handleSelectRow}
-          rowSx={mergedRowStylesMap.get(rowId)}
-          rowStyle={rowStylesMap?.get(rowId)}
-          selectedRowStyle={selectedRowStyle}
-          disableRowHover={disableRowHover}
-          columns={columns}
-          multiSelectable={multiSelectable}
-          getEditor={getEditor}
-        />
-      );
-    });
-  }
+  const bodyContent = (
+    <GridBody
+      rows={rows}
+      columns={columns}
+      getRowId={getRowId}
+      selection={selection}
+      mergedRowStylesMap={mergedRowStylesMap}
+      rowStylesMap={rowStylesMap}
+      selectedRowStyle={selectedRowStyle}
+      disableRowHover={disableRowHover}
+      multiSelectable={multiSelectable}
+      onSelectRow={handleSelectRow}
+      getEditor={getEditor}
+      direction={direction}
+      onClick={handleTableBodyClick}
+      onDoubleClick={handleTableBodyDoubleClick}
+      noRowsMessage={translations('noRows')}
+      colSpan={columns.length + (multiSelectable ? 1 : 0)}
+    />
+  );
   const scrollContainerRef = useRef(null);
   const tooltipContainerRef = useRef(null);
   const [scrollContainerReady, setScrollContainerReady] = useState(false);
@@ -324,12 +312,7 @@ function GridTableInner({
                 </TableRow>
               )}
             </TableHead>
-            <TableBody
-              onClick={handleTableBodyClick}
-              onDoubleClick={handleTableBodyDoubleClick}
-            >
-              {bodyRows}
-            </TableBody>
+            {bodyContent}
           </Table>
         </TableContainer>
       </GridErrorBoundary>
@@ -425,9 +408,7 @@ function GridTableInner({
                 />
               ))}
             </colgroup>
-            <TableBody onClick={handleTableBodyClick} onDoubleClick={handleTableBodyDoubleClick}>
-              {bodyRows}
-            </TableBody>
+            {bodyContent}
           </Table>
         </TableContainer>
       </GridErrorBoundary>

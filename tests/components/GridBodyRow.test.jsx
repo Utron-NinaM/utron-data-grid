@@ -15,7 +15,7 @@ describe('GridBodyRow Component', () => {
     { field: 'name', headerName: 'Name' },
     { field: 'age', headerName: 'Age' },
   ];
-  
+
   const defaultContextValue = {
     columnAlignMap: new Map(),
     direction: DIRECTION_LTR,
@@ -27,6 +27,7 @@ describe('GridBodyRow Component', () => {
     row: mockRow,
     rowId: 1,
     selected: false,
+    isRowSelected: false,
     onSelectRow: vi.fn(),
     rowSx: undefined,
     columns: mockColumns,
@@ -181,28 +182,23 @@ describe('GridBodyRow Component', () => {
   describe('Test selected row styling', () => {
     it('should apply selected styling when selected is true', () => {
       renderWithContext(
-        <GridBodyRow {...defaultProps} selected={true} />
-      );
-      
-      const row = screen.getByText('Alice').closest('tr');
-      expect(row).toHaveClass('Mui-selected');
-    });
-
-    it('should apply selected styling when isSelected is true', () => {
-      const contextWithSelected = { ...defaultContextValue, selectionStore: createSelectionStore(1) };
-      renderWithContext(
-        <GridBodyRow {...defaultProps} />,
-        contextWithSelected
+        <GridBodyRow {...defaultProps} selected={true} isRowSelected={true} />
       );
       const row = screen.getByText('Alice').closest('tr');
       expect(row).toHaveClass('Mui-selected');
     });
 
-    it('should apply selected styling when both selected and isSelected are true', () => {
-      const contextWithSelected = { ...defaultContextValue, selectionStore: createSelectionStore(1) };
+    it('should apply selected styling when isRowSelected is true', () => {
       renderWithContext(
-        <GridBodyRow {...defaultProps} selected={true} />,
-        contextWithSelected
+        <GridBodyRow {...defaultProps} isRowSelected={true} />
+      );
+      const row = screen.getByText('Alice').closest('tr');
+      expect(row).toHaveClass('Mui-selected');
+    });
+
+    it('should apply selected styling when both selected and isRowSelected are true', () => {
+      renderWithContext(
+        <GridBodyRow {...defaultProps} selected={true} isRowSelected={true} />
       );
       const row = screen.getByText('Alice').closest('tr');
       expect(row).toHaveClass('Mui-selected');
@@ -210,7 +206,7 @@ describe('GridBodyRow Component', () => {
 
     it('should not apply selected styling when both are false', () => {
       renderWithContext(
-        <GridBodyRow {...defaultProps} selected={false} />
+        <GridBodyRow {...defaultProps} selected={false} isRowSelected={false} />
       );
       const row = screen.getByText('Alice').closest('tr');
       expect(row).not.toHaveClass('Mui-selected');
@@ -241,24 +237,22 @@ describe('GridBodyRow Component', () => {
 
     it('should update checkbox checked state when selected changes', () => {
       const { rerender } = renderWithContext(
-        <GridBodyRow {...defaultProps} multiSelectable={true} selected={false} />
+        <GridBodyRow {...defaultProps} multiSelectable={true} selected={false} isRowSelected={false} />
       );
-      
       let checkbox = screen.getByRole('checkbox', { name: /select row/i });
       expect(checkbox).not.toBeChecked();
-      
+
       rerender(
         <ThemeProvider theme={createTheme()}>
           <DataGridStableContext.Provider value={defaultContextValue}>
             <Table>
               <TableBody>
-                <GridBodyRow {...defaultProps} multiSelectable={true} selected={true} />
+                <GridBodyRow {...defaultProps} multiSelectable={true} selected={true} isRowSelected={true} />
               </TableBody>
             </Table>
           </DataGridStableContext.Provider>
         </ThemeProvider>
       );
-      
       checkbox = screen.getByRole('checkbox', { name: /select row/i });
       expect(checkbox).toBeChecked();
     });
@@ -342,16 +336,19 @@ describe('GridBodyRow Component', () => {
 
   describe('Test editing state styling', () => {
     it('should render cells in editing mode when editRowId matches rowId', () => {
-      const editStore = createEditStore();
-      editStore.startEdit(1, mockRow);
-      editStore.setEditValues({ name: 'Edited Name', age: 35 });
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} defaultValue={mockRow[col.field]} />);
       const editableColumns = mockColumns.map(col => ({ ...col, editable: true }));
-      const ctx = { ...defaultContextValue, editStore };
 
       renderWithContext(
-        <GridBodyRow {...defaultProps} columns={editableColumns} getEditor={getEditor} />,
-        ctx
+        <GridBodyRow
+          {...defaultProps}
+          columns={editableColumns}
+          getEditor={getEditor}
+          isEditing={true}
+          editValues={{ name: 'Edited Name', age: 35 }}
+          editMode="update"
+          errorMessagesMap={new Map()}
+        />
       );
 
       expect(screen.getByTestId('editor-name')).toBeInTheDocument();
@@ -359,31 +356,32 @@ describe('GridBodyRow Component', () => {
     });
 
     it('should not render editors when editRowId does not match', () => {
-      const editStore = createEditStore();
-      editStore.startEdit(2, { id: 2, name: 'Edited Name', age: 25 });
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
-      const ctx = { ...defaultContextValue, editStore };
 
-      renderWithContext(<GridBodyRow {...defaultProps} getEditor={getEditor} />, ctx);
+      renderWithContext(<GridBodyRow {...defaultProps} getEditor={getEditor} isEditing={false} />);
 
       expect(screen.queryByTestId('editor-name')).not.toBeInTheDocument();
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
 
     it('should use editValues when in editing mode', () => {
-      const editStore = createEditStore();
-      editStore.startEdit(1, mockRow);
-      editStore.setEditValues({ name: 'Edited Name', age: 35 });
-      const getEditor = vi.fn((col, row, editValues) => {
-        const value = editValues[col.field] !== undefined ? editValues[col.field] : row[col.field];
+      const editValues = { name: 'Edited Name', age: 35 };
+      const getEditor = vi.fn((col, row, ev) => {
+        const value = ev[col.field] !== undefined ? ev[col.field] : row[col.field];
         return <input data-testid={`editor-${col.field}`} defaultValue={value} />;
       });
       const editableColumns = mockColumns.map(col => ({ ...col, editable: true }));
-      const ctx = { ...defaultContextValue, editStore };
 
       renderWithContext(
-        <GridBodyRow {...defaultProps} columns={editableColumns} getEditor={getEditor} />,
-        ctx
+        <GridBodyRow
+          {...defaultProps}
+          columns={editableColumns}
+          getEditor={getEditor}
+          isEditing={true}
+          editValues={editValues}
+          editMode="update"
+          errorMessagesMap={new Map()}
+        />
       );
 
       const nameEditor = screen.getByTestId('editor-name');
@@ -395,19 +393,23 @@ describe('GridBodyRow Component', () => {
     });
 
     it('should show validation errors when in editing mode', () => {
-      const editStore = createEditStore();
       const row = { id: 1, name: 'Edited Name', age: 30 };
-      editStore.startEdit(1, row);
-      editStore.mergeRowErrors({
-        1: { name: [{ field: 'name', message: 'Required', severity: 'error' }] },
-      });
+      const errorMessagesMap = new Map([['name', ['Required']]]);
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
       const editableColumns = mockColumns.map(col => ({ ...col, editable: true }));
-      const ctx = { ...defaultContextValue, editStore };
 
       renderWithContext(
-        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} />,
-        ctx
+        <GridBodyRow
+          {...defaultProps}
+          row={row}
+          rowId={1}
+          columns={editableColumns}
+          getEditor={getEditor}
+          isEditing={true}
+          editValues={{ name: 'Edited Name', age: 30 }}
+          editMode="update"
+          errorMessagesMap={errorMessagesMap}
+        />
       );
 
       const nameEditor = screen.getByTestId('editor-name');
@@ -422,32 +424,46 @@ describe('GridBodyRow Component', () => {
     });
 
     it('should handle editable and addable properties per column', () => {
-      const editStore = createEditStore();
-      editStore.startEdit(1, { id: 1, name: 'Edited', age: 30 });
       const columns = [
         { field: 'name', headerName: 'Name', editable: true },
         { field: 'age', headerName: 'Age', editable: true },
       ];
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
-      const ctx = { ...defaultContextValue, editStore };
 
-      renderWithContext(<GridBodyRow {...defaultProps} columns={columns} getEditor={getEditor} />, ctx);
+      renderWithContext(
+        <GridBodyRow
+          {...defaultProps}
+          columns={columns}
+          getEditor={getEditor}
+          isEditing={true}
+          editValues={{ name: 'Edited', age: 30 }}
+          editMode="update"
+          errorMessagesMap={new Map()}
+        />
+      );
 
       expect(screen.getByTestId('editor-name')).toBeInTheDocument();
       expect(screen.getByTestId('editor-age')).toBeInTheDocument();
     });
 
     it('should not render editor for non-editable column', () => {
-      const editStore = createEditStore();
-      editStore.startEdit(1, { id: 1, name: 'Edited', age: 30 });
       const columns = [
         { field: 'name', headerName: 'Name', editable: false },
         { field: 'age', headerName: 'Age', editable: true },
       ];
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
-      const ctx = { ...defaultContextValue, editStore };
 
-      renderWithContext(<GridBodyRow {...defaultProps} columns={columns} getEditor={getEditor} />, ctx);
+      renderWithContext(
+        <GridBodyRow
+          {...defaultProps}
+          columns={columns}
+          getEditor={getEditor}
+          isEditing={true}
+          editValues={{ name: 'Edited', age: 30 }}
+          editMode="update"
+          errorMessagesMap={new Map()}
+        />
+      );
 
       expect(screen.queryByTestId('editor-name')).not.toBeInTheDocument();
       expect(screen.getByText('Edited')).toBeInTheDocument();
@@ -457,113 +473,118 @@ describe('GridBodyRow Component', () => {
 
   describe('row-level validation errors', () => {
     it('should apply red border to entire row when row-level errors exist', () => {
-      const editStore = createEditStore();
       const row = { id: 1, price: 60000, year: 1999 };
-      editStore.startEdit(1, row);
-      editStore.mergeRowErrors({
-        1: { null: [{ field: null, message: 'Row validation failed', severity: 'error' }] },
-      });
+      const rowSxWithError = [{ borderLeft: '3px solid', borderLeftColor: 'red' }];
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
       const editableColumns = [
         { field: 'price', headerName: 'Price', editable: true },
         { field: 'year', headerName: 'Year', editable: true },
       ];
-      const ctx = { ...defaultContextValue, editStore };
 
       const { container } = renderWithContext(
-        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} rowSx={{}} />,
-        ctx
+        <GridBodyRow
+          {...defaultProps}
+          row={row}
+          rowId={1}
+          columns={editableColumns}
+          getEditor={getEditor}
+          rowSx={rowSxWithError}
+        />
       );
 
       const tableRow = container.querySelector('tr[data-row-id="1"]');
       expect(tableRow).toBeInTheDocument();
-      // Check for left border (LTR direction)
       const styles = window.getComputedStyle(tableRow);
       expect(styles.borderLeftWidth).toBe('3px');
       expect(styles.borderLeftStyle).toBe('solid');
     });
 
     it('should not apply cell-level borders for row-level errors', () => {
-      const editStore = createEditStore();
       const row = { id: 1, price: 60000, year: 1999 };
-      editStore.startEdit(1, row);
-      editStore.mergeRowErrors({
-        1: { null: [{ field: null, message: 'Row validation failed', severity: 'error' }] },
-      });
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
       const editableColumns = [
         { field: 'price', headerName: 'Price', editable: true },
         { field: 'year', headerName: 'Year', editable: true },
       ];
-      const ctx = { ...defaultContextValue, editStore };
 
       const { container } = renderWithContext(
-        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} />,
-        ctx
+        <GridBodyRow
+          {...defaultProps}
+          row={row}
+          rowId={1}
+          columns={editableColumns}
+          getEditor={getEditor}
+          isEditing={true}
+          editValues={{}}
+          editMode="update"
+          errorMessagesMap={new Map()}
+        />
       );
 
       const cells = container.querySelectorAll('td');
       cells.forEach((cell) => {
-        // Cells should not have aria-invalid for row-level errors
         expect(cell).not.toHaveAttribute('aria-invalid', 'true');
       });
     });
 
     it('should handle both field-level and row-level errors simultaneously', () => {
-      const editStore = createEditStore();
       const row = { id: 1, name: '', price: 60000, year: 1999 };
-      editStore.startEdit(1, row);
-      editStore.mergeRowErrors({
-        1: {
-          name: [{ field: 'name', message: 'Name required', severity: 'error' }],
-          null: [{ field: null, message: 'Row validation failed', severity: 'error' }],
-        },
-      });
+      const rowSxWithError = [{ borderLeft: '3px solid', borderLeftColor: 'red' }];
+      const errorMessagesMap = new Map([['name', ['Name required']]]);
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
       const editableColumns = [
         { field: 'name', headerName: 'Name', editable: true },
         { field: 'price', headerName: 'Price', editable: true },
         { field: 'year', headerName: 'Year', editable: true },
       ];
-      const ctx = { ...defaultContextValue, editStore };
 
       const { container } = renderWithContext(
-        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} rowSx={{}} />,
-        ctx
+        <GridBodyRow
+          {...defaultProps}
+          row={row}
+          rowId={1}
+          columns={editableColumns}
+          getEditor={getEditor}
+          rowSx={rowSxWithError}
+          isEditing={true}
+          editValues={{ name: '', price: 60000, year: 1999 }}
+          editMode="update"
+          errorMessagesMap={errorMessagesMap}
+        />
       );
 
       const tableRow = container.querySelector('tr[data-row-id="1"]');
       expect(tableRow).toBeInTheDocument();
-      // Row should have border for row-level error
       const rowStyles = window.getComputedStyle(tableRow);
       expect(rowStyles.borderLeftWidth).toBe('3px');
 
-      // Name cell should have aria-invalid for field-level error
       const nameCell = container.querySelector('td[aria-invalid="true"]');
       expect(nameCell).toBeInTheDocument();
     });
 
     it('should not apply row border when only field-level errors exist', () => {
-      const editStore = createEditStore();
       const row = { id: 1, name: '' };
-      editStore.startEdit(1, row);
-      editStore.mergeRowErrors({
-        1: { name: [{ field: 'name', message: 'Name required', severity: 'error' }] },
-      });
+      const errorMessagesMap = new Map([['name', ['Name required']]]);
       const getEditor = vi.fn((col) => <input data-testid={`editor-${col.field}`} />);
       const editableColumns = [{ field: 'name', headerName: 'Name', editable: true }];
-      const ctx = { ...defaultContextValue, editStore };
 
       const { container } = renderWithContext(
-        <GridBodyRow {...defaultProps} row={row} rowId={1} columns={editableColumns} getEditor={getEditor} />,
-        ctx
+        <GridBodyRow
+          {...defaultProps}
+          row={row}
+          rowId={1}
+          columns={editableColumns}
+          getEditor={getEditor}
+          isEditing={true}
+          editValues={{ name: '' }}
+          editMode="update"
+          errorMessagesMap={errorMessagesMap}
+        />
       );
 
       const tableRow = container.querySelector('tr[data-row-id="1"]');
       expect(tableRow).toBeInTheDocument();
-      // Row should not have border when only field-level errors exist
       const styles = window.getComputedStyle(tableRow);
-      // borderLeftWidth can be '0px' or empty string '' when no border is set
       expect(styles.borderLeftWidth === '0px' || styles.borderLeftWidth === '').toBe(true);
     });
   });
