@@ -65,6 +65,7 @@ export const FILTER_INPUT_HORIZONTAL_PADDING_PX = 8;
 export const ICON_ARROW_SIZE_PX = 20;
 export const ICON_OPERATOR_SIZE_PX = 18;
 export const FILTER_TRANSITION_MS = 120;
+export const DATE_PICKER_ICON_SIZE_PX = 20;
 
 // ─── Pagination / Default config ────────────────────────────────────────────
 

@@ -124,8 +124,8 @@ describe('DataGrid RTL Integration', () => {
     });
   });
 
-  describe('Test date format (DD-MM-YYYY)', () => {
-    it('should format dates as DD-MM-YYYY in RTL mode', () => {
+  describe('Test date format (DD-MM-YY)', () => {
+    it('should format dates as DD-MM-YY in RTL mode', () => {
       render(
         <DataGrid
           rows={rtlRows}
@@ -135,9 +135,9 @@ describe('DataGrid RTL Integration', () => {
         />
       );
 
-      // Check that dates are formatted as DD-MM-YYYY
-      // 2024-01-15 should be displayed as 15-01-2024
-      const dateCell = screen.getByText('15-01-2024');
+      // Check that dates are formatted as DD-MM-YY
+      // 2024-01-15 should be displayed as 15-01-24
+      const dateCell = screen.getByText('15-01-24');
       expect(dateCell).toBeInTheDocument();
     });
 
@@ -151,10 +151,10 @@ describe('DataGrid RTL Integration', () => {
         />
       );
 
-      // Check all dates are in DD-MM-YYYY format
-      expect(screen.getByText('15-01-2024')).toBeInTheDocument();
-      expect(screen.getByText('20-02-2024')).toBeInTheDocument();
-      expect(screen.getByText('25-03-2024')).toBeInTheDocument();
+      // Check all dates are in DD-MM-YY format
+      expect(screen.getByText('15-01-24')).toBeInTheDocument();
+      expect(screen.getByText('20-02-24')).toBeInTheDocument();
+      expect(screen.getByText('25-03-24')).toBeInTheDocument();
     });
   });
 

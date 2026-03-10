@@ -101,12 +101,12 @@ describe('DateFilter Component', () => {
         
         const input = screen.getByRole('textbox');
         expect(input).toBeInTheDocument();
-        // LTR format should be MM-DD-YYYY
-        const formatted = dayjs(dateValue).format('MM-DD-YYYY');
+        // LTR format should be MM-DD-YY
+        const formatted = dayjs(dateValue).format('MM-DD-YY');
         // Verify the input contains the formatted date (MUI may add slashes or other formatting)
         expect(input.value).toBeTruthy();
-        // Check that the formatted date pattern is present (MM-DD-YYYY or MM/DD/YYYY)
-        expect(input.value).toMatch(/\d{2}[-\/]\d{2}[-\/]\d{4}/);
+        // Check that the formatted date pattern is present (MM-DD-YY or MM/DD/YY)
+        expect(input.value).toMatch(/\d{2}[-\/]\d{2}[-\/]\d{2}/);
       });
 
       it('should format date according to direction (RTL)', () => {
@@ -121,12 +121,12 @@ describe('DateFilter Component', () => {
         
         const input = screen.getByRole('textbox');
         expect(input).toBeInTheDocument();
-        // RTL format should be DD-MM-YYYY
-        const formatted = dayjs(dateValue).format('DD-MM-YYYY');
+        // RTL format should be DD-MM-YY
+        const formatted = dayjs(dateValue).format('DD-MM-YY');
         // Verify the input contains the formatted date
         expect(input.value).toBeTruthy();
-        // Check that the formatted date pattern is present (DD-MM-YYYY or DD/MM/YYYY)
-        expect(input.value).toMatch(/\d{2}[-\/]\d{2}[-\/]\d{4}/);
+        // Check that the formatted date pattern is present (DD-MM-YY or DD/MM/YY)
+        expect(input.value).toMatch(/\d{2}[-\/]\d{2}[-\/]\d{2}/);
       });
     });
 
@@ -256,10 +256,10 @@ describe('DateFilter Component', () => {
         
         const input = screen.getByRole('textbox');
         expect(input).toBeInTheDocument();
-        // RTL format should be DD-MM-YYYY
+        // RTL format should be DD-MM-YY
         expect(input.value).toBeTruthy();
-        // Check that the formatted date pattern is present (DD-MM-YYYY or DD/MM/YYYY)
-        expect(input.value).toMatch(/\d{2}[-\/]\d{2}[-\/]\d{4}/);
+        // Check that the formatted date pattern is present (DD-MM-YY or DD/MM/YY)
+        expect(input.value).toMatch(/\d{2}[-\/]\d{2}[-\/]\d{2}/);
       });
     });
 

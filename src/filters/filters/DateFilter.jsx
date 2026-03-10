@@ -10,7 +10,6 @@ import { useTranslations } from '../../localization/useTranslations';
 import { ThemeProvider } from '@mui/material/styles';
 import { DataGridStableContext } from '../../DataGrid/DataGridContext';
 import {
-  getFilterContentHeight,
   filterRowWrapperSx,
   filterInputFlexSx,
   filterInputFlexSxNarrow,
@@ -19,6 +18,7 @@ import {
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
 import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN, OPERATOR_PERIOD, OPERATOR_IN_RANGE, DIRECTION_LTR } from '../../config/schema';
+import { DATE_PICKER_ICON_SIZE_PX } from '../../constants';
 
 const PERIOD_UNITS = ['hours', 'days', 'weeks', 'months', 'years'];
 const ltrTheme = {
@@ -26,22 +26,27 @@ const ltrTheme = {
 };
 
 function getDatePickerSlotProps(ctx, direction, placeholder = '') {
-  const contentHeight = getFilterContentHeight(ctx?.filterInputHeight);
-  const datePickerIconSize = contentHeight - 2;
   const slotProps = {
     textField: {
       size: 'small',
       dir: direction,
       readOnly: false,
       placeholder,
-      sx: filterInputFlexSx,
+      sx: {
+        ...filterInputFlexSx,
+        '& .MuiInputBase-input': { textAlign: 'center', paddingLeft: 0  },
+      },
     },
-    openPickerButton: { sx: { width: datePickerIconSize, height: datePickerIconSize, minWidth: datePickerIconSize, minHeight: datePickerIconSize } },
-    openPickerIcon: { sx: { width: datePickerIconSize, height: datePickerIconSize } },
+    openPickerButton: { sx: { width: DATE_PICKER_ICON_SIZE_PX, height: DATE_PICKER_ICON_SIZE_PX, minWidth: DATE_PICKER_ICON_SIZE_PX, minHeight: DATE_PICKER_ICON_SIZE_PX } },
+    openPickerIcon: { sx: { width: DATE_PICKER_ICON_SIZE_PX, height: DATE_PICKER_ICON_SIZE_PX } },
   };
   if (direction === DIRECTION_RTL) {
     slotProps.textField.sx['& .MuiInputLabel-root'] = {
       right: 20,
+    };
+    slotProps.textField.sx['& .MuiInputAdornment-positionEnd'] = {
+      marginLeft: '2px',     
+      paddingRight: '2px' 
     };
   }
   return slotProps;

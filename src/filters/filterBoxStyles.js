@@ -208,13 +208,17 @@ export const headerClearButtonSx = {
  * @param {number} [fontSize] - Grid font size in px; when set, filter inputs use it
  * @returns {object}
  */
-export function getFilterRowBoxSx(filterInputHeight, fontSize) {
+export function getFilterRowBoxSx(filterInputHeight, fontSize, isRtl) {
   const contentHeight = getFilterContentHeight(filterInputHeight);
   const inputPadding = { height: '100%', padding: `${PADDING_INPUT_TOP_BOTTOM_PX}px ${FILTER_INPUT_HORIZONTAL_PADDING_PX}px` };
   const baseInputSx = {
     height: contentHeight,
     minHeight: contentHeight,
     maxHeight: contentHeight,
+    paddingRight: isRtl ? '4px' : '14px',
+    paddingLeft:   '4px',
+    display: 'flex',
+    alignItems: 'center',
     ...(fontSize != null && { fontSize: 'inherit' }),
   };
   return {

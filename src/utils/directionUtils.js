@@ -5,11 +5,11 @@ import { ALIGN_LEFT, ALIGN_RIGHT, DIRECTION_RTL, DIRECTION_LTR } from '../config
  * @returns {string} format for dayjs
  */
 export function getDateFormat(direction) {
-  return direction === DIRECTION_RTL ? 'DD-MM-YYYY' : 'MM-DD-YYYY';
+  return direction === DIRECTION_RTL ? 'DD-MM-YY' : 'MM-DD-YY';
 }
 
 export function getDateTimeFormat(direction) {
-  return direction === DIRECTION_RTL ? 'DD-MM-YYYY HH:mm:ss' : 'MM-DD-YYYY HH:mm:ss';
+  return direction === DIRECTION_RTL ? 'DD-MM-YY HH:mm:ss' : 'MM-DD-YY HH:mm:ss';
 }
 
 /** Default cell align by direction */

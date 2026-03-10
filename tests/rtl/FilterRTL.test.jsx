@@ -189,37 +189,35 @@ describe('Filter RTL Test', () => {
           if (dirAttr) {
             expect(dirAttr).toBe('rtl');
           }
-
-          // Verify text alignment (can be 'start' or 'right' in RTL)
           const styles = window.getComputedStyle(fieldInput);
-          expect(['start', 'right']).toContain(styles.textAlign);
+          expect(['center']).toContain(styles.textAlign);
         }
       }
 
-      // Date should be formatted as DD-MM-YYYY in RTL
+      // Date should be formatted as DD-MM-YY in RTL
       // Note: RTL dates may include bidirectional marks, so we check the format more flexibly
       const actualInput = input.tagName === 'INPUT' ? input : input.querySelector('input');
       const dateValue = input.value || (actualInput ? actualInput.value : '');
       if (dateValue) {
         // Remove bidirectional marks and check format
         const cleanedValue = dateValue.replace(/[\u2066-\u2069]/g, '');
-        // Should match DD-MM-YYYY format (with or without bidirectional marks)
-        expect(cleanedValue).toMatch(/\d{2}-\d{2}-\d{4}/);
-        // Verify it's actually DD-MM-YYYY (not MM-DD-YYYY)
+        // Should match DD-MM-YY format (with or without bidirectional marks)
+        expect(cleanedValue).toMatch(/\d{2}-\d{2}-\d{2}/);
+        // Verify it's actually DD-MM-YY (not MM-DD-YY)
         const parts = cleanedValue.split('-');
         if (parts.length === 3) {
           expect(parts[0].length).toBe(2); // Day
           expect(parts[1].length).toBe(2); // Month
-          expect(parts[2].length).toBe(4); // Year
-          // For 2024-01-15, should be 15-01-2024 in DD-MM-YYYY format
+          expect(parts[2].length).toBe(2); // Year
+          // For 2024-01-15, should be 15-01-24 in DD-MM-YY format
           expect(parts[0]).toBe('15');
           expect(parts[1]).toBe('01');
-          expect(parts[2]).toBe('2024');
+          expect(parts[2]).toBe('24');
         }
       }
     });
 
-    it('should format date input as DD-MM-YYYY in RTL', () => {
+    it('should format date input as DD-MM-YY in RTL', () => {
       const testDate = '2024-01-15';
       const { container } = renderWithTheme(
         <DateFilterInputs
@@ -232,7 +230,7 @@ describe('Filter RTL Test', () => {
       );
 
       const input = screen.getByRole('textbox');
-      const formattedDate = dayjs(testDate).format('DD-MM-YYYY');
+      const formattedDate = dayjs(testDate).format('DD-MM-YY');
 
       // Verify dir attribute is set (DateFilterInputs sets it in slotProps)
       const textField = container.querySelector('.MuiTextField-root');
@@ -246,14 +244,12 @@ describe('Filter RTL Test', () => {
           if (dirAttr) {
             expect(dirAttr).toBe('rtl');
           }
-
-          // Verify text alignment (can be 'start' or 'right' in RTL)
           const styles = window.getComputedStyle(fieldInput);
-          expect(['start', 'right']).toContain(styles.textAlign);
+          expect(['center']).toContain(styles.textAlign);
         }
       }
 
-      // Verify the input contains the formatted date (DD-MM-YYYY format)
+      // Verify the input contains the formatted date (DD-MM-YY format)
       const dateValue = input.value || '';
       if (dateValue) {
         const cleanedValue = dateValue.replace(/[\u2066-\u2069]/g, '');
@@ -289,10 +285,8 @@ describe('Filter RTL Test', () => {
           if (dirAttr) {
             expect(dirAttr).toBe('rtl');
           }
-
-          // Verify text alignment shows RTL behavior
           const styles = window.getComputedStyle(fieldInput);
-          expect(['start', 'right']).toContain(styles.textAlign);
+          expect(['center']).toContain(styles.textAlign);
         }
       }
     });

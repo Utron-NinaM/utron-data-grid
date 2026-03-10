@@ -77,7 +77,7 @@ describe('GridCell Component', () => {
         contextValue
       );
 
-      const formatted = dayjs(dateValue).format('MM-DD-YYYY');
+      const formatted = dayjs(dateValue).format('MM-DD-YY');
       expect(screen.getByText(formatted)).toBeInTheDocument();
     });
 
@@ -94,7 +94,7 @@ describe('GridCell Component', () => {
         contextValue
       );
 
-      const formatted = dayjs(dateValue).format('DD-MM-YYYY');
+      const formatted = dayjs(dateValue).format('DD-MM-YY');
       expect(screen.getByText(formatted)).toBeInTheDocument();
     });
 
@@ -111,7 +111,7 @@ describe('GridCell Component', () => {
         contextValue
       );
 
-      const formatted = dayjs(dateTimeValue).format('MM-DD-YYYY HH:mm:ss');
+      const formatted = dayjs(dateTimeValue).format('MM-DD-YY HH:mm:ss');
       expect(screen.getByText(formatted)).toBeInTheDocument();
     });
 
@@ -128,7 +128,7 @@ describe('GridCell Component', () => {
         contextValue
       );
 
-      const formatted = dayjs(dateTimeValue).format('DD-MM-YYYY HH:mm:ss');
+      const formatted = dayjs(dateTimeValue).format('DD-MM-YY HH:mm:ss');
       expect(screen.getByText(formatted)).toBeInTheDocument();
     });
 

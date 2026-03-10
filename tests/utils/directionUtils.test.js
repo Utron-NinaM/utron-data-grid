@@ -8,14 +8,14 @@ import { DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
 
 describe('directionUtils', () => {
   describe('LTR', () => {
-    it('getDateFormat returns MM-DD-YYYY', () => {
-      expect(getDateFormat(DIRECTION_LTR)).toBe('MM-DD-YYYY');
-      expect(getDateFormat('ltr')).toBe('MM-DD-YYYY');
+    it('getDateFormat returns MM-DD-YY', () => {
+      expect(getDateFormat(DIRECTION_LTR)).toBe('MM-DD-YY');
+      expect(getDateFormat('ltr')).toBe('MM-DD-YY');
     });
 
-    it('getDateTimeFormat returns MM-DD-YYYY HH:mm:ss', () => {
-      expect(getDateTimeFormat(DIRECTION_LTR)).toBe('MM-DD-YYYY HH:mm:ss');
-      expect(getDateTimeFormat('ltr')).toBe('MM-DD-YYYY HH:mm:ss');
+    it('getDateTimeFormat returns MM-DD-YY HH:mm:ss', () => {
+      expect(getDateTimeFormat(DIRECTION_LTR)).toBe('MM-DD-YY HH:mm:ss');
+      expect(getDateTimeFormat('ltr')).toBe('MM-DD-YY HH:mm:ss');
     });
 
     it('getDefaultAlign returns left', () => {
@@ -25,14 +25,14 @@ describe('directionUtils', () => {
   });
 
   describe('RTL', () => {
-    it('getDateFormat returns DD-MM-YYYY', () => {
-      expect(getDateFormat(DIRECTION_RTL)).toBe('DD-MM-YYYY');
-      expect(getDateFormat('rtl')).toBe('DD-MM-YYYY');
+    it('getDateFormat returns DD-MM-YY', () => {
+      expect(getDateFormat(DIRECTION_RTL)).toBe('DD-MM-YY');
+      expect(getDateFormat('rtl')).toBe('DD-MM-YY');
     });
 
-    it('getDateTimeFormat returns DD-MM-YYYY HH:mm:ss', () => {
-      expect(getDateTimeFormat(DIRECTION_RTL)).toBe('DD-MM-YYYY HH:mm:ss');
-      expect(getDateTimeFormat('rtl')).toBe('DD-MM-YYYY HH:mm:ss');
+    it('getDateTimeFormat returns DD-MM-YY HH:mm:ss', () => {
+      expect(getDateTimeFormat(DIRECTION_RTL)).toBe('DD-MM-YY HH:mm:ss');
+      expect(getDateTimeFormat('rtl')).toBe('DD-MM-YY HH:mm:ss');
     });
 
     it('getDefaultAlign returns right', () => {

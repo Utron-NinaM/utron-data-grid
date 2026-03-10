@@ -256,7 +256,7 @@ Pass `options={{ translations: { ... } }}` with keys overriding defaults. Main k
 
 ## RTL / LTR
 
-Pass `options={{ direction: 'rtl' }}` for right-to-left. Date format: LTR uses MM-DD-YYYY, RTL uses DD-MM-YYYY. Column alignment and pagination controls follow direction.
+Pass `options={{ direction: 'rtl' }}` for right-to-left. Date format: LTR uses MM-DD-YY, RTL uses DD-MM-YY. Column alignment and pagination controls follow direction.
 
 ## Dropdowns and sidebars
 

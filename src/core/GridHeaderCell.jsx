@@ -69,7 +69,7 @@ export function GridHeaderCell({
   }, [cellSx?.backgroundColor, headerConfig?.mainRow?.backgroundColor, headerConfig?.base?.backgroundColor, theme?.palette]);
   
   const multiColumn = sortModel?.length > 1;
-  const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight, ctx?.fontSize), [filterInputHeight, ctx?.fontSize]); 
+  const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight, ctx?.fontSize, direction === DIRECTION_RTL), [filterInputHeight, ctx?.fontSize, direction]); 
 
   const handleSortClick = (event) => {
     const multiColumn = event.ctrlKey || event.metaKey;
