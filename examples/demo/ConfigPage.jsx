@@ -77,7 +77,7 @@ export function ConfigPage() {
   }
 
   return (
-    <Box sx={{ p: 2, pb: 4, width: '100%', maxWidth: '100%', mx: 'auto', flex: 1, minHeight: 0, overflowX: 'hidden' }}>
+    <Box sx={{ p: 2, pb: 4, width: '100%', maxWidth: '100%', mx: 'auto', flex: 1, minHeight: 0, overflow: 'hidden' }}>
       <Typography variant="h5" gutterBottom>
         Grid Configuration
       </Typography>
@@ -87,12 +87,12 @@ export function ConfigPage() {
       <Button variant="contained" color="primary" onClick={handleApply} size="large" sx={{ mb: 3 }}>
         Apply
       </Button>
-      <Box sx={{ p: 2, pb: 4, width: '98%', maxWidth: '100%', mx: 'auto', flex: 1, minHeight: 0, height: '100%', overflowY: 'auto' }}>
-        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+      <Box sx={{ p: 1, pb: 1, width: '98%', maxWidth: '100%', mx: 'auto', flex: 1, minHeight: 0, height: '100%', overflowY: 'auto' }}>
+        <Paper variant="outlined" sx={{ p: 1, mb: 1 }}>
           <Typography variant="subtitle1" fontWeight={600} gutterBottom>
             Container width & sample size
           </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
             <TextField
               label="Sample size"
               value={localSampleSize}
@@ -101,7 +101,7 @@ export function ConfigPage() {
               sx={{ width: 120 }}
               placeholder={String(DEFAULT_SAMPLE_SIZE)}
             />
-            <FormControl size="small" sx={{ minWidth: 140 }}>
+            <FormControl size="small" sx={{ minWidth: 100 }}>
               <InputLabel>Columns</InputLabel>
               <Input
                 label="Columns"
@@ -115,7 +115,7 @@ export function ConfigPage() {
               value={localContainerWidth}
               onChange={(e) => setLocalContainerWidth(e.target.value)}
               size="small"
-              sx={{ width: 140 }}
+              sx={{ width: 100 }}
               placeholder="800px or 100%"
             />
             {CONTAINER_WIDTH_PRESETS.map((preset) => (
@@ -131,21 +131,21 @@ export function ConfigPage() {
           </Box>
         </Paper>
 
-        <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+        <Paper variant="outlined" sx={{ p: 1, mb: 1 }}>
           <Typography variant="subtitle1" fontWeight={600} gutterBottom>
             Empty Rows (for testing edit mode)
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
             Add empty placeholder rows to test editing empty rows. Double-click an empty row to start editing it in create mode.
           </Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
             <TextField
               label="Empty rows count"
               type="number"
               value={localEmptyRowCount}
               onChange={(e) => setLocalEmptyRowCount(e.target.value)}
               size="small"
-              sx={{ width: 400 }}
+              sx={{ width: 200 }}
               placeholder={String(DEFAULT_EMPTY_ROW_COUNT)}
               inputProps={{ min: 0, max: 10, step: 1 }}
               helperText="Empty rows are added at the end of the grid"
@@ -153,13 +153,13 @@ export function ConfigPage() {
           </Box>
         </Paper>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {GROUP_ORDER.filter((g) => defsByGroup[g]?.length).map((group) => (
-            <Paper key={group} variant="outlined" sx={{ p: 2 }}>
+            <Paper key={group} variant="outlined" sx={{ p: 1 }}>
               <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
                 {GROUP_LABELS[group] ?? group}
               </Typography>
-              <Divider sx={{ mb: 2 }} />
+              <Divider sx={{ mb: 1 }} />
               <Box sx={optionsGridSx}>
                 {defsByGroup[group].map((def) => (
                   <OptionEditor

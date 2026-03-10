@@ -110,6 +110,10 @@ export function GridTableBodyVirtuoso({
         arr.push(rowLevelErrorSx);
         rowSx = arr;
       }
+      if (editRowId != null && !isEditing) {
+        const pointerNone = { pointerEvents: 'none' };
+        rowSx = rowSx == null ? pointerNone : (Array.isArray(rowSx) ? [...rowSx, pointerNone] : [rowSx, pointerNone]);
+      }
 
       return {
         row,

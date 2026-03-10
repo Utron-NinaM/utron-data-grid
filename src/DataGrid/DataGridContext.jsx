@@ -40,6 +40,7 @@ export const ScrollContainerContext = createContext(null);
  * @param {{ getSnapshot: () => string|number|null, subscribe: (fn: () => void) => () => void, set: (id: string|number|null) => void }} [stableValue.selectionStore] External store for single-row selection (use with useSyncExternalStore)
  * @param {Function} [stableValue.selectRow] (id: string|number, row?: Object) => void – updates selection store and optionally calls onRowClick
  * @param {Object} [stableValue.editStore] External store for edit state (editRowId, editValues, validationErrors, originalRow); use with useSyncExternalStore
+ * @param {boolean} [stableValue.isEditing] True when a row is in edit mode; consumers (e.g. custom toolbar actions) can use this to disable their UI
  * @param {Function} [stableValue.handleEditSave] Save handler for edit toolbar
  * @param {Function} [stableValue.handleEditCancel] Cancel handler for edit toolbar
  * @param {Object} filterValue Filter-related functions that change with filterModel

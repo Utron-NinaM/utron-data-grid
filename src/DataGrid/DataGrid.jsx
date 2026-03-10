@@ -292,14 +292,16 @@ export const DataGrid = forwardRef(function DataGrid(props, ref) {
           )}
           {editable && !reserveEditToolbarSpace && <EditToolbarSubscriber />}
           {pagination && (
-            <PaginationBar
-              page={grid.page}
-              pageSize={grid.pageSize}
-              totalRows={grid.paginationResult.total}
-              pageSizeOptions={pageSizeOptions}
-              onPageChange={grid.handlePageChange}
-              onPageSizeChange={grid.handlePageSizeChange}
-            />
+            <Box sx={{ pointerEvents: grid.stableContextValue.isEditing ? 'none' : 'auto' }}>
+              <PaginationBar
+                page={grid.page}
+                pageSize={grid.pageSize}
+                totalRows={grid.paginationResult.total}
+                pageSizeOptions={pageSizeOptions}
+                onPageChange={grid.handlePageChange}
+                onPageSizeChange={grid.handlePageSizeChange}
+              />
+            </Box>
           )}
         </Box>
       </DataGridProvider>

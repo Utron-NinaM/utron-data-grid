@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
+import { useMemo, useCallback, useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { applySort, getStoredSortModel, saveSortModel } from '../utils/sortUtils';
 import { getStoredColumnWidthState, saveColumnWidthState } from '../utils/columnWidthStorage';
 import debounce from 'lodash/debounce';
@@ -83,6 +83,13 @@ export function useDataGrid(props) {
     editStoreRef.current = createEditStore();
   }
   const editStore = editStoreRef.current;
+
+  const isEditing = useSyncExternalStore(
+    editStore?.subscribe ?? (() => () => {}),
+    () => editStore?.getSnapshot?.()?.editRowId != null ?? false,
+    () => false
+  );
+
   // Column width state: Map<field, width> for resized width overrides only (not full widths)
   const [columnWidthState, setColumnWidthState] = useState(() => getStoredColumnWidthState(props.gridId, props.columns));
   // Container ref for ResizeObserver (created here, passed to GridTable via context)
@@ -434,6 +441,7 @@ export function useDataGrid(props) {
       selectionStore,
       selectRow,
       editStore,
+      isEditing,
       handleEditSave,
       handleEditCancel,
       handleValidationErrorClick,
@@ -489,6 +497,7 @@ export function useDataGrid(props) {
       selectionStore,
       selectRow,
       editStore,
+      isEditing,
       handleEditSave,
       handleEditCancel,
       handleValidationErrorClick,

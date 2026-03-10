@@ -69,7 +69,6 @@ function GridTableInner({
     () => editStore?.getSnapshot?.()?.editRowId ?? null,
     () => null
   );
-  const selectionDisabled = Boolean(editable && editRowId != null);
 
   const bodyColRefs = useRef(new Map());
   const headerScrollRef = useRef(null);
@@ -117,13 +116,13 @@ function GridTableInner({
   const handleTableBodyClick = useMemo(() => {
     if (!selectRow) return undefined;
     return (event) => {
-      if (selectionDisabled) return;
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
       const rowIdAttr = rowElement.getAttribute('data-row-id');
       const row = rows.find((r) => String(getRowId(r)) === rowIdAttr);
       if (!row) return;
       const rowId = getRowId(row);
+      if (editRowId != null && String(rowId) !== String(editRowId)) return;
       if (multiSelectable && onSelect) {
         const cell = event.target.closest('td');
         if (cell?.cellIndex === 0) return;
@@ -132,28 +131,29 @@ function GridTableInner({
       }
       selectRow(rowId, row);
     };
-  }, [selectRow, rows, getRowId, selectionDisabled, multiSelectable, onSelect, selection]);
+  }, [selectRow, rows, getRowId, multiSelectable, onSelect, selection, editRowId]);
 
   const handleTableBodyDoubleClick = useMemo(() => {
     if (!onRowDoubleClick) return undefined;
     return (event) => {
-      if (selectionDisabled) return;
       const rowElement = event.target.closest('[data-row-id]');
       if (!rowElement) return;
       const rowId = rowElement.getAttribute('data-row-id');
       const row = rows.find(r => String(getRowId(r)) === rowId);
-      if (row) onRowDoubleClick(row);
+      if (!row) return;
+      if (editRowId != null && String(getRowId(row)) !== String(editRowId)) return;
+      onRowDoubleClick(row);
     };
-  }, [onRowDoubleClick, rows, getRowId, selectionDisabled]);
+  }, [onRowDoubleClick, rows, getRowId, editRowId]);
 
   // Stable callback for checkbox selection - takes (rowId, checked)
   const handleSelectRow = useMemo(() => {
     if (!onSelect) return undefined;
     return (rowId, checked) => {
-      if (selectionDisabled) return;
+      if (editRowId != null && String(rowId) !== String(editRowId)) return;
       onSelect(rowId, checked);
     };
-  }, [onSelect, selectionDisabled]);
+  }, [onSelect, editRowId]);
 
   const scrollContainerRef = useRef(null);
   const tooltipContainerRef = useRef(null);
@@ -210,21 +210,23 @@ function GridTableInner({
     };
   }, [containScroll]);
   const toolbarBox = (
-    <Box sx={getToolbarBoxSx(containScroll)}>
-      <Box sx={toolbarActionsBoxSx}>
-        <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
-          {translations('clearSort')}
-        </Button>
-        {filters !== false && (
-          <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
-            {translations('clearAllFilters')}
+    <Box sx={{ pointerEvents: editRowId != null ? 'none' : 'auto' }}>
+      <Box sx={getToolbarBoxSx(containScroll)}>
+        <Box sx={toolbarActionsBoxSx}>
+          <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
+            {translations('clearSort')}
           </Button>
-        )}
-        <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
-          {translations('clearColumnWidths')}
-        </Button>
+          {filters !== false && (
+            <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
+              {translations('clearAllFilters')}
+            </Button>
+          )}
+          <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
+            {translations('clearColumnWidths')}
+          </Button>
+        </Box>
+        <GridToolbarSubscriber rows={rows} getRowId={getRowId} />
       </Box>
-      <GridToolbarSubscriber rows={rows} getRowId={getRowId} />
     </Box>
   );
 
@@ -257,7 +259,7 @@ function GridTableInner({
               />
             ))}
           </colgroup>
-          <TableHead sx={getTableHeadSx(containScroll, headerConfig)}>
+          <TableHead sx={{ ...getTableHeadSx(containScroll, headerConfig), ...(editRowId != null && { pointerEvents: 'none' }) }}>
               <TableRow sx={getMainHeaderRowSx(headerConfig, !!(getFilterInputSlot && getFilterToInputSlot))}>
                 {multiSelectable && (
                   <TableCell
@@ -350,7 +352,7 @@ function GridTableInner({
                 />
               ))}
             </colgroup>
-            <TableHead sx={getTableHeadSx(true, headerConfig)}>
+            <TableHead sx={{ ...getTableHeadSx(true, headerConfig), ...(editRowId != null && { pointerEvents: 'none' }) }}>
               <TableRow sx={getMainHeaderRowSx(headerConfig, !!(getFilterInputSlot && getFilterToInputSlot))}>
                 {multiSelectable && (
                   <TableCell padding="checkbox" variant="head" sx={getHeaderCheckboxCellSx(headerConfig, 'mainRow')} />
