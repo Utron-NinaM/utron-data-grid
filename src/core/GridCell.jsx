@@ -129,10 +129,18 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
 
   const isRTL = direction === DIRECTION_RTL;
 
-  const popperContainer = (scrollCtx?.ready && scrollCtx?.ref?.current) ? scrollCtx.ref.current : undefined;
-  const popperProps = popperContainer
-    ? { container: popperContainer, popperOptions: { strategy: 'absolute' } }
-    : { disablePortal: true, popperOptions: { strategy: 'absolute' } };
+  // Use scroll container as Popper boundary when in containScroll so flip/preventOverflow keep tooltips visible (no clipping on first rows)
+  const scrollBoundaryEl = scrollCtx?.scrollContainerRef?.current ?? null;
+  const popperProps = useMemo(() => {
+    const baseOptions = { strategy: 'absolute' };
+    if (scrollBoundaryEl) {
+      baseOptions.modifiers = [
+        { name: 'flip', options: { boundary: scrollBoundaryEl } },
+        { name: 'preventOverflow', options: { boundary: scrollBoundaryEl } },
+      ];
+    }
+    return { disablePortal: true, popperOptions: baseOptions };
+  }, [scrollBoundaryEl]);
 
   // Shared tooltip props for error icons
   const errorTooltipProps = useMemo(() => ({

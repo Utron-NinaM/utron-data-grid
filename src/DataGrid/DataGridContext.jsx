@@ -8,7 +8,7 @@ export const DataGridStableContext = createContext(null);
 // Filter context - contains filter-related functions that change when filterModel changes
 export const DataGridFilterContext = createContext(null);
 
-// When containScroll is used, GridTable provides the scroll container ref so cell tooltips can mount inside it
+// When containScroll is used, GridTable provides { ref, scrollContainerRef, ready }: ref for cell editors' dropdowns; scrollContainerRef as Popper boundary for body cell tooltips (flip/preventOverflow)
 export const ScrollContainerContext = createContext(null);
 
 /**

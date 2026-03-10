@@ -437,7 +437,7 @@ function GridTableInner({
           onScroll={handleBodyScroll}
           sx={getScrollInnerBoxSx(enableHorizontalScroll)}
         >
-          <ScrollContainerContext.Provider value={{ ref: tooltipContainerRef, ready: scrollContainerReady }}>
+          <ScrollContainerContext.Provider value={{ ref: tooltipContainerRef, scrollContainerRef, ready: scrollContainerReady }}>
             {rows.length > 0 ? (
               <TableContainer
                 component={Paper}
