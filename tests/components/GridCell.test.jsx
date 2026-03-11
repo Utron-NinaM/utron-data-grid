@@ -306,61 +306,7 @@ describe('GridCell Component', () => {
       expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(255, 0, 0)');
     });
 
-    it('selected row style (default theme) overrides row style when isSelected and no selectedRowStyle', () => {
-      const theme = createTheme({
-        palette: { action: { selected: 'rgb(200, 200, 200)' } },
-      });
-      render(
-        <ThemeProvider theme={theme}>
-          <DataGridStableContext.Provider value={defaultContextValue}>
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <GridCell
-                    value="x"
-                    row={mockRow}
-                    column={defaultColumn}
-                    rowStyle={{ backgroundColor: 'rgb(0, 128, 0)' }}
-                    isSelected={true}
-                  />
-                </TableRow>
-              </TableBody>
-            </Table>
-          </DataGridStableContext.Provider>
-        </ThemeProvider>
-      );
-      const cell = screen.getByRole('cell');
-      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(200, 200, 200)');
-    });
-
-    it('selected row style (default theme) overrides column style when isSelected and no selectedRowStyle', () => {
-      const theme = createTheme({
-        palette: { action: { selected: 'rgb(180, 180, 180)' } },
-      });
-      const column = { ...defaultColumn, cellStyle: { backgroundColor: 'rgb(255, 0, 0)' } };
-      render(
-        <ThemeProvider theme={theme}>
-          <DataGridStableContext.Provider value={defaultContextValue}>
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <GridCell
-                    value="x"
-                    row={mockRow}
-                    column={column}
-                    isSelected={true}
-                  />
-                </TableRow>
-              </TableBody>
-            </Table>
-          </DataGridStableContext.Provider>
-        </ThemeProvider>
-      );
-      const cell = screen.getByRole('cell');
-      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(180, 180, 180)');
-    });
-
-    it('custom selectedRowStyle overrides row style and column style when isSelected', () => {
+    it('column style overrides row style (selection highlight is applied via SelectionStyleApplicator)', () => {
       const column = { ...defaultColumn, cellStyle: { backgroundColor: 'rgb(255, 0, 0)' } };
       renderWithContext(
         <GridCell
@@ -368,24 +314,6 @@ describe('GridCell Component', () => {
           row={mockRow}
           column={column}
           rowStyle={{ backgroundColor: 'rgb(0, 128, 0)' }}
-          isSelected={true}
-          selectedRowStyle={{ backgroundColor: 'rgb(255, 165, 0)' }}
-        />
-      );
-      const cell = screen.getByRole('cell');
-      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(255, 165, 0)');
-    });
-
-    it('row style is not overridden when not selected', () => {
-      const column = { ...defaultColumn, cellStyle: { backgroundColor: 'rgb(255, 0, 0)' } };
-      renderWithContext(
-        <GridCell
-          value="x"
-          row={mockRow}
-          column={column}
-          rowStyle={{ backgroundColor: 'rgb(0, 128, 0)' }}
-          isSelected={false}
-          selectedRowStyle={{ backgroundColor: 'rgb(255, 165, 0)' }}
         />
       );
       const cell = screen.getByRole('cell');

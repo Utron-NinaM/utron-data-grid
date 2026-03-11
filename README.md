@@ -291,6 +291,14 @@ const mainContentRef = useRef(null);
 - In RTL, place the sidebar on the right (e.g. use `direction: 'rtl'` on the flex container so the first child appears on the right).
 - When the sidebar opens or closes, the main content resizes; the next time a dropdown opens it will use the updated bounds. If the user toggles the sidebar while a dropdown is open, close and reopen the dropdown to reposition.
 
+## Row selection and always-visible controls
+
+The grid applies **selection highlight via CSS** (not by re-rendering the row). So when the user clicks a cell that contains an always-visible control (e.g. a Priority dropdown), the row is selected and the control can open in the **same click**—no second click needed.
+
+If your app updates state in `onRowClick` (e.g. `setSelectedRow(row)` for a toolbar), that re-render can close an open dropdown. To keep single-click-open behavior, either defer updating that state until the control closes (e.g. in the dropdown’s `onClose`) or store the selected row in a ref so the grid does not re-render on selection.
+
+See the **Conditional Editing** example (`examples/ConditionalEditingExample.jsx`) for a working pattern: Priority column with always-visible Autocomplete, selection on click, and selected row display updated when the dropdown closes.
+
 ## Pagination
 
 Pass `options={{ pagination: true, pageSize: 10, pageSizeOptions: [10, 25, 50, 100] }}`. Use `onPageSizeChange` to be notified when the user changes page size.
@@ -369,7 +377,7 @@ Use the library in your app’s React tree with your own MUI theme if needed; th
 
 ## Examples
 
-See the `examples/` folder: column config, sample data, translations, and a full demo (`DataGridExample.jsx`). Run the dev server:
+See the `examples/` folder: column config, sample data, translations, and a full demo (`DataGridExample.jsx`). **ConditionalEditingExample.jsx** demonstrates single-click row select + open dropdown (always-visible Priority Autocomplete). Run the dev server:
 
 ```bash
 npm install

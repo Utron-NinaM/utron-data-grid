@@ -14,7 +14,6 @@ const EMPTY_ERROR_MAP = new Map();
  * @param {Function} props.getRowId
  * @param {import('../config/schema').ColumnDef[]} props.columns
  * @param {Set<string|number>} [props.selection]
- * @param {string|number|null} [props.selectedRowId] From selectionStore
  * @param {string|number|null} [props.editRowId]
  * @param {{ isEditing: boolean, editValues?: Object, rowErrorsForRow?: Object }|null} [props.editStateForRow]
  * @param {string|null} [props.editMode] 'create' | 'update'
@@ -22,7 +21,6 @@ const EMPTY_ERROR_MAP = new Map();
  * @param {boolean} [props.hasRowLevelError] For the editing row
  * @param {Map<string|number, Array>} [props.mergedRowStylesMap] rowId -> rowSx array
  * @param {Map<string|number, Object>} [props.rowStylesMap] rowId -> rowStyle
- * @param {Object} [props.selectedRowStyle]
  * @param {boolean} [props.disableRowHover]
  * @param {boolean} [props.multiSelectable]
  * @param {Function} [props.onSelectRow]
@@ -34,7 +32,6 @@ export function GridBodyContent({
   getRowId,
   columns,
   selection,
-  selectedRowId,
   editRowId,
   editStateForRow,
   editMode,
@@ -42,7 +39,6 @@ export function GridBodyContent({
   hasRowLevelError = false,
   mergedRowStylesMap,
   rowStylesMap,
-  selectedRowStyle,
   disableRowHover,
   multiSelectable,
   onSelectRow,
@@ -60,7 +56,6 @@ export function GridBodyContent({
       {visibleRows.map((row) => {
         const rowId = getRowId(row);
         const selected = selection?.has(rowId) ?? false;
-        const isRowSelected = selected || (selectedRowId != null && String(selectedRowId) === String(rowId));
         const isEditing = editRowId != null && String(editRowId) === String(rowId);
         const editValues = isEditing && editStateForRow?.editValues != null ? editStateForRow.editValues : EMPTY_EDIT_VALUES;
         const errorMessagesMap = isEditing ? editingRowErrorMessagesMap : EMPTY_ERROR_MAP;
@@ -82,11 +77,9 @@ export function GridBodyContent({
             row={row}
             rowId={rowId}
             selected={selected}
-            isRowSelected={isRowSelected}
             onSelectRow={onSelectRow}
             rowSx={rowSx}
             rowStyle={rowStylesMap?.get(rowId)}
-            selectedRowStyle={selectedRowStyle}
             disableRowHover={disableRowHover}
             columns={columns}
             multiSelectable={multiSelectable}

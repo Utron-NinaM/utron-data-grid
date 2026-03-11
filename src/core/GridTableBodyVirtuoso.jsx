@@ -18,6 +18,7 @@ const EMPTY_ERROR_MAP = new Map();
  * Renders same row content as GridBodyContent via GridBodyRow (cellsOnly).
  */
 export function GridTableBodyVirtuoso({
+  tableId,
   rows,
   columns,
   getRowId,
@@ -40,14 +41,7 @@ export function GridTableBodyVirtuoso({
   bodyColRefs,
 }) {
   const ctx = useContext(DataGridStableContext);
-  const selectionStore = ctx?.selectionStore;
   const editStore = ctx?.editStore;
-
-  const selectedRowId = useSyncExternalStore(
-    selectionStore?.subscribe ?? (() => () => {}),
-    () => selectionStore?.getSnapshot?.() ?? null,
-    () => null
-  );
 
   const editSnapshot = useSyncExternalStore(
     editStore?.subscribe ?? (() => () => {}),
@@ -95,8 +89,6 @@ export function GridTableBodyVirtuoso({
       if (!row) return null;
       const rowId = getRowId(row);
       const selected = selection?.has(rowId) ?? false;
-      const isRowSelected =
-        selected || (selectedRowId != null && String(selectedRowId) === String(rowId));
       const isEditing = editRowId != null && String(editRowId) === String(rowId);
       const editValues =
         isEditing && editStateForRow?.editValues != null
@@ -119,7 +111,6 @@ export function GridTableBodyVirtuoso({
         row,
         rowId,
         selected,
-        isRowSelected,
         isEditing,
         editValues,
         editMode: isEditing ? editMode : null,
@@ -132,7 +123,6 @@ export function GridTableBodyVirtuoso({
       rows,
       getRowId,
       selection,
-      selectedRowId,
       editRowId,
       editStateForRow,
       editMode,
@@ -154,11 +144,9 @@ export function GridTableBodyVirtuoso({
           row={props.row}
           rowId={props.rowId}
           selected={props.selected}
-          isRowSelected={props.isRowSelected}
           onSelectRow={onSelectRow}
           rowSx={props.rowSx}
           rowStyle={props.rowStyle}
-          selectedRowStyle={selectedRowStyle}
           disableRowHover={disableRowHover}
           columns={columns}
           multiSelectable={multiSelectable}
@@ -173,7 +161,6 @@ export function GridTableBodyVirtuoso({
     [
       getRowProps,
       onSelectRow,
-      selectedRowStyle,
       disableRowHover,
       columns,
       multiSelectable,
@@ -186,6 +173,7 @@ export function GridTableBodyVirtuoso({
     return {
       Table: ({ style, ...rest }) => (
         <Table
+          id={tableId}
           size="small"
           aria-label="Data grid body"
           sx={{ ...getTableSx(totalWidth, enableHorizontalScroll), ...style }}
@@ -236,7 +224,6 @@ export function GridTableBodyVirtuoso({
           <TableRow
             component="tr"
             hover={false}
-            selected={props.isRowSelected}
             sx={rowSx}
             data-row-id={props.rowId}
             {...rest}
@@ -247,6 +234,7 @@ export function GridTableBodyVirtuoso({
       },
     };
   }, [
+    tableId,
     rowHeight,
     enableHorizontalScroll,
     totalWidth,

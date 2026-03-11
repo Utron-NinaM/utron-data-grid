@@ -75,3 +75,6 @@ export const BODY_ROW_HEIGHT = 30;
 export const BODY_ROW_PADDING_VERTICAL_PX = 2;
 export const BODY_ROW_PADDING_HORIZONTAL_PX = 4;
 export const EDITOR_OUTLINE_BORDER_PX = 1;
+
+// ─── Selected row ────────────────────────────────────────────────────────────
+export const SELECTED_ROW_BG = 'rgba(25, 118, 210, 0.08)';

@@ -27,7 +27,6 @@ describe('GridBodyRow Component', () => {
     row: mockRow,
     rowId: 1,
     selected: false,
-    isRowSelected: false,
     onSelectRow: vi.fn(),
     rowSx: undefined,
     columns: mockColumns,
@@ -180,33 +179,9 @@ describe('GridBodyRow Component', () => {
   });
 
   describe('Test selected row styling', () => {
-    it('should apply selected styling when selected is true', () => {
+    it('does not use TableRow selected prop (selection highlight is applied via SelectionStyleApplicator CSS)', () => {
       renderWithContext(
-        <GridBodyRow {...defaultProps} selected={true} isRowSelected={true} />
-      );
-      const row = screen.getByText('Alice').closest('tr');
-      expect(row).toHaveClass('Mui-selected');
-    });
-
-    it('should apply selected styling when isRowSelected is true', () => {
-      renderWithContext(
-        <GridBodyRow {...defaultProps} isRowSelected={true} />
-      );
-      const row = screen.getByText('Alice').closest('tr');
-      expect(row).toHaveClass('Mui-selected');
-    });
-
-    it('should apply selected styling when both selected and isRowSelected are true', () => {
-      renderWithContext(
-        <GridBodyRow {...defaultProps} selected={true} isRowSelected={true} />
-      );
-      const row = screen.getByText('Alice').closest('tr');
-      expect(row).toHaveClass('Mui-selected');
-    });
-
-    it('should not apply selected styling when both are false', () => {
-      renderWithContext(
-        <GridBodyRow {...defaultProps} selected={false} isRowSelected={false} />
+        <GridBodyRow {...defaultProps} selected={true} />
       );
       const row = screen.getByText('Alice').closest('tr');
       expect(row).not.toHaveClass('Mui-selected');
@@ -237,7 +212,7 @@ describe('GridBodyRow Component', () => {
 
     it('should update checkbox checked state when selected changes', () => {
       const { rerender } = renderWithContext(
-        <GridBodyRow {...defaultProps} multiSelectable={true} selected={false} isRowSelected={false} />
+        <GridBodyRow {...defaultProps} multiSelectable={true} selected={false} />
       );
       let checkbox = screen.getByRole('checkbox', { name: /select row/i });
       expect(checkbox).not.toBeChecked();
@@ -247,7 +222,7 @@ describe('GridBodyRow Component', () => {
           <DataGridStableContext.Provider value={defaultContextValue}>
             <Table>
               <TableBody>
-                <GridBodyRow {...defaultProps} multiSelectable={true} selected={true} isRowSelected={true} />
+                <GridBodyRow {...defaultProps} multiSelectable={true} selected={true} />
               </TableBody>
             </Table>
           </DataGridStableContext.Provider>

@@ -8,7 +8,8 @@ import { GridBodyContent } from './GridBodyContent';
 import { ALIGN_CENTER } from '../config/schema';
 
 /**
- * Body layer: single subscription point for editStore and selectionStore.
+ * Body layer: single subscription point for editStore.
+ * Selection highlight is applied via SelectionStyleApplicator (no row re-render on selection change).
  * Derives snapshot and error map for the editing row; renders TableBody wrapping GridBodyContent.
  * Renders the slice given by visibleRows (parent-controlled).
  */
@@ -32,14 +33,7 @@ export function GridBody({
   colSpan,
 }) {
   const ctx = useContext(DataGridStableContext);
-  const selectionStore = ctx?.selectionStore;
   const editStore = ctx?.editStore;
-
-  const selectedRowId = useSyncExternalStore(
-    selectionStore?.subscribe ?? (() => () => {}),
-    () => selectionStore?.getSnapshot?.() ?? null,
-    () => null
-  );
 
   const editSnapshot = useSyncExternalStore(
     editStore?.subscribe ?? (() => () => {}),
@@ -91,7 +85,6 @@ export function GridBody({
         getRowId={getRowId}
         columns={columns}
         selection={selection}
-        selectedRowId={selectedRowId}
         editRowId={editRowId}
         editStateForRow={editStateForRow}
         editMode={editMode}
@@ -99,7 +92,6 @@ export function GridBody({
         hasRowLevelError={hasRowLevelError}
         mergedRowStylesMap={mergedRowStylesMap}
         rowStylesMap={rowStylesMap}
-        selectedRowStyle={selectedRowStyle}
         disableRowHover={disableRowHover}
         multiSelectable={multiSelectable}
         onSelectRow={onSelectRow}

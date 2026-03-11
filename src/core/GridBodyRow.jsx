@@ -1,8 +1,7 @@
-import React, { memo, useContext, useMemo, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useEffect, useRef } from 'react';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Checkbox from '@mui/material/Checkbox';
-import { useTheme } from '@mui/material/styles';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { GridCell } from './GridCell';
 import { HEADER_CELL_PADDING_PX, CHECKBOX_COLUMN_WIDTH_PX } from '../constants';
@@ -18,11 +17,9 @@ const EMPTY_EDIT_VALUES = {};
  * @param {Object} props.row
  * @param {string|number} props.rowId
  * @param {boolean} props.selected - Checkbox selected (multi-select)
- * @param {boolean} props.isRowSelected - Visual selection highlight (multi or single)
  * @param {Function} props.onSelectRow Stable callback: (rowId, checked) => void
  * @param {Array} [props.rowSx] Pre-computed row styles (including error border when applicable)
  * @param {Object} [props.rowStyle] Row-specific sx for cells
- * @param {Object} [props.selectedRowStyle] MUI sx for selected row
  * @param {boolean} [props.disableRowHover]
  * @param {Array} props.columns
  * @param {boolean} props.multiSelectable
@@ -37,11 +34,9 @@ function GridBodyRowComponent({
   row,
   rowId,
   selected,
-  isRowSelected,
   onSelectRow,
   rowSx,
   rowStyle,
-  selectedRowStyle,
   disableRowHover = false,
   columns,
   multiSelectable,
@@ -52,28 +47,20 @@ function GridBodyRowComponent({
   errorMessagesMap = new Map(),
   cellsOnly = false,
 }) {
-  const theme = useTheme();
   const rowRef = useRef(null);
 
-  // Checkbox cell sx: same precedence as GridCell (row style then selected)
-  const checkboxCellSx = useMemo(() => {
-    const hasCustomSelected = selectedRowStyle && Object.keys(selectedRowStyle).length > 0;
-    const appliedSelectedStyle = isRowSelected
-      ? (hasCustomSelected ? selectedRowStyle : { backgroundColor: theme.palette.action.selected })
-      : {};
-    return {
-      ...(rowStyle ?? {}),
-      ...appliedSelectedStyle,
-      boxSizing: 'border-box',
-      width: `${CHECKBOX_COLUMN_WIDTH_PX}px`,
-      minWidth: `${CHECKBOX_COLUMN_WIDTH_PX}px`,
-      padding: '0 !important',
-      paddingLeft: `${HEADER_CELL_PADDING_PX}px !important`,
-      paddingRight: `${HEADER_CELL_PADDING_PX}px !important`,
-      paddingInlineStart: `${HEADER_CELL_PADDING_PX}px !important`,
-      paddingInlineEnd: `${HEADER_CELL_PADDING_PX}px !important`,
-    };
-  }, [rowStyle, isRowSelected, selectedRowStyle, theme]);
+  // Checkbox cell sx: row style only (selection highlight applied via SelectionStyleApplicator CSS)
+  const checkboxCellSx = useMemo(() => ({
+    ...(rowStyle ?? {}),
+    boxSizing: 'border-box',
+    width: `${CHECKBOX_COLUMN_WIDTH_PX}px`,
+    minWidth: `${CHECKBOX_COLUMN_WIDTH_PX}px`,
+    padding: '0 !important',
+    paddingLeft: `${HEADER_CELL_PADDING_PX}px !important`,
+    paddingRight: `${HEADER_CELL_PADDING_PX}px !important`,
+    paddingInlineStart: `${HEADER_CELL_PADDING_PX}px !important`,
+    paddingInlineEnd: `${HEADER_CELL_PADDING_PX}px !important`,
+  }), [rowStyle]);
 
   // Focus first editable cell when entering edit mode
   useEffect(() => {
@@ -118,8 +105,6 @@ function GridBodyRowComponent({
             hasError={hasError}
             errorMessages={errorMessages}
             rowStyle={rowStyle}
-            isSelected={isRowSelected}
-            selectedRowStyle={selectedRowStyle}
           />
         );
       })}
@@ -132,7 +117,6 @@ function GridBodyRowComponent({
     <TableRow
       ref={rowRef}
       hover={false}
-      selected={isRowSelected}
       sx={rowSx}
       data-row-id={rowId}
     >

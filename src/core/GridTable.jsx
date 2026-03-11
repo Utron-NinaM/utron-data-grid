@@ -1,4 +1,4 @@
-import React, { memo, useContext, useMemo, useRef, useEffect, useState, useLayoutEffect, useSyncExternalStore } from 'react';
+import React, { memo, useContext, useId, useMemo, useRef, useEffect, useState, useLayoutEffect, useSyncExternalStore } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -14,6 +14,7 @@ import { GridHeaderCell } from './GridHeaderCell';
 import { GridHeaderCellFilter } from './GridHeaderCellFilter';
 import { GridBody } from './GridBody';
 import { GridTableBodyVirtuoso } from './GridTableBodyVirtuoso';
+import { SelectionStyleApplicator } from './SelectionStyleApplicator';
 import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
 import { CHECKBOX_COLUMN_WIDTH_PX, BODY_ROW_HEIGHT } from '../constants';
@@ -70,6 +71,7 @@ function GridTableInner({
     () => null
   );
 
+  const tableId = useId();
   const bodyColRefs = useRef(new Map());
   const headerScrollRef = useRef(null);
 
@@ -237,7 +239,9 @@ function GridTableInner({
         variant="outlined"
         sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { constrainToParent: true })}
       >
+        <SelectionStyleApplicator tableId={tableId} selection={selection} />
         <Table
+          id={tableId}
           size="small"
           stickyHeader={!containScroll}
           aria-label="Data grid"
@@ -444,7 +448,9 @@ function GridTableInner({
                 variant="outlined"
                 sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { hideTopBorder: true })}
               >
+                <SelectionStyleApplicator tableId={tableId} selection={selection} />
                 <GridTableBodyVirtuoso
+                  tableId={tableId}
                   rows={rows}
                   columns={columns}
                   getRowId={getRowId}

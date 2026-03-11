@@ -52,10 +52,8 @@ export function getCellTooltipText(displayValue, value, isEditing, editor) {
  * @param {boolean} [props.hasError] Field-level error flag (row-level errors are handled at row level, not cell level)
  * @param {string[]} [props.errorMessages] Field-level validation messages for tooltip when hasError
  * @param {Object} [props.rowStyle] Row-specific sx (column rowStyle merged); column cellStyle overrides this
- * @param {boolean} [props.isSelected]
- * @param {Object} [props.selectedRowStyle] Selected row sx; overrides row and column style
  */
-function GridCellInner({ value, row, column, isEditing, editor, hasError, errorMessages = [], rowStyle, isSelected, selectedRowStyle }) {
+function GridCellInner({ value, row, column, isEditing, editor, hasError, errorMessages = [], rowStyle }) {
   const theme = useTheme();
   const ctx = useContext(DataGridStableContext);
   const scrollCtx = useContext(ScrollContainerContext);
@@ -71,22 +69,15 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
   const sx = useMemo(() => {
     const cellStyle = typeof column.cellStyle === 'function' ? column.cellStyle(value, row) : column.cellStyle;
     const baseSx = bodyCellSx ?? getBodyCellBaseSx(width);
-    const hasCustomSelected = selectedRowStyle && Object.keys(selectedRowStyle).length > 0;
-    const appliedSelectedStyle =
-      isSelected
-        ? (hasCustomSelected ? selectedRowStyle : { backgroundColor: theme.palette.action.selected })
-        : {};
-    // Precedence: base → row style → column style → selected (hover is row-level via &:hover td)
     return {
       ...baseSx,
       ...(rowStyle ?? {}),
       ...(cellStyle ?? {}),
-      ...appliedSelectedStyle,
       ...(hasError && {
         boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.error.light}`,
       }),
     };
-  }, [hasError, column, value, row, width, bodyCellSx, rowStyle, isSelected, selectedRowStyle, theme]);
+  }, [hasError, column, value, row, width, bodyCellSx, rowStyle]);
 
   const displayValue = useMemo(() => {
     if (isEditing && editor != null) return null;
