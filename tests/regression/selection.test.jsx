@@ -165,65 +165,6 @@ describe('Selection Regression Tests', () => {
       const headerCells = Array.from(headerRow.querySelectorAll('th'));
       expect(headerCells.length).toBe(columns.length + 1);
     });
-
-    it('should select all rows when select all checkbox is clicked', () => {
-      const onSelectionChange = vi.fn();
-
-      render(
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          getRowId={getRowId}
-          options={{
-            multiSelectable: true,
-            pagination: false,
-            onSelectionChange,
-          }}
-        />
-      );
-
-      // Find the header checkbox (if implemented)
-      // For now, we'll check if the header cell exists
-      const headerRow = screen.getByText('ID').closest('tr');
-      const headerCells = Array.from(headerRow.querySelectorAll('th'));
-      const checkboxHeaderCell = headerCells[0]; // First cell should be checkbox column
-      
-      expect(checkboxHeaderCell).toBeInTheDocument();
-      
-      // If select all checkbox is implemented, it would be here
-      // For now, this test verifies the structure exists
-      // When select all is implemented, uncomment and modify:
-      // const selectAllCheckbox = checkboxHeaderCell.querySelector('input[type="checkbox"]');
-      // if (selectAllCheckbox) {
-      //   fireEvent.click(selectAllCheckbox);
-      //   expect(onSelectionChange).toHaveBeenCalled();
-      //   const selectedIds = onSelectionChange.mock.calls[0][0];
-      //   expect(selectedIds.length).toBe(rows.length);
-      //   rows.forEach(row => {
-      //     expect(selectedIds).toContain(getRowId(row));
-      //   });
-      // }
-    });
-
-    it('should deselect all rows when select all checkbox is clicked again', () => {
-      const onSelectionChange = vi.fn();
-
-      render(
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          getRowId={getRowId}
-          options={{
-            multiSelectable: true,
-            pagination: false,
-            onSelectionChange,
-          }}
-        />
-      );
-
-      // Similar to above - test structure exists
-      // When select all is implemented, add test logic here
-    });
   });
 
   describe('Test selection maintained during sort', () => {

@@ -145,16 +145,6 @@ describe('GridTable Component', () => {
   describe('Test body rows rendering', () => {
     it('should render all body rows with data', () => {
       renderGridTable();
-
-      // Check that all row data is rendered
-      expect(screen.getByText('Alice')).toBeInTheDocument();
-      expect(screen.getByText('Bob')).toBeInTheDocument();
-      expect(screen.getByText('Charlie')).toBeInTheDocument();
-    });
-
-    it('should render body rows for each row in rows array', () => {
-      renderGridTable();
-
       basicRows.forEach((row) => {
         expect(screen.getByText(row.name)).toBeInTheDocument();
         expect(screen.getByText(String(row.age))).toBeInTheDocument();

@@ -4,23 +4,13 @@ import { SORT_ORDER_ASC, SORT_ORDER_DESC } from '../../src/config/schema';
 
 describe('applySort', () => {
   describe('no sort', () => {
-    it('returns a copy of rows when sortModel is missing', () => {
+    it.each([
+      ['missing', undefined],
+      ['null', null],
+      ['empty array', []],
+    ])('returns a copy of rows when sortModel is %s', (_, sortModel) => {
       const rows = [{ id: 1 }, { id: 2 }];
-      const result = applySort(rows, undefined);
-      expect(result).toEqual([{ id: 1 }, { id: 2 }]);
-      expect(result).not.toBe(rows);
-    });
-
-    it('returns a copy of rows when sortModel is null', () => {
-      const rows = [{ id: 1 }, { id: 2 }];
-      const result = applySort(rows, null);
-      expect(result).toEqual([{ id: 1 }, { id: 2 }]);
-      expect(result).not.toBe(rows);
-    });
-
-    it('returns a copy of rows when sortModel is empty array', () => {
-      const rows = [{ id: 1 }, { id: 2 }];
-      const result = applySort(rows, []);
+      const result = applySort(rows, sortModel);
       expect(result).toEqual([{ id: 1 }, { id: 2 }]);
       expect(result).not.toBe(rows);
     });

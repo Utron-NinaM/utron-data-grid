@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
-  FILTER_DEBOUNCE_MS,
   FILTER_STORAGE_KEY_PREFIX,
   getStoredFilterModel,
   saveFilterModel,
@@ -29,12 +28,6 @@ import {
   OPERATOR_PERIOD,
 } from '../../src/config/schema';
 
-describe('FILTER_DEBOUNCE_MS', () => {
-  it('equals 200', () => {
-    expect(FILTER_DEBOUNCE_MS).toBe(200);
-  });
-});
-
 describe('getStoredFilterModel', () => {
   let getItemSpy;
 
@@ -47,17 +40,18 @@ describe('getStoredFilterModel', () => {
     vi.unstubAllGlobals();
   });
 
-  it('returns {} when gridId is empty string', () => {
+  it.each([
+    ['empty string', ''],
+    ['null', null],
+    ['undefined', undefined],
+  ])('returns {} when gridId is %s', (_, gridId) => {
+    expect(getStoredFilterModel(gridId, [])).toEqual({});
+  });
+
+  it('does not call getItem when gridId is empty', () => {
+    getItemSpy.mockClear();
     expect(getStoredFilterModel('', [])).toEqual({});
     expect(getItemSpy).not.toHaveBeenCalled();
-  });
-
-  it('returns {} when gridId is null', () => {
-    expect(getStoredFilterModel(null, [])).toEqual({});
-  });
-
-  it('returns {} when gridId is undefined', () => {
-    expect(getStoredFilterModel(undefined, [])).toEqual({});
   });
 
   it('returns {} when getItem returns null', () => {

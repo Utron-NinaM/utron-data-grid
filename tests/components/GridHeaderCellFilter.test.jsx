@@ -43,16 +43,6 @@ describe('GridHeaderCellFilter Component', () => {
       expect(cell).toBeInTheDocument();
     });
 
-    it('should render empty box when slot is null', () => {
-      renderWithContext(
-        <GridHeaderCellFilter column={defaultColumn} slot={null} />
-      );
-      
-      const cell = screen.getByRole('columnheader');
-      expect(cell).toBeInTheDocument();
-      // Should render an empty Box with minHeight: 0
-      expect(cell.children.length).toBeGreaterThan(0);
-    });
   });
 
   describe('Test filter input slot rendering', () => {

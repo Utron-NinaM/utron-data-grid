@@ -35,20 +35,11 @@ describe('GridHeaderCell Component', () => {
   };
 
   describe('Render header with text', () => {
-    it('should render header text correctly', () => {
-      renderWithContext(
-        <GridHeaderCell column={defaultColumn} sortModel={[]} onSort={vi.fn()} />
-      );
-      
-      expect(screen.getByText('Name')).toBeInTheDocument();
-    });
-
     it('should render header text from column.headerName', () => {
       const column = { field: 'age', headerName: 'Age' };
       renderWithContext(
         <GridHeaderCell column={column} sortModel={[]} onSort={vi.fn()} />
       );
-      
       expect(screen.getByText('Age')).toBeInTheDocument();
     });
   });

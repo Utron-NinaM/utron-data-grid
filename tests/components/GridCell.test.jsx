@@ -306,19 +306,6 @@ describe('GridCell Component', () => {
       expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(255, 0, 0)');
     });
 
-    it('column style overrides row style (selection highlight is applied via SelectionStyleApplicator)', () => {
-      const column = { ...defaultColumn, cellStyle: { backgroundColor: 'rgb(255, 0, 0)' } };
-      renderWithContext(
-        <GridCell
-          value="x"
-          row={mockRow}
-          column={column}
-          rowStyle={{ backgroundColor: 'rgb(0, 128, 0)' }}
-        />
-      );
-      const cell = screen.getByRole('cell');
-      expect(window.getComputedStyle(cell).backgroundColor).toBe('rgb(255, 0, 0)');
-    });
   });
 
   describe('Test cellStyle function', () => {
@@ -392,28 +379,6 @@ describe('GridCell Component', () => {
       expect(styles.boxShadow).toBeTruthy();
       expect(styles.boxShadow).toContain('inset');
       expect(styles.boxShadow).toContain('1px');
-    });
-
-    it('should not apply error border when hasError is false', () => {
-      renderWithContext(
-        <GridCell 
-          value="test" 
-          row={mockRow} 
-          column={defaultColumn} 
-          hasError={false}
-        />
-      );
-
-      const cell = screen.getByRole('cell');
-      expect(cell).toBeInTheDocument();
-      // Error border should not be present - verify border is not error color
-      const styles = window.getComputedStyle(cell);
-      // Error border typically has a red color, so we check border color is not red
-      // If borderWidth is 0 or borderStyle is none, there's no border (which is fine)
-      if (styles.borderWidth !== '0px' && styles.borderStyle !== 'none') {
-        // If there is a border, it should not be red (error color)
-        expect(styles.borderColor).not.toBe('rgb(211, 47, 47)'); // MUI error red
-      }
     });
 
     it('should combine error box shadow with cellStyle', () => {

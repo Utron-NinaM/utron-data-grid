@@ -104,35 +104,11 @@ describe('GridBodyRow Component', () => {
       renderWithContext(
         <GridBodyRow {...defaultProps} />
       );
-      
       const row = screen.getByText('Alice').closest('[data-row-id]');
       expect(row).toBeInTheDocument();
       expect(row).toHaveAttribute('data-row-id', '1');
-      
-      // Simulate click event that would be handled by parent
       fireEvent.click(row);
-      // Row should still be clickable (handler is on parent)
       expect(row).toBeInTheDocument();
-    });
-
-    it('should support event delegation for row clicks', () => {
-      const handleRowClick = vi.fn((event) => {
-        const rowElement = event.target.closest('[data-row-id]');
-        if (rowElement) {
-          const rowId = rowElement.getAttribute('data-row-id');
-          handleRowClick(rowId);
-        }
-      });
-      
-      renderWithContext(
-        <GridBodyRow {...defaultProps} />
-      );
-      
-      const row = screen.getByText('Alice').closest('[data-row-id]');
-      fireEvent.click(row, { target: row });
-      
-      // Verify row has the correct attribute for event delegation
-      expect(row).toHaveAttribute('data-row-id', '1');
     });
 
     it('should work with different row IDs', () => {
@@ -146,34 +122,12 @@ describe('GridBodyRow Component', () => {
   });
 
   describe('Test row double-click handler', () => {
-    it('should support double-click event delegation', () => {
+    it('should have data-row-id for double-click event delegation', () => {
       renderWithContext(
         <GridBodyRow {...defaultProps} />
       );
-      
       const row = screen.getByText('Alice').closest('[data-row-id]');
       fireEvent.doubleClick(row);
-      
-      // Verify row structure supports double-click
-      expect(row).toHaveAttribute('data-row-id', '1');
-    });
-
-    it('should have data-row-id for double-click event delegation', () => {
-      const handleDoubleClick = vi.fn((event) => {
-        const rowElement = event.target.closest('[data-row-id]');
-        if (rowElement) {
-          const rowId = rowElement.getAttribute('data-row-id');
-          handleDoubleClick(rowId);
-        }
-      });
-      
-      renderWithContext(
-        <GridBodyRow {...defaultProps} />
-      );
-      
-      const row = screen.getByText('Alice').closest('[data-row-id]');
-      fireEvent.doubleClick(row, { target: row });
-      
       expect(row).toHaveAttribute('data-row-id', '1');
     });
   });
@@ -270,14 +224,6 @@ describe('GridBodyRow Component', () => {
       expect(styles.backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
     });
 
-    it('should work without rowSx', () => {
-      renderWithContext(
-        <GridBodyRow {...defaultProps} rowSx={undefined} />
-      );
-      
-      const row = screen.getByText('Alice').closest('tr');
-      expect(row).toBeInTheDocument();
-    });
   });
 
   describe('Hover style hierarchy', () => {

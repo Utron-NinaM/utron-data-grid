@@ -134,22 +134,6 @@ describe('GridTableBodyVirtuoso', () => {
       cleanupScroll(scrollEl, unmount);
     });
 
-    it('TableRow receives valid props (data-row-id set, no throw)', async () => {
-      const { container, scrollEl, unmount } = renderWithScrollContainer();
-
-      await waitFor(() => {
-        const table = document.querySelector('table[aria-label="Data grid body"]');
-        expect(table).toBeInTheDocument();
-      });
-
-      const firstRow = container.querySelector('tbody tr[data-row-id]');
-      if (firstRow) {
-        expect(firstRow.tagName).toBe('TR');
-        expect(firstRow.getAttribute('data-row-id')).toBeTruthy();
-      }
-      cleanupScroll(scrollEl, unmount);
-    });
-
     it('renders without throw when optional props are undefined', async () => {
       const scrollEl = document.createElement('div');
       scrollEl.style.height = '300px';
