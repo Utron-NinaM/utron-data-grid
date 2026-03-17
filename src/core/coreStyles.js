@@ -232,7 +232,7 @@ export function getBodyCellBaseSx(width) {
     paddingRight: '4px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    ...(width != null && { width: `${width}px` }),
+    ...(width != null && { width: typeof width === 'string' ? width : `${width}px` }),
   };
 }
 

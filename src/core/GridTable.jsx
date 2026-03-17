@@ -83,7 +83,7 @@ function GridTableInner({
     columns.forEach((col) => {
       if (resizingColumnRef?.current === col.field) return;
       const width = columnWidthMap.get(col.field);
-      const w = width != null ? `${width}px` : null;
+      const w = width != null ? (typeof width === 'string' ? width : `${width}px`) : null;
       const headerCol = colRefs.current?.get(col.field);
       if (headerCol && w) headerCol.style.width = w;
       if (containScroll) {

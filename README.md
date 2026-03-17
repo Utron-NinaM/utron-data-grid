@@ -106,7 +106,7 @@ Each column can define:
 - `filterOptions.listValues` – for list filter options (same shape as `options` for list type)
 - `editable` – `boolean` – enables editing and adding this field (default false). When true, the field can be edited in existing rows and added in new rows.
 - `addable` – `boolean` – enables adding this field in new rows only (default false). When true, the field can be added when creating new rows but cannot be edited in existing rows (unless `editable` is also true).
-- `width` – number (px) for fixed width
+- `width` – number (px) for fixed width, or string percentage (e.g. `"20%"`, `"25%"`) for a share of the container width
 - `flex` – number for proportional grow factor (columns share remaining space proportionally)
 - `minWidth` – number (px) for minimum width constraint. When set, fully overrides the built-in minimum (may be lower). Very small values may cause layout and usability issues.
 - `maxWidth` – number (px) for maximum width constraint
@@ -168,12 +168,13 @@ The grid persists list filter selections by **key** in local storage, so filters
 
 The grid supports flexible column width management:
 
-- **Fixed width**: Set `width` (in pixels) for a column that maintains a constant size
+- **Fixed width**: Set `width` (number in pixels) for a column that maintains a constant size
+- **Percentage width**: Set `width` (string like `"20%"`) for columns that take a percentage of container width. Percentage values are converted to pixels during layout calculation and respect `minWidth`/`maxWidth` constraints
 - **Flexible width**: Set `flex` (number) for columns that grow proportionally to fill remaining space
 - **Auto-sizing** (default when `fitToContainer: false`): If neither `width` nor `flex` is provided, the column is auto-sized based on content and can overshoot the container
 - **Fit-to-container** (when `fitToContainer: true`): Columns without `width` or `flex` are treated as `flex: 1`, sharing available width and staying within the container. Total width is capped to the container, preventing overflow
 - **Constraints**: Use `minWidth` and `maxWidth` to limit column sizes
-- **Manual resizing**: Users can drag column borders to resize (resized columns are automatically excluded from flex distribution)
+- **Manual resizing**: Users can drag column borders to resize (resized columns are automatically excluded from flex distribution). When a percentage column is resized, it is converted to a fixed pixel width
 
 Built-in minimum widths:
 - Built-in minimum: 110px when filters are shown, 85px when `filters: false`.
@@ -189,11 +190,14 @@ Examples:
 // Fixed width
 { field: 'price', headerName: 'Price', type: 'number', filter: 'number', editable: true, width: 100 }
 
+// Percentage width
+{ field: 'name', headerName: 'Name', type: 'text', width: "25%" }
+
 // Flexible width (grows proportionally)
 { field: 'description', headerName: 'Description', type: 'text', flex: 2 }
 
 // Auto-sized with constraints
-{ field: 'name', headerName: 'Name', type: 'text', minWidth: 150, maxWidth: 300 }
+{ field: 'category', headerName: 'Category', type: 'text', minWidth: 150, maxWidth: 300 }
 
 // Fixed width with constraints
 { field: 'status', headerName: 'Status', type: 'list', width: 120, minWidth: 100, maxWidth: 200 }

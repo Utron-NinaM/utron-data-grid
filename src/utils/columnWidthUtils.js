@@ -12,6 +12,52 @@ import {
 export { MIN_WIDTH_DEFAULT_PX, MIN_WIDTH_NO_FILTERS_PX };
 
 /**
+ * Parses a width value to determine its type and numeric value.
+ * @param {number|string|undefined} width - Column width value
+ * @returns {{ type: 'px' | 'percentage', value: number } | null} Parsed width info or null if invalid
+ */
+export function parseWidthValue(width) {
+  if (width == null) {
+    return null;
+  }
+
+  if (typeof width === 'number') {
+    if (Number.isFinite(width) && width >= 0) {
+      return { type: 'px', value: width };
+    }
+    return null;
+  }
+
+  if (typeof width === 'string') {
+    const trimmed = width.trim();
+    
+    // Check for percentage
+    if (trimmed.endsWith('%')) {
+      const numericPart = parseFloat(trimmed.slice(0, -1));
+      if (Number.isFinite(numericPart) && numericPart >= 0) {
+        return { type: 'percentage', value: numericPart };
+      }
+    }
+    
+    // Check for px suffix
+    if (trimmed.endsWith('px')) {
+      const numericPart = parseFloat(trimmed.slice(0, -2));
+      if (Number.isFinite(numericPart) && numericPart >= 0) {
+        return { type: 'px', value: numericPart };
+      }
+    }
+    
+    // Try parsing as number string (assume px)
+    const numericPart = parseFloat(trimmed);
+    if (Number.isFinite(numericPart) && numericPart >= 0) {
+      return { type: 'px', value: numericPart };
+    }
+  }
+
+  return null;
+}
+
+/**
  * Normalizes column width values to CSS-compatible strings.
  * @param {number|string|undefined} width - Column width (number in px, string like "20%", or undefined)
  * @returns {string|undefined} Normalized width string (e.g., "100px", "20%") or undefined
@@ -206,14 +252,46 @@ export function calculateColumnWidths(columns, containerWidth, columnState = new
       // User-resized column (has override) - treat as fixed
       fixedCols.push({ col, width: safeColumnState.get(col.field) });
     } else if (col.width != null) {
-      // Explicit width - fixed
-      fixedCols.push({ col, width: col.width });
+      // Explicit width - parse and convert percentage to px if needed
+      const parsed = parseWidthValue(col.width);
+      if (parsed) {
+        if (parsed.type === 'percentage') {
+          // Convert percentage to pixels based on container width
+          const percentageWidth = (parsed.value / 100) * containerWidth;
+          fixedCols.push({ col, width: percentageWidth });
+        } else {
+          // Already in pixels
+          fixedCols.push({ col, width: parsed.value });
+        }
+      } else {
+        // Invalid width, treat as auto
+        if (fitToContainer) {
+          flexCols.push({ col, flex: 1 });
+        } else {
+          autoCols.push(col);
+        }
+      }
     } else if (col.flex != null) {
       // Flex column
       flexCols.push({ col, flex: col.flex });
     } else if (col.defaultWidth != null) {
-      // Default width - treat as fixed
-      fixedCols.push({ col, width: col.defaultWidth });
+      // Default width - parse and convert percentage to px if needed
+      const parsed = parseWidthValue(col.defaultWidth);
+      if (parsed) {
+        if (parsed.type === 'percentage') {
+          const percentageWidth = (parsed.value / 100) * containerWidth;
+          fixedCols.push({ col, width: percentageWidth });
+        } else {
+          fixedCols.push({ col, width: parsed.value });
+        }
+      } else {
+        // Invalid defaultWidth, treat as auto
+        if (fitToContainer) {
+          flexCols.push({ col, flex: 1 });
+        } else {
+          autoCols.push(col);
+        }
+      }
     } else {
       // No explicit sizing: fitToContainer treats as flexible; otherwise auto
       if (fitToContainer) {

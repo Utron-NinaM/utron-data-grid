@@ -82,7 +82,7 @@ export function useDataGridMaps({
   const createCellSx = (col, options, width, minWidth) => {
     const { rowHeight, backgroundColor, baseConfig, rowSx, verticalAlign = 'top' } = options;
 
-    const widthStr = width != null ? `${width}px` : undefined;
+    const widthStr = width != null ? (typeof width === 'string' ? width : `${width}px`) : undefined;
     const minWidthStr = minWidth != null ? `${minWidth}px` : undefined;
     
     const heightVal = rowHeight != null ? (typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight) : undefined;

@@ -5,6 +5,7 @@ import {
   estimateAutoColumnWidth,
   getAutoMaxWidth,
   calculateColumnWidths,
+  parseWidthValue,
 } from '../../src/utils/columnWidthUtils';
 import { FILTER_TYPE_TEXT, FILTER_TYPE_NONE } from '../../src/config/schema';
 import { MIN_WIDTH_DEFAULT_PX, MIN_WIDTH_NO_FILTERS_PX } from '../../src/utils/columnWidthUtils';
@@ -133,6 +134,52 @@ describe('columnWidthUtils', () => {
     });
   });
 
+  describe('parseWidthValue', () => {
+    it('should parse number as px', () => {
+      const result = parseWidthValue(100);
+      expect(result).toEqual({ type: 'px', value: 100 });
+    });
+
+    it('should parse percentage string', () => {
+      const result = parseWidthValue('20%');
+      expect(result).toEqual({ type: 'percentage', value: 20 });
+    });
+
+    it('should parse px string', () => {
+      const result = parseWidthValue('150px');
+      expect(result).toEqual({ type: 'px', value: 150 });
+    });
+
+    it('should parse number string as px', () => {
+      const result = parseWidthValue('200');
+      expect(result).toEqual({ type: 'px', value: 200 });
+    });
+
+    it('should handle decimal percentages', () => {
+      const result = parseWidthValue('25.5%');
+      expect(result).toEqual({ type: 'percentage', value: 25.5 });
+    });
+
+    it('should handle decimal px values', () => {
+      const result = parseWidthValue('123.45px');
+      expect(result).toEqual({ type: 'px', value: 123.45 });
+    });
+
+    it('should return null for invalid values', () => {
+      expect(parseWidthValue(null)).toBeNull();
+      expect(parseWidthValue(undefined)).toBeNull();
+      expect(parseWidthValue('invalid')).toBeNull();
+      expect(parseWidthValue('abc%')).toBeNull();
+      expect(parseWidthValue('-10%')).toBeNull();
+      expect(parseWidthValue(-100)).toBeNull();
+    });
+
+    it('should handle whitespace in strings', () => {
+      expect(parseWidthValue(' 20% ')).toEqual({ type: 'percentage', value: 20 });
+      expect(parseWidthValue(' 100px ')).toEqual({ type: 'px', value: 100 });
+    });
+  });
+
   describe('calculateColumnWidths', () => {
     describe('Fixed width columns', () => {
       it('should assign fixed widths directly', () => {
@@ -179,6 +226,94 @@ describe('columnWidthUtils', () => {
         ];
         const result = calculateColumnWidths(columns, 1000);
         expect(result.columnWidthMap.get('actions')).toBe(MIN_WIDTH_DEFAULT_PX);
+      });
+    });
+
+    describe('Percentage width columns', () => {
+      it('should convert percentage to pixels based on container width', () => {
+        const columns = [
+          { field: 'name', headerName: 'Name', width: '20%', filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000);
+        expect(result.columnWidthMap.get('name')).toBe(200);
+      });
+
+      it('should handle different container widths', () => {
+        const columns = [
+          { field: 'col1', headerName: 'Col1', width: '25%', filter: FILTER_TYPE_NONE },
+        ];
+        const result1 = calculateColumnWidths(columns, 1000);
+        const result2 = calculateColumnWidths(columns, 800);
+        expect(result1.columnWidthMap.get('col1')).toBe(250);
+        expect(result2.columnWidthMap.get('col1')).toBe(200);
+      });
+
+      it('should respect minWidth constraint on percentage columns', () => {
+        const columns = [
+          { field: 'col2', headerName: 'Col2', width: '5%', minWidth: 200, filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000);
+        // 5% of 1000 = 50, but minWidth is 200, so should be 200
+        expect(result.columnWidthMap.get('col2')).toBe(200);
+      });
+
+      it('should respect maxWidth constraint on percentage columns', () => {
+        const columns = [
+          { field: 'col3', headerName: 'Col3', width: '50%', maxWidth: 300, filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000);
+        // 50% of 1000 = 500, but maxWidth is 300, so should be 300
+        expect(result.columnWidthMap.get('col3')).toBe(300);
+      });
+
+      it('should handle percentage > 100% gracefully', () => {
+        const columns = [
+          { field: 'col4', headerName: 'Col4', width: '150%', filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000);
+        // 150% of 1000 = 1500, but should respect minWidth
+        expect(result.columnWidthMap.get('col4')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        expect(result.columnWidthMap.get('col4')).toBe(1500);
+      });
+
+      it('should work with mixed px, percentage, and flex columns', () => {
+        const columns = [
+          { field: 'id', headerName: 'ID', width: 100, filter: FILTER_TYPE_NONE },
+          { field: 'name', headerName: 'Name', width: '25%', filter: FILTER_TYPE_NONE },
+          { field: 'desc', headerName: 'Description', flex: 1, filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000);
+        // width: 100 is clamped to MIN_WIDTH_DEFAULT_PX (110) because filters default to true
+        expect(result.columnWidthMap.get('id')).toBe(MIN_WIDTH_DEFAULT_PX);
+        expect(result.columnWidthMap.get('name')).toBe(250); // 25% of 1000
+        expect(result.columnWidthMap.get('desc')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+      });
+
+      it('should handle percentage with very small container width', () => {
+        const columns = [
+          { field: 'col5', headerName: 'Col5', width: '50%', minWidth: 100, filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 50);
+        // 50% of 50 = 25, but minWidth is 100, so should be 100
+        expect(result.columnWidthMap.get('col5')).toBe(100);
+      });
+
+      it('should handle defaultWidth as percentage', () => {
+        const columns = [
+          { field: 'actions', headerName: 'Actions', defaultWidth: '10%', filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000);
+        // 10% of 1000 = 100, but should respect minWidth
+        expect(result.columnWidthMap.get('actions')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+      });
+
+      it('should handle invalid percentage strings as auto columns', () => {
+        const columns = [
+          { field: 'col6', headerName: 'Col6', width: 'invalid%', filter: FILTER_TYPE_NONE },
+        ];
+        const result = calculateColumnWidths(columns, 1000);
+        // Invalid width should be treated as auto
+        expect(result.columnWidthMap.get('col6')).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
       });
     });
 
@@ -501,8 +636,11 @@ describe('columnWidthUtils', () => {
           { field: 'name9', headerName: 'Name9', width: -10, filter: FILTER_TYPE_NONE },
         ];
         const result = calculateColumnWidths(columns, 1000);
-        // Negative width is treated as fixed, but clamped to minWidth
-        expect(result.columnWidthMap.get('name9')).toBe(MIN_WIDTH_DEFAULT_PX);
+        // Negative width is invalid and treated as auto column (gets estimated width)
+        const width = result.columnWidthMap.get('name9');
+        expect(width).toBeGreaterThanOrEqual(MIN_WIDTH_DEFAULT_PX);
+        // Auto columns get estimated width based on header text
+        expect(width).toBeLessThanOrEqual(2.5 * MIN_WIDTH_DEFAULT_PX);
       });
 
       it('should always create new Map instance', () => {

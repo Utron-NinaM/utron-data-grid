@@ -20,7 +20,7 @@ import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck
  * Column definition shape (JSDoc for consumers).
  * field: string (key in row object)
  * headerName: string
- * width?: number | string (px or "20%")
+ * width?: number | string — number for px, string like "20%" for percentage width (calculated relative to container width)
  * minWidth?: number
  * type?: 'text' | 'number' | 'date' | 'datetime' | 'list'
  * filter?: 'text' | 'number' | 'date' | 'list' | 'none'
