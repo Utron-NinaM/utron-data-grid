@@ -52,7 +52,7 @@ export function getToolbarBoxSx(containScroll) {
     flexShrink: 0,
     minWidth: 0,
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     gap: 1,
     py: 0.5,

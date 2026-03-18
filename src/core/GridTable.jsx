@@ -10,9 +10,8 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import TableChartIcon from '@mui/icons-material/TableChart';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { ExportIcon } from './icons/ExportIcon';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
@@ -40,8 +39,9 @@ import {
   getScrollInnerBoxSx,
   getBodyRowHeightSx,
   getExportButtonSx,
-  getPdfExportButtonSx,
+  getPdfExportButtonSx,  
 } from './coreStyles';
+import { GRID_BUTTONS_COLOR } from '../constants';
 
 /**
  * @param {Object} props
@@ -240,64 +240,66 @@ function GridTableInner({
           <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
             {translations('clearColumnWidths')}
           </Button>
-          {onColumnConfigClick && (
-            <Tooltip title={translations('columnConfig')}>
-              <IconButton
-                size="small"
-                onClick={onColumnConfigClick}
-                {...(toolbarConfigButtonSx && { sx: toolbarConfigButtonSx })}
-              >
-                <SettingsIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-          {showExportToExcel && (
-            <Button
-              size="small"
-              variant="contained"
-              color="success"
-              startIcon={<TableChartIcon />}
-              onClick={() => exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' })}
-              sx={getExportButtonSx(toolbarExportButtonSx)}
-            >
-              {translations('exportToCsv')}
-            </Button>
-          )}
-          {showExportToPdf && (
-            <Button
-              size="small"
-              variant="contained"
-              color="success"
-              startIcon={isExportingPdf ? <CircularProgress size={16} color="inherit" /> : <PictureAsPdfIcon />}
-              onClick={async () => {
-                setIsExportingPdf(true);
-                setPdfProgress({ current: 0, total: (sortedRows ?? rows).length });
-                try {
-                  await exportToPdf({
-                    columns,
-                    rows: sortedRows ?? rows,
-                    filename: 'export.pdf',
-                    direction,
-                    onProgress: (current, total) => {
-                      setPdfProgress({ current, total });
-                    },
-                  });
-                } catch (error) {
-                  console.error('PDF export failed:', error);
-                  // Could show error message to user here if needed
-                } finally {
-                  setIsExportingPdf(false);
-                  setPdfProgress({ current: 0, total: 0 });
-                }
-              }}
-              disabled={isExportingPdf}
-              sx={getPdfExportButtonSx(toolbarPdfExportButtonSx)}
-            >
-              {translations('exportToPdf')}
-            </Button>
-          )}
         </Box>
         <GridToolbarSubscriber rows={rows} getRowId={getRowId} />
+        {(showExportToExcel || showExportToPdf || onColumnConfigClick) && (
+          <Box sx={toolbarActionsBoxSx}>
+            {showExportToExcel && (
+              <Tooltip title={translations('exportToCsvTooltip')}>
+                <IconButton
+                  size="small"
+                  onClick={() => exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' })}
+                  sx={{ color: GRID_BUTTONS_COLOR, ...toolbarExportButtonSx }}
+                >
+                  <ExportIcon type="csv" />
+                </IconButton>
+              </Tooltip>
+            )}
+            {showExportToPdf && (
+              <Tooltip title={translations('exportToPdfTooltip')}>
+                <IconButton
+                  size="small"
+                  onClick={async () => {
+                    setIsExportingPdf(true);
+                    setPdfProgress({ current: 0, total: (sortedRows ?? rows).length });
+                    try {
+                      await exportToPdf({
+                        columns,
+                        rows: sortedRows ?? rows,
+                        filename: 'export.pdf',
+                        direction,
+                        onProgress: (current, total) => {
+                          setPdfProgress({ current, total });
+                        },
+                      });
+                    } catch (error) {
+                      console.error('PDF export failed:', error);
+                      // Could show error message to user here if needed
+                    } finally {
+                      setIsExportingPdf(false);
+                      setPdfProgress({ current: 0, total: 0 });
+                    }
+                  }}
+                  disabled={isExportingPdf}
+                  sx={{ color: GRID_BUTTONS_COLOR, ...toolbarPdfExportButtonSx }}
+                >
+                  {isExportingPdf ? <CircularProgress size={16} color="inherit" /> : <ExportIcon type="pdf" />}
+                </IconButton>
+              </Tooltip>
+            )}
+            {onColumnConfigClick && (
+              <Tooltip title={translations('columnConfig')}>
+                <IconButton
+                  size="small"
+                  onClick={onColumnConfigClick}
+                  sx={{ color: GRID_BUTTONS_COLOR, ...toolbarConfigButtonSx }}
+                >
+                  <SettingsIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+        )}
       </Box>
     </Box>
   );

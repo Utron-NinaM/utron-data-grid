@@ -677,8 +677,8 @@ describe('DataGrid Component Integration', () => {
         />
       );
 
-      // Find and click export button (button text is "EXCEL")
-      const exportButton = screen.getByText('EXCEL');
+      // Find and click export button (now icon-only with aria-label)
+      const exportButton = screen.getByLabelText('Export to CSV');
       fireEvent.click(exportButton);
 
       await waitFor(() => {
@@ -711,8 +711,8 @@ describe('DataGrid Component Integration', () => {
         />
       );
 
-      // Find and click export button (button text is "EXCEL")
-      const exportButton = screen.getByText('EXCEL');
+      // Find and click export button (now icon-only with aria-label)
+      const exportButton = screen.getByLabelText('Export to CSV');
       fireEvent.click(exportButton);
 
       await waitFor(() => {
@@ -771,8 +771,8 @@ describe('DataGrid Component Integration', () => {
         expect(screen.getByText('Alice')).toBeInTheDocument();
       }, { timeout: 1000 });
 
-      // Find and click export button (button text is "EXCEL")
-      const exportButton = screen.getByText('EXCEL');
+      // Find and click export button (now icon-only with aria-label)
+      const exportButton = screen.getByLabelText('Export to CSV');
       fireEvent.click(exportButton);
 
       await waitFor(() => {

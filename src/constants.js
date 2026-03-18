@@ -78,3 +78,4 @@ export const EDITOR_OUTLINE_BORDER_PX = 1;
 
 // ─── Selected row ────────────────────────────────────────────────────────────
 export const SELECTED_ROW_BG = 'rgba(25, 118, 210, 0.08)';
+export const GRID_BUTTONS_COLOR = 'rgb(139, 3, 4)';
