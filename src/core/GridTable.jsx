@@ -11,7 +11,9 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 import { GridHeaderCell } from './GridHeaderCell';
@@ -22,6 +24,7 @@ import { SelectionStyleApplicator } from './SelectionStyleApplicator';
 import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
 import { exportToCsv } from '../utils/exportToCsv';
+import { exportToPdf } from '../utils/exportToPdf';
 import { CHECKBOX_COLUMN_WIDTH_PX, BODY_ROW_HEIGHT } from '../constants';
 import {
   getToolbarBoxSx,
@@ -68,7 +71,7 @@ function GridTableInner({
     hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
     colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
-    toolbarClearButtonsSx, toolbarExportButtonSx, toolbarConfigButtonSx, showExportToExcel, onColumnConfigClick, direction, selectRow, bodyRow, editable, 
+    toolbarClearButtonsSx, toolbarExportButtonSx, toolbarPdfExportButtonSx, toolbarConfigButtonSx, showExportToExcel, showExportToPdf, onColumnConfigClick, direction, selectRow, bodyRow, editable, 
     editStore, sortedRows } = ctx;
 
   const editRowId = useSyncExternalStore(
@@ -76,6 +79,9 @@ function GridTableInner({
     () => editStore?.getSnapshot?.()?.editRowId ?? null,
     () => null
   );
+
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [pdfProgress, setPdfProgress] = useState({ current: 0, total: 0 });
 
   const tableId = useId();
   const bodyColRefs = useRef(new Map());
@@ -250,7 +256,7 @@ function GridTableInner({
               color="success"
               startIcon={<TableChartIcon />}
               onClick={() => exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' })}
-              sx={{
+              sx={{                
                 alignItems: 'stretch',
                 '& .MuiButton-startIcon': { mr: 0.75, display: 'flex', alignItems: 'stretch', paddingLeft: 1, paddingRight: 1 },
                 '& .MuiButton-label': { display: 'flex', alignItems: 'stretch' },
@@ -258,6 +264,45 @@ function GridTableInner({
               }}
             >
               {translations('exportToCsv')}
+            </Button>
+          )}
+          {showExportToPdf && (
+            <Button
+              size="small"
+              variant="contained"
+              color="success"
+              startIcon={isExportingPdf ? <CircularProgress size={16} color="inherit" /> : <PictureAsPdfIcon />}
+              onClick={async () => {
+                setIsExportingPdf(true);
+                setPdfProgress({ current: 0, total: (sortedRows ?? rows).length });
+                try {
+                  await exportToPdf({
+                    columns,
+                    rows: sortedRows ?? rows,
+                    filename: 'export.pdf',
+                    direction,
+                    onProgress: (current, total) => {
+                      setPdfProgress({ current, total });
+                    },
+                  });
+                } catch (error) {
+                  console.error('PDF export failed:', error);
+                  // Could show error message to user here if needed
+                } finally {
+                  setIsExportingPdf(false);
+                  setPdfProgress({ current: 0, total: 0 });
+                }
+              }}
+              disabled={isExportingPdf}
+              sx={{
+                backgroundColor: 'gray',
+                alignItems: 'stretch',
+                '& .MuiButton-startIcon': { mr: 0.75, display: 'flex', alignItems: 'stretch', paddingLeft: 1, paddingRight: 1 },
+                '& .MuiButton-label': { display: 'flex', alignItems: 'stretch' },
+                ...(toolbarPdfExportButtonSx || {}),
+              }}
+            >
+              {translations('exportToPdf')}
             </Button>
           )}
         </Box>

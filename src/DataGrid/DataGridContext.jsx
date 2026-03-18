@@ -36,6 +36,7 @@ export const ScrollContainerContext = createContext(null);
  * @param {{ current: string|null }} [stableValue.resizingColumnRef] Ref whose .current is the column field being resized, or null
  * @param {React.ReactNode|Function} [stableValue.toolbarActions] Optional slot for right side of toolbar row (ReactNode or (params: { selectedRow, selectedRowId }) => ReactNode)
  * @param {Object} [stableValue.toolbarExportButtonSx] MUI sx applied to the Export to CSV toolbar button
+ * @param {Object} [stableValue.toolbarPdfExportButtonSx] MUI sx applied to the Export to PDF toolbar button
  * @param {Object} [stableValue.toolbarConfigButtonSx] MUI sx applied to the column configuration toolbar button
  * @param {Function} [stableValue.onColumnConfigClick] Callback function called when the column configuration button is clicked
  * @param {number} [stableValue.fontSize] Font size in px for cells, filters, inputs, pagination

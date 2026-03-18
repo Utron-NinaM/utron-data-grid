@@ -88,8 +88,10 @@ const rows = [
 | `toolbarActions` | `ReactNode` or `(params: { selectedRow, selectedRowId }) => ReactNode` | Optional content on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id. |
 | `toolbarClearButtonsSx` | `object` | MUI sx applied to the Clear sort, Clear all filters, and Reset column widths toolbar buttons. |
 | `toolbarExportButtonSx` | `object` | MUI sx applied to the Export to CSV toolbar button. |
+| `toolbarPdfExportButtonSx` | `object` | MUI sx applied to the Export to PDF toolbar button. |
 | `toolbarConfigButtonSx` | `object` | MUI sx applied to the column configuration toolbar button. |
 | `showExportToExcel` | `boolean` | When true, show an "Export to CSV" button in the toolbar (same row as Clear sort / Clear filters / Reset column widths). The button exports the current grid view as CSV (sorted and filtered; when pagination is on, the current page). Default false. |
+| `showExportToPdf` | `boolean` | When true, show an "Export to PDF" button in the toolbar (same row as Clear sort / Clear filters / Reset column widths). The button exports the current grid view as PDF (sorted and filtered; when pagination is on, all filtered rows). Supports large datasets (17,000+ rows) without blocking the UI. Automatically uses landscape orientation when there are many columns (>7). Default false. |
 | `onColumnConfigClick` | `() => void` | Callback function called when the column configuration button is clicked. When provided, shows a column config button (icon only) in the toolbar. |
 | `editToolbarSaveButtonSx` | `object` | MUI sx applied to the Save button in the edit toolbar. |
 | `editToolbarCancelButtonSx` | `object` | MUI sx applied to the Cancel button in the edit toolbar. |
@@ -367,6 +369,7 @@ Besides `DataGrid`, the package exports:
 
 - `GridErrorBoundary` – Error boundary for the grid
 - `exportToCsv` – Function to export data to a CSV file. Signature: `exportToCsv({ columns, rows, filename? })`. `columns` is an array of `{ field, headerName? }`; `rows` is an array of row objects (values keyed by `field`). Use this without the toolbar button to export custom data (e.g. all filtered rows from `onFilterChange` result.filteredRows). Default filename: `'export.csv'`.
+- `exportToPdf` – Async function to export data to a PDF file. Signature: `exportToPdf({ columns, rows, filename?, onProgress? })`. `columns` is an array of `{ field, headerName? }`; `rows` is an array of row objects (values keyed by `field`). `onProgress` is an optional callback `(current: number, total: number) => void` called during export for progress tracking. Supports large datasets (17,000+ rows) without blocking the UI through chunked processing. Automatically uses landscape orientation when column count exceeds 7. Default filename: `'export.pdf'`.
 - `defaultTranslations`, `hebrewTranslations` – Translation presets
 - Schema constants: `FIELD_TYPE_*`, `FILTER_TYPE_*`, `SORT_ORDER_*`, `ALIGN_*`, `DIRECTION_*`, `OPERATOR_*`, `NUMBER_OP_IDS`, `TEXT_OP_IDS`, `DATE_OP_IDS`
 

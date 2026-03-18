@@ -1,6 +1,7 @@
 export { DataGrid } from './DataGrid/DataGrid';
 export { GridErrorBoundary } from './core/GridErrorBoundary';
 export { exportToCsv } from './utils/exportToCsv';
+export { exportToPdf } from './utils/exportToPdf';
 export { defaultTranslations, hebrewTranslations } from './localization/defaultTranslations';
 
 // Export constants for user configuration

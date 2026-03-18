@@ -71,6 +71,8 @@ export default defineConfig({
           '@emotion/styled': 'emotionStyled',
           dayjs: 'dayjs',
         },
+        manualChunks: undefined,
+        inlineDynamicImports: true,
       },
     },
     sourcemap: false,

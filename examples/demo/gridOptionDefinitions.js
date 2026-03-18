@@ -104,6 +104,13 @@ export const gridOptionDefinitions = [
     group: 'behavior',
     default: defaultGridConfig.showExportToExcel ?? false,
   },
+  {
+    key: 'showExportToPdf',
+    label: 'Show Export to PDF',
+    type: 'boolean',
+    group: 'behavior',
+    default: defaultGridConfig.showExportToPdf ?? false,
+  },
   // Filtering
   {
     key: 'filters',

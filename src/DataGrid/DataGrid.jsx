@@ -43,8 +43,10 @@ import { isEmptyRow } from './useDataGridEdit';
  * @property {React.ReactNode|((params: { selectedRow: Object|null, selectedRowId: string|number|null }) => React.ReactNode)} [toolbarActions] - Optional content rendered on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id.
  * @property {Object} [toolbarClearButtonsSx] - MUI sx applied to Clear sort, Clear all filters, and Reset column widths toolbar buttons.
  * @property {Object} [toolbarExportButtonSx] - MUI sx applied to the Export to CSV toolbar button.
+ * @property {Object} [toolbarPdfExportButtonSx] - MUI sx applied to the Export to PDF toolbar button.
  * @property {Object} [toolbarConfigButtonSx] - MUI sx applied to the column configuration toolbar button.
  * @property {boolean} [showExportToExcel=false] - When true, show an "Export to Excel" button in the toolbar (same row as Clear sort / Clear filters).
+ * @property {boolean} [showExportToPdf=false] - When true, show an "Export to PDF" button in the toolbar (same row as Clear sort / Clear filters). The button exports the current grid view as PDF (sorted and filtered; when pagination is on, all filtered rows). Supports large datasets without blocking the UI.
  * @property {Function} [onColumnConfigClick] - Callback function called when the column configuration button is clicked. When provided, shows a column config button in the toolbar.
  * @property {Object} [editToolbarSaveButtonSx] - MUI sx applied to the Save button in the edit toolbar.
  * @property {Object} [editToolbarCancelButtonSx] - MUI sx applied to the Cancel button in the edit toolbar.

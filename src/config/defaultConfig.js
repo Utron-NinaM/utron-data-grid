@@ -14,6 +14,7 @@ export const defaultGridConfig = {
   editable: false,
   filters: true,
   showExportToExcel: false,
+  showExportToPdf: false,
   fitToContainer: false,
   multiSelectable: false,
   pagination: false,
