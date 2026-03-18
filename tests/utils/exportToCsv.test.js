@@ -320,4 +320,103 @@ describe('exportToCsv', () => {
       expect(csvContent).toContain('"Name, ""Title"""');
     });
   });
+
+  describe('error handling', () => {
+    let consoleErrorSpy;
+
+    beforeEach(() => {
+      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('logs error and re-throws when Blob creation fails', () => {
+      const originalBlob = global.Blob;
+      global.Blob = vi.fn(() => {
+        throw new Error('Blob creation failed');
+      });
+
+      const columns = [{ field: 'id' }];
+      const rows = [{ id: 1 }];
+
+      expect(() => {
+        exportToCsv({ columns, rows });
+      }).toThrow('Blob creation failed');
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('CSV export failed:', expect.any(Error));
+
+      global.Blob = originalBlob;
+    });
+
+    it('logs error and re-throws when URL.createObjectURL fails', () => {
+      const originalCreateObjectURL = global.URL.createObjectURL;
+      global.URL.createObjectURL = vi.fn(() => {
+        throw new Error('URL creation failed');
+      });
+
+      const columns = [{ field: 'id' }];
+      const rows = [{ id: 1 }];
+
+      expect(() => {
+        exportToCsv({ columns, rows });
+      }).toThrow('URL creation failed');
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('CSV export failed:', expect.any(Error));
+
+      global.URL.createObjectURL = originalCreateObjectURL;
+    });
+
+    it('logs error and re-throws when anchor click fails', () => {
+      mockAnchor.click = vi.fn(() => {
+        throw new Error('Click failed');
+      });
+
+      const columns = [{ field: 'id' }];
+      const rows = [{ id: 1 }];
+
+      expect(() => {
+        exportToCsv({ columns, rows });
+      }).toThrow('Click failed');
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('CSV export failed:', expect.any(Error));
+    });
+
+    it('revokes URL in finally block even when error occurs', () => {
+      mockAnchor.click = vi.fn(() => {
+        throw new Error('Click failed');
+      });
+
+      const columns = [{ field: 'id' }];
+      const rows = [{ id: 1 }];
+
+      try {
+        exportToCsv({ columns, rows });
+      } catch (e) {
+        // Expected to throw
+      }
+
+      expect(revokeObjectURLSpy).toHaveBeenCalled();
+    });
+
+    it('handles errors during CSV generation', () => {
+      const columns = [{ field: 'id' }];
+      const rows = [{ id: 1 }];
+
+      // Mock map to throw error
+      const originalMap = Array.prototype.map;
+      Array.prototype.map = vi.fn(() => {
+        throw new Error('Map failed');
+      });
+
+      expect(() => {
+        exportToCsv({ columns, rows });
+      }).toThrow('Map failed');
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('CSV export failed:', expect.any(Error));
+
+      Array.prototype.map = originalMap;
+    });
+  });
 });

@@ -10,6 +10,11 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { ExportIcon } from './icons/ExportIcon';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -39,7 +44,7 @@ import {
   getScrollInnerBoxSx,
   getBodyRowHeightSx,
   getExportButtonSx,
-  getPdfExportButtonSx,  
+  getPdfExportButtonSx,
 } from './coreStyles';
 import { GRID_BUTTONS_COLOR } from '../constants';
 
@@ -84,6 +89,14 @@ function GridTableInner({
 
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [pdfProgress, setPdfProgress] = useState({ current: 0, total: 0 });
+  const [exportError, setExportError] = useState(null);
+
+  // Log error to console when modal opens
+  useEffect(() => {
+    if (exportError !== null) {
+      console.error('Export error details:', exportError);
+    }
+  }, [exportError]);
 
   const tableId = useId();
   const bodyColRefs = useRef(new Map());
@@ -248,7 +261,14 @@ function GridTableInner({
               <Tooltip title={translations('exportToCsvTooltip')}>
                 <IconButton
                   size="small"
-                  onClick={() => exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' })}
+                  onClick={() => {
+                    try {
+                      exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' });
+                    } catch (error) {
+                      console.error('CSV export failed:', error);
+                      setExportError(error);
+                    }
+                  }}
                   sx={{ color: GRID_BUTTONS_COLOR, ...toolbarExportButtonSx }}
                 >
                   <ExportIcon type="csv" />
@@ -274,7 +294,7 @@ function GridTableInner({
                       });
                     } catch (error) {
                       console.error('PDF export failed:', error);
-                      // Could show error message to user here if needed
+                      setExportError(error);
                     } finally {
                       setIsExportingPdf(false);
                       setPdfProgress({ current: 0, total: 0 });
@@ -302,6 +322,44 @@ function GridTableInner({
         )}
       </Box>
     </Box>
+  );
+
+  const errorDialog = (
+    <Dialog
+      open={exportError !== null}
+      onClose={() => setExportError(null)}
+      aria-labelledby="error-dialog-title"
+      aria-describedby="error-dialog-description"
+      maxWidth="sm"
+      sx={{
+        '& .MuiDialog-paper': {
+          width: '400px',
+          minHeight: '150px',
+        },
+      }}
+    >
+      <DialogTitle 
+        id="error-dialog-title"
+        sx={{
+          backgroundColor: GRID_BUTTONS_COLOR,
+          color: 'white',
+          textAlign: 'center',
+           fontSize: '18px'
+        }}
+      >
+        {translations('errorTitle')}
+      </DialogTitle>
+      <DialogContent sx={{ textAlign: 'center', margin: '20px' }}>
+        <DialogContentText id="error-dialog-description" sx={{ fontSize: '18px'}}>
+          {translations('internalErrorOccurred')}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setExportError(null)} autoFocus>
+          {translations('close')}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 
   const tableContent = (
@@ -550,6 +608,7 @@ function GridTableInner({
             )}
           </ScrollContainerContext.Provider>
         </Box>
+        {errorDialog}
       </Box>
     );
   }
@@ -558,6 +617,7 @@ function GridTableInner({
     <>
       {toolbarBox}
       {tableContent}
+      {errorDialog}
     </>
   );
 }

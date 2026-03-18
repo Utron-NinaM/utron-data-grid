@@ -447,4 +447,158 @@ describe('GridTable Component', () => {
       expect(getComputedStyle(resetWidthsBtn).backgroundColor).toBe('rgb(255, 192, 203)');
     });
   });
+
+  describe('Export error modal', () => {
+    let consoleErrorSpy;
+
+    beforeEach(() => {
+      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleErrorSpy.mockRestore();
+      vi.clearAllMocks();
+    });
+
+    it('should display error modal when CSV export fails', async () => {
+      const exportToCsvModule = await import('../../src/utils/exportToCsv');
+      vi.spyOn(exportToCsvModule, 'exportToCsv').mockImplementation(() => {
+        throw new Error('CSV export failed');
+      });
+
+      const stableValue = {
+        ...defaultStableValue,
+        showExportToExcel: true,
+      };
+      renderGridTable({}, stableValue);
+
+      const exportButton = screen.getByRole('button', { name: /export to csv/i });
+      fireEvent.click(exportButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+        expect(screen.getAllByText('Internal error occurred').length).toBeGreaterThan(0);
+      });
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('CSV export failed:', expect.any(Error));
+    });
+
+    it('should display error modal when PDF export fails', async () => {
+      const exportToPdfModule = await import('../../src/utils/exportToPdf');
+      vi.spyOn(exportToPdfModule, 'exportToPdf').mockRejectedValue(new Error('PDF export failed'));
+
+      const stableValue = {
+        ...defaultStableValue,
+        showExportToPdf: true,
+      };
+      renderGridTable({}, stableValue);
+
+      const exportButton = screen.getByRole('button', { name: /export to pdf/i });
+      fireEvent.click(exportButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+        expect(screen.getAllByText('Internal error occurred').length).toBeGreaterThan(0);
+      }, { timeout: 3000 });
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('PDF export failed:', expect.any(Error));
+    });
+
+    it('should close error modal when Close button is clicked', async () => {
+      const exportToCsvModule = await import('../../src/utils/exportToCsv');
+      vi.spyOn(exportToCsvModule, 'exportToCsv').mockImplementation(() => {
+        throw new Error('CSV export failed');
+      });
+
+      const stableValue = {
+        ...defaultStableValue,
+        showExportToExcel: true,
+      };
+      renderGridTable({}, stableValue);
+
+      const exportButton = screen.getByRole('button', { name: /export to csv/i });
+      fireEvent.click(exportButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      const closeButton = screen.getByRole('button', { name: /close/i });
+      fireEvent.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should log full error details to console when modal opens', async () => {
+      const testError = new Error('Test export error');
+      const exportToCsvModule = await import('../../src/utils/exportToCsv');
+      vi.spyOn(exportToCsvModule, 'exportToCsv').mockImplementation(() => {
+        throw testError;
+      });
+
+      const stableValue = {
+        ...defaultStableValue,
+        showExportToExcel: true,
+      };
+      renderGridTable({}, stableValue);
+
+      const exportButton = screen.getByRole('button', { name: /export to csv/i });
+      fireEvent.click(exportButton);
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Export error details:', testError);
+      });
+    });
+
+    it('should display error modal with correct translations in English', async () => {
+      const exportToCsvModule = await import('../../src/utils/exportToCsv');
+      vi.spyOn(exportToCsvModule, 'exportToCsv').mockImplementation(() => {
+        throw new Error('CSV export failed');
+      });
+
+      const stableValue = {
+        ...defaultStableValue,
+        showExportToExcel: true,
+        direction: DIRECTION_LTR,
+      };
+      renderGridTable({}, stableValue);
+
+      const exportButton = screen.getByRole('button', { name: /export to csv/i });
+      fireEvent.click(exportButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+        expect(screen.getAllByText('Internal error occurred').length).toBeGreaterThan(0);
+        expect(screen.getByText('Close')).toBeInTheDocument();
+      });
+    });
+
+    it('should not crash the app when export fails', async () => {
+      const exportToCsvModule = await import('../../src/utils/exportToCsv');
+      vi.spyOn(exportToCsvModule, 'exportToCsv').mockImplementation(() => {
+        throw new Error('CSV export failed');
+      });
+
+      const stableValue = {
+        ...defaultStableValue,
+        showExportToExcel: true,
+      };
+      const { container } = renderGridTable({}, stableValue);
+
+      const exportButton = screen.getByRole('button', { name: /export to csv/i });
+      fireEvent.click(exportButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      // App should still be functional - table should exist even with dialog open
+      expect(container).toBeInTheDocument();
+      // Table should still be in the DOM (dialog overlays it but doesn't remove it)
+      const table = container.querySelector('table');
+      expect(table).toBeInTheDocument();
+    });
+  });
 });

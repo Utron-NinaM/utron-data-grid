@@ -84,109 +84,150 @@ export async function exportToPdf({
   const finalFontBoldFile = fontBoldFile || ALEF_BOLD_FONT_FILE;
 
   if (columns.length === 0 || rows.length === 0) {
-    // Create empty PDF
-    const doc = new jsPDF();
-    
-    // Register fonts even for empty PDF
-    if (finalFontBase64 && finalFontBase64 !== 'PLACEHOLDER_BASE64_STRING') {
-      doc.addFileToVFS(finalFontFile, finalFontBase64);
-      doc.addFont(finalFontFile, finalFontName, 'normal');
-      if (finalFontBoldBase64 && finalFontBoldBase64 !== 'PLACEHOLDER_BASE64_STRING') {
-        doc.addFileToVFS(finalFontBoldFile, finalFontBoldBase64);
-        doc.addFont(finalFontBoldFile, finalFontName, 'bold');
+    try {
+      // Create empty PDF
+      const doc = new jsPDF();
+      
+      // Register fonts even for empty PDF
+      if (finalFontBase64 && finalFontBase64 !== 'PLACEHOLDER_BASE64_STRING') {
+        try {
+          doc.addFileToVFS(finalFontFile, finalFontBase64);
+          doc.addFont(finalFontFile, finalFontName, 'normal');
+          if (finalFontBoldBase64 && finalFontBoldBase64 !== 'PLACEHOLDER_BASE64_STRING') {
+            doc.addFileToVFS(finalFontBoldFile, finalFontBoldBase64);
+            doc.addFont(finalFontBoldFile, finalFontName, 'bold');
+          }
+          doc.setFont(finalFontName);
+        } catch (fontError) {
+          console.error('PDF font registration failed:', fontError);
+          throw new Error('Failed to register fonts for PDF export');
+        }
       }
-      doc.setFont(finalFontName);
+      
+      doc.text('No data to export', 14, 20);
+      doc.save(filename);
+      return;
+    } catch (error) {
+      console.error('PDF export failed (empty data):', error);
+      throw error;
     }
-    
-    doc.text('No data to export', 14, 20);
-    doc.save(filename);
-    return;
   }
 
-  // Determine orientation based on column count
-  const useLandscape = columns.length > LANDSCAPE_THRESHOLD;
-  const orientation = useLandscape ? 'landscape' : 'portrait';
+  try {
+    // Determine orientation based on column count
+    const useLandscape = columns.length > LANDSCAPE_THRESHOLD;
+    const orientation = useLandscape ? 'landscape' : 'portrait';
 
-  // Create PDF document
-  const doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
-
-  // Register fonts for Hebrew support (Regular and Bold)
-  if (finalFontBase64 && finalFontBase64 !== 'PLACEHOLDER_BASE64_STRING') {
-    // Register Regular font
-    doc.addFileToVFS(finalFontFile, finalFontBase64);
-    doc.addFont(finalFontFile, finalFontName, 'normal');
-    
-    // Register Bold font if available
-    if (finalFontBoldBase64 && finalFontBoldBase64 !== 'PLACEHOLDER_BASE64_STRING') {
-      doc.addFileToVFS(finalFontBoldFile, finalFontBoldBase64);
-      doc.addFont(finalFontBoldFile, finalFontName, 'bold');
+    // Create PDF document
+    let doc;
+    try {
+      doc = new jsPDF({ orientation, unit: 'mm', format: 'a4' });
+    } catch (pdfError) {
+      console.error('PDF document creation failed:', pdfError);
+      throw new Error('Failed to create PDF document');
     }
-    
-    doc.setFont(finalFontName);
-  }
 
-  // Reverse column order for RTL
-  const processedColumns = isRTL ? [...columns].reverse() : columns;
+    // Register fonts for Hebrew support (Regular and Bold)
+    if (finalFontBase64 && finalFontBase64 !== 'PLACEHOLDER_BASE64_STRING') {
+      try {
+        // Register Regular font
+        doc.addFileToVFS(finalFontFile, finalFontBase64);
+        doc.addFont(finalFontFile, finalFontName, 'normal');
+        
+        // Register Bold font if available
+        if (finalFontBoldBase64 && finalFontBoldBase64 !== 'PLACEHOLDER_BASE64_STRING') {
+          doc.addFileToVFS(finalFontBoldFile, finalFontBoldBase64);
+          doc.addFont(finalFontBoldFile, finalFontName, 'bold');
+        }
+        
+        doc.setFont(finalFontName);
+      } catch (fontError) {
+        console.error('PDF font registration failed:', fontError);
+        throw new Error('Failed to register fonts for PDF export');
+      }
+    }
 
-  // Prepare headers with RTL text fixing
-  const headers = processedColumns.map((col) => {
-    const headerText = col.headerName ?? col.field;
-    return isRTL ? fixRTL(headerText) : headerText;
-  });
+    // Reverse column order for RTL
+    const processedColumns = isRTL ? [...columns].reverse() : columns;
 
-  // Process rows in chunks to avoid blocking UI
-  const totalRows = rows.length;
-  let processedRows = 0;
-  let isFirstPage = true;
-
-  for (let i = 0; i < totalRows; i += CHUNK_SIZE) {
-    const chunk = rows.slice(i, i + CHUNK_SIZE);
-    const chunkData = chunk.map((row) =>
-      processedColumns.map((col) => {
-        const cellValue = formatPdfCell(row[col.field]);
-        return isRTL ? fixRTL(cellValue) : cellValue;
-      })
-    );
-
-    // Add table to PDF
-    doc.autoTable({
-      head: isFirstPage ? [headers] : [],
-      body: chunkData,
-      startY: isFirstPage ? undefined : doc.lastAutoTable.finalY + 10,
-      margin: { top: 10, right: 10, bottom: 10, left: 10 },
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-        font: finalFontBase64 && finalFontBase64 !== 'PLACEHOLDER_BASE64_STRING' ? finalFontName : undefined,
-        fontStyle: 'normal',
-        halign: isRTL ? 'right' : 'left',
-      },
-      headStyles: {
-        fillColor: [66, 139, 202],
-        textColor: 255,
-        font: finalFontBase64 && finalFontBase64 !== 'PLACEHOLDER_BASE64_STRING' ? finalFontName : undefined,
-        fontStyle: 'bold',
-        halign: isRTL ? 'right' : 'left',
-      },
-      alternateRowStyles: {
-        fillColor: [245, 245, 245],
-      },
+    // Prepare headers with RTL text fixing
+    const headers = processedColumns.map((col) => {
+      const headerText = col.headerName ?? col.field;
+      return isRTL ? fixRTL(headerText) : headerText;
     });
 
-    processedRows += chunk.length;
-    isFirstPage = false;
+    // Process rows in chunks to avoid blocking UI
+    const totalRows = rows.length;
+    let processedRows = 0;
+    let isFirstPage = true;
 
-    // Report progress
-    if (onProgress) {
-      onProgress(processedRows, totalRows);
+    for (let i = 0; i < totalRows; i += CHUNK_SIZE) {
+      try {
+        const chunk = rows.slice(i, i + CHUNK_SIZE);
+        const chunkData = chunk.map((row) =>
+          processedColumns.map((col) => {
+            const cellValue = formatPdfCell(row[col.field]);
+            return isRTL ? fixRTL(cellValue) : cellValue;
+          })
+        );
+
+        // Add table to PDF
+        doc.autoTable({
+          head: isFirstPage ? [headers] : [],
+          body: chunkData,
+          startY: isFirstPage ? undefined : doc.lastAutoTable.finalY + 10,
+          margin: { top: 10, right: 10, bottom: 10, left: 10 },
+          styles: {
+            fontSize: 8,
+            cellPadding: 2,
+            font: finalFontBase64 && finalFontBase64 !== 'PLACEHOLDER_BASE64_STRING' ? finalFontName : undefined,
+            fontStyle: 'normal',
+            halign: isRTL ? 'right' : 'left',
+          },
+          headStyles: {
+            fillColor: [66, 139, 202],
+            textColor: 255,
+            font: finalFontBase64 && finalFontBase64 !== 'PLACEHOLDER_BASE64_STRING' ? finalFontName : undefined,
+            fontStyle: 'bold',
+            halign: isRTL ? 'right' : 'left',
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245],
+          },
+        });
+
+        processedRows += chunk.length;
+        isFirstPage = false;
+
+        // Report progress
+        if (onProgress) {
+          try {
+            onProgress(processedRows, totalRows);
+          } catch (progressError) {
+            console.error('Progress callback error:', progressError);
+            // Continue processing even if progress callback fails
+          }
+        }
+
+        // Yield control to browser to keep UI responsive
+        if (i + CHUNK_SIZE < totalRows) {
+          await yieldToBrowser();
+        }
+      } catch (chunkError) {
+        console.error('PDF table generation failed at chunk:', chunkError);
+        throw new Error('Failed to generate PDF table');
+      }
     }
 
-    // Yield control to browser to keep UI responsive
-    if (i + CHUNK_SIZE < totalRows) {
-      await yieldToBrowser();
+    // Save and download PDF
+    try {
+      doc.save(filename);
+    } catch (saveError) {
+      console.error('PDF save failed:', saveError);
+      throw new Error('Failed to save PDF file');
     }
+  } catch (error) {
+    console.error('PDF export failed:', error);
+    throw error;
   }
-
-  // Save and download PDF
-  doc.save(filename);
 }

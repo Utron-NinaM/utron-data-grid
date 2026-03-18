@@ -67,6 +67,11 @@ export const defaultTranslations = {
   validationFieldErrorsCount: '{{count}} field error(s)',
   validationRowErrorsCount: '{{count}} row error(s)',
   validationRequired: 'Required',
+
+  // Error messages
+  internalErrorOccurred: 'Internal error occurred',
+  errorTitle: 'Error',
+  close: 'Close',
 };
 
 /** Hebrew translations */
@@ -137,4 +142,9 @@ export const hebrewTranslations = {
   validationFieldErrorsCount: '{{count}} שגיאות שדה',
   validationRowErrorsCount: '{{count}} שגיאות שורה',
   validationRequired: 'נדרש',
+
+  // Error messages
+  internalErrorOccurred: 'אירעה שגיאה פנימית',
+  errorTitle: 'שגיאה',
+  close: 'סגור',
 };
