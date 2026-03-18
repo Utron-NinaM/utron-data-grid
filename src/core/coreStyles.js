@@ -216,6 +216,14 @@ export const editorWrapperSx = {
   alignItems: 'center',
 };
 
+export const editorInnerBoxSx = {
+  flex: 1,
+  minWidth: 0,
+  minHeight: 0,
+  height: '100%',
+  overflow: 'hidden',
+};
+
 export function getErrorIconSx(isRTL) {
   return {
   fontSize: '1.2rem',
@@ -296,5 +304,26 @@ export function getResizeHandleSx(direction, columnBackground, theme) {
     '&:hover::after': {
       backgroundColor: hover,
     },
+  };
+}
+
+// ----- Toolbar Export Buttons -----
+
+export function getExportButtonSx(toolbarExportButtonSx) {
+  return {
+    alignItems: 'stretch',
+    '& .MuiButton-startIcon': { mr: 0.75, display: 'flex', alignItems: 'stretch', paddingLeft: 1, paddingRight: 1 },
+    '& .MuiButton-label': { display: 'flex', alignItems: 'stretch' },
+    ...(toolbarExportButtonSx || {}),
+  };
+}
+
+export function getPdfExportButtonSx(toolbarPdfExportButtonSx) {
+  return {
+    backgroundColor: 'gray',
+    alignItems: 'stretch',
+    '& .MuiButton-startIcon': { mr: 0.75, display: 'flex', alignItems: 'stretch', paddingLeft: 1, paddingRight: 1 },
+    '& .MuiButton-label': { display: 'flex', alignItems: 'stretch' },
+    ...(toolbarPdfExportButtonSx || {}),
   };
 }

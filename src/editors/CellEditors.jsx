@@ -20,7 +20,7 @@ import {
   LOCALE_EN,
 } from '../config/schema';
 import { DEFAULT_FONT_SIZE, DROPDOWN_POPPER_Z_INDEX, MAX_TEXT_LENGTH, MAX_NUMBER_INPUT_LENGTH, MAX_WIDTH_LIST_DROPDOWN_PX } from '../constants';
-import { getCompactEditorSx, listEditorSx, getListEditorInputSx } from './cellEditorStyles';
+import { getCompactEditorSx, listEditorSx, getListEditorInputSx, listEditorClearIndicatorSx, listEditorPopupIndicatorSx } from './cellEditorStyles';
 import { DataGridStableContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 
 export function getEditor(column, row, editValues, onChange, direction = DIRECTION_LTR, fontSize, editorContext) {
@@ -206,20 +206,10 @@ function ListEditor({
       )}
       slotProps={{
         clearIndicator: {
-          sx: {
-            color: 'text.secondary',
-            visibility: 'visible !important',
-            opacity: '1 !important',
-            minWidth: 24,
-            marginTop: '-1px', // optical nudge so clear (X) aligns with dropdown (▼)
-            '& .MuiSvgIcon-root': { fontSize: 16 },
-          },
+          sx: listEditorClearIndicatorSx,
         },
         popupIndicator: {
-          sx: {
-            minWidth: 24,
-            '& .MuiSvgIcon-root': { fontSize: 16 },
-          },
+          sx: listEditorPopupIndicatorSx,
         },
         popper: {
           sx: { ...popperSx, zIndex: DROPDOWN_POPPER_Z_INDEX },

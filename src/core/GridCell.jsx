@@ -11,7 +11,7 @@ import { getDateFormat, getDateTimeFormat } from '../utils/directionUtils';
 import { getOptionLabel, getOptionValue } from '../utils/optionUtils';
 import { DIRECTION_LTR } from '../config/schema';
 import { DEFAULT_FONT_SIZE, TOOLTIP_OVER_HEADER_Z_INDEX } from '../constants';
-import { truncationSx, cellContentWrapperSx, editorWrapperSx, getBodyCellBaseSx, getErrorIconSx } from './coreStyles';
+import { truncationSx, cellContentWrapperSx, editorWrapperSx, editorInnerBoxSx, getBodyCellBaseSx, getErrorIconSx } from './coreStyles';
 
 /**
  * @param {*} displayValue
@@ -179,7 +179,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
       // When editing, show editor and error icon if needed
       return (
         <Box sx={editorWrapperSx}>
-          <Box sx={{ flex: 1, minWidth: 0, minHeight: 0, height: '100%', overflow: 'hidden' }}>
+          <Box sx={editorInnerBoxSx}>
             {editor}
           </Box>
           {errorIcon}

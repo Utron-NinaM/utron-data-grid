@@ -7,7 +7,7 @@ import Chip from '@mui/material/Chip';
 import Collapse from '@mui/material/Collapse';
 import ErrorIcon from '@mui/icons-material/Error';
 import { useTranslations } from '../localization/useTranslations';
-import { validationAlertSx, getAlertListItemSx } from './dataGridStyles';
+import { validationAlertSx, getAlertListItemSx, validationBannerBoxSx, validationAlertTitleSx, validationErrorListSx } from './dataGridStyles';
 
 /**
  * Sliding validation banner above the grid. No reserved space when hidden.
@@ -56,16 +56,14 @@ export function GridValidationBanner({ columns, editStore, onErrorClick }) {
     >
       <Box
         aria-hidden={!hasErrors}
-        sx={{
-          flexShrink: 0,
-        }}
+        sx={validationBannerBoxSx}
       >
         <Alert
           severity="error"
           icon={<ErrorIcon />}
           sx={validationAlertSx}
         >
-          <AlertTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+          <AlertTitle sx={validationAlertTitleSx}>
             {t('validationErrorsFound', { count: totalCount })}
             {fieldErrorCount > 0 && (
               <Chip size="small" label={t('validationFieldErrorsCount', { count: fieldErrorCount })} color="error" variant="outlined" />
@@ -74,7 +72,7 @@ export function GridValidationBanner({ columns, editStore, onErrorClick }) {
               <Chip size="small" label={t('validationRowErrorsCount', { count: rowErrorCount })} color="error" variant="outlined" />
             )}
           </AlertTitle>
-          <Box component="ul" sx={{ margin: 0, paddingLeft: 2.5, listStyle: 'none' }} role="list">
+          <Box component="ul" sx={validationErrorListSx} role="list">
             {items.map((item, i) => (
               <Box
                 component="li"

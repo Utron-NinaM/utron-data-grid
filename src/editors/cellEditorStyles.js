@@ -124,3 +124,17 @@ export function getListEditorInputSx(isRtl) {
     },
   };
 }
+
+export const listEditorClearIndicatorSx = {
+  color: 'text.secondary',
+  visibility: 'visible !important',
+  opacity: '1 !important',
+  minWidth: 24,
+  marginTop: '-1px', // optical nudge so clear (X) aligns with dropdown (▼)
+  '& .MuiSvgIcon-root': { fontSize: 16 },
+};
+
+export const listEditorPopupIndicatorSx = {
+  minWidth: 24,
+  '& .MuiSvgIcon-root': { fontSize: 16 },
+};

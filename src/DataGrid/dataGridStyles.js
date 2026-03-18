@@ -64,3 +64,20 @@ export function getAlertListItemSx({ onErrorClick }) {
     '&:hover': onErrorClick ? { opacity: 0.85 } : {},
   };
 }
+
+export const validationBannerBoxSx = {
+  flexShrink: 0,
+};
+
+export const validationAlertTitleSx = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 1,
+  flexWrap: 'wrap',
+};
+
+export const validationErrorListSx = {
+  margin: 0,
+  paddingLeft: 2.5,
+  listStyle: 'none',
+};

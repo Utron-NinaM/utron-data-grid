@@ -39,6 +39,8 @@ import {
   scrollContainerSx,
   getScrollInnerBoxSx,
   getBodyRowHeightSx,
+  getExportButtonSx,
+  getPdfExportButtonSx,
 } from './coreStyles';
 
 /**
@@ -256,12 +258,7 @@ function GridTableInner({
               color="success"
               startIcon={<TableChartIcon />}
               onClick={() => exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' })}
-              sx={{                
-                alignItems: 'stretch',
-                '& .MuiButton-startIcon': { mr: 0.75, display: 'flex', alignItems: 'stretch', paddingLeft: 1, paddingRight: 1 },
-                '& .MuiButton-label': { display: 'flex', alignItems: 'stretch' },
-                ...(toolbarExportButtonSx || {}),
-              }}
+              sx={getExportButtonSx(toolbarExportButtonSx)}
             >
               {translations('exportToCsv')}
             </Button>
@@ -294,13 +291,7 @@ function GridTableInner({
                 }
               }}
               disabled={isExportingPdf}
-              sx={{
-                backgroundColor: 'gray',
-                alignItems: 'stretch',
-                '& .MuiButton-startIcon': { mr: 0.75, display: 'flex', alignItems: 'stretch', paddingLeft: 1, paddingRight: 1 },
-                '& .MuiButton-label': { display: 'flex', alignItems: 'stretch' },
-                ...(toolbarPdfExportButtonSx || {}),
-              }}
+              sx={getPdfExportButtonSx(toolbarPdfExportButtonSx)}
             >
               {translations('exportToPdf')}
             </Button>
