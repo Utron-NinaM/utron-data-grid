@@ -134,8 +134,9 @@ export function GridExamplePage() {
       sx: base.sx ?? { height: '100%' },
       onEditCommit: handleEditCommit,
       dropdownBoundaryRef: mainContentRef,
+      onColumnConfigClick: () => navigate('/config'),
     };
-  }, [gridOptions, handleEditCommit]);
+  }, [gridOptions, handleEditCommit, navigate]);
 
   const summaryEntries = [
     ['sampleSize', sampleSize],

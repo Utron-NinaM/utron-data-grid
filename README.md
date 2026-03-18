@@ -87,7 +87,10 @@ const rows = [
 | `gridId` | `string` | Unique id for this grid; when set, sort, filter, and column width overrides are persisted in localStorage (`utron-datagrid-sort-{gridId}`, `utron-datagrid-filters-{gridId}`, `utron-datagrid-column-widths-{gridId}`) and restored on load. Use a different id per grid when multiple grids exist. |
 | `toolbarActions` | `ReactNode` or `(params: { selectedRow, selectedRowId }) => ReactNode` | Optional content on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id. |
 | `toolbarClearButtonsSx` | `object` | MUI sx applied to the Clear sort, Clear all filters, and Reset column widths toolbar buttons. |
+| `toolbarExportButtonSx` | `object` | MUI sx applied to the Export to CSV toolbar button. |
+| `toolbarConfigButtonSx` | `object` | MUI sx applied to the column configuration toolbar button. |
 | `showExportToExcel` | `boolean` | When true, show an "Export to CSV" button in the toolbar (same row as Clear sort / Clear filters / Reset column widths). The button exports the current grid view as CSV (sorted and filtered; when pagination is on, the current page). Default false. |
+| `onColumnConfigClick` | `() => void` | Callback function called when the column configuration button is clicked. When provided, shows a column config button (icon only) in the toolbar. |
 | `editToolbarSaveButtonSx` | `object` | MUI sx applied to the Save button in the edit toolbar. |
 | `editToolbarCancelButtonSx` | `object` | MUI sx applied to the Cancel button in the edit toolbar. |
 | `fontSize` | `number` | Font size in px for cells, filters, inputs, pagination (default 13). |

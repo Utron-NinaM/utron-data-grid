@@ -42,7 +42,10 @@ import { isEmptyRow } from './useDataGridEdit';
  * @property {string} [gridId] - Unique id for this grid; when set, filter, sort, and column width state are persisted in localStorage and restored on mount or refresh. Use a different id per grid when multiple grids exist.
  * @property {React.ReactNode|((params: { selectedRow: Object|null, selectedRowId: string|number|null }) => React.ReactNode)} [toolbarActions] - Optional content rendered on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id.
  * @property {Object} [toolbarClearButtonsSx] - MUI sx applied to Clear sort, Clear all filters, and Reset column widths toolbar buttons.
+ * @property {Object} [toolbarExportButtonSx] - MUI sx applied to the Export to CSV toolbar button.
+ * @property {Object} [toolbarConfigButtonSx] - MUI sx applied to the column configuration toolbar button.
  * @property {boolean} [showExportToExcel=false] - When true, show an "Export to Excel" button in the toolbar (same row as Clear sort / Clear filters).
+ * @property {Function} [onColumnConfigClick] - Callback function called when the column configuration button is clicked. When provided, shows a column config button in the toolbar.
  * @property {Object} [editToolbarSaveButtonSx] - MUI sx applied to the Save button in the edit toolbar.
  * @property {Object} [editToolbarCancelButtonSx] - MUI sx applied to the Cancel button in the edit toolbar.
  * @property {number} [fontSize=13] - Font size in px for cells, filters, inputs, and pagination. Overridable via CSS (e.g. [data-testid="data-grid-root"] or --data-grid-font-size).

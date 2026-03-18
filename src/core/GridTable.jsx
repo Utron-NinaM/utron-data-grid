@@ -8,7 +8,10 @@ import TableCell from '@mui/material/TableCell';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 import { GridHeaderCell } from './GridHeaderCell';
@@ -65,7 +68,8 @@ function GridTableInner({
     hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
     colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
-    toolbarClearButtonsSx, showExportToExcel, direction, selectRow, bodyRow, editable, editStore, sortedRows } = ctx;
+    toolbarClearButtonsSx, toolbarExportButtonSx, toolbarConfigButtonSx, showExportToExcel, onColumnConfigClick, direction, selectRow, bodyRow, editable, 
+    editStore, sortedRows } = ctx;
 
   const editRowId = useSyncExternalStore(
     editStore?.subscribe ?? (() => () => {}),
@@ -228,6 +232,17 @@ function GridTableInner({
           <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
             {translations('clearColumnWidths')}
           </Button>
+          {onColumnConfigClick && (
+            <Tooltip title={translations('columnConfig')}>
+              <IconButton
+                size="small"
+                onClick={onColumnConfigClick}
+                {...(toolbarConfigButtonSx && { sx: toolbarConfigButtonSx })}
+              >
+                <SettingsIcon />
+              </IconButton>
+            </Tooltip>
+          )}
           {showExportToExcel && (
             <Button
               size="small"
@@ -235,10 +250,11 @@ function GridTableInner({
               color="success"
               startIcon={<TableChartIcon />}
               onClick={() => exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' })}
-              sx={{              
+              sx={{
                 alignItems: 'stretch',
                 '& .MuiButton-startIcon': { mr: 0.75, display: 'flex', alignItems: 'stretch', paddingLeft: 1, paddingRight: 1 },
                 '& .MuiButton-label': { display: 'flex', alignItems: 'stretch' },
+                ...(toolbarExportButtonSx || {}),
               }}
             >
               {translations('exportToCsv')}
