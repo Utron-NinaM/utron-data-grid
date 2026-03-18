@@ -87,6 +87,7 @@ const rows = [
 | `gridId` | `string` | Unique id for this grid; when set, sort, filter, and column width overrides are persisted in localStorage (`utron-datagrid-sort-{gridId}`, `utron-datagrid-filters-{gridId}`, `utron-datagrid-column-widths-{gridId}`) and restored on load. Use a different id per grid when multiple grids exist. |
 | `toolbarActions` | `ReactNode` or `(params: { selectedRow, selectedRowId }) => ReactNode` | Optional content on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id. |
 | `toolbarClearButtonsSx` | `object` | MUI sx applied to the Clear sort, Clear all filters, and Reset column widths toolbar buttons. |
+| `showExportToExcel` | `boolean` | When true, show an "Export to CSV" button in the toolbar (same row as Clear sort / Clear filters / Reset column widths). The button exports the current grid view as CSV (sorted and filtered; when pagination is on, the current page). Default false. |
 | `editToolbarSaveButtonSx` | `object` | MUI sx applied to the Save button in the edit toolbar. |
 | `editToolbarCancelButtonSx` | `object` | MUI sx applied to the Cancel button in the edit toolbar. |
 | `fontSize` | `number` | Font size in px for cells, filters, inputs, pagination (default 13). |
@@ -362,6 +363,7 @@ The `startEditMode(rowId)` method:
 Besides `DataGrid`, the package exports:
 
 - `GridErrorBoundary` – Error boundary for the grid
+- `exportToCsv` – Function to export data to a CSV file. Signature: `exportToCsv({ columns, rows, filename? })`. `columns` is an array of `{ field, headerName? }`; `rows` is an array of row objects (values keyed by `field`). Use this without the toolbar button to export custom data (e.g. all filtered rows from `onFilterChange` result.filteredRows). Default filename: `'export.csv'`.
 - `defaultTranslations`, `hebrewTranslations` – Translation presets
 - Schema constants: `FIELD_TYPE_*`, `FILTER_TYPE_*`, `SORT_ORDER_*`, `ALIGN_*`, `DIRECTION_*`, `OPERATOR_*`, `NUMBER_OP_IDS`, `TEXT_OP_IDS`, `DATE_OP_IDS`
 

@@ -8,6 +8,7 @@ import TableCell from '@mui/material/TableCell';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import TableChartIcon from '@mui/icons-material/TableChart';
 import { useTranslations } from '../localization/useTranslations';
 import { DataGridStableContext, DataGridFilterContext, ScrollContainerContext } from '../DataGrid/DataGridContext';
 import { GridHeaderCell } from './GridHeaderCell';
@@ -17,6 +18,7 @@ import { GridTableBodyVirtuoso } from './GridTableBodyVirtuoso';
 import { SelectionStyleApplicator } from './SelectionStyleApplicator';
 import { GridToolbarSubscriber } from './GridToolbarSubscriber';
 import { GridErrorBoundary } from './GridErrorBoundary';
+import { exportToCsv } from '../utils/exportToCsv';
 import { CHECKBOX_COLUMN_WIDTH_PX, BODY_ROW_HEIGHT } from '../constants';
 import {
   getToolbarBoxSx,
@@ -63,7 +65,7 @@ function GridTableInner({
     hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
     colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
-    toolbarClearButtonsSx, direction, selectRow, bodyRow, editable, editStore } = ctx;
+    toolbarClearButtonsSx, showExportToExcel, direction, selectRow, bodyRow, editable, editStore } = ctx;
 
   const editRowId = useSyncExternalStore(
     editStore?.subscribe ?? (() => () => {}),
@@ -226,6 +228,23 @@ function GridTableInner({
           <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
             {translations('clearColumnWidths')}
           </Button>
+          {showExportToExcel && (
+            <Button
+              size="small"
+              variant="contained"
+              color="success"
+              startIcon={<TableChartIcon />}
+              onClick={() => exportToCsv({ columns, rows, filename: 'export.csv' })}
+              sx={{
+              
+                alignItems: 'stretch',
+                '& .MuiButton-startIcon': { mr: 0.75, display: 'flex', alignItems: 'stretch', paddingLeft: 1, paddingRight: 1 },
+                '& .MuiButton-label': { display: 'flex', alignItems: 'stretch' },
+              }}
+            >
+              {translations('exportToCsv')}
+            </Button>
+          )}
         </Box>
         <GridToolbarSubscriber rows={rows} getRowId={getRowId} />
       </Box>

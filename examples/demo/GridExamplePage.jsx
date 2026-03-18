@@ -145,6 +145,7 @@ export function GridExamplePage() {
     ['filters', gridOptions.filters],
     ['pagination', gridOptions.pagination],
     ['pageSize', gridOptions.pageSize],
+    ['showExportToExcel', gridOptions.showExportToExcel],
     ['multiSelectable', gridOptions.multiSelectable],
     ['containerWidth', containerWidth],
   ].filter(([, v]) => v !== undefined && v !== null);

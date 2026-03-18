@@ -13,6 +13,7 @@ import {
 export const defaultGridConfig = {
   editable: false,
   filters: true,
+  showExportToExcel: false,
   fitToContainer: false,
   multiSelectable: false,
   pagination: false,

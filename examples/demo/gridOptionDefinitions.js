@@ -97,6 +97,13 @@ export const gridOptionDefinitions = [
     group: 'behavior',
     default: defaultGridConfig.pagination,
   },
+  {
+    key: 'showExportToExcel',
+    label: 'Show Export to CSV',
+    type: 'boolean',
+    group: 'behavior',
+    default: defaultGridConfig.showExportToExcel ?? false,
+  },
   // Filtering
   {
     key: 'filters',
