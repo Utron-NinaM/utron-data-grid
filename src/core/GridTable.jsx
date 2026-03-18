@@ -65,7 +65,7 @@ function GridTableInner({
     hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
     colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
-    toolbarClearButtonsSx, showExportToExcel, direction, selectRow, bodyRow, editable, editStore } = ctx;
+    toolbarClearButtonsSx, showExportToExcel, direction, selectRow, bodyRow, editable, editStore, sortedRows } = ctx;
 
   const editRowId = useSyncExternalStore(
     editStore?.subscribe ?? (() => () => {}),
@@ -234,9 +234,8 @@ function GridTableInner({
               variant="contained"
               color="success"
               startIcon={<TableChartIcon />}
-              onClick={() => exportToCsv({ columns, rows, filename: 'export.csv' })}
-              sx={{
-              
+              onClick={() => exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' })}
+              sx={{              
                 alignItems: 'stretch',
                 '& .MuiButton-startIcon': { mr: 0.75, display: 'flex', alignItems: 'stretch', paddingLeft: 1, paddingRight: 1 },
                 '& .MuiButton-label': { display: 'flex', alignItems: 'stretch' },

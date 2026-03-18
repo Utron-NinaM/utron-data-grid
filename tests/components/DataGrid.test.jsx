@@ -1,7 +1,10 @@
 import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { DataGrid } from '../../src/DataGrid/DataGrid';
+import { exportToCsv } from '../../src/utils/exportToCsv';
+
+vi.mock('../../src/utils/exportToCsv');
 
 describe('DataGrid Component Integration', () => {
   const basicColumns = [
@@ -646,6 +649,143 @@ describe('DataGrid Component Integration', () => {
       const root = screen.getByTestId('data-grid-root');
       const computed = getComputedStyle(root);
       expect(computed.fontWeight).toBe('600');
+    });
+  });
+
+  describe('CSV Export', () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it('should export all filtered rows when pagination is enabled', async () => {
+      const manyRows = Array.from({ length: 25 }, (_, i) => ({
+        id: i + 1,
+        name: `Person ${i + 1}`,
+        age: 20 + (i % 10),
+      }));
+
+      render(
+        <DataGrid
+          rows={manyRows}
+          columns={basicColumns}
+          getRowId={getRowId}
+          options={{
+            pagination: true,
+            pageSize: 10,
+            showExportToExcel: true,
+          }}
+        />
+      );
+
+      // Find and click export button (button text is "EXCEL")
+      const exportButton = screen.getByText('EXCEL');
+      fireEvent.click(exportButton);
+
+      await waitFor(() => {
+        expect(exportToCsv).toHaveBeenCalled();
+      });
+
+      // Verify export was called with all 25 rows, not just the first page
+      const exportCall = vi.mocked(exportToCsv).mock.calls[0][0];
+      expect(exportCall.rows).toHaveLength(25);
+      expect(exportCall.columns).toEqual(basicColumns);
+    });
+
+    it('should export all filtered rows when virtualization is enabled', async () => {
+      const manyRows = Array.from({ length: 150 }, (_, i) => ({
+        id: i + 1,
+        name: `Person ${i + 1}`,
+        age: 20 + (i % 10),
+      }));
+
+      render(
+        <DataGrid
+          rows={manyRows}
+          columns={basicColumns}
+          getRowId={getRowId}
+          options={{
+            pagination: false,
+            showExportToExcel: true,
+            sx: { height: 400 }, // Enables virtualization
+          }}
+        />
+      );
+
+      // Find and click export button (button text is "EXCEL")
+      const exportButton = screen.getByText('EXCEL');
+      fireEvent.click(exportButton);
+
+      await waitFor(() => {
+        expect(exportToCsv).toHaveBeenCalled();
+      });
+
+      // Verify export was called with all 150 rows, not just visible ones
+      const exportCall = vi.mocked(exportToCsv).mock.calls[0][0];
+      expect(exportCall.rows).toHaveLength(150);
+      expect(exportCall.columns).toEqual(basicColumns);
+    });
+
+    it('should export only filtered rows (all of them) when both filtering and pagination are enabled', async () => {
+      const rows = [
+        { id: 1, name: 'Alice', age: 30 },
+        { id: 2, name: 'Bob', age: 25 },
+        { id: 3, name: 'Charlie', age: 35 },
+        { id: 4, name: 'David', age: 28 },
+        { id: 5, name: 'Eve', age: 32 },
+        { id: 6, name: 'Frank', age: 27 },
+        { id: 7, name: 'Grace', age: 29 },
+        { id: 8, name: 'Henry', age: 31 },
+      ];
+
+      render(
+        <DataGrid
+          rows={rows}
+          columns={basicColumns}
+          getRowId={getRowId}
+          options={{
+            pagination: true,
+            pageSize: 3,
+            showExportToExcel: true,
+          }}
+        />
+      );
+
+      // Apply text filter: name contains 'A' (should match Alice, Charlie, David, Grace)
+      const nameFilterInputs = screen.queryAllByPlaceholderText(/filter/i);
+      const nameInput = nameFilterInputs.find((input) => {
+        const cell = input.closest('th');
+        if (!cell) return false;
+        const row = cell.closest('tr');
+        const cells = Array.from(row?.querySelectorAll('th') || []);
+        const cellText = cell.textContent || '';
+        return cellText.includes('Name') || cells.some((c) => c.textContent?.includes('Name'));
+      });
+
+      if (nameInput) {
+        fireEvent.change(nameInput, { target: { value: 'A' } });
+      }
+
+      // Wait for filter to apply (debounced)
+      await waitFor(() => {
+        // Should show filtered rows (Alice, Charlie, David, Grace - names containing 'A')
+        expect(screen.getByText('Alice')).toBeInTheDocument();
+      }, { timeout: 1000 });
+
+      // Find and click export button (button text is "EXCEL")
+      const exportButton = screen.getByText('EXCEL');
+      fireEvent.click(exportButton);
+
+      await waitFor(() => {
+        expect(exportToCsv).toHaveBeenCalled();
+      });
+
+      // Verify export was called with only filtered rows (all 4, not just current page of 3)
+      const exportCall = vi.mocked(exportToCsv).mock.calls[0][0];
+      expect(exportCall.rows.length).toBeGreaterThanOrEqual(1); // At least Alice
+      // Verify all filtered rows are included (not just current page)
+      const exportedNames = exportCall.rows.map((r) => r.name);
+      expect(exportedNames).toContain('Alice');
+      expect(exportCall.columns).toEqual(basicColumns);
     });
   });
 });

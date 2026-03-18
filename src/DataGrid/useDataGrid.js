@@ -447,6 +447,7 @@ export function useDataGrid(props) {
       handleEditSave,
       handleEditCancel,
       handleValidationErrorClick,
+      sortedRows, // All filtered and sorted rows (before pagination) for CSV export
     }),
     [
       columns,
@@ -504,6 +505,7 @@ export function useDataGrid(props) {
       handleEditSave,
       handleEditCancel,
       handleValidationErrorClick,
+      sortedRows,
     ]
   );
 
