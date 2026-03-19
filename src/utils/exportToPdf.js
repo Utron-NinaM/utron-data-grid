@@ -23,18 +23,45 @@ function formatPdfCell(value) {
   return String(value);
 }
 
+const HEBREW_REGEX = /[\u0590-\u05FF]/;
+/** Max chars per line for long single-line Hebrew so PDF wraps in logical order. */
+const RTL_WRAP_LINE_LENGTH = 50;
+
 /**
- * Fix RTL text for Hebrew characters.
- * Only reverses text containing Hebrew characters (preserves numbers and English).
+ * Flip parentheses in a string so they display correctly after reversal (LTR PDF).
+ * @param {string} s
+ * @returns {string}
+ */
+function flipParentheses(s) {
+  return s.replace(/\(/g, '\u200B').replace(/\)/g, '(').replace(/\u200B/g, ')');
+}
+
+/**
+ * Fix RTL text for Hebrew: reverse runs that contain Hebrew and flip parentheses.
+ * For long single-line Hebrew, pre-splits into segments and reverses segment order
+ * so the PDF shows the first part of the sentence on the first line.
  * @param {string} text
  * @returns {string}
  */
 function fixRTL(text) {
   if (!text) return '';
-  // Check if text contains Hebrew characters (Unicode range \u0590-\u05FF)
-  return /[\u0590-\u05FF]/.test(text)
-    ? text.split('').reverse().join('')
-    : text;
+  const str = String(text);
+  const lines = str.split(/\r?\n/);
+  const processed = lines.map((line) => {
+    if (!HEBREW_REGEX.test(line)) return line;
+    const reversed = line.split('').reverse().join('');
+    return flipParentheses(reversed);
+  });
+  const result = processed.join('\n');
+  // Long single-line Hebrew: pre-split so PDF wrap order is logical (first line = start of sentence)
+  if (lines.length === 1 && HEBREW_REGEX.test(result) && result.length > RTL_WRAP_LINE_LENGTH) {
+    const chunks = [];
+    for (let i = 0; i < result.length; i += RTL_WRAP_LINE_LENGTH) {
+      chunks.push(result.slice(i, i + RTL_WRAP_LINE_LENGTH));
+    }
+    return chunks.reverse().join('\n');
+  }
+  return result;
 }
 
 /**
@@ -150,10 +177,10 @@ export async function exportToPdf({
     // Reverse column order for RTL
     const processedColumns = isRTL ? [...columns].reverse() : columns;
 
-    // Prepare headers with RTL text fixing
+    // Prepare headers with RTL text fixing (Hebrew reversed in all cases)
     const headers = processedColumns.map((col) => {
       const headerText = col.headerName ?? col.field;
-      return isRTL ? fixRTL(headerText) : headerText;
+      return fixRTL(headerText);
     });
 
     // Process rows in chunks to avoid blocking UI
@@ -167,7 +194,7 @@ export async function exportToPdf({
         const chunkData = chunk.map((row) =>
           processedColumns.map((col) => {
             const cellValue = formatPdfCell(row[col.field]);
-            return isRTL ? fixRTL(cellValue) : cellValue;
+            return fixRTL(cellValue);
           })
         );
 

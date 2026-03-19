@@ -71,7 +71,7 @@ export function DataGridExample() {
           </select>
         </label>
       </div>
-      <div style={{ flex: 1, minHeight: 0, minWidth: 0, width: '1000px',marginTop: 16 }}>
+      <div style={{ flex: 1, minHeight: 0, minWidth: 0, width: '100%',marginTop: 16 }}>
         <DataGrid
           rows={data}
           columns={columns}
@@ -86,7 +86,8 @@ export function DataGridExample() {
             editable: true,
             filters: false,
             pagination: true,
-            pageSize: 10,
+            pageSize: 25,
+            showHorizontalScrollbar: true,
             pageSizeOptions: [10, 25, 50, 100],
             sx: { height: '100%' },
             onEditCommit: handleEditCommit,

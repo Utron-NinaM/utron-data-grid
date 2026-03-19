@@ -22,7 +22,7 @@ const dealers = ['AutoMax', 'DriveWell', 'Elite Motors', 'Metro Cars', 'Prime Au
 const descriptions = [
   'This is a very long description that will demonstrate text truncation in the data grid cell. It contains multiple sentences and should be truncated with ellipsis when the column width is narrow.',
   'Another example of a lengthy description that showcases the truncation feature. The text should be cut off with three dots when it exceeds the available space.',
-  'A comprehensive vehicle description that includes details about the condition, maintenance history, and overall state of the vehicle. This text is intentionally long to test truncation.',
+  'זו דוגמא להערה ארוכה (מאוד מאוד) עם הרבה מאוד טקסט',
   'Short text',
   'Medium length description that might or might not be truncated depending on the column width settings.',
   'This vehicle has been well-maintained and is in excellent condition. It has a complete service history and all recommended maintenance has been performed regularly.',
