@@ -15,7 +15,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:sanity": "vitest run tests/regression/sanity.test.jsx"
+    "test:sanity": "vitest run tests/regression/sanity.test.jsx",
+    "postpack": "node scripts/postpack-copy.js"
   },
   "dependencies": {
     "react-virtuoso": "^4.6.2",
