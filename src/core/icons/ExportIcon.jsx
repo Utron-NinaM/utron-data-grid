@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import csvSvg from '../../assets/csv.svg';
-import pdfSvg from '../../assets/pdf.svg';
+import csvSvg from '../../assets/csv.svg?raw';
+import pdfSvg from '../../assets/pdf.svg?raw';
 import { GRID_BUTTONS_COLOR } from '../../constants';
 
 export function ExportIcon({ type = 'csv', sx, ...props }) {
@@ -13,12 +13,12 @@ export function ExportIcon({ type = 'csv', sx, ...props }) {
       sx={{
         width: 24,
         height: 24,
-        maskImage: `url(${iconSvg})`,
+        maskImage: `url("data:image/svg+xml,${encodeURIComponent(iconSvg)}")`,
         maskSize: 'contain',
         maskRepeat: 'no-repeat',
         maskPosition: 'center',
         backgroundColor: GRID_BUTTONS_COLOR,
-        WebkitMaskImage: `url(${iconSvg})`,
+        WebkitMaskImage: `url("data:image/svg+xml,${encodeURIComponent(iconSvg)}")`,
         WebkitMaskSize: 'contain',
         WebkitMaskRepeat: 'no-repeat',
         WebkitMaskPosition: 'center',

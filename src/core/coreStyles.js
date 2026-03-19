@@ -61,6 +61,7 @@ export function getToolbarBoxSx(containScroll) {
   };
 }
 
+export const toolbarLeftBoxSx = { display: 'flex', justifyContent: 'flex-start', gap: 2 };
 export const toolbarActionsBoxSx = { display: 'flex', gap: 1 };
 
 export function getTableContainerSx(enableHorizontalScroll, totalWidth, opts = {}) {

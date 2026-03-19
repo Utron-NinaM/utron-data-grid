@@ -1,6 +1,5 @@
 import React, { memo, useContext, useId, useMemo, useRef, useEffect, useState, useLayoutEffect, useSyncExternalStore } from 'react';
 import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
@@ -43,8 +42,7 @@ import {
   scrollContainerSx,
   getScrollInnerBoxSx,
   getBodyRowHeightSx,
-  getExportButtonSx,
-  getPdfExportButtonSx,
+  toolbarLeftBoxSx,
 } from './coreStyles';
 import { GRID_BUTTONS_COLOR } from '../constants';
 
@@ -74,15 +72,15 @@ function GridTableInner({
   const translations = useTranslations();
   const ctx = useContext(DataGridStableContext);
   const filterCtx = useContext(DataGridFilterContext);
-  const { columns, getRowId, multiSelectable, filters, onClearSort, onClearAllFilters, onClearColumnWidths, 
-    hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap, 
-    scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout, 
-    colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap, 
-    toolbarClearButtonsSx, toolbarExportButtonSx, toolbarPdfExportButtonSx, toolbarConfigButtonSx, showExportToExcel, showExportToPdf, onColumnConfigClick, direction, selectRow, bodyRow, editable, 
+  const { columns, getRowId, multiSelectable, filters, onClearSort, onClearAllFilters, onClearColumnWidths,
+    hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap,
+    scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout,
+    colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap,
+    toolbarClearButtonsSx, toolbarExportButtonSx, toolbarPdfExportButtonSx, toolbarConfigButtonSx, showExportToExcel, showExportToPdf, onColumnConfigClick, direction, selectRow, bodyRow, editable,
     editStore, sortedRows } = ctx;
 
   const editRowId = useSyncExternalStore(
-    editStore?.subscribe ?? (() => () => {}),
+    editStore?.subscribe ?? (() => () => { }),
     () => editStore?.getSnapshot?.()?.editRowId ?? null,
     () => null
   );
@@ -254,72 +252,74 @@ function GridTableInner({
             {translations('clearColumnWidths')}
           </Button>
         </Box>
-        <GridToolbarSubscriber rows={rows} getRowId={getRowId} />
-        {(showExportToExcel || showExportToPdf || onColumnConfigClick) && (
-          <Box sx={toolbarActionsBoxSx}>
-            {showExportToExcel && (
-              <Tooltip title={translations('exportToCsvTooltip')}>
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    try {
-                      exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' });
-                    } catch (error) {
-                      console.error('CSV export failed:', error);
-                      setExportError(error);
-                    }
-                  }}
-                  sx={{ color: GRID_BUTTONS_COLOR, ...toolbarExportButtonSx }}
-                >
-                  <ExportIcon type="csv" />
-                </IconButton>
-              </Tooltip>
-            )}
-            {showExportToPdf && (
-              <Tooltip title={translations('exportToPdfTooltip')}>
-                <IconButton
-                  size="small"
-                  onClick={async () => {
-                    setIsExportingPdf(true);
-                    setPdfProgress({ current: 0, total: (sortedRows ?? rows).length });
-                    try {
-                      await exportToPdf({
-                        columns,
-                        rows: sortedRows ?? rows,
-                        filename: 'export.pdf',
-                        direction,
-                        onProgress: (current, total) => {
-                          setPdfProgress({ current, total });
-                        },
-                      });
-                    } catch (error) {
-                      console.error('PDF export failed:', error);
-                      setExportError(error);
-                    } finally {
-                      setIsExportingPdf(false);
-                      setPdfProgress({ current: 0, total: 0 });
-                    }
-                  }}
-                  disabled={isExportingPdf}
-                  sx={{ color: GRID_BUTTONS_COLOR, ...toolbarPdfExportButtonSx }}
-                >
-                  {isExportingPdf ? <CircularProgress size={16} color="inherit" /> : <ExportIcon type="pdf" />}
-                </IconButton>
-              </Tooltip>
-            )}
-            {onColumnConfigClick && (
-              <Tooltip title={translations('columnConfig')}>
-                <IconButton
-                  size="small"
-                  onClick={onColumnConfigClick}
-                  sx={{ color: GRID_BUTTONS_COLOR, ...toolbarConfigButtonSx }}
-                >
-                  <SettingsIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-          </Box>
-        )}
+        <Box sx={toolbarLeftBoxSx}>
+          <GridToolbarSubscriber rows={rows} getRowId={getRowId} />
+          {(showExportToExcel || showExportToPdf || onColumnConfigClick) && (
+            <Box sx={toolbarActionsBoxSx}>
+              {showExportToExcel && (
+                <Tooltip title={translations('exportToCsvTooltip')}>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      try {
+                        exportToCsv({ columns, rows: sortedRows ?? rows, filename: 'export.csv' });
+                      } catch (error) {
+                        console.error('CSV export failed:', error);
+                        setExportError(error);
+                      }
+                    }}
+                    sx={{ color: GRID_BUTTONS_COLOR, ...toolbarExportButtonSx }}
+                  >
+                    <ExportIcon type="csv" />
+                  </IconButton>
+                </Tooltip>
+              )}
+              {showExportToPdf && (
+                <Tooltip title={translations('exportToPdfTooltip')}>
+                  <IconButton
+                    size="small"
+                    onClick={async () => {
+                      setIsExportingPdf(true);
+                      setPdfProgress({ current: 0, total: (sortedRows ?? rows).length });
+                      try {
+                        await exportToPdf({
+                          columns,
+                          rows: sortedRows ?? rows,
+                          filename: 'export.pdf',
+                          direction,
+                          onProgress: (current, total) => {
+                            setPdfProgress({ current, total });
+                          },
+                        });
+                      } catch (error) {
+                        console.error('PDF export failed:', error);
+                        setExportError(error);
+                      } finally {
+                        setIsExportingPdf(false);
+                        setPdfProgress({ current: 0, total: 0 });
+                      }
+                    }}
+                    disabled={isExportingPdf}
+                    sx={{ color: GRID_BUTTONS_COLOR, ...toolbarPdfExportButtonSx }}
+                  >
+                    {isExportingPdf ? <CircularProgress size={16} color="inherit" /> : <ExportIcon type="pdf" />}
+                  </IconButton>
+                </Tooltip>
+              )}
+              {onColumnConfigClick && (
+                <Tooltip title={translations('columnConfig')}>
+                  <IconButton
+                    size="small"
+                    onClick={onColumnConfigClick}
+                    sx={{ color: GRID_BUTTONS_COLOR, ...toolbarConfigButtonSx }}
+                  >
+                    <SettingsIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Box>
+          )}
+        </Box>
       </Box>
     </Box>
   );
@@ -338,19 +338,19 @@ function GridTableInner({
         },
       }}
     >
-      <DialogTitle 
+      <DialogTitle
         id="error-dialog-title"
         sx={{
           backgroundColor: GRID_BUTTONS_COLOR,
           color: 'white',
           textAlign: 'center',
-           fontSize: '18px'
+          fontSize: '18px'
         }}
       >
         {translations('errorTitle')}
       </DialogTitle>
       <DialogContent sx={{ textAlign: 'center', margin: '20px' }}>
-        <DialogContentText id="error-dialog-description" sx={{ fontSize: '18px'}}>
+        <DialogContentText id="error-dialog-description" sx={{ fontSize: '18px' }}>
           {translations('internalErrorOccurred')}
         </DialogContentText>
       </DialogContent>
@@ -394,70 +394,70 @@ function GridTableInner({
             ))}
           </colgroup>
           <TableHead sx={{ ...getTableHeadSx(containScroll, headerConfig), ...(editRowId != null && { pointerEvents: 'none' }) }}>
-              <TableRow sx={getMainHeaderRowSx(headerConfig, !!(getFilterInputSlot && getFilterToInputSlot))}>
+            <TableRow sx={getMainHeaderRowSx(headerConfig, !!(getFilterInputSlot && getFilterToInputSlot))}>
+              {multiSelectable && (
+                <TableCell
+                  padding="checkbox"
+                  variant="head"
+                  sx={getHeaderCheckboxCellSx(headerConfig, 'mainRow')}
+                />
+              )}
+              {columns.map((col) => (
+                <GridHeaderCell
+                  key={col.field}
+                  column={col}
+                  sortModel={sortModel}
+                  onSort={onSort}
+                  headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
+                  filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations, direction) : null}
+                  sortOrderIndex={sortOrderIndexMap?.get(col.field)}
+
+                />
+              ))}
+            </TableRow>
+            {getFilterInputSlot && getFilterToInputSlot && (
+              <TableRow sx={getFilterRowSx(headerConfig)}>
                 {multiSelectable && (
                   <TableCell
                     padding="checkbox"
                     variant="head"
-                    sx={getHeaderCheckboxCellSx(headerConfig, 'mainRow')}
+                    sx={getHeaderCheckboxCellSx(headerConfig, 'filterRows')}
                   />
                 )}
                 {columns.map((col) => (
-                  <GridHeaderCell
+                  <GridHeaderCellFilter
                     key={col.field}
                     column={col}
-                    sortModel={sortModel}
-                    onSort={onSort}
-                    headerComboSlot={getHeaderComboSlot ? getHeaderComboSlot(col) : null}
-                    filterSlot={getFilterInputSlot && !getFilterToInputSlot ? getFilterInputSlot(col, translations, direction) : null}
-                    sortOrderIndex={sortOrderIndexMap?.get(col.field)}
+                    slot={getFilterInputSlot(col, translations, direction)}
 
                   />
                 ))}
               </TableRow>
-              {getFilterInputSlot && getFilterToInputSlot && (
-                <TableRow sx={getFilterRowSx(headerConfig)}>
-                  {multiSelectable && (
-                    <TableCell
-                      padding="checkbox"
-                      variant="head"
-                      sx={getHeaderCheckboxCellSx(headerConfig, 'filterRows')}
-                    />
-                  )}
-                  {columns.map((col) => (
-                    <GridHeaderCellFilter
-                      key={col.field}
-                      column={col}
-                      slot={getFilterInputSlot(col, translations, direction)}
+            )}
+            {getFilterToInputSlot && hasActiveRangeFilter && (
+              <TableRow sx={getFilterRowSx(headerConfig)}>
+                {multiSelectable && (
+                  <TableCell
+                    padding="checkbox"
+                    variant="head"
+                    sx={getHeaderCheckboxCellSx(headerConfig, 'filterRows')}
+                  />
+                )}
+                {columns.map((col) => (
+                  <GridHeaderCellFilter
+                    key={col.field}
+                    column={col}
+                    slot={getFilterToInputSlot(col, translations, direction)}
 
-                    />
-                  ))}
-                </TableRow>
-              )}
-              {getFilterToInputSlot && hasActiveRangeFilter && (
-                <TableRow sx={getFilterRowSx(headerConfig)}>
-                  {multiSelectable && (
-                    <TableCell
-                      padding="checkbox"
-                      variant="head"
-                      sx={getHeaderCheckboxCellSx(headerConfig, 'filterRows')}
-                    />
-                  )}
-                  {columns.map((col) => (
-                    <GridHeaderCellFilter
-                      key={col.field}
-                      column={col}
-                      slot={getFilterToInputSlot(col, translations, direction)}
-
-                    />
-                  ))}
-                </TableRow>
-              )}
-            </TableHead>
-            {bodyContent}
-          </Table>
-        </TableContainer>
-      </GridErrorBoundary>
+                  />
+                ))}
+              </TableRow>
+            )}
+          </TableHead>
+          {bodyContent}
+        </Table>
+      </TableContainer>
+    </GridErrorBoundary>
   );
 
   if (containScroll) {

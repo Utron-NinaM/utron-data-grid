@@ -79,6 +79,8 @@ export function DataGridExample() {
           options={{
             gridId: 'orders-grid',
             translations: en,
+            showExportToExcel: true,
+            showExportToPdf: true,
             direction,
             multiSelectable: true,            
             editable: true,
