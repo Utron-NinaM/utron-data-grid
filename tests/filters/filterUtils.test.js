@@ -488,6 +488,18 @@ describe('applyFilters — date/datetime type', () => {
     );
     expect(result).toHaveLength(1);
   });
+
+  it('FIELD_TYPE_DATETIME OPERATOR_EQUALS matches date-only filter when cell has time', () => {
+    const colDt = [{ field: 'd', type: FIELD_TYPE_DATETIME }];
+    const rows = [{ d: '2026-02-12 12:03' }, { d: '2026-02-13 00:00' }];
+    const result = applyFilters(
+      rows,
+      { d: { operator: OPERATOR_EQUALS, value: '2026-02-12' } },
+      colDt
+    );
+    expect(result).toHaveLength(1);
+    expect(result[0].d).toBe('2026-02-12 12:03');
+  });
 });
 
 describe('applyFilters — list type', () => {

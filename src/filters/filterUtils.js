@@ -108,10 +108,10 @@ export function applyFilters(rows, filterModel, columns) {
   });
 }
 
-function matchFilter(cellValue, state, type) {  
+function matchFilter(cellValue, state, type) {
   const defaultOperator = type === FIELD_TYPE_TEXT ? OPERATOR_CONTAINS : OPERATOR_EQUALS;
   const { operator = defaultOperator, value, valueTo } = state;
-  
+
   const v = cellValue;
   let val = null;
   let val1 = null;
@@ -123,14 +123,26 @@ function matchFilter(cellValue, state, type) {
     val2 = valueTo != null ? Number(valueTo) : null;
   }
 
-  if (type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME || (v && (v instanceof Date || typeof v === 'string' && isDateLike(v)))) {
-    val = toTime(v);
-    val1 = toTime(value);
-    val2 = valueTo != null ? toTime(valueTo) : null;
-    if (val == null) return false;
+  const isDateTypedColumn = type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME;
+  const heuristicDate = v && (v instanceof Date || (typeof v === 'string' && isDateLike(v)));
+  /** Full instant for period filters; date-typed columns compare by calendar day using val/val1/val2. */
+  let valFull = null;
+
+  if (isDateTypedColumn || heuristicDate) {
+    valFull = toTime(v);
+    if (valFull == null) return false;
+    if (isDateTypedColumn) {
+      val = toDayStartMs(v);
+      val1 = toDayStartMs(value);
+      val2 = valueTo != null ? toDayStartMs(valueTo) : null;
+    } else {
+      val = valFull;
+      val1 = toTime(value);
+      val2 = valueTo != null ? toTime(valueTo) : null;
+    }
   }
 
-  if (type === FIELD_TYPE_NUMBER || typeof v === 'number' || type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME || (v && (v instanceof Date || typeof v === 'string' && isDateLike(v)))) {
+  if (type === FIELD_TYPE_NUMBER || typeof v === 'number' || isDateTypedColumn || heuristicDate) {
     switch (operator) {
       case OPERATOR_EQUALS:
         return val === val1;
@@ -151,13 +163,14 @@ function matchFilter(cellValue, state, type) {
         return false;
       }
       case OPERATOR_PERIOD: {
+        const cellTs = valFull != null ? valFull : val;
         const amount = Number(state.value);
         const periodUnit = state.periodUnit;
         if (periodUnit == null || amount == null || isNaN(amount) || amount <= 0) return false;
         const unit = periodUnit.endsWith('s') ? periodUnit.slice(0, -1) : periodUnit;
         const start = dayjs().subtract(amount, unit).valueOf();
         const now = dayjs().valueOf();
-        return val >= start && val <= now;
+        return cellTs >= start && cellTs <= now;
       }
       case OPERATOR_EMPTY:
         return val == null || val === '';
@@ -205,6 +218,15 @@ function toTime(x) {
   if (typeof x === 'number') return x;
   const d = x instanceof Date ? x : new Date(x);
   return isNaN(d.getTime()) ? null : d.getTime();
+}
+
+/** Start of local calendar day in ms — for DATE/DATETIME columns vs date-only filter values. */
+function toDayStartMs(x) {
+  if (x == null || x === '') return null;
+  if (typeof x === 'number') return dayjs(x).startOf('day').valueOf();
+  const d = x instanceof Date ? x : new Date(x);
+  if (isNaN(d.getTime())) return null;
+  return dayjs(d).startOf('day').valueOf();
 }
 
 function isDateLike(s) {
