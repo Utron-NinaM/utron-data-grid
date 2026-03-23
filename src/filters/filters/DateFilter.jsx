@@ -17,13 +17,40 @@ import {
 } from '../filterBoxStyles';
 import dayjs from 'dayjs';
 import 'dayjs/locale/he';
-import { DIRECTION_RTL, LOCALE_HE, LOCALE_EN, OPERATOR_PERIOD, OPERATOR_IN_RANGE, DIRECTION_LTR } from '../../config/schema';
+import {
+  DIRECTION_RTL,
+  LOCALE_HE,
+  LOCALE_EN,
+  OPERATOR_PERIOD,
+  OPERATOR_IN_RANGE,
+  OPERATOR_EMPTY,
+  OPERATOR_NOT_EMPTY,
+  DIRECTION_LTR,
+} from '../../config/schema';
 import { DATE_PICKER_ICON_SIZE_PX } from '../../constants';
 
 const PERIOD_UNITS = ['hours', 'days', 'weeks', 'months', 'years'];
 const ltrTheme = {
   direction: DIRECTION_LTR
 };
+
+/** Merge partial into date filter state; clear column when no bounds remain (same idea as NumberFilterInputs). */
+function commitDateRangeFilter(prev, partial, onChange) {
+  const newValue = { ...prev, ...partial };
+  const isEmptyOp =
+    newValue?.operator === OPERATOR_EMPTY || newValue?.operator === OPERATOR_NOT_EMPTY;
+  if (isEmptyOp) {
+    onChange(newValue);
+    return;
+  }
+  const hasMain = newValue.value != null && newValue.value !== '';
+  const hasTo = newValue.valueTo != null && newValue.valueTo !== '';
+  if (!hasMain && !hasTo) {
+    onChange(null);
+  } else {
+    onChange(newValue);
+  }
+}
 
 function getDatePickerSlotProps(ctx, direction, placeholder = '') {
   const slotProps = {
@@ -77,9 +104,7 @@ export function DateFilterInputs({ value, onChange, direction = DIRECTION_LTR })
   const ctx = useContext(DataGridStableContext);
   const dateVal = value?.value != null ? dayjs(value.value) : null;
 
-  const handleChange = (next) => {
-    onChange({ ...value, ...next });
-  };
+  const handleChange = (next) => commitDateRangeFilter(value, next, onChange);
 
   const isPeriod = value?.operator === OPERATOR_PERIOD;
   const periodUnit = value?.periodUnit ?? 'hours';
@@ -162,8 +187,8 @@ export function DateFilterToInput({ value, onChange, direction }) {
   const dateTo = value?.valueTo != null ? dayjs(value.valueTo) : null;
 
   const handleChange = (next) => {
-    const nextState = next.value !== undefined ? { valueTo: next.value } : next;
-    onChange({ ...value, ...nextState });
+    const partial = next.value !== undefined ? { valueTo: next.value } : next;
+    commitDateRangeFilter(value, partial, onChange);
   };
 
   return getDateField(dateTo, handleChange, direction, t('filterTo'), ctx);
