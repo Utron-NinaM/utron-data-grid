@@ -20,6 +20,7 @@ import {
   DIVIDER_ALPHA,
   HEADER_Z_INDEX,
   TOOLTIP_OVER_HEADER_Z_INDEX,
+  TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR,
 } from '../constants';
 
 export function getResizeLineColor(columnBackground, theme) {
@@ -308,7 +309,19 @@ export function getResizeHandleSx(direction, columnBackground, theme) {
   };
 }
 
-// ----- Toolbar Export Buttons -----
+// ----- Toolbar clear / export -----
+
+/** Merged sx for Clear sort, Clear all filters, Reset column widths (outlined); disabled uses neutral gray. */
+export function getToolbarClearButtonsSx(toolbarClearButtonsSx) {
+  return {
+    '&.Mui-disabled': {
+      color: TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR,
+      borderColor: TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR,
+      WebkitTextFillColor: TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR,
+    },
+    ...(toolbarClearButtonsSx || {}),
+  };
+}
 
 export function getExportButtonSx(toolbarExportButtonSx) {
   return {

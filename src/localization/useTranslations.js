@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 import { DataGridStableContext } from '../DataGrid/DataGridContext';
 import { defaultTranslations, hebrewTranslations } from './defaultTranslations';
 import { DIRECTION_RTL } from '../config/schema';
@@ -8,19 +8,24 @@ import { DIRECTION_RTL } from '../config/schema';
  */
 export function useTranslations() {
   const ctx = useContext(DataGridStableContext);
-  if (!ctx) {
-    return (key, params) => {
-      const str = defaultTranslations[key] ?? key;
+  const hasCtx = ctx != null;
+  const direction = ctx?.direction;
+  const mergedDefaults = ctx?.defaultTranslations;
+
+  return useCallback(
+    (key, params) => {
+      if (!hasCtx) {
+        const str = defaultTranslations[key] ?? key;
+        return params ? replaceParams(str, params) : str;
+      }
+      const translations = direction === DIRECTION_RTL ? hebrewTranslations : defaultTranslations;
+      const defaults = mergedDefaults ?? defaultTranslations;
+      const raw = translations[key] ?? defaults[key] ?? key;
+      const str = typeof raw === 'string' ? raw : String(raw);
       return params ? replaceParams(str, params) : str;
-    };
-  }
-  const translations = ctx.direction === DIRECTION_RTL ? hebrewTranslations : defaultTranslations;  
-  const defaults = ctx.defaultTranslations ?? defaultTranslations;
-  return function t(key, params) {
-    const raw = translations[key] ?? defaults[key] ?? key;
-    const str = typeof raw === 'string' ? raw : String(raw);
-    return params ? replaceParams(str, params) : str;
-  };
+    },
+    [hasCtx, direction, mergedDefaults]
+  );
 }
 
 function replaceParams(str, params) {

@@ -150,7 +150,8 @@ export function getListFilterAutocompleteInputSx(isRtl) {
  * ListFilter Autocomplete root sx (height/overflow).
  * @param {number} contentHeight
  */
-export function getListFilterAutocompleteSx(contentHeight) {
+export function getListFilterAutocompleteSx(contentHeight) {  
+  const horizontalPad = (theme) => theme.spacing(0.75);
   return {
     flex: 1,
     minWidth: 0,
@@ -160,6 +161,16 @@ export function getListFilterAutocompleteSx(contentHeight) {
     height: contentHeight,
     minHeight: contentHeight,
     maxHeight: contentHeight,
+    '&.MuiAutocomplete-hasPopupIcon .MuiOutlinedInput-root, &.MuiAutocomplete-hasClearIcon .MuiOutlinedInput-root':
+      {
+        paddingInlineStart: horizontalPad,
+        paddingInlineEnd: horizontalPad,
+      },
+    '&.MuiAutocomplete-hasPopupIcon .MuiAutocomplete-inputRoot, &.MuiAutocomplete-hasClearIcon .MuiAutocomplete-inputRoot':
+      {
+        paddingInlineStart: horizontalPad,
+        paddingInlineEnd: horizontalPad,
+      },
   };
 }
 

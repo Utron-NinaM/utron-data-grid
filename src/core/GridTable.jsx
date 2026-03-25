@@ -43,6 +43,7 @@ import {
   getScrollInnerBoxSx,
   getBodyRowHeightSx,
   toolbarLeftBoxSx,
+  getToolbarClearButtonsSx,
 } from './coreStyles';
 import { GRID_BUTTONS_COLOR } from '../constants';
 
@@ -236,19 +237,20 @@ function GridTableInner({
       }
     };
   }, [containScroll]);
+  const toolbarClearSx = getToolbarClearButtonsSx(toolbarClearButtonsSx);
   const toolbarBox = (
     <Box sx={{ pointerEvents: editRowId != null ? 'none' : 'auto' }}>
       <Box sx={getToolbarBoxSx(containScroll)}>
         <Box sx={toolbarActionsBoxSx}>
-          <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
+          <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0} sx={toolbarClearSx}>
             {translations('clearSort')}
           </Button>
           {filters !== false && (
-            <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
+            <Button size="small" variant="outlined" onClick={onClearAllFilters} disabled={!hasActiveFilters} sx={toolbarClearSx}>
               {translations('clearAllFilters')}
             </Button>
           )}
-          <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns} {...(toolbarClearButtonsSx && { sx: toolbarClearButtonsSx })}>
+          <Button size="small" variant="outlined" onClick={onClearColumnWidths} disabled={!hasResizedColumns} sx={toolbarClearSx}>
             {translations('clearColumnWidths')}
           </Button>
         </Box>

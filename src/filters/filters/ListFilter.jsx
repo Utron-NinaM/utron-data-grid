@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useLayoutEffect, useMemo, useState } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
@@ -16,12 +16,14 @@ import {
   getFilterContentHeight,
 } from '../filterBoxStyles';
 import { MAX_LIST_FILTER_INPUT_LENGTH } from '../../constants';
+import { useTranslations } from '../../localization/useTranslations';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 export function ListFilter({ value, onChange, options }) {
   const ctx = useContext(DataGridStableContext);
+  const t = useTranslations();
   const filterInputHeight = ctx?.filterInputHeight;
   const contentHeight = getFilterContentHeight(filterInputHeight);
   const direction = ctx?.direction ?? DIRECTION_LTR;
@@ -34,6 +36,22 @@ export function ListFilter({ value, onChange, options }) {
     () => keysArray.map((key) => optionMap.get(key)).filter(Boolean),
     [keysArray, optionMap]
   );
+
+  const selectedCount = valueResolved.length;
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+
+  useLayoutEffect(() => {
+    if (!open) {
+      const text =
+        selectedCount === 0
+          ? ''
+          : selectedCount === 1
+            ? t('listFilterSelectedSingle')
+            : t('listFilterSelectedCount', { count: selectedCount });
+      setInputValue(text);
+    }
+  }, [open, selectedCount, t]);
 
   const filterOptions = useCallback(
     (options, state) => {
@@ -60,6 +78,18 @@ export function ListFilter({ value, onChange, options }) {
           options={listOptions}
           filterOptions={filterOptions}
           value={valueResolved}
+          inputValue={inputValue}
+          onInputChange={(_, newVal, reason) => {
+            if (!open && (reason === 'reset' || reason === 'clear')) {
+              return;
+            }
+            setInputValue(newVal);
+          }}
+          onOpen={() => {
+            setOpen(true);
+            setInputValue('');
+          }}
+          onClose={() => setOpen(false)}
           disableCloseOnSelect
           disableClearable
           getOptionLabel={getOptionLabel}
@@ -91,7 +121,12 @@ export function ListFilter({ value, onChange, options }) {
           renderInput={(params) => (
             <TextField
               {...params}
-              inputProps={{ ...params.inputProps, maxLength: MAX_LIST_FILTER_INPUT_LENGTH, dir: direction }}
+              inputProps={{
+                ...params.inputProps,
+                maxLength: MAX_LIST_FILTER_INPUT_LENGTH,
+                dir: direction,
+                readOnly: !open && selectedCount > 0,
+              }}
               sx={getListFilterAutocompleteInputSx(isRtl)}
             />
           )}

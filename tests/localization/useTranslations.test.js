@@ -98,5 +98,18 @@ describe('useTranslations', () => {
       expect(t('clearSort')).toBe(defaultTranslations.clearSort);
       expect(t('neverDefined')).toBe('neverDefined');
     });
+
+    it('keeps referential identity when provider passes a new value object each render with same direction and defaultTranslations', () => {
+      const Wrapper = ({ children }) =>
+        React.createElement(DataGridStableContext.Provider, {
+          value: { direction: DIRECTION_LTR, defaultTranslations },
+          children,
+        });
+      const { result, rerender } = renderHook(useTranslations, { wrapper: Wrapper });
+      const t1 = result.current;
+      rerender();
+      expect(result.current).toBe(t1);
+      expect(t1('clearSort')).toBe(defaultTranslations.clearSort);
+    });
   });
 });

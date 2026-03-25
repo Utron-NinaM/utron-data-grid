@@ -49,6 +49,17 @@ describe('ListFilter Component', () => {
       const input = screen.getByRole('combobox');
       expect(input).toBeInTheDocument();
     });
+
+    it('clears summary when opened so user can search', async () => {
+      renderWithTheme({ value: ['Option 1'] });
+      const input = screen.getByRole('combobox');
+      expect(input).toHaveValue('1 value');
+      fireEvent.mouseDown(input);
+      fireEvent.click(input);
+      await waitFor(() => {
+        expect(input).toHaveValue('');
+      });
+    });
   });
 
   describe('Test option selection', () => {
@@ -87,15 +98,11 @@ describe('ListFilter Component', () => {
       expect(lastCall[0]).toContain('Option 1');
     });
 
-    it('should display selected option', () => {
+    it('should display selected count summary for one selection', () => {
       renderWithTheme({ value: ['Option 2'] });
-      
+
       const input = screen.getByRole('combobox');
-      expect(input).toBeInTheDocument();
-      // MUI Autocomplete may display selected values as chips or in the input
-      // Verify the component renders with the selected value
-      // The actual display format depends on MUI Autocomplete implementation
-      expect(input).toBeInTheDocument();
+      expect(input).toHaveValue('1 value');
     });
   });
 
@@ -132,9 +139,9 @@ describe('ListFilter Component', () => {
 
     it('should handle multiple selected values', () => {
       renderWithTheme({ value: ['Option 1', 'Option 3'] });
-      
+
       const input = screen.getByRole('combobox');
-      expect(input).toBeInTheDocument();
+      expect(input).toHaveValue('2 values');
     });
 
     it('should return null when all options are deselected', async () => {
@@ -192,14 +199,14 @@ describe('ListFilter Component', () => {
   });
 
   describe('Keyed options: value and onChange use keys', () => {
-    it('resolves value array of keys to options and displays labels', () => {
+    it('resolves value array of keys to options and displays count summary', () => {
       const options = [
         { value: 'key1', label: 'Label One' },
         { value: 'key2', label: 'Label Two' },
       ];
       renderWithTheme({ value: ['key1'], options });
       const input = screen.getByRole('combobox');
-      expect(input).toBeInTheDocument();
+      expect(input).toHaveValue('1 value');
     });
 
     it('onChange is called with array of keys when option selected', async () => {

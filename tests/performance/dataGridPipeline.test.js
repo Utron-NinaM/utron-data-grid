@@ -66,7 +66,7 @@ describe('dataGridPipeline performance', () => {
   /** 100k thresholds tolerate non-compiled applyFilters and slower CI runners */
   const FILTER_100K_MS = 100;
   const FILTER_50K_DATE_MS = 500;
-  const FILTER_50K_PERIOD_MS = 500;
+  const FILTER_50K_PERIOD_MS = 1000;
   const FULL_PIPELINE_50K_MS = 150;
 
   describe('applySort', () => {

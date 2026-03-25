@@ -22,6 +22,8 @@ export const defaultTranslations = {
   selectOption: 'Select',
   filterFrom: 'From',
   filterTo: 'To',
+  listFilterSelectedSingle: '1 value',
+  listFilterSelectedCount: '{{count}} values',
 
   // Number/date operators
   operatorEquals: 'Equals',
@@ -98,6 +100,8 @@ export const hebrewTranslations = {
   selectOption: 'בחר',
   filterFrom: 'מ',
   filterTo: 'עד',
+  listFilterSelectedSingle: 'ערך אחד',
+  listFilterSelectedCount: '{{count}} ערכים',
 
   // Number/date operators
   operatorEquals: 'שווה',
