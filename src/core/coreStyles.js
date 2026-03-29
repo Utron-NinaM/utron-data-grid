@@ -317,14 +317,83 @@ export function getResizeHandleSx(direction, columnBackground, theme) {
 
 // ----- Toolbar clear / export -----
 
+/** Outlined toolbar clear buttons use MUI default color=primary; hover bg uses .MuiButton-outlinedPrimary:hover (higher specificity than bare &:hover). */
+const TOOLBAR_CLEAR_OUTLINED_PRIMARY_HOVER = '&.MuiButton-outlinedPrimary:hover';
+const TOOLBAR_CLEAR_OUTLINED_PRIMARY_ACTIVE = '&.MuiButton-outlinedPrimary:active';
+
+function accentOverlayFill(colorStr, ratio) {
+  if (typeof colorStr !== 'string') return undefined;
+  try {
+    return alpha(colorStr, ratio);
+  } catch {
+    try {
+      return `color-mix(in srgb, ${colorStr} ${Math.round(ratio * 100)}%, transparent)`;
+    } catch {
+      return undefined;
+    }
+  }
+}
+
+/**
+ * When toolbar clear buttons set `color` and/or `borderColor` (non-function), add hover/active
+ * so MUI outlined-primary defaults do not override. Skipped if `&:hover` is already set.
+ * @param {Object} userSx
+ * @returns {Object}
+ */
+function getToolbarClearOutlinedAccentHoverSx(userSx) {
+  if (!userSx || typeof userSx !== 'object' || Array.isArray(userSx)) return {};
+  if (
+    userSx['&:hover'] != null ||
+    userSx['&.MuiButton-outlined:hover'] != null ||
+    userSx[TOOLBAR_CLEAR_OUTLINED_PRIMARY_HOVER] != null
+  ) {
+    return {};
+  }
+
+  const border = userSx.borderColor ?? userSx.color;
+  const text = userSx.color ?? userSx.borderColor;
+  if (border == null && text == null) return {};
+  if (typeof border === 'function' || typeof text === 'function') return {};
+
+  const hoverBorder = border ?? text;
+  const hoverColor = text ?? border;
+  const alphaSource = text ?? border;
+
+  const bgHover = accentOverlayFill(alphaSource, 0.04) ?? 'transparent';
+  const bgActive = accentOverlayFill(alphaSource, 0.08) ?? 'transparent';
+
+  const hoverStyles = {
+    borderColor: hoverBorder,
+    color: hoverColor,
+    backgroundColor: bgHover,
+  };
+  const activeStyles = {
+    borderColor: hoverBorder,
+    color: hoverColor,
+    backgroundColor: bgActive,
+  };
+
+  return {
+    '&:hover': hoverStyles,
+    [TOOLBAR_CLEAR_OUTLINED_PRIMARY_HOVER]: hoverStyles,
+    '&:active': activeStyles,
+    [TOOLBAR_CLEAR_OUTLINED_PRIMARY_ACTIVE]: activeStyles,
+  };
+}
+
 /** Merged sx for Clear sort, Clear all filters, Reset column widths (outlined); disabled uses neutral gray. */
 export function getToolbarClearButtonsSx(toolbarClearButtonsSx) {
+  const userObject =
+    toolbarClearButtonsSx && typeof toolbarClearButtonsSx === 'object' && !Array.isArray(toolbarClearButtonsSx)
+      ? toolbarClearButtonsSx
+      : {};
   return {
     '&.Mui-disabled': {
       color: TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR,
       borderColor: TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR,
       WebkitTextFillColor: TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR,
     },
+    ...getToolbarClearOutlinedAccentHoverSx(userObject),
     ...(toolbarClearButtonsSx || {}),
   };
 }
