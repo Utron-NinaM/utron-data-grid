@@ -96,7 +96,7 @@ const rows = [
 | `editToolbarSaveButtonSx` | `object` | MUI sx applied to the Save button in the edit toolbar. |
 | `editToolbarCancelButtonSx` | `object` | MUI sx applied to the Cancel button in the edit toolbar. |
 | `fontSize` | `number` | Font size in px for cells, filters, inputs, pagination (default 13). |
-| `showHorizontalScrollbar` | `boolean` | When true and horizontal scroll is enabled (e.g. containScroll with overflow), show the horizontal scrollbar on the header (default false). Useful for very narrow windows. |
+| `showHorizontalScrollbar` | `boolean` | When true and horizontal scroll is enabled (e.g. `containScroll` with overflow), show the horizontal scrollbar on the body scroll area at the bottom of the visible grid (above pagination when pagination is on; default false). |
 | `fontFamily` | `string` | Font family for all grid components (e.g. `'Roboto, sans-serif'`, `var(--app-font-family)`). Cascades from root. |
 | `fontWeight` | `number` or `string` | Font weight (e.g. `400`, `600`, `'bold'`). Cascades from root. |
 | `dropdownBoundaryRef` | `React.RefObject<HTMLElement \| null>` | Ref to the element that defines the clipping area for list and filter dropdowns (e.g. the main content wrapper that excludes sidebars). When set, dropdowns stay within this element's bounds; omit to use the viewport. Works for RTL and LTR. |

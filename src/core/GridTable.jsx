@@ -227,13 +227,28 @@ function GridTableInner({
     const ro = new ResizeObserver(measureScrollbarWidth);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [containScroll, measureScrollbarWidth]);
+  }, [containScroll, measureScrollbarWidth, showHorizontalScrollbar]);
 
   const handleBodyScroll = useMemo(() => {
     if (!containScroll) return undefined;
     return () => {
-      if (headerScrollRef.current && scrollContainerRef.current) {
-        headerScrollRef.current.scrollLeft = scrollContainerRef.current.scrollLeft;
+      const h = headerScrollRef.current;
+      const b = scrollContainerRef.current;
+      if (!h || !b) return;
+      if (Math.abs(h.scrollLeft - b.scrollLeft) > 0.5) {
+        h.scrollLeft = b.scrollLeft;
+      }
+    };
+  }, [containScroll]);
+
+  const handleHeaderScroll = useMemo(() => {
+    if (!containScroll) return undefined;
+    return () => {
+      const h = headerScrollRef.current;
+      const b = scrollContainerRef.current;
+      if (!h || !b) return;
+      if (Math.abs(b.scrollLeft - h.scrollLeft) > 0.5) {
+        b.scrollLeft = h.scrollLeft;
       }
     };
   }, [containScroll]);
@@ -536,7 +551,10 @@ function GridTableInner({
         <TableContainer
           component={Paper}
           variant="outlined"
-          sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { hideTopBorder: true })}
+          sx={getTableContainerSx(enableHorizontalScroll, totalWidth, {
+            hideTopBorder: true,
+            ...(enableHorizontalScroll && showHorizontalScrollbar ? { noScroll: true } : {}),
+          })}
         >
           <Table size="small" aria-label="Data grid body" sx={getTableSx(totalWidth, enableHorizontalScroll)}>
             <colgroup>
@@ -556,7 +574,8 @@ function GridTableInner({
         {toolbarBox}
         <Box
           ref={headerScrollRef}
-          sx={{ ...getHeaderScrollWrapperSx(direction, scrollbarWidth, enableHorizontalScroll && showHorizontalScrollbar), flexShrink: 0 }}
+          onScroll={handleHeaderScroll}
+          sx={{ ...getHeaderScrollWrapperSx(direction, scrollbarWidth, false), flexShrink: 0 }}
         >
           {headerTable}
         </Box>
@@ -571,14 +590,17 @@ function GridTableInner({
             }
           }}
           onScroll={handleBodyScroll}
-          sx={getScrollInnerBoxSx(enableHorizontalScroll)}
+          sx={getScrollInnerBoxSx(enableHorizontalScroll, { showHorizontalScrollbar })}
         >
           <ScrollContainerContext.Provider value={{ ref: tooltipContainerRef, scrollContainerRef, ready: scrollContainerReady }}>
             {rows.length > 0 ? (
               <TableContainer
                 component={Paper}
                 variant="outlined"
-                sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { hideTopBorder: true })}
+                sx={getTableContainerSx(enableHorizontalScroll, totalWidth, {
+                  hideTopBorder: true,
+                  ...(enableHorizontalScroll && showHorizontalScrollbar ? { noScroll: true } : {}),
+                })}
               >
                 <SelectionStyleApplicator tableId={tableId} selection={selection} />
                 <GridTableBodyVirtuoso

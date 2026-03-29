@@ -128,7 +128,7 @@ export function getFilterRowSx(headerConfig) {
   };
 }
 
-/** Header wrapper when containScroll: syncs horizontal scroll with body, hides own scrollbar unless showScrollbar, reserves space for body scrollbar */
+/** Header wrapper when containScroll: horizontal scroll synced with body; scrollbar hidden when showScrollbar is false (default). Reserves space for body vertical scrollbar. */
 export function getHeaderScrollWrapperSx(direction, scrollbarWidth, showScrollbar = false) {
   const padding = scrollbarWidth && scrollbarWidth > 0 ? scrollbarWidth : 0;
   return {
@@ -153,14 +153,20 @@ export const scrollContainerSx = {
   flexDirection: 'column',
 };
 
-export function getScrollInnerBoxSx(enableHorizontalScroll) {
+/**
+ * @param {boolean} enableHorizontalScroll
+ * @param {{ showHorizontalScrollbar?: boolean }} [opts] - When showHorizontalScrollbar and enableHorizontalScroll, horizontal overflow is on this box (scrollbar at bottom of grid viewport).
+ */
+export function getScrollInnerBoxSx(enableHorizontalScroll, opts = {}) {
+  const { showHorizontalScrollbar = false } = opts;
+  const horizontalOnBody = Boolean(enableHorizontalScroll && showHorizontalScrollbar);
   return {
     flex: 1,
     minHeight: 0,
     minWidth: 0,
     position: 'relative',
     overflow: 'auto',
-    overflowX: 'hidden',//enableHorizontalScroll ? 'scroll' : 'auto',
+    overflowX: horizontalOnBody ? 'auto' : 'hidden',
     // Reserve scrollbar space so width is stable when switching page size (10→25 rows); prevents brief horizontal scroll flash
     scrollbarGutter: 'stable',
   };

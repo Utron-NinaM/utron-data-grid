@@ -80,3 +80,4 @@ export const EDITOR_OUTLINE_BORDER_PX = 1;
 export const SELECTED_ROW_BG = 'rgba(25, 118, 210, 0.08)';
 export const GRID_BUTTONS_COLOR = 'rgb(139, 3, 4)';
 export const BUTTON_DISABLED_COLOR = 'rgb(215, 215, 215)';
+export const TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR = BUTTON_DISABLED_COLOR;
