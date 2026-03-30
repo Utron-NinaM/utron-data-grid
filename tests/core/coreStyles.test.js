@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getScrollInnerBoxSx, getHeaderScrollWrapperSx } from '../../src/core/coreStyles';
+import { getScrollInnerBoxSx, getHeaderScrollWrapperSx, getTableContainerSx } from '../../src/core/coreStyles';
 import { DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
 
 describe('coreStyles horizontal scroll helpers', () => {
@@ -11,6 +11,12 @@ describe('coreStyles horizontal scroll helpers', () => {
 
     it('uses overflowX auto when enableHorizontalScroll and showHorizontalScrollbar are true', () => {
       expect(getScrollInnerBoxSx(true, { showHorizontalScrollbar: true }).overflowX).toBe('auto');
+    });
+
+    it('applies gentle horizontal scrollbar on body scroll area when horizontal scrollbar is shown', () => {
+      const sx = getScrollInnerBoxSx(true, { showHorizontalScrollbar: true });
+      expect(sx.scrollbarWidth).toBe('thin');
+      expect(sx['&::-webkit-scrollbar:horizontal']).toEqual({ height: 5 });
     });
 
     it('uses overflowX hidden when horizontal scroll is disabled even if showHorizontalScrollbar is true', () => {
@@ -39,6 +45,19 @@ describe('coreStyles horizontal scroll helpers', () => {
     it('pads inline start for vertical scrollbar width in RTL', () => {
       const sx = getHeaderScrollWrapperSx(DIRECTION_RTL, 12, false);
       expect(sx.paddingLeft).toBe(12);
+    });
+  });
+
+  describe('getTableContainerSx horizontal scrollbar', () => {
+    it('applies gentle horizontal scrollbar when this container scrolls horizontally', () => {
+      const sx = getTableContainerSx(true, 800, {});
+      expect(sx.scrollbarWidth).toBe('thin');
+      expect(sx['&::-webkit-scrollbar:horizontal']).toEqual({ height: 5 });
+    });
+
+    it('does not apply scrollbar styling when noScroll is true', () => {
+      const sx = getTableContainerSx(true, 800, { noScroll: true });
+      expect(sx.scrollbarWidth).toBeUndefined();
     });
   });
 });

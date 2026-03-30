@@ -23,6 +23,23 @@ import {
   TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR,
 } from '../constants';
 
+/** Thinner native horizontal scrollbar (Firefox `scrollbar-width: thin` + WebKit track height). */
+export const gentleHorizontalScrollbarSx = {
+  scrollbarWidth: 'thin',
+  scrollbarColor: (theme) =>
+    `${alpha(theme.palette.text.primary, 0.2)} ${alpha(theme.palette.divider, 0.06)}`,
+  '&::-webkit-scrollbar:horizontal': {
+    height: 5,
+  },
+  '&::-webkit-scrollbar-thumb:horizontal': {
+    borderRadius: 3,
+    backgroundColor: (theme) => alpha(theme.palette.text.primary, 0.2),
+  },
+  '&::-webkit-scrollbar-track:horizontal': {
+    backgroundColor: (theme) => alpha(theme.palette.divider, 0.05),
+  },
+};
+
 export function getResizeLineColor(columnBackground, theme) {
   if (columnBackground && typeof columnBackground === 'string' && theme?.palette) {
     try {
@@ -75,15 +92,16 @@ export function getOutsideGridHeaderRowSx() {
     alignItems: 'center',
     justifyContent: 'flex-start',
     gap: 1,
-    py: 1,
+    pt: 1,
+    pb: 0,
     px: 0.5,
     backgroundColor: 'background.paper',
-    borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
   };
 }
 
 export function getTableContainerSx(enableHorizontalScroll, totalWidth, opts = {}) {
   const { hideTopBorder, noScroll, constrainToParent } = opts;
+  const horizontalScrollOnContainer = Boolean(enableHorizontalScroll && !noScroll);
   return {
     overflowX: noScroll ? 'visible' : (enableHorizontalScroll ? 'scroll' : 'visible'),
     overflowY: 'visible',
@@ -92,6 +110,7 @@ export function getTableContainerSx(enableHorizontalScroll, totalWidth, opts = {
     borderRight: 'none',
     borderLeft: 'none',
     ...(hideTopBorder && { borderTop: 'none' }),
+    ...(horizontalScrollOnContainer && gentleHorizontalScrollbarSx),
   };
 }
 
@@ -186,6 +205,7 @@ export function getScrollInnerBoxSx(enableHorizontalScroll, opts = {}) {
     overflowX: horizontalOnBody ? 'auto' : 'hidden',
     // Reserve scrollbar space so width is stable when switching page size (10→25 rows); prevents brief horizontal scroll flash
     scrollbarGutter: 'stable',
+    ...(horizontalOnBody && gentleHorizontalScrollbarSx),
   };
 }
 
