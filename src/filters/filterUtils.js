@@ -27,6 +27,24 @@ export const FILTER_DEBOUNCE_MS = 200;
 
 export const FILTER_STORAGE_KEY_PREFIX = `${STORAGE_KEY_PREFIX}-filters-`;
 
+const FP_REL_EPSILON_FACTOR = 16;
+const FP_ABS_TOLERANCE = 1e-15;
+
+/**
+ * True if two finite numbers differ only by typical IEEE-754 rounding noise (e.g. 0.1 + 0.2 vs 0.3).
+ * @param {number} a
+ * @param {number} b
+ */
+function nearlyEqualFiniteNumbers(a, b) {
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return false;
+  if (Object.is(a, b)) return true;
+  const diff = Math.abs(a - b);
+  if (diff === 0) return true;
+  const scale = Math.max(Math.abs(a), Math.abs(b), 1);
+  const tol = Math.max(Number.EPSILON * scale * FP_REL_EPSILON_FACTOR, FP_ABS_TOLERANCE);
+  return diff <= tol;
+}
+
 /**
  * Load persisted filter model from localStorage. Returns only entries for known column fields.
  * @param {string} gridId
@@ -165,20 +183,70 @@ function matchFilter(cellValue, state, effectiveType) {
   }
 
   if (effectiveType === FIELD_TYPE_NUMBER || isDateTypedColumn || heuristicDate) {
+    const num = effectiveType === FIELD_TYPE_NUMBER;
     switch (operator) {
       case OPERATOR_EQUALS:
+        if (num) {
+          if (!Number.isFinite(val) || !Number.isFinite(val1)) return false;
+          return nearlyEqualFiniteNumbers(val, val1);
+        }
         return val === val1;
       case OPERATOR_NOT_EQUAL:
+        if (num) {
+          if (!Number.isFinite(val) || !Number.isFinite(val1)) return val !== val1;
+          return !nearlyEqualFiniteNumbers(val, val1);
+        }
         return val !== val1;
       case OPERATOR_GREATER_THAN:
+        if (num) {
+          if (!Number.isFinite(val) || !Number.isFinite(val1)) return val > val1;
+          return val > val1 && !nearlyEqualFiniteNumbers(val, val1);
+        }
         return val > val1;
       case OPERATOR_LESS_THAN:
+        if (num) {
+          if (!Number.isFinite(val) || !Number.isFinite(val1)) return val < val1;
+          return val < val1 && !nearlyEqualFiniteNumbers(val, val1);
+        }
         return val < val1;
       case OPERATOR_GREATER_OR_EQUAL:
+        if (num) {
+          if (!Number.isFinite(val) || !Number.isFinite(val1)) return val >= val1;
+          return val > val1 || nearlyEqualFiniteNumbers(val, val1);
+        }
         return val >= val1;
       case OPERATOR_LESS_OR_EQUAL:
+        if (num) {
+          if (!Number.isFinite(val) || !Number.isFinite(val1)) return val <= val1;
+          return val < val1 || nearlyEqualFiniteNumbers(val, val1);
+        }
         return val <= val1;
       case OPERATOR_IN_RANGE: {
+        if (num) {
+          if (val1 != null && val2 != null) {
+            const low = Math.min(val1, val2);
+            const high = Math.max(val1, val2);
+            if (Number.isFinite(val) && Number.isFinite(low) && Number.isFinite(high)) {
+              const aboveLow = val > low || nearlyEqualFiniteNumbers(val, low);
+              const belowHigh = val < high || nearlyEqualFiniteNumbers(val, high);
+              return aboveLow && belowHigh;
+            }
+            return val >= low && val <= high;
+          }
+          if (val1 != null) {
+            if (Number.isFinite(val) && Number.isFinite(val1)) {
+              return val > val1 || nearlyEqualFiniteNumbers(val, val1);
+            }
+            return val >= val1;
+          }
+          if (val2 != null) {
+            if (Number.isFinite(val) && Number.isFinite(val2)) {
+              return val < val2 || nearlyEqualFiniteNumbers(val, val2);
+            }
+            return val <= val2;
+          }
+          return false;
+        }
         if (val1 != null && val2 != null) return val >= Math.min(val1, val2) && val <= Math.max(val1, val2);
         if (val1 != null) return val >= val1;
         if (val2 != null) return val <= val2;

@@ -84,7 +84,7 @@ export function DataGridExample() {
             direction,
             multiSelectable: true,            
             editable: true,
-            filters: false,
+            filters: true,
             pagination: true,
             pageSize: 25,
             showHorizontalScrollbar: true,

@@ -357,6 +357,39 @@ describe('applyFilters — number type', () => {
     const result = applyFilters(rows, { x: { operator: OPERATOR_EQUALS, value: 42 } }, col);
     expect(result).toHaveLength(1);
   });
+
+  it('OPERATOR_EQUALS matches float artifact to literal (e.g. 0.1 + 0.2 vs 0.3)', () => {
+    const artifact = 0.1 + 0.2;
+    expect(artifact === 0.3).toBe(false);
+    const rows = [{ x: artifact }, { x: 0.3 }];
+    expect(
+      applyFilters(rows, { x: { operator: OPERATOR_EQUALS, value: '0.3' } }, col).map((r) => r.x)
+    ).toEqual([artifact, 0.3]);
+  });
+
+  it('OPERATOR_NOT_EQUAL excludes float artifact when it is nearly equal to filter value', () => {
+    const artifact = 0.1 + 0.2;
+    const rows = [{ x: artifact }, { x: 1 }];
+    expect(
+      applyFilters(rows, { x: { operator: OPERATOR_NOT_EQUAL, value: 0.3 } }, col).map((r) => r.x)
+    ).toEqual([1]);
+  });
+
+  it('OPERATOR_EQUALS does not match values far apart', () => {
+    const rows = [{ x: 1.5 }, { x: 9.2 }];
+    expect(applyFilters(rows, { x: { operator: OPERATOR_EQUALS, value: 9.2 } }, col).map((r) => r.x)).toEqual([9.2]);
+  });
+
+  it('OPERATOR_IN_RANGE includes float artifact at inclusive bound', () => {
+    const artifact = 0.1 + 0.2;
+    const rows = [{ x: artifact }, { x: 0 }];
+    const result = applyFilters(
+      rows,
+      { x: { operator: OPERATOR_IN_RANGE, value: 0.3, valueTo: 1 } },
+      col
+    );
+    expect(result.map((r) => r.x)).toEqual([artifact]);
+  });
 });
 
 describe('applyFilters — number type with text filter (filter ?? type)', () => {

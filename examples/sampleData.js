@@ -47,6 +47,16 @@ function randomMileage() { return Math.floor(Math.random() * 150000) + 1000; }
 function randomWarranty() { return [0, 1, 2, 3, 5][Math.floor(Math.random() * 5)]; }
 function randomRating() { return (Math.random() * 3 + 2).toFixed(1); }
 
+/** Decimal MPG-style values for number-filter demos (includes 9.2 and occasional float noise vs 9.2). */
+function randomMpg() {
+  if (Math.random() < 0.14) return 9.2;
+  if (Math.random() < 0.06) return 2.3 * 4;
+  const pool = [5.8, 6.4, 7.1, 7.9, 8.5, 9.8, 10.2, 11.6, 12.0, 13.3];
+  const base = randomItem(pool);
+  const jitter = Math.round((Math.random() - 0.5) * 6) / 10;
+  return Math.round((base + jitter) * 10) / 10;
+}
+
 export function generateSampleData(size = DEFAULT_SAMPLE_SIZE) {
   const n = Math.max(1, Math.min(100000, parseInt(size, 10) || DEFAULT_SAMPLE_SIZE));
   return Array.from({ length: n }, (_, i) => ({
@@ -65,6 +75,7 @@ export function generateSampleData(size = DEFAULT_SAMPLE_SIZE) {
     description: randomItem(descriptions),
     createdAt: randomDateTime(),
     mileage: randomMileage(),
+    mpg: randomMpg(),
     engine: randomItem(engineTypes),
     seats: randomItem([2, 4, 5, 6, 7, 8]),
     doors: randomItem([2, 3, 4, 5]),
