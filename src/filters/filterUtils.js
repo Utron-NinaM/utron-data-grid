@@ -103,27 +103,49 @@ export function applyFilters(rows, filterModel, columns) {
         : (state.value !== undefined || state.valueTo !== undefined);
       if (!hasValue && !isEmptyNotEmpty) return true;
       const col = colMap.get(field);
-      return matchFilter(row[field], state, col?.type);
+      const effectiveType = col?.filter ?? col?.type ?? DEFAULT_FIELD_TYPE;
+      return matchFilter(row[field], state, effectiveType);
     });
   });
 }
 
-function matchFilter(cellValue, state, type) {
-  const defaultOperator = type === FIELD_TYPE_TEXT ? OPERATOR_CONTAINS : OPERATOR_EQUALS;
+/**
+ * @param {*} cellValue
+ * @param {Object} state
+ * @param {string} effectiveType - column.filter ?? column.type ?? default (same as filter UI)
+ */
+function matchFilter(cellValue, state, effectiveType) {
+  const v = cellValue;
+
+  if (effectiveType === FIELD_TYPE_LIST || Array.isArray(state.value)) {
+    const selected = Array.isArray(state.value) ? state.value : state.value != null ? [state.value] : [];
+    if (selected.length === 0) return true;
+    return selected.some((s) => String(v) === String(s) || v === s);
+  }
+
+  const useNumericOrDateBranch =
+    effectiveType === FIELD_TYPE_NUMBER ||
+    effectiveType === FIELD_TYPE_DATE ||
+    effectiveType === FIELD_TYPE_DATETIME;
+  const defaultOperator = useNumericOrDateBranch ? OPERATOR_EQUALS : OPERATOR_CONTAINS;
   const { operator = defaultOperator, value, valueTo } = state;
 
-  const v = cellValue;
+  if (!useNumericOrDateBranch) {
+    return matchTextOperators(v, operator, value);
+  }
+
   let val = null;
   let val1 = null;
   let val2 = null;
 
-  if (type === FIELD_TYPE_NUMBER || typeof v === 'number') {
+  if (effectiveType === FIELD_TYPE_NUMBER) {
     val = Number(v);
     val1 = Number(value);
     val2 = valueTo != null ? Number(valueTo) : null;
   }
 
-  const isDateTypedColumn = type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME;
+  const isDateTypedColumn =
+    effectiveType === FIELD_TYPE_DATE || effectiveType === FIELD_TYPE_DATETIME;
   const heuristicDate = v && (v instanceof Date || (typeof v === 'string' && isDateLike(v)));
   /** Full instant for period filters; date-typed columns compare by calendar day using val/val1/val2. */
   let valFull = null;
@@ -142,7 +164,7 @@ function matchFilter(cellValue, state, type) {
     }
   }
 
-  if (type === FIELD_TYPE_NUMBER || typeof v === 'number' || isDateTypedColumn || heuristicDate) {
+  if (effectiveType === FIELD_TYPE_NUMBER || isDateTypedColumn || heuristicDate) {
     switch (operator) {
       case OPERATOR_EQUALS:
         return val === val1;
@@ -181,13 +203,10 @@ function matchFilter(cellValue, state, type) {
     }
   }
 
-  if (type === FIELD_TYPE_LIST || Array.isArray(state.value)) {
-    const selected = Array.isArray(state.value) ? state.value : state.value != null ? [state.value] : [];
-    if (selected.length === 0) return true;
-    return selected.some((s) => String(v) === String(s) || v === s);
-  }
+  return matchTextOperators(v, operator, value);
+}
 
-  // text operators
+function matchTextOperators(v, operator, value) {
   const str = String(v ?? '').toLowerCase();
   const search = String(value ?? '').toLowerCase();
 

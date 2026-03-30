@@ -359,6 +359,25 @@ describe('applyFilters — number type', () => {
   });
 });
 
+describe('applyFilters — number type with text filter (filter ?? type)', () => {
+  const col = [{ field: 'x', type: FIELD_TYPE_NUMBER, filter: FIELD_TYPE_TEXT }];
+
+  it('OPERATOR_CONTAINS matches stringified numeric cells', () => {
+    const rows = [{ x: 100 }, { x: 205 }, { x: 12 }];
+    expect(
+      applyFilters(rows, { x: { operator: OPERATOR_CONTAINS, value: '05' } }, col).map((r) => r.x)
+    ).toEqual([205]);
+    expect(applyFilters(rows, { x: { operator: OPERATOR_CONTAINS, value: '99' } }, col)).toHaveLength(0);
+  });
+
+  it('text column with numeric cell: CONTAINS uses string match', () => {
+    const textCol = [{ field: 'n', type: FIELD_TYPE_TEXT }];
+    const rows = [{ n: 42 }, { n: 7 }];
+    const result = applyFilters(rows, { n: { operator: OPERATOR_CONTAINS, value: '2' } }, textCol);
+    expect(result.map((r) => r.n)).toEqual([42]);
+  });
+});
+
 describe('applyFilters — number type OPERATOR_PERIOD', () => {
   const col = [{ field: 'x', type: FIELD_TYPE_DATE }];
 
