@@ -127,7 +127,16 @@ export function GridExamplePage() {
   }, [data, editedData]);
 
   const options = useMemo(() => {
-    const base = buildGridOptions(gridOptions);
+    const { outsideGridHeaderTitle, outsideGridHeaderSx, ...gridOptsRest } = gridOptions;
+    const base = buildGridOptions(gridOptsRest);
+    const headerTitle =
+      typeof outsideGridHeaderTitle === 'string' ? outsideGridHeaderTitle.trim() : '';
+    const headerSx =
+      outsideGridHeaderSx != null &&
+      typeof outsideGridHeaderSx === 'object' &&
+      !Array.isArray(outsideGridHeaderSx)
+        ? outsideGridHeaderSx
+        : undefined;
     return {
       ...base,
       translations: en,
@@ -135,6 +144,18 @@ export function GridExamplePage() {
       onEditCommit: handleEditCommit,
       dropdownBoundaryRef: mainContentRef,
       onColumnConfigClick: () => navigate('/config'),
+      ...(headerTitle
+        ? {
+            outsideGridHeader: (
+              <Typography component="div" variant="subtitle1" fontWeight={700}>
+                {headerTitle}
+              </Typography>
+            ),
+            ...(headerSx != null && Object.keys(headerSx).length > 0
+              ? { outsideGridHeaderSx: headerSx }
+              : {}),
+          }
+        : {}),
     };
   }, [gridOptions, handleEditCommit, navigate]);
 
@@ -149,8 +170,10 @@ export function GridExamplePage() {
     ['showExportToExcel', gridOptions.showExportToExcel],
     ['showExportToPdf', gridOptions.showExportToPdf],
     ['multiSelectable', gridOptions.multiSelectable],
+    ['outsideGridHeaderTitle', gridOptions.outsideGridHeaderTitle],
+    ['outsideGridHeaderSx', gridOptions.outsideGridHeaderSx],
     ['containerWidth', containerWidth],
-  ].filter(([, v]) => v !== undefined && v !== null);
+  ].filter(([, v]) => v !== undefined && v !== null && v !== '');
 
   return (
     <Box

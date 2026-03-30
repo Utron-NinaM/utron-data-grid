@@ -7,6 +7,7 @@ import TableCell from '@mui/material/TableCell';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import Dialog from '@mui/material/Dialog';
@@ -15,6 +16,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import SettingsIcon from '@mui/icons-material/Settings';
+import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import { ExportIcon } from './icons/ExportIcon';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useTranslations } from '../localization/useTranslations';
@@ -44,6 +46,7 @@ import {
   getBodyRowHeightSx,
   toolbarLeftBoxSx,
   getToolbarClearButtonsSx,
+  getOutsideGridHeaderRowSx,
 } from './coreStyles';
 import { GRID_BUTTONS_COLOR } from '../constants';
 
@@ -58,17 +61,23 @@ import { GRID_BUTTONS_COLOR } from '../constants';
  * @param {Function} [props.onRowDoubleClick]
  * @param {boolean} [props.hasActiveRangeFilter] Whether any column has an active range filter
  * @param {boolean} [props.containScroll] When true, toolbar stays fixed and only table body scrolls
+ * @param {Function} [props.onClearMultiSelection] Clears checkbox multi-selection; used when multiSelectable
+ * @param {import('react').ReactNode} [props.outsideGridHeader] When set, row above toolbar with title + multi-select summary on inline end
+ * @param {Object} [props.outsideGridHeaderSx] MUI sx merged onto outside header row
  */
 function GridTableInner({
   rows,
   selection,
   onSelect,
+  onClearMultiSelection = () => {},
   sortModel,
   onSort,
   hasActiveFilters,
   onRowDoubleClick,
   hasActiveRangeFilter,
   containScroll = false,
+  outsideGridHeader,
+  outsideGridHeaderSx,
 }) {
   const translations = useTranslations();
   const ctx = useContext(DataGridStableContext);
@@ -253,6 +262,56 @@ function GridTableInner({
     };
   }, [containScroll]);
   const toolbarClearSx = getToolbarClearButtonsSx(toolbarClearButtonsSx);
+  const selectedCount = selection?.size ?? 0;
+  const showOutsideGridHeader = outsideGridHeader != null;
+  const multiSelectClearCluster =
+    multiSelectable && selectedCount > 0 ? (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+        <Typography component="span" variant="body2" sx={{ fontWeight: 600 }}>
+          ({selectedCount})
+        </Typography>
+        <Tooltip title={translations('clearMultiSelectionIconTooltip')}>
+          <IconButton
+            size="small"
+            onClick={onClearMultiSelection}
+            aria-label={translations('clearMultiSelectionIconAria')}
+            data-testid="multi-select-clear-icon-button"
+            color="error"
+          >
+            <PlaylistRemoveIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    ) : null;
+  const outsideHeaderRow = showOutsideGridHeader ? (
+    <Box sx={{ pointerEvents: editRowId != null ? 'none' : 'auto' }}>
+      <Box
+        data-testid="outside-grid-header"
+        sx={[getOutsideGridHeaderRowSx(), ...(outsideGridHeaderSx != null ? [outsideGridHeaderSx] : [])]}
+      >
+        <Box
+          sx={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 1,
+            maxWidth: '100%',
+            minWidth: 0,
+          }}
+        >
+          <Box
+            sx={{
+              minWidth: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {outsideGridHeader}
+          </Box>
+          {multiSelectClearCluster}
+        </Box>
+      </Box>
+    </Box>
+  ) : null;
   const toolbarBox = (
     <Box sx={{ pointerEvents: editRowId != null ? 'none' : 'auto' }}>
       <Box sx={getToolbarBoxSx(containScroll)}>
@@ -336,6 +395,7 @@ function GridTableInner({
               )}
             </Box>
           )}
+          {!showOutsideGridHeader && multiSelectClearCluster}
         </Box>
       </Box>
     </Box>
@@ -571,6 +631,7 @@ function GridTableInner({
 
     return (
       <Box ref={tooltipContainerRef} sx={scrollContainerSx} data-testid="grid-scroll-container">
+        {outsideHeaderRow}
         {toolbarBox}
         <Box
           ref={headerScrollRef}
@@ -639,6 +700,7 @@ function GridTableInner({
 
   return (
     <>
+      {outsideHeaderRow}
       {toolbarBox}
       {tableContent}
       {errorDialog}

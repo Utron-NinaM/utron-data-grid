@@ -110,6 +110,97 @@ describe('Selection Regression Tests', () => {
       expect(selectedIds).not.toContain(2);
     });
 
+    it('shows toolbar icon clear with count and clears checkboxes', () => {
+      const onSelectionChange = vi.fn();
+
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{
+            multiSelectable: true,
+            pagination: false,
+            onSelectionChange,
+          }}
+        />
+      );
+
+      expect(screen.queryByTestId('multi-select-clear-icon-button')).not.toBeInTheDocument();
+
+      const checkboxes = screen.getAllByRole('checkbox', { name: /select row/i });
+      const aliceCheckbox = checkboxes.find((cb) => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '1';
+      });
+      const bobCheckbox = checkboxes.find((cb) => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '2';
+      });
+
+      fireEvent.click(aliceCheckbox);
+      expect(screen.getByText('(1)')).toBeInTheDocument();
+      const clearOne = screen.getByTestId('multi-select-clear-icon-button');
+      expect(clearOne).toHaveAccessibleName(/clear selected rows/i);
+
+      fireEvent.click(bobCheckbox);
+      expect(screen.getByText('(2)')).toBeInTheDocument();
+      const clearTwo = screen.getByTestId('multi-select-clear-icon-button');
+
+      fireEvent.click(clearTwo);
+      expect(onSelectionChange).toHaveBeenLastCalledWith([]);
+      expect(aliceCheckbox).not.toBeChecked();
+      expect(bobCheckbox).not.toBeChecked();
+      expect(screen.queryByTestId('multi-select-clear-icon-button')).not.toBeInTheDocument();
+    });
+
+    it('outsideGridHeader row shows count and icon clear only in header row', () => {
+      const onSelectionChange = vi.fn();
+
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{
+            multiSelectable: true,
+            pagination: false,
+            onSelectionChange,
+            outsideGridHeader: <strong>Carrier contents</strong>,
+            outsideGridHeaderSx: { backgroundColor: 'grey.100' },
+          }}
+        />
+      );
+
+      expect(screen.getByTestId('outside-grid-header')).toBeInTheDocument();
+      expect(screen.getByText('Carrier contents')).toBeInTheDocument();
+      expect(screen.queryByTestId('multi-select-clear-icon-button')).not.toBeInTheDocument();
+
+      const checkboxes = screen.getAllByRole('checkbox', { name: /select row/i });
+      const aliceCheckbox = checkboxes.find((cb) => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '1';
+      });
+      const bobCheckbox = checkboxes.find((cb) => {
+        const row = cb.closest('[data-row-id]');
+        return row && row.getAttribute('data-row-id') === '2';
+      });
+
+      fireEvent.click(aliceCheckbox);
+      expect(screen.getByText('(1)')).toBeInTheDocument();
+      const iconClear = screen.getByTestId('multi-select-clear-icon-button');
+      expect(iconClear).toBeInTheDocument();
+
+      fireEvent.click(bobCheckbox);
+      expect(screen.getByText('(2)')).toBeInTheDocument();
+
+      fireEvent.click(iconClear);
+      expect(onSelectionChange).toHaveBeenLastCalledWith([]);
+      expect(aliceCheckbox).not.toBeChecked();
+      expect(bobCheckbox).not.toBeChecked();
+      expect(screen.queryByTestId('multi-select-clear-icon-button')).not.toBeInTheDocument();
+    });
+
     it('should maintain checkbox checked state correctly', () => {
       const onSelectionChange = vi.fn();
 

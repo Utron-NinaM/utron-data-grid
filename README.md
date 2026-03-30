@@ -73,7 +73,9 @@ const rows = [
 | `editToolbarHeight` | `number` | Height in px for the reserved edit toolbar slot when `reserveEditToolbarSpace` is true (default 30) |
 | `filters` | `boolean` | Show filter row (default true). Set to `false` to hide all filters. |
 | `fitToContainer` | `boolean` | When true, treat columns without width/flex as flexible (flex: 1) and cap total width to the container (default false). Use for grids that should always fit the available width. |
-| `multiSelectable` | `boolean` | Show checkboxes and allow multi-row selection (default false). When true, clicking a row toggles its selection (same as using the checkbox); the checkbox still works as before. |
+| `multiSelectable` | `boolean` | Show checkboxes and allow multi-row selection (default false). When true, clicking a row toggles its selection (same as using the checkbox); the checkbox still works as before. When there is at least one selected row, **`(n)`** and an **icon** control clear all checkbox selection and call `onSelectionChange([])` (see **Multi-select clear** below). There is no separate text button next to Clear sort. |
+| `outsideGridHeader` | `ReactNode` | Optional content rendered in a **row above** the toolbar (Clear sort / filters / export). Omit or leave unset for the default layout. Respects `direction` (LTR/RTL). When multi-select has a selection, **`(n)` and the clear icon sit next to the header** (grouped at inline-start, not at the far side of the row). |
+| `outsideGridHeaderSx` | `object` | MUI `sx` merged onto the outside header row wrapper (use with `outsideGridHeader`). |
 | `pagination` | `boolean` | Enable client-side pagination (default false) |
 | `pageSize` | `number` | Rows per page (default 10) |
 | `pageSizeOptions` | `number[]` | Page size dropdown options (e.g. [10, 25, 50]) |
@@ -259,6 +261,7 @@ Pass `options={{ translations: { ... } }}` with keys overriding defaults. Main k
 - Operators: `operatorEquals`, `operatorNotEqual`, `operatorGreaterThan`, etc.
 - Pagination: `rowsPerPage`, `paginationRange`, `firstPage`, `lastPage`, `prevPage`, `nextPage`
 - State: `noRows`, `noResults`
+- Multi-select: `clearMultiSelectionIconTooltip`, `clearMultiSelectionIconAria` (tooltip and accessible name for the clear icon; count is shown as **`(n)`** next to the icon)
 - Edit: `save`, `cancel`, `edit`
 - Validation: `validationErrors`, `validationErrorsFound` (title with `{{count}}`), `validationFieldErrorsCount` (badge with `{{count}}`), `validationRequired`
 
@@ -300,6 +303,31 @@ const mainContentRef = useRef(null);
 - Attach the ref to the **main content** container (the element that contains the grid and does **not** include the sidebar).
 - In RTL, place the sidebar on the right (e.g. use `direction: 'rtl'` on the flex container so the first child appears on the right).
 - When the sidebar opens or closes, the main content resizes; the next time a dropdown opens it will use the updated bounds. If the user toggles the sidebar while a dropdown is open, close and reopen the dropdown to reposition.
+
+## Multi-select clear
+
+When **`multiSelectable`** is true and at least one row is selected:
+
+- **Without** `outsideGridHeader`: **`(n)`** and the clear **icon** appear on the toolbar’s trailing side (same row as export actions), not next to Clear sort / Clear filters.
+- **With** `outsideGridHeader`: the same **`(n)`** + icon appear **beside your title** in the outside header row (tooltip / `aria-label` from `clearMultiSelectionIconTooltip` and `clearMultiSelectionIconAria`).
+
+`onSelectionChange` is called with an empty array when the user clears multi-select either way. While a row is in edit mode, these controls are non-interactive (same as the rest of the toolbar).
+
+Example with an outside header (any `ReactNode` is valid):
+
+```jsx
+<DataGrid
+  rows={rows}
+  columns={columns}
+  getRowId={(row) => row.id}
+  options={{
+    multiSelectable: true,
+    onSelectionChange: (selectedIds) => { /* ... */ },
+    outsideGridHeader: <span style={{ fontWeight: 700 }}>Section title</span>,
+    outsideGridHeaderSx: { py: 1, backgroundColor: 'action.hover' },
+  }}
+/>
+```
 
 ## Row selection and always-visible controls
 
@@ -389,7 +417,7 @@ Use the library in your app’s React tree with your own MUI theme if needed; th
 
 ## Examples
 
-See the `examples/` folder: column config, sample data, translations, and a full demo (`DataGridExample.jsx`). **ConditionalEditingExample.jsx** demonstrates single-click row select + open dropdown (always-visible Priority Autocomplete). Run the dev server:
+See the `examples/` folder: column config, sample data, translations, and a full demo (`DataGridExample.jsx`). The **demo app** (`examples/demo/`) includes config fields for **Outside header title** and **Outside header row sx** (wired to `outsideGridHeader` / `outsideGridHeaderSx`). **ConditionalEditingExample.jsx** demonstrates single-click row select + open dropdown (always-visible Priority Autocomplete). Run the dev server:
 
 ```bash
 npm install

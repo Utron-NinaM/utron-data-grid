@@ -296,6 +296,28 @@ describe('useDataGrid', () => {
     });
   });
 
+  describe('handleClearMultiSelection', () => {
+    it('clears selection and calls onSelectionChange with empty array', () => {
+      const onSelectionChange = vi.fn();
+      const { result } = renderHook(useDataGrid, {
+        initialProps: {
+          rows: defaultRows,
+          columns: defaultColumns,
+          getRowId: defaultGetRowId,
+          onSelectionChange,
+        },
+      });
+      act(() => {
+        result.current.handleSelect(1, true);
+        result.current.handleSelect(2, true);
+      });
+      expect(result.current.selection.size).toBe(2);
+      act(() => result.current.handleClearMultiSelection());
+      expect(result.current.selection.size).toBe(0);
+      expect(onSelectionChange).toHaveBeenLastCalledWith([]);
+    });
+  });
+
   describe('selectRow', () => {
     it('updates selection store and calls onRowClick when onRowClick provided', () => {
       const onRowClick = vi.fn();

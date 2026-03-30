@@ -214,6 +214,11 @@ export function useDataGrid(props) {
     [onSelectionChange]
   );
 
+  const handleClearMultiSelection = useCallback(() => {
+    setSelection(new Set());
+    onSelectionChange?.([]);
+  }, [onSelectionChange]);
+
   const handlePageChange = useCallback((p) => setInternalPage(p), []);
 
   const handlePageSizeChange = useCallback(
@@ -573,6 +578,7 @@ export function useDataGrid(props) {
 
     // Handlers
     handleSelect,
+    handleClearMultiSelection,
     handleSort,
     handleFilterChange,
     handlePageChange,

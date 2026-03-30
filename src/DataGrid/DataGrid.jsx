@@ -54,6 +54,8 @@ import { isEmptyRow } from './useDataGridEdit';
  * @property {string} [fontFamily] - Font family for all grid components (e.g. 'Roboto, sans-serif', var(--app-font-family)). Cascades from root.
  * @property {number|string} [fontWeight] - Font weight (e.g. 400, 600, 'bold'). Cascades from root.
  * @property {React.RefObject<HTMLElement|null>} [dropdownBoundaryRef] - Ref to the element that defines the clipping area for dropdowns (e.g. the main content wrapper that excludes sidebars). When set, list and filter dropdowns stay within this element's bounds. Omit to use viewport.
+ * @property {React.ReactNode} [outsideGridHeader] - Optional row above the toolbar. When set, multi-select count and an icon clear control appear on the inline end of this row (dir-aware); the outlined clear button is not shown in the toolbar.
+ * @property {Object} [outsideGridHeaderSx] - MUI sx merged onto the outside header row wrapper.
  */
 
 /**
@@ -243,24 +245,30 @@ export const DataGrid = forwardRef(function DataGrid(props, ref) {
         rows={grid.displayRows}
         selection={grid.selection}
         onSelect={grid.handleSelect}
+        onClearMultiSelection={grid.handleClearMultiSelection}
         sortModel={grid.sortModel}
         onSort={grid.handleSort}
         hasActiveFilters={grid.hasActiveFilters}
         onRowDoubleClick={grid.handleRowDoubleClick}
         hasActiveRangeFilter={grid.hasActiveRangeFilter}
         containScroll={useScrollableLayout}
+        outsideGridHeader={flatProps.outsideGridHeader}
+        outsideGridHeaderSx={flatProps.outsideGridHeaderSx}
       />
     ),
     [
       grid.displayRows,
       grid.selection,
       grid.handleSelect,
+      grid.handleClearMultiSelection,
       grid.sortModel,
       grid.handleSort,
       grid.hasActiveFilters,
       grid.handleRowDoubleClick,
       grid.hasActiveRangeFilter,
       useScrollableLayout,
+      flatProps.outsideGridHeader,
+      flatProps.outsideGridHeaderSx,
     ]
   );
 

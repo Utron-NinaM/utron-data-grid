@@ -57,6 +57,8 @@ export const defaultTranslations = {
   // Empty / state
   noRows: 'No rows',
   noResults: 'No results match filters',
+  clearMultiSelectionIconTooltip: 'Clear selected rows',
+  clearMultiSelectionIconAria: 'Clear selected rows',
 
   // Edit
   save: 'Save',
@@ -134,6 +136,8 @@ export const hebrewTranslations = {
   // Empty / state
   noRows: 'אין שורות',
   noResults: 'אין תוצאות התואמות לסינונים',
+  clearMultiSelectionIconTooltip: 'נקה שורות נבחרות',
+  clearMultiSelectionIconAria: 'נקה שורות נבחרות',
 
   // Edit
   save: 'שמור',

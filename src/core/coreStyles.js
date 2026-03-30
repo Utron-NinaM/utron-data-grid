@@ -65,6 +65,23 @@ export function getToolbarBoxSx(containScroll) {
 export const toolbarLeftBoxSx = { display: 'flex', justifyContent: 'flex-start', gap: 2 };
 export const toolbarActionsBoxSx = { display: 'flex', gap: 1 };
 
+/** Row above toolbar: optional title + multi-select summary grouped at inline-start; inherits dir from root for LTR/RTL */
+export function getOutsideGridHeaderRowSx() {
+  return {
+    flexShrink: 0,
+    minWidth: 0,
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    gap: 1,
+    py: 1,
+    px: 0.5,
+    backgroundColor: 'background.paper',
+    borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+  };
+}
+
 export function getTableContainerSx(enableHorizontalScroll, totalWidth, opts = {}) {
   const { hideTopBorder, noScroll, constrainToParent } = opts;
   return {

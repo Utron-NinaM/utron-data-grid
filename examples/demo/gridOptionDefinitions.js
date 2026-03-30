@@ -55,6 +55,22 @@ export const gridOptionDefinitions = [
     placeholder: 'MUI sx object (e.g. {"height":"100%","maxHeight":500})',
   },
   {
+    key: 'outsideGridHeaderTitle',
+    label: 'Outside header title',
+    type: 'string',
+    group: 'layout',
+    default: '',
+    placeholder: 'Optional row above toolbar; with multi-select, (n) + clear icon on inline end',
+  },
+  {
+    key: 'outsideGridHeaderSx',
+    label: 'Outside header row sx',
+    type: 'json',
+    group: 'layout',
+    default: undefined,
+    placeholder: 'MUI sx merged onto header row (e.g. {"py":1,"bgcolor":"grey.100"})',
+  },
+  {
     key: 'fitToContainer',
     label: 'Fit to container',
     type: 'boolean',
