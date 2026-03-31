@@ -1,8 +1,25 @@
 import { describe, it, expect } from 'vitest';
-import { getScrollInnerBoxSx, getHeaderScrollWrapperSx, getTableContainerSx } from '../../src/core/coreStyles';
+import {
+  getScrollInnerBoxSx,
+  getHeaderScrollWrapperSx,
+  getTableContainerSx,
+  getHorizontalScrollportDir,
+  getScrollBodyOuterVerticalRtlSx,
+  getScrollBodyInnerHorizontalSx,
+} from '../../src/core/coreStyles';
 import { DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
 
 describe('coreStyles horizontal scroll helpers', () => {
+  describe('getHorizontalScrollportDir', () => {
+    it('returns ltr for RTL grid direction', () => {
+      expect(getHorizontalScrollportDir(DIRECTION_RTL)).toBe('ltr');
+    });
+
+    it('returns undefined for LTR', () => {
+      expect(getHorizontalScrollportDir(DIRECTION_LTR)).toBeUndefined();
+    });
+  });
+
   describe('getScrollInnerBoxSx', () => {
     it('uses overflowX hidden when showHorizontalScrollbar is false', () => {
       expect(getScrollInnerBoxSx(true, { showHorizontalScrollbar: false }).overflowX).toBe('hidden');
@@ -21,6 +38,28 @@ describe('coreStyles horizontal scroll helpers', () => {
 
     it('uses overflowX hidden when horizontal scroll is disabled even if showHorizontalScrollbar is true', () => {
       expect(getScrollInnerBoxSx(false, { showHorizontalScrollbar: true }).overflowX).toBe('hidden');
+    });
+  });
+
+  describe('getScrollBodyOuterVerticalRtlSx', () => {
+    it('uses vertical auto and hidden horizontal overflow', () => {
+      const sx = getScrollBodyOuterVerticalRtlSx();
+      expect(sx.overflowY).toBe('auto');
+      expect(sx.overflowX).toBe('hidden');
+    });
+  });
+
+  describe('getScrollBodyInnerHorizontalSx', () => {
+    it('enables horizontal overflow and gentle scrollbar when horizontal scroll is on', () => {
+      const sx = getScrollBodyInnerHorizontalSx(true);
+      expect(sx.overflowX).toBe('auto');
+      expect(sx.overflowY).toBe('visible');
+      expect(sx.scrollbarWidth).toBe('thin');
+    });
+
+    it('does not force horizontal overflow when disabled', () => {
+      const sx = getScrollBodyInnerHorizontalSx(false);
+      expect(sx.overflowX).toBe('visible');
     });
   });
 

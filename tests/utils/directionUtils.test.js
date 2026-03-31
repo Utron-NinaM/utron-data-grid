@@ -3,6 +3,7 @@ import {
   getDateFormat,
   getDateTimeFormat,
   getDefaultAlign,
+  scrollRtlGridHorizontalStartToRight,
 } from '../../src/utils/directionUtils';
 import { DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
 
@@ -38,6 +39,20 @@ describe('directionUtils', () => {
     it('getDefaultAlign returns right', () => {
       expect(getDefaultAlign(DIRECTION_RTL)).toBe('right');
       expect(getDefaultAlign('rtl')).toBe('right');
+    });
+  });
+
+  describe('scrollRtlGridHorizontalStartToRight', () => {
+    it('no-ops when there is no overflow', () => {
+      const el = { scrollWidth: 100, clientWidth: 100, scrollLeft: 0 };
+      scrollRtlGridHorizontalStartToRight(/** @type {any} */ (el));
+      expect(el.scrollLeft).toBe(0);
+    });
+
+    it('sets scrollLeft to max scroll offset', () => {
+      const el = { scrollWidth: 500, clientWidth: 100, scrollLeft: 0 };
+      scrollRtlGridHorizontalStartToRight(/** @type {any} */ (el));
+      expect(el.scrollLeft).toBe(400);
     });
   });
 });

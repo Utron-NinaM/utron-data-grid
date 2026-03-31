@@ -47,8 +47,13 @@ import {
   toolbarLeftBoxSx,
   getToolbarClearButtonsSx,
   getOutsideGridHeaderRowSx,
+  getHorizontalScrollportDir,
+  getScrollBodyOuterVerticalRtlSx,
+  getScrollBodyInnerHorizontalSx,
 } from './coreStyles';
 import { GRID_BUTTONS_COLOR } from '../constants';
+import { DIRECTION_RTL } from '../config/schema';
+import { scrollRtlGridHorizontalStartToRight } from '../utils/directionUtils';
 
 /**
  * @param {Object} props
@@ -109,6 +114,13 @@ function GridTableInner({
   const tableId = useId();
   const bodyColRefs = useRef(new Map());
   const headerScrollRef = useRef(null);
+  /** Horizontal scrollport when containScroll && !showHorizontalScrollbar. */
+  const bodyNestedHorizontalScrollRef = useRef(null);
+  /** Horizontal scrollport when !containScroll. */
+  const standaloneTableHorizontalScrollRef = useRef(null);
+  const rtlGridInitialScrollRightDoneRef = useRef(false);
+  /** LTR horizontal layer inside RTL vertical body when both axes scroll (showHorizontalScrollbar + RTL). */
+  const bodyHorizontalScrollRef = useRef(null);
 
   // Apply widths from columnWidthMap to col elements (skip column currently being resized to avoid overwriting drag width)
   // When containScroll, update both header and body cols in the same effect to avoid jitter
@@ -238,29 +250,117 @@ function GridTableInner({
     return () => ro.disconnect();
   }, [containScroll, measureScrollbarWidth, showHorizontalScrollbar]);
 
+  /** LTR on horizontal scrollports only; tables use `dir={direction}` for RTL layout. */
+  const horizontalScrollportDir = getHorizontalScrollportDir(direction);
+  const splitRtlBodyVerticalHorizontal =
+    containScroll &&
+    direction === DIRECTION_RTL &&
+    enableHorizontalScroll &&
+    showHorizontalScrollbar;
+  const bodyCombinedScrollDir =
+    enableHorizontalScroll && showHorizontalScrollbar && !splitRtlBodyVerticalHorizontal
+      ? horizontalScrollportDir
+      : undefined;
+  const nestedTableHorizontalDir =
+    enableHorizontalScroll && !showHorizontalScrollbar ? horizontalScrollportDir : undefined;
+
   const handleBodyScroll = useMemo(() => {
     if (!containScroll) return undefined;
     return () => {
       const h = headerScrollRef.current;
-      const b = scrollContainerRef.current;
+      let b = null;
+      if (showHorizontalScrollbar) {
+        b = splitRtlBodyVerticalHorizontal
+          ? bodyHorizontalScrollRef.current
+          : scrollContainerRef.current;
+      } else {
+        b = bodyNestedHorizontalScrollRef.current;
+      }
       if (!h || !b) return;
       if (Math.abs(h.scrollLeft - b.scrollLeft) > 0.5) {
         h.scrollLeft = b.scrollLeft;
       }
     };
-  }, [containScroll]);
+  }, [containScroll, showHorizontalScrollbar, splitRtlBodyVerticalHorizontal]);
 
   const handleHeaderScroll = useMemo(() => {
     if (!containScroll) return undefined;
     return () => {
       const h = headerScrollRef.current;
-      const b = scrollContainerRef.current;
+      let b = null;
+      if (showHorizontalScrollbar) {
+        b = splitRtlBodyVerticalHorizontal
+          ? bodyHorizontalScrollRef.current
+          : scrollContainerRef.current;
+      } else {
+        b = bodyNestedHorizontalScrollRef.current;
+      }
       if (!h || !b) return;
       if (Math.abs(b.scrollLeft - h.scrollLeft) > 0.5) {
         b.scrollLeft = h.scrollLeft;
       }
     };
-  }, [containScroll]);
+  }, [containScroll, showHorizontalScrollbar, splitRtlBodyVerticalHorizontal]);
+
+  useLayoutEffect(() => {
+    if (direction !== DIRECTION_RTL || !enableHorizontalScroll) {
+      rtlGridInitialScrollRightDoneRef.current = false;
+      return undefined;
+    }
+    if (rtlGridInitialScrollRightDoneRef.current) return undefined;
+    if (containScroll && !scrollContainerReady) return undefined;
+
+    let cancelled = false;
+    let rafId = 0;
+    let attempts = 0;
+    const maxAttempts = 24;
+
+    const tick = () => {
+      if (cancelled || rtlGridInitialScrollRightDoneRef.current) return;
+
+      const headerEl = containScroll ? headerScrollRef.current : null;
+      const bodyEl = containScroll
+        ? showHorizontalScrollbar
+          ? (splitRtlBodyVerticalHorizontal
+              ? bodyHorizontalScrollRef.current
+              : scrollContainerRef.current)
+          : bodyNestedHorizontalScrollRef.current
+        : standaloneTableHorizontalScrollRef.current;
+
+      const targets = [bodyEl, headerEl].filter(Boolean);
+      const anyOverflow = targets.some((t) => t.scrollWidth > t.clientWidth);
+      if (!anyOverflow) {
+        attempts += 1;
+        if (attempts < maxAttempts) rafId = requestAnimationFrame(tick);
+        return;
+      }
+
+      if (bodyEl) {
+        scrollRtlGridHorizontalStartToRight(bodyEl);
+        if (headerEl) headerEl.scrollLeft = bodyEl.scrollLeft;
+      } else if (headerEl) {
+        scrollRtlGridHorizontalStartToRight(headerEl);
+      }
+
+      rtlGridInitialScrollRightDoneRef.current = true;
+    };
+
+    rafId = requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(rafId);
+    };
+  }, [
+    direction,
+    enableHorizontalScroll,
+    containScroll,
+    showHorizontalScrollbar,
+    splitRtlBodyVerticalHorizontal,
+    scrollContainerReady,
+    totalWidth,
+    rows.length,
+  ]);
+
   const toolbarClearSx = getToolbarClearButtonsSx(toolbarClearButtonsSx);
   const selectedCount = selection?.size ?? 0;
   const showOutsideGridHeader = outsideGridHeader != null;
@@ -442,6 +542,8 @@ function GridTableInner({
   const tableContent = (
     <GridErrorBoundary>
       <TableContainer
+        ref={standaloneTableHorizontalScrollRef}
+        dir={enableHorizontalScroll ? horizontalScrollportDir : undefined}
         component={Paper}
         variant="outlined"
         sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { constrainToParent: true })}
@@ -449,6 +551,7 @@ function GridTableInner({
         <SelectionStyleApplicator tableId={tableId} selection={selection} />
         <Table
           id={tableId}
+          dir={direction}
           size="small"
           stickyHeader={!containScroll}
           aria-label="Data grid"
@@ -546,6 +649,7 @@ function GridTableInner({
           sx={getTableContainerSx(enableHorizontalScroll, totalWidth, { noScroll: true })}
         >
           <Table
+            dir={direction}
             size="small"
             aria-label="Data grid header"
             sx={getTableSx(totalWidth, enableHorizontalScroll)}
@@ -609,6 +713,9 @@ function GridTableInner({
     const bodyTableEmpty = (
       <GridErrorBoundary>
         <TableContainer
+          ref={bodyNestedHorizontalScrollRef}
+          dir={nestedTableHorizontalDir}
+          onScroll={!showHorizontalScrollbar ? handleBodyScroll : undefined}
           component={Paper}
           variant="outlined"
           sx={getTableContainerSx(enableHorizontalScroll, totalWidth, {
@@ -616,7 +723,7 @@ function GridTableInner({
             ...(enableHorizontalScroll && showHorizontalScrollbar ? { noScroll: true } : {}),
           })}
         >
-          <Table size="small" aria-label="Data grid body" sx={getTableSx(totalWidth, enableHorizontalScroll)}>
+          <Table dir={direction} size="small" aria-label="Data grid body" sx={getTableSx(totalWidth, enableHorizontalScroll)}>
             <colgroup>
               {multiSelectable && <col style={{ width: `${CHECKBOX_COLUMN_WIDTH_PX}px`, minWidth: `${CHECKBOX_COLUMN_WIDTH_PX}px` }} />}
               {columns.map((col) => (
@@ -635,6 +742,7 @@ function GridTableInner({
         {toolbarBox}
         <Box
           ref={headerScrollRef}
+          dir={horizontalScrollportDir}
           onScroll={handleHeaderScroll}
           sx={{ ...getHeaderScrollWrapperSx(direction, scrollbarWidth, false), flexShrink: 0 }}
         >
@@ -650,46 +758,105 @@ function GridTableInner({
               onScrollContainerReadyForLayout(ready);
             }
           }}
-          onScroll={handleBodyScroll}
-          sx={getScrollInnerBoxSx(enableHorizontalScroll, { showHorizontalScrollbar })}
+          dir={splitRtlBodyVerticalHorizontal ? 'rtl' : bodyCombinedScrollDir}
+          onScroll={splitRtlBodyVerticalHorizontal ? undefined : handleBodyScroll}
+          sx={
+            splitRtlBodyVerticalHorizontal
+              ? getScrollBodyOuterVerticalRtlSx()
+              : getScrollInnerBoxSx(enableHorizontalScroll, { showHorizontalScrollbar })
+          }
         >
           <ScrollContainerContext.Provider value={{ ref: tooltipContainerRef, scrollContainerRef, ready: scrollContainerReady }}>
-            {rows.length > 0 ? (
-              <TableContainer
-                component={Paper}
-                variant="outlined"
-                sx={getTableContainerSx(enableHorizontalScroll, totalWidth, {
-                  hideTopBorder: true,
-                  ...(enableHorizontalScroll && showHorizontalScrollbar ? { noScroll: true } : {}),
-                })}
+            {splitRtlBodyVerticalHorizontal ? (
+              <Box
+                ref={bodyHorizontalScrollRef}
+                dir={horizontalScrollportDir}
+                onScroll={handleBodyScroll}
+                sx={getScrollBodyInnerHorizontalSx(enableHorizontalScroll)}
               >
-                <SelectionStyleApplicator tableId={tableId} selection={selection} />
-                <GridTableBodyVirtuoso
-                  tableId={tableId}
-                  rows={rows}
-                  columns={columns}
-                  getRowId={getRowId}
-                  rowHeight={rowHeight}
-                  multiSelectable={multiSelectable}
-                  selection={selection}
-                  mergedRowStylesMap={mergedRowStylesMap}
-                  rowStylesMap={rowStylesMap}
-                  selectedRowStyle={selectedRowStyle}
-                  disableRowHover={disableRowHover}
-                  onSelectRow={handleSelectRow}
-                  getEditor={getEditor}
-                  direction={direction}
-                  onClick={handleTableBodyClick}
-                  onDoubleClick={handleTableBodyDoubleClick}
-                  scrollContainerRef={scrollContainerRef}
-                  scrollContainerReady={scrollContainerReady}
-                  enableHorizontalScroll={enableHorizontalScroll}
-                  totalWidth={totalWidth}
-                  bodyColRefs={bodyColRefs}
-                />
-              </TableContainer>
+                {rows.length > 0 ? (
+                  <TableContainer
+                    ref={bodyNestedHorizontalScrollRef}
+                    dir={nestedTableHorizontalDir}
+                    component={Paper}
+                    variant="outlined"
+                    sx={getTableContainerSx(enableHorizontalScroll, totalWidth, {
+                      hideTopBorder: true,
+                      ...(enableHorizontalScroll && showHorizontalScrollbar ? { noScroll: true } : {}),
+                    })}
+                  >
+                    <SelectionStyleApplicator tableId={tableId} selection={selection} />
+                    <GridTableBodyVirtuoso
+                      tableId={tableId}
+                      rows={rows}
+                      columns={columns}
+                      getRowId={getRowId}
+                      rowHeight={rowHeight}
+                      multiSelectable={multiSelectable}
+                      selection={selection}
+                      mergedRowStylesMap={mergedRowStylesMap}
+                      rowStylesMap={rowStylesMap}
+                      selectedRowStyle={selectedRowStyle}
+                      disableRowHover={disableRowHover}
+                      onSelectRow={handleSelectRow}
+                      getEditor={getEditor}
+                      direction={direction}
+                      onClick={handleTableBodyClick}
+                      onDoubleClick={handleTableBodyDoubleClick}
+                      scrollContainerRef={scrollContainerRef}
+                      scrollContainerReady={scrollContainerReady}
+                      enableHorizontalScroll={enableHorizontalScroll}
+                      totalWidth={totalWidth}
+                      bodyColRefs={bodyColRefs}
+                    />
+                  </TableContainer>
+                ) : (
+                  bodyTableEmpty
+                )}
+              </Box>
             ) : (
-              bodyTableEmpty
+              <>
+                {rows.length > 0 ? (
+                  <TableContainer
+                    ref={bodyNestedHorizontalScrollRef}
+                    dir={nestedTableHorizontalDir}
+                    onScroll={!showHorizontalScrollbar ? handleBodyScroll : undefined}
+                    component={Paper}
+                    variant="outlined"
+                    sx={getTableContainerSx(enableHorizontalScroll, totalWidth, {
+                      hideTopBorder: true,
+                      ...(enableHorizontalScroll && showHorizontalScrollbar ? { noScroll: true } : {}),
+                    })}
+                  >
+                    <SelectionStyleApplicator tableId={tableId} selection={selection} />
+                    <GridTableBodyVirtuoso
+                      tableId={tableId}
+                      rows={rows}
+                      columns={columns}
+                      getRowId={getRowId}
+                      rowHeight={rowHeight}
+                      multiSelectable={multiSelectable}
+                      selection={selection}
+                      mergedRowStylesMap={mergedRowStylesMap}
+                      rowStylesMap={rowStylesMap}
+                      selectedRowStyle={selectedRowStyle}
+                      disableRowHover={disableRowHover}
+                      onSelectRow={handleSelectRow}
+                      getEditor={getEditor}
+                      direction={direction}
+                      onClick={handleTableBodyClick}
+                      onDoubleClick={handleTableBodyDoubleClick}
+                      scrollContainerRef={scrollContainerRef}
+                      scrollContainerReady={scrollContainerReady}
+                      enableHorizontalScroll={enableHorizontalScroll}
+                      totalWidth={totalWidth}
+                      bodyColRefs={bodyColRefs}
+                    />
+                  </TableContainer>
+                ) : (
+                  bodyTableEmpty
+                )}
+              </>
             )}
           </ScrollContainerContext.Provider>
         </Box>

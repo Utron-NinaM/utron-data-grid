@@ -174,6 +174,7 @@ export function GridTableBodyVirtuoso({
       Table: ({ style, ...rest }) => (
         <Table
           id={tableId}
+          dir={direction}
           size="small"
           aria-label="Data grid body"
           sx={{ ...getTableSx(totalWidth, enableHorizontalScroll), ...style }}
@@ -235,6 +236,7 @@ export function GridTableBodyVirtuoso({
     };
   }, [
     tableId,
+    direction,
     rowHeight,
     enableHorizontalScroll,
     totalWidth,

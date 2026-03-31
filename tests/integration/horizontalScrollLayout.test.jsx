@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { DataGrid } from '../../src/DataGrid/DataGrid';
-import { FILTER_TYPE_NONE } from '../../src/config/schema';
+import { FILTER_TYPE_NONE, DIRECTION_RTL } from '../../src/config/schema';
 
 const theme = createTheme();
 
@@ -54,6 +54,70 @@ describe('Horizontal scroll layout (containScroll)', () => {
     const bodyScroll = getBodyScrollElement();
     const ox = window.getComputedStyle(bodyScroll).overflowX;
     expect(['auto', 'scroll']).toContain(ox);
+  });
+
+  it('RTL + showHorizontalScrollbar: outer body scrolls vertically only (scrollbar left); inner layer scrolls horizontally', async () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <DataGrid
+          rows={rows}
+          columns={wideColumns}
+          getRowId={(r) => r.id}
+          sx={{ width: 280, height: 320 }}
+          options={{
+            direction: DIRECTION_RTL,
+            filters: false,
+            showHorizontalScrollbar: true,
+            pagination: false,
+          }}
+        />
+      </ThemeProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('table', { name: 'Data grid body' })).toBeInTheDocument();
+    });
+
+    const bodyScroll = getBodyScrollElement();
+    expect(window.getComputedStyle(bodyScroll).overflowX).toBe('hidden');
+    expect(window.getComputedStyle(bodyScroll).overflowY).toBe('auto');
+
+    const inner = bodyScroll.firstElementChild;
+    expect(inner).toBeTruthy();
+    const innerOx = window.getComputedStyle(inner).overflowX;
+    expect(['auto', 'scroll']).toContain(innerOx);
+  });
+
+  it('syncs scrollLeft from inner horizontal layer to header when RTL + showHorizontalScrollbar', async () => {
+    render(
+      <ThemeProvider theme={theme}>
+        <DataGrid
+          rows={rows}
+          columns={wideColumns}
+          getRowId={(r) => r.id}
+          sx={{ width: 280, height: 320 }}
+          options={{
+            direction: DIRECTION_RTL,
+            filters: false,
+            showHorizontalScrollbar: true,
+            pagination: false,
+          }}
+        />
+      </ThemeProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('table', { name: 'Data grid body' })).toBeInTheDocument();
+    });
+
+    const headerScroll = getHeaderScrollElement();
+    const bodyScroll = getBodyScrollElement();
+    const inner = bodyScroll.firstElementChild;
+    expect(inner).toBeTruthy();
+    inner.scrollLeft = 100;
+    fireEvent.scroll(inner);
+
+    expect(headerScroll.scrollLeft).toBe(100);
   });
 
   it('keeps overflow-x hidden on the body scroll box when showHorizontalScrollbar is false', async () => {

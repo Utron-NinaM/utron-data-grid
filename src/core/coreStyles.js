@@ -23,6 +23,16 @@ import {
   TOOLBAR_CLEAR_BUTTON_DISABLED_COLOR,
 } from '../constants';
 
+/**
+ * `dir` for elements that create a horizontal scrollport when the grid is RTL.
+ * Keeps `scrollLeft` aligned with physical left (LTR scroll coordinates); pair with `dir={direction}` on `<Table>`.
+ * @param {string} direction - `ltr` | `rtl`
+ * @returns {'ltr' | undefined}
+ */
+export function getHorizontalScrollportDir(direction) {
+  return direction === DIRECTION_RTL ? 'ltr' : undefined;
+}
+
 /** Thinner native horizontal scrollbar (Firefox `scrollbar-width: thin` + WebKit track height). */
 export const gentleHorizontalScrollbarSx = {
   scrollbarWidth: 'thin',
@@ -79,7 +89,7 @@ export function getToolbarBoxSx(containScroll) {
   };
 }
 
-export const toolbarLeftBoxSx = { display: 'flex', justifyContent: 'flex-start', gap: 2 };
+export const toolbarLeftBoxSx = { display: 'flex', justifyContent: 'flex-start', gap: 2 , alignItems: 'flex-end'};
 export const toolbarActionsBoxSx = { display: 'flex', gap: 1 };
 
 /** Row above toolbar: optional title + multi-select summary grouped at inline-start; inherits dir from root for LTR/RTL */
@@ -206,6 +216,30 @@ export function getScrollInnerBoxSx(enableHorizontalScroll, opts = {}) {
     // Reserve scrollbar space so width is stable when switching page size (10→25 rows); prevents brief horizontal scroll flash
     scrollbarGutter: 'stable',
     ...(horizontalOnBody && gentleHorizontalScrollbarSx),
+  };
+}
+
+/** Outer body layer: RTL vertical scroll only so the vertical scrollbar sits on the left (inline-start). */
+export function getScrollBodyOuterVerticalRtlSx() {
+  return {
+    flex: 1,
+    minHeight: 0,
+    minWidth: 0,
+    position: 'relative',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    scrollbarGutter: 'stable',
+  };
+}
+
+/** Inner body layer under {@link getScrollBodyOuterVerticalRtlSx}: LTR horizontal scroll + gentle bar. */
+export function getScrollBodyInnerHorizontalSx(enableHorizontalScroll) {
+  return {
+    overflowX: enableHorizontalScroll ? 'auto' : 'visible',
+    overflowY: 'visible',
+    width: '100%',
+    minWidth: 0,
+    ...(enableHorizontalScroll && gentleHorizontalScrollbarSx),
   };
 }
 

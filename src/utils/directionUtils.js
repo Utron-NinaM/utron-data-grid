@@ -16,3 +16,15 @@ export function getDateTimeFormat(direction) {
 export function getDefaultAlign(direction) {
   return direction === DIRECTION_RTL ? ALIGN_RIGHT : ALIGN_LEFT;
 }
+
+/**
+ * Horizontal scrollports use `dir="ltr"` while the table uses `dir="rtl"`, so `scrollLeft === 0` shows the
+ * physical-left columns. For RTL reading order the start is on the right — scroll to the maximum offset
+ * so the viewport aligns to the physical right.
+ * @param {Element | null | undefined} el
+ */
+export function scrollRtlGridHorizontalStartToRight(el) {
+  if (el == null || typeof el.scrollWidth !== 'number') return;
+  if (el.scrollWidth <= el.clientWidth) return;
+  el.scrollLeft = el.scrollWidth - el.clientWidth;
+}
