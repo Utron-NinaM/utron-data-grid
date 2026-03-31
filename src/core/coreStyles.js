@@ -75,10 +75,10 @@ export function getOutsideGridHeaderRowSx() {
     alignItems: 'center',
     justifyContent: 'flex-start',
     gap: 1,
-    py: 1,
+    pt: 1,
+    pb: 0,
     px: 0.5,
-    backgroundColor: 'background.paper',
-    borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+    backgroundColor: 'background.paper',    
   };
 }
 
