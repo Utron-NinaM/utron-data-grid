@@ -69,7 +69,9 @@ export function GridHeaderCell({
   }, [cellSx?.backgroundColor, headerConfig?.mainRow?.backgroundColor, headerConfig?.base?.backgroundColor, theme?.palette]);
   
   const multiColumn = sortModel?.length > 1;
-  const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight, ctx?.fontSize, direction === DIRECTION_RTL), [filterInputHeight, ctx?.fontSize, direction]); 
+  const filterBoxSx = useMemo(() => getFilterRowBoxSx(filterInputHeight, ctx?.fontSize, direction === DIRECTION_RTL), [filterInputHeight, ctx?.fontSize, direction]);
+
+  const headerTooltipTitle = String(column.headerName ?? '').trim();
 
   const handleSortClick = (event) => {
     const multiColumn = event.ctrlKey || event.metaKey;
@@ -169,22 +171,35 @@ export function GridHeaderCell({
     document.body.style.userSelect = 'none';
   };
 
+  const sortLabel = (
+    <TableSortLabel
+      active={!!sortDir}
+      direction={order}
+      onClick={handleSortClick}
+      hideSortIcon={false}
+      sx={sortLabelSx}
+    >
+      <Box component="span" sx={headerLabelSx}>
+        {column.headerName}
+      </Box>
+    </TableSortLabel>
+  );
+
   return (
     <TableCell align={align} padding="none" variant="head" sx={{ ...headerCellBaseSx, ...cellSx }}>
       <Box sx={getHeaderInnerBoxSx(mainRowHeight, headerComboSlot)}>
-        <Tooltip title={column.headerName || ''} PopperProps={{ disablePortal: true }}>
-          <TableSortLabel
-            active={!!sortDir}
-            direction={order}
-            onClick={handleSortClick}
-            hideSortIcon={false}
-            sx={sortLabelSx}
+        {headerTooltipTitle ? (
+          <Tooltip
+            title={headerTooltipTitle}
+            arrow
+            placement="top"
+            PopperProps={{ disablePortal: false }}
           >
-            <Box component="span" sx={headerLabelSx}>
-              {column.headerName}
-            </Box>
-          </TableSortLabel>
-        </Tooltip>
+            {sortLabel}
+          </Tooltip>
+        ) : (
+          sortLabel
+        )}
         {/* Reserve space for sort order badge to prevent column width shift on multi-sort */}
         <Box component="span" sx={{ minWidth: SORT_ORDER_BADGE_MIN_WIDTH, flexShrink: 0 }}>
           {sortOrderIndex != null && multiColumn ? (

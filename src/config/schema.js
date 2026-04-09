@@ -19,7 +19,7 @@ import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck
 /**
  * Column definition shape (JSDoc for consumers).
  * field: string (key in row object)
- * headerName: string
+ * headerName: string — shown in the header; on hover, a tooltip shows the full headerName (ellipsis in the label does not shorten the tooltip).
  * width?: number | string — number for px, string like "20%" for percentage width (calculated relative to container width)
  * minWidth?: number
  * type?: 'text' | 'number' | 'date' | 'datetime' | 'list'

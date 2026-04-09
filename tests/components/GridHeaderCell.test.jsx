@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Table, TableHead, TableRow } from '@mui/material';
 import { GridHeaderCell } from '../../src/core/GridHeaderCell';
@@ -41,6 +41,30 @@ describe('GridHeaderCell Component', () => {
         <GridHeaderCell column={column} sortModel={[]} onSort={vi.fn()} />
       );
       expect(screen.getByText('Age')).toBeInTheDocument();
+    });
+  });
+
+  describe('Header tooltip', () => {
+    it('should show tooltip with full headerName on hover', async () => {
+      const fullTitle = 'Long header title '.repeat(5).trim();
+      const column = { field: 'c', headerName: fullTitle };
+      renderWithContext(<GridHeaderCell column={column} sortModel={[]} onSort={vi.fn()} />);
+      fireEvent.mouseOver(screen.getByText(fullTitle));
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip')).toHaveTextContent(fullTitle);
+      });
+    });
+
+    it('should not show a tooltip when headerName is empty after trim', async () => {
+      const column = { field: 'c', headerName: '   ' };
+      renderWithContext(<GridHeaderCell column={column} sortModel={[]} onSort={vi.fn()} />);
+      fireEvent.mouseOver(screen.getByRole('columnheader'));
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+        },
+        { timeout: 400 },
+      );
     });
   });
 
