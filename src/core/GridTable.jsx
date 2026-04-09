@@ -1,4 +1,4 @@
-import React, { memo, useContext, useId, useMemo, useRef, useEffect, useState, useLayoutEffect, useSyncExternalStore } from 'react';
+import React, { memo, useContext, useId, useMemo, useCallback, useRef, useEffect, useState, useLayoutEffect, useSyncExternalStore } from 'react';
 import Table from '@mui/material/Table';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
@@ -31,6 +31,7 @@ import { GridErrorBoundary } from './GridErrorBoundary';
 import { exportToCsv } from '../utils/exportToCsv';
 import { exportToPdf } from '../utils/exportToPdf';
 import { CHECKBOX_COLUMN_WIDTH_PX, BODY_ROW_HEIGHT } from '../constants';
+import { DIRECTION_RTL } from '../config/schema';
 import {
   getToolbarBoxSx,
   toolbarActionsBoxSx,
@@ -195,7 +196,7 @@ function GridTableInner({
   const scrollContainerRef = useRef(null);
   const tooltipContainerRef = useRef(null);
   const [scrollContainerReady, setScrollContainerReady] = useState(false);
-  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  const scrollbarWidthRef = useRef(0);
 
   const rowHeight = bodyRow?.height ?? BODY_ROW_HEIGHT;
   const visibleRows = containScroll ? rows : rows;
@@ -222,11 +223,25 @@ function GridTableInner({
     />
   );
 
-  const measureScrollbarWidth = useMemo(() => () => {
-    if (!scrollContainerRef.current) return;
+  // Imperatively applies vertical-scrollbar padding to the header wrapper.
+  // Using imperative DOM updates (same pattern as column-width updates) avoids a React re-render
+  // cycle that could affect scroll position.
+  const measureScrollbarWidth = useCallback(() => {
     const el = scrollContainerRef.current;
-    setScrollbarWidth(el.offsetWidth - el.clientWidth);
-  }, []);
+    const headerEl = headerScrollRef.current;
+    if (!el || !headerEl) return;
+    const newWidth = el.offsetWidth - el.clientWidth;
+    if (newWidth !== scrollbarWidthRef.current) {
+      scrollbarWidthRef.current = newWidth;
+      if (direction === DIRECTION_RTL) {
+        headerEl.style.paddingLeft = newWidth > 0 ? `${newWidth}px` : '';
+        headerEl.style.paddingRight = '';
+      } else {
+        headerEl.style.paddingRight = newWidth > 0 ? `${newWidth}px` : '';
+        headerEl.style.paddingLeft = '';
+      }
+    }
+  }, [direction]);
 
   useLayoutEffect(() => {
     if (!containScroll || !scrollContainerRef.current) return;
@@ -636,7 +651,7 @@ function GridTableInner({
         <Box
           ref={headerScrollRef}
           onScroll={handleHeaderScroll}
-          sx={{ ...getHeaderScrollWrapperSx(direction, scrollbarWidth, false), flexShrink: 0 }}
+          sx={{ ...getHeaderScrollWrapperSx(false), flexShrink: 0 }}
         >
           {headerTable}
         </Box>

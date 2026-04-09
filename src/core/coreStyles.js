@@ -45,6 +45,23 @@ export function getResizeLineColor(columnBackground, theme) {
   return `rgba(0, 0, 0, ${DIVIDER_ALPHA})`;
 }
 
+/** Thinner native horizontal scrollbar (Firefox `scrollbar-width: thin` + WebKit track height). */
+export const gentleHorizontalScrollbarSx = {
+  scrollbarWidth: 'thin',
+  scrollbarColor: (theme) =>
+    `${alpha(theme.palette.text.primary, 0.2)} ${alpha(theme.palette.divider, 0.06)}`,
+  '&::-webkit-scrollbar:horizontal': {
+    height: 5,
+  },
+  '&::-webkit-scrollbar-thumb:horizontal': {
+    borderRadius: 3,
+    backgroundColor: (theme) => alpha(theme.palette.text.primary, 0.2),
+  },
+  '&::-webkit-scrollbar-track:horizontal': {
+    backgroundColor: (theme) => alpha(theme.palette.divider, 0.05),
+  },
+};
+
 // ----- GridTable -----
 
 export function getToolbarBoxSx(containScroll) {
@@ -62,7 +79,7 @@ export function getToolbarBoxSx(containScroll) {
   };
 }
 
-export const toolbarLeftBoxSx = { display: 'flex', justifyContent: 'flex-start', gap: 2 };
+export const toolbarLeftBoxSx = { display: 'flex', justifyContent: 'flex-start', gap: 2 , alignItems: 'flex-end'};
 export const toolbarActionsBoxSx = { display: 'flex', gap: 1 };
 
 /** Row above toolbar: optional title + multi-select summary grouped at inline-start; inherits dir from root for LTR/RTL */
@@ -78,12 +95,13 @@ export function getOutsideGridHeaderRowSx() {
     pt: 1,
     pb: 0,
     px: 0.5,
-    backgroundColor: 'background.paper',    
+    backgroundColor: 'background.paper',
   };
 }
 
 export function getTableContainerSx(enableHorizontalScroll, totalWidth, opts = {}) {
   const { hideTopBorder, noScroll, constrainToParent } = opts;
+  const horizontalScrollOnContainer = Boolean(enableHorizontalScroll && !noScroll);
   return {
     overflowX: noScroll ? 'visible' : (enableHorizontalScroll ? 'scroll' : 'visible'),
     overflowY: 'visible',
@@ -92,6 +110,7 @@ export function getTableContainerSx(enableHorizontalScroll, totalWidth, opts = {
     borderRight: 'none',
     borderLeft: 'none',
     ...(hideTopBorder && { borderTop: 'none' }),
+    ...(horizontalScrollOnContainer && gentleHorizontalScrollbarSx),
   };
 }
 
@@ -145,9 +164,9 @@ export function getFilterRowSx(headerConfig) {
   };
 }
 
-/** Header wrapper when containScroll: horizontal scroll synced with body; scrollbar hidden when showScrollbar is false (default). Reserves space for body vertical scrollbar. */
-export function getHeaderScrollWrapperSx(direction, scrollbarWidth, showScrollbar = false) {
-  const padding = scrollbarWidth && scrollbarWidth > 0 ? scrollbarWidth : 0;
+/** Header wrapper when containScroll: horizontal scroll synced with body; scrollbar hidden when showScrollbar is false (default).
+ *  Vertical-scrollbar padding compensation is applied imperatively by measureScrollbarWidth in GridTable. */
+export function getHeaderScrollWrapperSx(showScrollbar = false) {
   return {
     minWidth: 0,
     overflowX: 'auto',
@@ -157,7 +176,6 @@ export function getHeaderScrollWrapperSx(direction, scrollbarWidth, showScrollba
       msOverflowStyle: 'none',
       '&::-webkit-scrollbar': { display: 'none' },
     }),
-    ...(padding > 0 && (direction === DIRECTION_RTL ? { paddingLeft: padding } : { paddingRight: padding })),
   };
 }
 
@@ -184,8 +202,10 @@ export function getScrollInnerBoxSx(enableHorizontalScroll, opts = {}) {
     position: 'relative',
     overflow: 'auto',
     overflowX: horizontalOnBody ? 'auto' : 'hidden',
-    // Reserve scrollbar space so width is stable when switching page size (10→25 rows); prevents brief horizontal scroll flash
-    scrollbarGutter: 'stable',
+    // scrollbarGutter: 'stable' removed — in RTL Chrome it initializes body scrollLeft at -scrollbarWidth
+    // instead of 0, causing a transient misalignment between header and body on mount.
+    // Padding compensation is applied imperatively by measureScrollbarWidth (no layout flash).
+    ...(horizontalOnBody && gentleHorizontalScrollbarSx),
   };
 }
 

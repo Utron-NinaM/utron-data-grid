@@ -98,7 +98,7 @@ const rows = [
 | `editToolbarSaveButtonSx` | `object` | MUI sx applied to the Save button in the edit toolbar. |
 | `editToolbarCancelButtonSx` | `object` | MUI sx applied to the Cancel button in the edit toolbar. |
 | `fontSize` | `number` | Font size in px for cells, filters, inputs, pagination (default 13). |
-| `showHorizontalScrollbar` | `boolean` | When true and horizontal scroll is enabled (e.g. `containScroll` with overflow), show the horizontal scrollbar on the body scroll area at the bottom of the visible grid (above pagination when pagination is on; default false). |
+| `showHorizontalScrollbar` | `boolean` | For **scrollable layout** (`options.sx` with `height` or `maxHeight` so the body scrolls vertically) and wide tables, when true the **horizontal scrollbar is shown on the body viewport** (bottom of that scroll area, above pagination when enabled). The header stays **scroll-synced** with the body; the header’s horizontal scrollbar stays hidden. The bar is styled **thin** (Firefox `scrollbar-width: thin`; compact track in WebKit). Default false: horizontal scroll stays on the **inner table container** (no bar on the outer body viewport). |
 | `fontFamily` | `string` | Font family for all grid components (e.g. `'Roboto, sans-serif'`, `var(--app-font-family)`). Cascades from root. |
 | `fontWeight` | `number` or `string` | Font weight (e.g. `400`, `600`, `'bold'`). Cascades from root. |
 | `dropdownBoundaryRef` | `React.RefObject<HTMLElement \| null>` | Ref to the element that defines the clipping area for list and filter dropdowns (e.g. the main content wrapper that excludes sidebars). When set, dropdowns stay within this element's bounds; omit to use the viewport. Works for RTL and LTR. |
@@ -308,8 +308,8 @@ const mainContentRef = useRef(null);
 
 When **`multiSelectable`** is true and at least one row is selected:
 
-- **Without** `outsideGridHeader`: **`(n)`** and the clear **icon** appear on the toolbar’s trailing side (same row as export actions), not next to Clear sort / Clear filters.
-- **With** `outsideGridHeader`: the same **`(n)`** + icon appear **beside your title** in the outside header row (tooltip / `aria-label` from `clearMultiSelectionIconTooltip` and `clearMultiSelectionIconAria`).
+- **Without** `outsideGridHeader`: **`(n)`** and the clear **icon** sit at **inline-end** of the toolbar row (same cluster as export / column config), not next to Clear sort / Clear filters. Placement respects `direction` (LTR/RTL).
+- **With** `outsideGridHeader`: the same **`(n)`** + icon appear **beside your title** at **inline-start** of the outside header row (tooltip / `aria-label` from `clearMultiSelectionIconTooltip` and `clearMultiSelectionIconAria`).
 
 `onSelectionChange` is called with an empty array when the user clears multi-select either way. While a row is in edit mode, these controls are non-interactive (same as the rest of the toolbar).
 
@@ -351,6 +351,8 @@ When the grid has a height constraint (`options.sx` with `height` or `maxHeight`
 - **Editing** – the row being edited is always kept in the rendered range so it never disappears during edit mode.
 
 You do not enable virtualization explicitly: it is on whenever the grid root has a height constraint (e.g. `sx: { height: '100%' }` inside a flex container with `minHeight: 0`). Use a constrained height when you need smooth scrolling over large datasets without rendering every row.
+
+**Wide tables:** If total column width exceeds the viewport, the body area scrolls horizontally and the table header stays in sync. Set `showHorizontalScrollbar: true` in options if you want a visible horizontal scrollbar at the bottom of that viewport (see **`showHorizontalScrollbar`** in the options table).
 
 ## Editing Empty Placeholder Rows
 

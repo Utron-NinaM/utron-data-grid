@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import { getScrollInnerBoxSx, getHeaderScrollWrapperSx } from '../../src/core/coreStyles';
-import { DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
 
 describe('coreStyles horizontal scroll helpers', () => {
   describe('getScrollInnerBoxSx', () => {
@@ -20,25 +19,21 @@ describe('coreStyles horizontal scroll helpers', () => {
 
   describe('getHeaderScrollWrapperSx', () => {
     it('hides native scrollbar when showScrollbar is false', () => {
-      const sx = getHeaderScrollWrapperSx(DIRECTION_LTR, 0, false);
+      const sx = getHeaderScrollWrapperSx(false);
       expect(sx.scrollbarWidth).toBe('none');
       expect(sx['&::-webkit-scrollbar']).toEqual({ display: 'none' });
     });
 
     it('does not hide scrollbar styles when showScrollbar is true', () => {
-      const sx = getHeaderScrollWrapperSx(DIRECTION_LTR, 0, true);
+      const sx = getHeaderScrollWrapperSx(true);
       expect(sx.scrollbarWidth).toBeUndefined();
       expect(sx['&::-webkit-scrollbar']).toBeUndefined();
     });
 
-    it('pads inline end for vertical scrollbar width in LTR', () => {
-      const sx = getHeaderScrollWrapperSx(DIRECTION_LTR, 12, false);
-      expect(sx.paddingRight).toBe(12);
-    });
-
-    it('pads inline start for vertical scrollbar width in RTL', () => {
-      const sx = getHeaderScrollWrapperSx(DIRECTION_RTL, 12, false);
-      expect(sx.paddingLeft).toBe(12);
+    it('contains no padding (padding is applied imperatively by measureScrollbarWidth)', () => {
+      const sx = getHeaderScrollWrapperSx(false);
+      expect(sx.paddingLeft).toBeUndefined();
+      expect(sx.paddingRight).toBeUndefined();
     });
   });
 });
