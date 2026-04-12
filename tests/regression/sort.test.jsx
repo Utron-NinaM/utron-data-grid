@@ -406,6 +406,131 @@ describe('Sort Regression Tests', () => {
     });
   });
 
+  describe('Test initialSortModel', () => {
+    function firstBodyRowId() {
+      const root = screen.getByTestId('data-grid-root');
+      const tr = root.querySelector('tbody tr[data-row-id]');
+      return tr?.getAttribute('data-row-id') ?? null;
+    }
+
+    it('applies initialSortModel when sort storage key is missing', async () => {
+      const gridId = 'test-initial-sort-no-key';
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{
+            pagination: false,
+            gridId,
+            initialSortModel: [{ field: 'score', order: SORT_ORDER_ASC }],
+          }}
+        />
+      );
+      await waitFor(() => {
+        expect(firstBodyRowId()).toBe('3');
+      });
+    });
+
+    it('prefers persisted sort over initialSortModel', async () => {
+      const gridId = 'test-initial-sort-persisted';
+      localStorage.setItem(
+        SORT_STORAGE_KEY_PREFIX + gridId,
+        JSON.stringify([{ field: 'name', order: SORT_ORDER_DESC }])
+      );
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{
+            pagination: false,
+            gridId,
+            initialSortModel: [{ field: 'score', order: SORT_ORDER_ASC }],
+          }}
+        />
+      );
+      await waitFor(() => {
+        expect(firstBodyRowId()).toBe('4');
+      });
+    });
+
+    it('applies initialSortModel when storage has explicit empty array', async () => {
+      const gridId = 'test-initial-sort-empty-key';
+      localStorage.setItem(SORT_STORAGE_KEY_PREFIX + gridId, JSON.stringify([]));
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{
+            pagination: false,
+            gridId,
+            initialSortModel: [{ field: 'score', order: SORT_ORDER_ASC }],
+          }}
+        />
+      );
+      await waitFor(() => {
+        expect(firstBodyRowId()).toBe('3');
+      });
+    });
+
+    it('does NOT write initialSortModel to localStorage on mount', async () => {
+      const gridId = 'test-initial-sort-no-persist';
+      const sortKey = SORT_STORAGE_KEY_PREFIX + gridId;
+      // reset setItem spy to ignore calls from the above setItem(SORT_STORAGE_KEY_PREFIX+gridId, '[]') setup
+      localStorage.setItem.mockClear();
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{
+            pagination: false,
+            gridId,
+            initialSortModel: [{ field: 'score', order: SORT_ORDER_ASC }],
+          }}
+        />
+      );
+      // Wait for the grid to render and any effects to run
+      await waitFor(() => {
+        expect(firstBodyRowId()).toBe('3');
+      });
+      const sortWrites = localStorage.setItem.mock.calls.filter(([k]) => k === sortKey);
+      expect(sortWrites).toHaveLength(0);
+    });
+
+    it('writes to localStorage when user sorts a column (overrides default)', async () => {
+      const gridId = 'test-initial-sort-user-overrides';
+      const sortKey = SORT_STORAGE_KEY_PREFIX + gridId;
+      render(
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          getRowId={getRowId}
+          options={{
+            pagination: false,
+            gridId,
+            initialSortModel: [{ field: 'score', order: SORT_ORDER_ASC }],
+          }}
+        />
+      );
+      await waitFor(() => {
+        expect(firstBodyRowId()).toBe('3');
+      });
+      localStorage.setItem.mockClear();
+
+      // User clicks Name header to sort
+      fireEvent.click(screen.getByText('Name'));
+      await waitFor(() => {
+        const sortWrites = localStorage.setItem.mock.calls.filter(([k]) => k === sortKey);
+        expect(sortWrites.length).toBeGreaterThan(0);
+        const lastWritten = JSON.parse(sortWrites.at(-1)[1]);
+        expect(lastWritten).toEqual([{ field: 'name', order: SORT_ORDER_ASC }]);
+      });
+    });
+  });
+
   describe('Test sort with active filters', () => {
     it('should sort filtered data correctly', async () => {
       render(

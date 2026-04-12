@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useDataGrid } from '../../src/DataGrid/useDataGrid';
 import { OPERATOR_CONTAINS, OPERATOR_IN_RANGE, SORT_ORDER_ASC, SORT_ORDER_DESC } from '../../src/config/schema';
+import * as sortUtils from '../../src/utils/sortUtils';
 
 vi.mock('lodash/debounce', () => ({
   default: (fn) => {
@@ -15,8 +16,8 @@ vi.mock('../../src/utils/sortUtils', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    getStoredSortModel: () => [],
-    saveSortModel: () => {},
+    getStoredSortModel: vi.fn(() => []),
+    saveSortModel: vi.fn(),
   };
 });
 
@@ -204,7 +205,7 @@ describe('useDataGrid', () => {
   });
 
   describe('handleClearSort and handleClearAllFilters', () => {
-    it('handleClearSort sets sortModel to []', () => {
+    it('handleClearSort sets sortModel to [] when no initialSortModel', () => {
       const { result } = renderHook(useDataGrid, {
         initialProps: {
           rows: defaultRows,
@@ -216,6 +217,44 @@ describe('useDataGrid', () => {
       expect(result.current.sortModel).toHaveLength(1);
       act(() => result.current.handleClearSort());
       expect(result.current.sortModel).toEqual([]);
+    });
+
+    it('handleClearSort restores initialSortModel when provided', () => {
+      const initialSortModel = [{ field: 'score', order: SORT_ORDER_DESC }];
+      const { result } = renderHook(useDataGrid, {
+        initialProps: {
+          rows: defaultRows,
+          columns: defaultColumns,
+          getRowId: defaultGetRowId,
+          initialSortModel,
+        },
+      });
+      act(() => result.current.handleSort('name', false));
+      expect(result.current.sortModel[0].field).toBe('name');
+      act(() => result.current.handleClearSort());
+      expect(result.current.sortModel).toEqual(initialSortModel);
+    });
+
+    it('handleClearSort saves [] to localStorage to clear stored user preference', () => {
+      vi.stubGlobal('localStorage', { getItem: vi.fn(() => null), setItem: vi.fn(), removeItem: vi.fn() });
+      sortUtils.saveSortModel.mockClear();
+      const { result, unmount } = renderHook(useDataGrid, {
+        initialProps: {
+          rows: defaultRows,
+          columns: defaultColumns,
+          getRowId: defaultGetRowId,
+          gridId: 'clear-sort-test',
+          initialSortModel: [{ field: 'score', order: SORT_ORDER_DESC }],
+        },
+      });
+      // User sorts — sets isDefaultSortRef to false
+      act(() => result.current.handleSort('name', false));
+      sortUtils.saveSortModel.mockClear();
+      // User clears — should write [] to localStorage
+      act(() => result.current.handleClearSort());
+      expect(sortUtils.saveSortModel).toHaveBeenCalledWith('clear-sort-test', []);
+      unmount();
+      vi.unstubAllGlobals();
     });
 
     it('handleClearAllFilters clears filterModel and resets page', () => {

@@ -5,6 +5,7 @@ import { DemoConfigProvider } from './DemoConfigContext';
 import { ConfigPage } from './ConfigPage';
 import { GridExamplePage } from './GridExamplePage';
 
+/** Demo grid options (incl. initial sort preset) are edited on ConfigPage from `gridOptionDefinitions`. */
 export function ConfigDemoApp() {
   return (
     <DemoConfigProvider>

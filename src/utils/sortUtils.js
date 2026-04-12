@@ -3,6 +3,26 @@ import { STORAGE_KEY_PREFIX } from '../constants';
 
 export const SORT_STORAGE_KEY_PREFIX = `${STORAGE_KEY_PREFIX}-sort-`;
 
+const VALID_ORDERS = new Set([SORT_ORDER_ASC, SORT_ORDER_DESC]);
+
+/**
+ * Keep only entries whose field exists on columns and whose order is asc or desc.
+ * @param {unknown} sortModel
+ * @param {Object[]} columns
+ * @returns {Array<{ field: string, order: 'asc'|'desc' }>}
+ */
+export function sanitizeSortModel(sortModel, columns) {
+  if (!Array.isArray(sortModel)) return [];
+  const fieldSet = new Set((columns || []).map((c) => c.field));
+  return sortModel.filter(
+    (s) =>
+      s &&
+      typeof s === 'object' &&
+      fieldSet.has(s.field) &&
+      VALID_ORDERS.has(s.order)
+  );
+}
+
 /**
  * Load persisted sort model from localStorage. Returns only entries for known column fields with valid order.
  * @param {string} gridId
@@ -15,18 +35,46 @@ export function getStoredSortModel(gridId, columns) {
     const raw = localStorage.getItem(SORT_STORAGE_KEY_PREFIX + gridId);
     if (raw == null) return [];
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    const fieldSet = new Set((columns || []).map((c) => c.field));
-    const validOrders = new Set([SORT_ORDER_ASC, SORT_ORDER_DESC]);
-    return parsed.filter(
-      (s) =>
-        s &&
-        typeof s === 'object' &&
-        fieldSet.has(s.field) &&
-        validOrders.has(s.order)
-    );
+    return sanitizeSortModel(parsed, columns);
   } catch {
     return [];
+  }
+}
+
+/**
+ * Effective sort on mount: non-empty validated persisted model wins. Otherwise (missing key, stored [],
+ * invalid JSON, non-array, or every entry invalid for current columns) treat as no user choice and use
+ * sanitized initialSortModel, or [] if initialSortModel is absent/empty after sanitize.
+ * Without gridId or localStorage, uses sanitized initialSortModel only.
+ * @param {string|undefined|null} gridId
+ * @param {Object[]} columns
+ * @param {Array<{ field: string, order: string }>|undefined|null} initialSortModel
+ * @returns {Array<{ field: string, order: 'asc'|'desc' }>}
+ */
+export function getResolvedSortModelForMount(gridId, columns, initialSortModel) {
+  const fallback = () => sanitizeSortModel(initialSortModel, columns);
+  if (typeof localStorage === 'undefined') {
+    return fallback();
+  }
+  if (!gridId) {
+    return fallback();
+  }
+  try {
+    const raw = localStorage.getItem(SORT_STORAGE_KEY_PREFIX + gridId);
+    if (raw == null) {
+      return fallback();
+    }
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return fallback();
+    }
+    const valid = sanitizeSortModel(parsed, columns);
+    if (valid.length > 0) {
+      return valid;
+    }
+    return fallback();
+  } catch {
+    return fallback();
   }
 }
 

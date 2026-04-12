@@ -57,6 +57,7 @@ import { GRID_BUTTONS_COLOR } from '../constants';
  * @param {Set<string|number>} props.selection
  * @param {Function} props.onSelect
  * @param {Array<{ field: string, order: string }>} props.sortModel
+ * @param {boolean} [props.hasUserSort] True when the user has actively sorted (not just initialSortModel default)
  * @param {Function} props.onSort
  * @param {boolean} [props.hasActiveFilters]
  * @param {Function} [props.onRowDoubleClick]
@@ -72,6 +73,7 @@ function GridTableInner({
   onSelect,
   onClearMultiSelection = () => {},
   sortModel,
+  hasUserSort = false,
   onSort,
   hasActiveFilters,
   onRowDoubleClick,
@@ -331,7 +333,7 @@ function GridTableInner({
     <Box sx={{ pointerEvents: editRowId != null ? 'none' : 'auto' }}>
       <Box sx={getToolbarBoxSx(containScroll)}>
         <Box sx={toolbarActionsBoxSx}>
-          <Button size="small" variant="outlined" onClick={onClearSort} disabled={sortModelLength === 0} sx={toolbarClearSx}>
+          <Button size="small" variant="outlined" onClick={onClearSort} disabled={!hasUserSort} sx={toolbarClearSx}>
             {translations('clearSort')}
           </Button>
           {filters !== false && (

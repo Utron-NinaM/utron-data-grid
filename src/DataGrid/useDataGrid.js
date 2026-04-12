@@ -1,5 +1,5 @@
 import { useMemo, useCallback, useState, useEffect, useRef, useSyncExternalStore } from 'react';
-import { applySort, getStoredSortModel, saveSortModel } from '../utils/sortUtils';
+import { applySort, getResolvedSortModelForMount, getStoredSortModel, saveSortModel, sanitizeSortModel } from '../utils/sortUtils';
 import { getStoredColumnWidthState, saveColumnWidthState } from '../utils/columnWidthStorage';
 import debounce from 'lodash/debounce';
 import { applyFilters, FILTER_DEBOUNCE_MS, getStoredFilterModel, saveFilterModel } from '../filters/filterUtils';
@@ -58,6 +58,7 @@ export function useDataGrid(props) {
     disableRowHover = false,
     rowHoverStyle,
     gridId,
+    initialSortModel,
     toolbarActions,
     toolbarClearButtonsSx,
     toolbarExportButtonSx,
@@ -73,7 +74,22 @@ export function useDataGrid(props) {
     dropdownBoundaryRef,
   } = props;
 
-  const [internalSort, setInternalSort] = useState(() => getStoredSortModel(props.gridId, props.columns));
+  const [internalSort, setInternalSort] = useState(() =>
+    getResolvedSortModelForMount(props.gridId, props.columns, props.initialSortModel)
+  );
+  // false when sort came from initialSortModel (silent default), true when user has actively sorted.
+  // Drives both persistence (skip saving the default) and the Clear Sort button disabled state.
+  const [hasUserSort, setHasUserSort] = useState(
+    () => getStoredSortModel(props.gridId, props.columns).length > 0
+  );
+  // Ref mirrors hasUserSort for use in the persistence effect without adding it to effect deps.
+  const isDefaultSortRef = useRef(!hasUserSort);
+
+  const columnFieldsSignature = useMemo(() => (columns ?? []).map((c) => c.field).join('\0'), [columns]);
+
+  useEffect(() => {
+    setInternalSort((prev) => sanitizeSortModel(prev, columns));
+  }, [columnFieldsSignature]);
   const [internalFilter, setInternalFilter] = useState(() => getStoredFilterModel(props.gridId, props.columns));
   const [selection, setSelection] = useState(new Set());
   const [internalPage, setInternalPage] = useState(0);
@@ -144,7 +160,9 @@ export function useDataGrid(props) {
   }, [filterModel, gridId]);
 
   useEffect(() => {
-    saveSortModel(gridId, sortModel);
+    if (!isDefaultSortRef.current) {
+      saveSortModel(gridId, sortModel);
+    }
   }, [sortModel, gridId]);
 
   useEffect(() => {
@@ -169,6 +187,8 @@ export function useDataGrid(props) {
 
   const handleSort = useCallback(
     (field, multiColumn = false) => {
+      isDefaultSortRef.current = false;
+      setHasUserSort(true);
       const current = sortModel.find((s) => s.field === field);
       let next;
 
@@ -192,7 +212,13 @@ export function useDataGrid(props) {
     [sortModel, setSortModel]
   );
 
-  const handleClearSort = useCallback(() => setSortModel([]), [setSortModel]);
+  const handleClearSort = useCallback(() => {
+    const next = sanitizeSortModel(initialSortModel, columns);
+    saveSortModel(gridId, []); // clear any stored user preference
+    isDefaultSortRef.current = true;
+    setHasUserSort(false);
+    setSortModel(next.length > 0 ? next : []);
+  }, [columns, gridId, initialSortModel, setSortModel]);
 
   const handleClearAllFilters = useCallback(() => {
     setInternalFilter({});
@@ -591,5 +617,6 @@ export function useDataGrid(props) {
     handleClearSort,
     handleClearAllFilters,
     handleClearColumnWidths,
+    hasUserSort,
   };
 }

@@ -40,6 +40,7 @@ import { isEmptyRow } from './useDataGridEdit';
  * @property {boolean} [disableRowHover=false] - When true, no row hover styling
  * @property {Object} [rowHoverStyle] - MUI sx for row hover (e.g. { '&:hover': { backgroundColor: '...' } }). When set, overrides default hover; selected row on hover still uses selected style.
  * @property {string} [gridId] - Unique id for this grid; when set, filter, sort, and column width state are persisted in localStorage and restored on mount or refresh. Use a different id per grid when multiple grids exist.
+ * @property {Array<{ field: string, order: 'asc'|'desc' }>} [initialSortModel] - Default sort when persisted sort is missing, empty, invalid, or all entries invalid for current columns; non-empty saved sort wins; Clear sort restores this default when provided (else []); persisted via the same sort key as user sorts.
  * @property {React.ReactNode|((params: { selectedRow: Object|null, selectedRowId: string|number|null }) => React.ReactNode)} [toolbarActions] - Optional content rendered on the right side of the toolbar row (same row as Clear sort / Clear filters / Reset column widths). Use for row actions (e.g. Release, Edit, Cancel). If a function, receives current selected row and id.
  * @property {Object} [toolbarClearButtonsSx] - MUI sx applied to Clear sort, Clear all filters, and Reset column widths toolbar buttons.
  * @property {Object} [toolbarExportButtonSx] - MUI sx applied to the Export to CSV toolbar button.
@@ -247,6 +248,7 @@ export const DataGrid = forwardRef(function DataGrid(props, ref) {
         onSelect={grid.handleSelect}
         onClearMultiSelection={grid.handleClearMultiSelection}
         sortModel={grid.sortModel}
+        hasUserSort={grid.hasUserSort}
         onSort={grid.handleSort}
         hasActiveFilters={grid.hasActiveFilters}
         onRowDoubleClick={grid.handleRowDoubleClick}

@@ -114,6 +114,20 @@ export const gridOptionDefinitions = [
     default: defaultGridConfig.pagination,
   },
   {
+    key: 'initialSortModelPreset',
+    label: 'Initial sort (no storage key yet)',
+    type: 'select',
+    group: 'behavior',
+    default: '',
+    options: [
+      { value: '', label: 'None' },
+      { value: 'year.asc', label: 'Year ascending' },
+      { value: 'year.desc', label: 'Year descending' },
+      { value: 'price.asc', label: 'Price ascending' },
+      { value: 'make.asc', label: 'Make A–Z' },
+    ],
+  },
+  {
     key: 'showExportToExcel',
     label: 'Show Export to CSV',
     type: 'boolean',

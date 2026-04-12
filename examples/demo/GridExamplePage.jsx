@@ -19,7 +19,8 @@ import { generateSampleData } from '../sampleData';
 import { en } from '../translations';
 import { useDemoConfig } from './DemoConfigContext';
 import { DEFAULT_SAMPLE_SIZE } from './ConfigPage';
-import { DIRECTION_RTL, FIELD_TYPE_NUMBER, FILTER_TYPE_NONE } from '../../src/config/schema';
+import { DIRECTION_RTL, FIELD_TYPE_NUMBER, FILTER_TYPE_NONE, SORT_ORDER_ASC, SORT_ORDER_DESC } from '../../src/config/schema';
+import { SORT_STORAGE_KEY_PREFIX } from '../../src/utils/sortUtils';
 import { getDefaultAlign } from '../../src/utils/directionUtils';
 
 function buildGridOptions(gridOptions) {
@@ -31,6 +32,15 @@ function buildGridOptions(gridOptions) {
     }
   }
   return result;
+}
+
+/** Maps config-page preset to DataGrid `initialSortModel` (demo-only key `initialSortModelPreset`). */
+function initialSortModelFromPreset(preset) {
+  if (preset == null || preset === '') return undefined;
+  const [field, orderKey] = String(preset).split('.');
+  if (!field) return undefined;
+  const order = orderKey === 'desc' ? SORT_ORDER_DESC : SORT_ORDER_ASC;
+  return [{ field, order }];
 }
 
 export function GridExamplePage() {
@@ -77,6 +87,7 @@ export function GridExamplePage() {
 
   const gridRef = useRef(null);
   const mainContentRef = useRef(null);
+  const [gridMountKey, setGridMountKey] = useState(0);
 
   const [editedData, setEditedData] = useState(null);
   const displayData = editedData ?? data;
@@ -126,9 +137,18 @@ export function GridExamplePage() {
     }
   }, [data, editedData]);
 
+  const handleClearPersistedSort = useCallback(() => {
+    const id = gridOptions.gridId;
+    if (id && typeof localStorage !== 'undefined') {
+      localStorage.removeItem(SORT_STORAGE_KEY_PREFIX + id);
+      setGridMountKey((k) => k + 1);
+    }
+  }, [gridOptions.gridId]);
+
   const options = useMemo(() => {
-    const { outsideGridHeaderTitle, outsideGridHeaderSx, ...gridOptsRest } = gridOptions;
+    const { outsideGridHeaderTitle, outsideGridHeaderSx, initialSortModelPreset, ...gridOptsRest } = gridOptions;
     const base = buildGridOptions(gridOptsRest);
+    const initialSortModel = initialSortModelFromPreset(initialSortModelPreset);
     const headerTitle =
       typeof outsideGridHeaderTitle === 'string' ? outsideGridHeaderTitle.trim() : '';
     const headerSx =
@@ -139,6 +159,7 @@ export function GridExamplePage() {
         : undefined;
     return {
       ...base,
+      ...(initialSortModel ? { initialSortModel } : {}),
       translations: en,
       sx: base.sx ?? { height: '100%' },
       onEditCommit: handleEditCommit,
@@ -172,6 +193,7 @@ export function GridExamplePage() {
     ['multiSelectable', gridOptions.multiSelectable],
     ['outsideGridHeaderTitle', gridOptions.outsideGridHeaderTitle],
     ['outsideGridHeaderSx', gridOptions.outsideGridHeaderSx],
+    ['initialSortModelPreset', gridOptions.initialSortModelPreset],
     ['containerWidth', containerWidth],
   ].filter(([, v]) => v !== undefined && v !== null && v !== '');
 
@@ -195,6 +217,11 @@ export function GridExamplePage() {
         >
           Back to configuration
         </Button>
+        {gridOptions.gridId ? (
+          <Button variant="outlined" size="small" onClick={handleClearPersistedSort} title="Delete the persisted sort key for this gridId and remount (simulates a profile with no sort entry; useful next to Initial sort preset)">
+            Clear saved sort & remount
+          </Button>
+        ) : null}
         {gridOptions.editable && (
           <>
             <Button
@@ -279,6 +306,7 @@ export function GridExamplePage() {
             }}
           >
             <DataGrid
+              key={gridMountKey}
               ref={gridRef}
               rows={rowsWithIndex}
               columns={columns}
