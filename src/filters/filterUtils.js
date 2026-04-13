@@ -138,7 +138,7 @@ function matchFilter(cellValue, state, effectiveType) {
   if (effectiveType === FIELD_TYPE_LIST || Array.isArray(state.value)) {
     const selected = Array.isArray(state.value) ? state.value : state.value != null ? [state.value] : [];
     if (selected.length === 0) return true;
-    return selected.some((s) => String(v) === String(s) || v === s);
+    return selected.some((s) => String(v ?? '').trim() === String(s ?? '').trim());
   }
 
   const useNumericOrDateBranch =

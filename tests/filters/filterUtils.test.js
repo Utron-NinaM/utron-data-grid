@@ -590,6 +590,18 @@ describe('applyFilters — list type', () => {
     expect(result).toHaveLength(1);
   });
 
+  it('trims cell value when comparing to selected key', () => {
+    const rows = [{ tag: '  foo  ' }, { tag: 'bar' }];
+    const result = applyFilters(rows, { tag: { value: ['foo'] } }, col);
+    expect(result.map((r) => r.tag)).toEqual(['  foo  ']);
+  });
+
+  it('trims selected key when comparing to cell', () => {
+    const rows = [{ tag: 'foo' }];
+    const result = applyFilters(rows, { tag: { value: ['  foo  '] } }, col);
+    expect(result).toHaveLength(1);
+  });
+
   it('empty array passes all rows (no filter)', () => {
     const rows = [{ tag: 'a' }, { tag: 'b' }];
     const result = applyFilters(rows, { tag: { value: [] } }, col);
