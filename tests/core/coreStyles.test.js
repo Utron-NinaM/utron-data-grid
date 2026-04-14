@@ -3,17 +3,12 @@ import { getScrollInnerBoxSx, getHeaderScrollWrapperSx } from '../../src/core/co
 
 describe('coreStyles horizontal scroll helpers', () => {
   describe('getScrollInnerBoxSx', () => {
-    it('uses overflowX hidden when showHorizontalScrollbar is false', () => {
-      expect(getScrollInnerBoxSx(true, { showHorizontalScrollbar: false }).overflowX).toBe('hidden');
-      expect(getScrollInnerBoxSx(true).overflowX).toBe('hidden');
+    it('uses overflowX auto when enableHorizontalScroll is true', () => {
+      expect(getScrollInnerBoxSx(true).overflowX).toBe('auto');
     });
 
-    it('uses overflowX auto when enableHorizontalScroll and showHorizontalScrollbar are true', () => {
-      expect(getScrollInnerBoxSx(true, { showHorizontalScrollbar: true }).overflowX).toBe('auto');
-    });
-
-    it('uses overflowX hidden when horizontal scroll is disabled even if showHorizontalScrollbar is true', () => {
-      expect(getScrollInnerBoxSx(false, { showHorizontalScrollbar: true }).overflowX).toBe('hidden');
+    it('uses overflowX hidden when enableHorizontalScroll is false', () => {
+      expect(getScrollInnerBoxSx(false).overflowX).toBe('hidden');
     });
   });
 

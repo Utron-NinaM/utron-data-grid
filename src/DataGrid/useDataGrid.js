@@ -70,7 +70,6 @@ export function useDataGrid(props) {
     editToolbarSaveButtonSx,
     editToolbarCancelButtonSx,
     fontSize = defaultGridConfig.fontSize,
-    showHorizontalScrollbar = defaultGridConfig.showHorizontalScrollbar,
     dropdownBoundaryRef,
   } = props;
 
@@ -468,7 +467,6 @@ export function useDataGrid(props) {
       onColumnResize: handleColumnResize, // Resize handler
       totalWidth, // Total width for scroll calculation
       enableHorizontalScroll, // Whether to enable horizontal scroll
-      showHorizontalScrollbar,
       toolbarActions,
       toolbarClearButtonsSx,
       toolbarExportButtonSx,
@@ -531,7 +529,6 @@ export function useDataGrid(props) {
       handleColumnResize,
       totalWidth,
       enableHorizontalScroll,
-      showHorizontalScrollbar,
       toolbarActions,
       toolbarClearButtonsSx,
       toolbarExportButtonSx,

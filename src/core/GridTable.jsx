@@ -88,7 +88,7 @@ function GridTableInner({
   const { columns, getRowId, multiSelectable, filters, onClearSort, onClearAllFilters, onClearColumnWidths,
     hasResizedColumns, headerConfig, getEditor, selectedRowStyle, disableRowHover, rowHoverStyle, rowStylesMap, sortOrderIndexMap,
     scrollContainerRef: ctxScrollContainerRef, setScrollContainerReady: onScrollContainerReadyForLayout,
-    colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, showHorizontalScrollbar, columnWidthMap,
+    colRefs, resizingColumnRef, totalWidth, enableHorizontalScroll, columnWidthMap,
     toolbarClearButtonsSx, toolbarExportButtonSx, toolbarPdfExportButtonSx, toolbarConfigButtonSx, showExportToExcel, showExportToPdf, onColumnConfigClick, direction, selectRow, bodyRow, editable,
     editStore, sortedRows } = ctx;
 
@@ -253,7 +253,7 @@ function GridTableInner({
     const ro = new ResizeObserver(measureScrollbarWidth);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [containScroll, measureScrollbarWidth, showHorizontalScrollbar]);
+  }, [containScroll, measureScrollbarWidth, enableHorizontalScroll]);
 
   const handleBodyScroll = useMemo(() => {
     if (!containScroll) return undefined;
@@ -630,7 +630,7 @@ function GridTableInner({
           variant="outlined"
           sx={getTableContainerSx(enableHorizontalScroll, totalWidth, {
             hideTopBorder: true,
-            ...(enableHorizontalScroll && showHorizontalScrollbar ? { noScroll: true } : {}),
+            ...(enableHorizontalScroll ? { noScroll: true } : {}),
           })}
         >
           <Table size="small" aria-label="Data grid body" sx={getTableSx(totalWidth, enableHorizontalScroll)}>
@@ -668,7 +668,7 @@ function GridTableInner({
             }
           }}
           onScroll={handleBodyScroll}
-          sx={getScrollInnerBoxSx(enableHorizontalScroll, { showHorizontalScrollbar })}
+          sx={getScrollInnerBoxSx(enableHorizontalScroll)}
         >
           <ScrollContainerContext.Provider value={{ ref: tooltipContainerRef, scrollContainerRef, ready: scrollContainerReady }}>
             {rows.length > 0 ? (
@@ -677,7 +677,7 @@ function GridTableInner({
                 variant="outlined"
                 sx={getTableContainerSx(enableHorizontalScroll, totalWidth, {
                   hideTopBorder: true,
-                  ...(enableHorizontalScroll && showHorizontalScrollbar ? { noScroll: true } : {}),
+                  ...(enableHorizontalScroll ? { noScroll: true } : {}),
                 })}
               >
                 <SelectionStyleApplicator tableId={tableId} selection={selection} />

@@ -22,7 +22,6 @@ export const defaultGridConfig = {
   pageSizeOptions: PAGE_SIZE_OPTIONS,
   density: 'standard',
   fontSize: DEFAULT_FONT_SIZE,
-  showHorizontalScrollbar: false,
   bodyRow: {
     height: BODY_ROW_HEIGHT,
     paddingTop: `${BODY_ROW_PADDING_VERTICAL_PX}px`,

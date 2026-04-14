@@ -30,7 +30,7 @@ function getHeaderScrollElement() {
 }
 
 describe('Horizontal scroll layout (containScroll)', () => {
-  it('places overflow-x on the body scroll box when showHorizontalScrollbar is true', async () => {
+  it('places overflow-x on the body scroll box when table is wider than viewport', async () => {
     render(
       <ThemeProvider theme={theme}>
         <DataGrid
@@ -40,7 +40,6 @@ describe('Horizontal scroll layout (containScroll)', () => {
           sx={{ width: 280, height: 320 }}
           options={{
             filters: false,
-            showHorizontalScrollbar: true,
             pagination: false,
           }}
         />
@@ -56,31 +55,6 @@ describe('Horizontal scroll layout (containScroll)', () => {
     expect(['auto', 'scroll']).toContain(ox);
   });
 
-  it('keeps overflow-x hidden on the body scroll box when showHorizontalScrollbar is false', async () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <DataGrid
-          rows={rows}
-          columns={wideColumns}
-          getRowId={(r) => r.id}
-          sx={{ width: 280, height: 320 }}
-          options={{
-            filters: false,
-            showHorizontalScrollbar: false,
-            pagination: false,
-          }}
-        />
-      </ThemeProvider>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByRole('table', { name: 'Data grid body' })).toBeInTheDocument();
-    });
-
-    const bodyScroll = getBodyScrollElement();
-    expect(window.getComputedStyle(bodyScroll).overflowX).toBe('hidden');
-  });
-
   it('syncs scrollLeft from body to header when the body scrolls horizontally', async () => {
     render(
       <ThemeProvider theme={theme}>
@@ -91,7 +65,6 @@ describe('Horizontal scroll layout (containScroll)', () => {
           sx={{ width: 280, height: 320 }}
           options={{
             filters: false,
-            showHorizontalScrollbar: true,
             pagination: false,
           }}
         />
@@ -121,7 +94,6 @@ describe('Horizontal scroll layout (containScroll)', () => {
           sx={{ width: 280, height: 320 }}
           options={{
             filters: false,
-            showHorizontalScrollbar: true,
             pagination: false,
           }}
         />
@@ -141,7 +113,7 @@ describe('Horizontal scroll layout (containScroll)', () => {
     expect(bodyScroll.scrollLeft).toBe(88);
   });
 
-  it('keeps body overflow-x auto with showHorizontalScrollbar when pagination is enabled', async () => {
+  it('keeps body overflow-x scrollable when pagination is enabled', async () => {
     render(
       <ThemeProvider theme={theme}>
         <DataGrid
@@ -151,7 +123,6 @@ describe('Horizontal scroll layout (containScroll)', () => {
           sx={{ width: 280, height: 320 }}
           options={{
             filters: false,
-            showHorizontalScrollbar: true,
             pagination: true,
             pageSize: 10,
           }}

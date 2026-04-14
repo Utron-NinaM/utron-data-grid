@@ -77,13 +77,6 @@ export const gridOptionDefinitions = [
     group: 'layout',
     default: defaultGridConfig.fitToContainer,
   },
-  {
-    key: 'showHorizontalScrollbar',
-    label: 'Show horizontal scrollbar',
-    type: 'boolean',
-    group: 'layout',
-    default: defaultGridConfig.showHorizontalScrollbar,
-  },
   // Behavior
   {
     key: 'editable',

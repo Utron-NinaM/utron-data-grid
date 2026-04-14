@@ -87,7 +87,6 @@ export function DataGridExample() {
             filters: true,
             pagination: true,
             pageSize: 25,
-            showHorizontalScrollbar: true,
             pageSizeOptions: [10, 25, 50, 100],
             sx: { height: '100%' },
             onEditCommit: handleEditCommit,

@@ -189,12 +189,10 @@ export const scrollContainerSx = {
 };
 
 /**
- * @param {boolean} enableHorizontalScroll
- * @param {{ showHorizontalScrollbar?: boolean }} [opts] - When showHorizontalScrollbar and enableHorizontalScroll, horizontal overflow is on this box (scrollbar at bottom of grid viewport).
+ * @param {boolean} enableHorizontalScroll - When true, horizontal overflow is on this box (scrollbar at bottom of grid viewport; scroll-contained layout).
  */
-export function getScrollInnerBoxSx(enableHorizontalScroll, opts = {}) {
-  const { showHorizontalScrollbar = false } = opts;
-  const horizontalOnBody = Boolean(enableHorizontalScroll && showHorizontalScrollbar);
+export function getScrollInnerBoxSx(enableHorizontalScroll) {
+  const horizontalOnBody = Boolean(enableHorizontalScroll);
   return {
     flex: 1,
     minHeight: 0,

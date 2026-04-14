@@ -277,7 +277,7 @@ On load: only entries for known column fields are restored (stale columns silent
 - When `editable: true`, `onEditCommit` is also required; `isRowEditable` is only checked for non-empty rows.
 - Empty rows (only id field populated) always enter edit in `'create'` mode via `startNewRowEdit`.
 - `fitToContainer: true` (not in public options yet) prevents horizontal scroll by capping total column width to container.
-- `showHorizontalScrollbar: false` (default) hides the horizontal scrollbar on the header scroll wrapper.
+- Scroll-contained wide tables: horizontal overflow lives on the body scroll box (`getScrollInnerBoxSx`); header strip uses a hidden native horizontal bar and syncs `scrollLeft` with the body.
 
 ---
 

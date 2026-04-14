@@ -38,7 +38,6 @@ function makeStableValue(overrides = {}) {
     columnWidthMap: new Map(),
     totalWidth: 200,
     enableHorizontalScroll: false,
-    showHorizontalScrollbar: false,
     onClearSort: vi.fn(),
     onClearAllFilters: vi.fn(),
     onClearColumnWidths: vi.fn(),
