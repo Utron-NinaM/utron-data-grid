@@ -14,8 +14,46 @@ import { DEFAULT_FONT_SIZE, TOOLTIP_OVER_HEADER_Z_INDEX } from '../constants';
 import { truncationSx, cellContentWrapperSx, editorWrapperSx, editorInnerBoxSx, getBodyCellBaseSx, getErrorIconSx } from './coreStyles';
 
 /**
- * @param {*} displayValue
+ * Canonical string for a cell when there is no custom `render` (list labels, dates, object labels).
+ * Used for display and for tooltips when `render` returns non-scalar UI.
+ *
  * @param {*} value
+ * @param {Object} _row Reserved for future column hooks; unused.
+ * @param {Object} column
+ * @param {Object|null|undefined} ctx DataGridStableContext slice (listColumnOptionMaps)
+ * @param {string} direction
+ * @returns {string|number} Same types as previous inline logic (getOptionLabel may return non-string)
+ */
+export function resolveFormattedCellStringFromValue(value, _row, column, ctx, direction) {
+  const type = column.type;
+  if (type === FIELD_TYPE_LIST && value != null) {
+    const optionMap = ctx?.listColumnOptionMaps?.get(column.field);
+    if (optionMap) {
+      const option = optionMap.get(value);
+      if (option == null) return String(value ?? '');
+      return column.listDescriptionField ? String(getOptionValue(option)) : getOptionLabel(option);
+    }
+  }
+  if ((type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME) && value != null) {
+    const d = dayjs(value);
+    if (d.isValid()) {
+      const format = type === FIELD_TYPE_DATETIME ? getDateTimeFormat(direction) : getDateFormat(direction);
+      return d.format(format);
+    }
+  }
+  if (value != null && typeof value === 'object') {
+    const label = getOptionLabel(value);
+    if (label !== '[object Object]') return label;
+  }
+  return String(value ?? '');
+}
+
+/**
+ * Tooltip title string for body cell content (not errors).
+ * When `displayValue` stringifies to `[object Object]` but is not literally that string, falls back to `value` for primitives.
+ *
+ * @param {*} displayValue Rendered or resolved display (may be React element from external callers)
+ * @param {*} value Raw cell value
  * @param {boolean} isEditing
  * @param {React.ReactNode} editor
  * @returns {string}
@@ -24,6 +62,10 @@ export function getCellTooltipText(displayValue, value, isEditing, editor) {
   if (isEditing && editor != null) return '';
   const str = String(displayValue ?? '');
   if (str !== '[object Object]') return str;
+  // Avoid treating a real cell string "[object Object]" as a sentinel when `value` is unrelated.
+  if (typeof displayValue !== 'string' && value != null && typeof value !== 'object') {
+    return String(value);
+  }
   if (value != null && typeof value === 'object') {
     const label = getOptionLabel(value);
     if (label !== '[object Object]' && label !== '') return label;
@@ -39,6 +81,12 @@ export function getCellTooltipText(displayValue, value, isEditing, editor) {
     }
   }
   return str;
+}
+
+function shouldUseValueResolvedTooltip(column, displayValue) {
+  if (!column.render) return false;
+  if (React.isValidElement(displayValue)) return true;
+  return String(displayValue ?? '') === '[object Object]';
 }
 
 /**
@@ -82,27 +130,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
   const displayValue = useMemo(() => {
     if (isEditing && editor != null) return null;
     if (column.render) return column.render(value, row);
-    const type = column.type;
-    if (type === FIELD_TYPE_LIST && value != null) {
-      const optionMap = ctx?.listColumnOptionMaps?.get(column.field);
-      if (optionMap) {
-        const option = optionMap.get(value);
-        if (option == null) return String(value ?? '');
-        return column.listDescriptionField ? String(getOptionValue(option)) : getOptionLabel(option);
-      }
-    }
-    if ((type === FIELD_TYPE_DATE || type === FIELD_TYPE_DATETIME) && value != null) {
-      const d = dayjs(value);
-      if (d.isValid()) {
-        const format = type === FIELD_TYPE_DATETIME ? getDateTimeFormat(direction) : getDateFormat(direction);
-        return d.format(format);
-      }
-    }
-    if (value != null && typeof value === 'object') {
-      const label = getOptionLabel(value);
-      if (label !== '[object Object]') return label;
-    }
-    return String(value ?? '');
+    return resolveFormattedCellStringFromValue(value, row, column, ctx, direction);
   }, [isEditing, editor, column, value, row, direction, ctx?.listColumnOptionMaps]);
 
   const contentTooltipText = useMemo(() => {
@@ -111,8 +139,12 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
       const custom = column.getTooltipText(value, row);
       if (custom != null && String(custom).trim() !== '') return String(custom).trim();
     }
-    return getCellTooltipText(displayValue, value, isEditing, editor);
-  }, [hasError, errorMessages, column, value, row, displayValue, isEditing, editor]);
+    const tooltipDisplayValue =
+      shouldUseValueResolvedTooltip(column, displayValue)
+        ? resolveFormattedCellStringFromValue(value, row, column, ctx, direction)
+        : displayValue;
+    return getCellTooltipText(tooltipDisplayValue, value, isEditing, editor);
+  }, [hasError, errorMessages, column, value, row, displayValue, isEditing, editor, ctx?.listColumnOptionMaps, direction]);
 
   const errorTooltipText = useMemo(() => {
     return hasError && errorMessages?.length ? errorMessages.join('\n') : '';

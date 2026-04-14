@@ -5,7 +5,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { Table, TableBody, TableRow } from '@mui/material';
 import { GridCell, getCellTooltipText } from '../../src/core/GridCell';
 import { DataGridStableContext } from '../../src/DataGrid/DataGridContext';
-import { ALIGN_LEFT, ALIGN_RIGHT, ALIGN_CENTER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
+import { ALIGN_LEFT, ALIGN_RIGHT, ALIGN_CENTER, FIELD_TYPE_DATE, FIELD_TYPE_DATETIME, FIELD_TYPE_LIST, DIRECTION_LTR, DIRECTION_RTL } from '../../src/config/schema';
+import { getOptionMap } from '../../src/utils/optionUtils';
 import dayjs from 'dayjs';
 
 describe('GridCell Component', () => {
@@ -796,6 +797,81 @@ describe('GridCell Component', () => {
       const wrapper = cell.querySelector('[aria-label]');
       expect(wrapper).toHaveAttribute('aria-label', expectedLabel);
     });
+
+    describe('Content tooltip when render returns JSX', () => {
+      it('resolves tooltip from raw value when render returns a React element (primitive string)', () => {
+        const cellValue = 'tooltip-source';
+        const column = {
+          ...defaultColumn,
+          render: () => React.createElement('bdi', null, cellValue),
+        };
+        renderWithContext(<GridCell value={cellValue} row={mockRow} column={column} />);
+        const cell = screen.getByRole('cell');
+        const wrapper = cell.querySelector('[aria-label]');
+        expect(wrapper).toHaveAttribute('aria-label', cellValue);
+      });
+
+      it('resolves tooltip from raw value when render returns a React element (number)', () => {
+        const column = {
+          ...defaultColumn,
+          render: () => <bdi>n</bdi>,
+        };
+        renderWithContext(<GridCell value={42} row={mockRow} column={column} />);
+        const cell = screen.getByRole('cell');
+        const wrapper = cell.querySelector('[aria-label]');
+        expect(wrapper).toHaveAttribute('aria-label', '42');
+      });
+
+      it('uses list option label for tooltip when render returns JSX', () => {
+        const field = 'status';
+        const column = {
+          field,
+          headerName: 'Status',
+          type: FIELD_TYPE_LIST,
+          options: [
+            { value: 'a', label: 'Alpha' },
+            { value: 'b', label: 'Beta' },
+          ],
+          render: () => <span>custom</span>,
+        };
+        const listColumnOptionMaps = new Map([[field, getOptionMap(column.options)]]);
+        const row = { ...mockRow, [field]: 'b' };
+        renderWithContext(<GridCell value="b" row={row} column={column} />, {
+          ...defaultContextValue,
+          listColumnOptionMaps,
+        });
+        const cell = screen.getByRole('cell');
+        const wrapper = cell.querySelector('[aria-label]');
+        expect(wrapper).toHaveAttribute('aria-label', 'Beta');
+      });
+
+      it('uses formatted date for tooltip when render returns JSX', () => {
+        const dateValue = '2024-01-15';
+        const column = { ...defaultColumn, type: FIELD_TYPE_DATE, render: () => <span>d</span> };
+        renderWithContext(<GridCell value={dateValue} row={mockRow} column={column} />, {
+          ...defaultContextValue,
+          direction: DIRECTION_LTR,
+        });
+        const formatted = dayjs(dateValue).format('MM-DD-YY');
+        const cell = screen.getByRole('cell');
+        const wrapper = cell.querySelector('[aria-label]');
+        expect(wrapper).toHaveAttribute('aria-label', formatted);
+      });
+
+      it('does not wrap content in a title tooltip when editing with editor', () => {
+        const column = {
+          ...defaultColumn,
+          render: () => <span>x</span>,
+        };
+        const editor = <input data-testid="editor" />;
+        renderWithContext(
+          <GridCell value="val" row={mockRow} column={column} isEditing editor={editor} />
+        );
+        expect(screen.getByTestId('editor')).toBeInTheDocument();
+        const cell = screen.getByRole('cell');
+        expect(cell.querySelector('[aria-label]')).toBeNull();
+      });
+    });
   });
 });
 
@@ -818,4 +894,11 @@ describe('getCellTooltipText', () => {
     expect(getCellTooltipText('x', 'x', true, <span />)).toBe('');
   });
 
+  it('falls back to primitive value when displayValue is a React element and value is primitive', () => {
+    expect(getCellTooltipText(React.createElement('span', null, 'x'), 'hello', false, null)).toBe('hello');
+  });
+
+  it('does not treat literal string "[object Object]" as a failed stringify sentinel', () => {
+    expect(getCellTooltipText('[object Object]', 'hello', false, null)).toBe('[object Object]');
+  });
 });
