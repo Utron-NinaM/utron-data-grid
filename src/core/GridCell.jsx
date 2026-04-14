@@ -178,7 +178,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
     },
   }), [errorTooltipText, popperProps, ctx?.fontSize]);
 
-  // Shared tooltip props factory for content
+  // Shared tooltip props factory for content (bdi matches isolated cell renderers; avoids RTL reordering neutral strings)
   const getContentTooltipProps = useMemo(() => {
     const baseProps = {
       arrow: true,
@@ -190,7 +190,10 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
         popper: { sx: { pointerEvents: 'none', zIndex: TOOLTIP_OVER_HEADER_Z_INDEX } },
       },
     };
-    return (title) => ({ ...baseProps, title });
+    return (titleText) => ({
+      ...baseProps,
+      title: React.createElement('bdi', { dir: 'auto' }, titleText),
+    });
   }, [popperProps, ctx?.fontSize]);
 
   // Reusable error icon component
@@ -226,7 +229,11 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
     );
 
     const contentWrapper = (
-      <Box component="span" sx={{ flex: 1, minWidth: 0 }}>
+      <Box
+        component="span"
+        sx={{ flex: 1, minWidth: 0 }}
+        {...(contentTooltipText ? { 'aria-label': contentTooltipText } : {})}
+      >
         {content}
       </Box>
     );
