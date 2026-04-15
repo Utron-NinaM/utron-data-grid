@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useCallback, useSyncExternalStore } from 'react';
+import React, { useContext, useMemo, useCallback, useRef, useSyncExternalStore } from 'react';
 import { TableVirtuoso } from 'react-virtuoso';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -41,6 +41,8 @@ export function GridTableBodyVirtuoso({
   bodyColRefs,
 }) {
   const ctx = useContext(DataGridStableContext);
+  const columnWidthMapRef = useRef(null);
+  columnWidthMapRef.current = ctx?.columnWidthMap;
   const editStore = ctx?.editStore;
 
   const editSnapshot = useSyncExternalStore(
@@ -193,8 +195,15 @@ export function GridTableBodyVirtuoso({
                 key={col.field}
                 data-field={col.field}
                 ref={(el) => {
-                  if (el) bodyColRefs?.current?.set(col.field, el);
-                  else bodyColRefs?.current?.delete(col.field);
+                  if (el) {
+                    bodyColRefs?.current?.set(col.field, el);
+                    // Apply width immediately on mount — the parent useEffect won't re-run for
+                    // the initial bodyColRefs population, so we set it here synchronously.
+                    const w = columnWidthMapRef.current?.get(col.field);
+                    if (w != null) el.style.width = typeof w === 'string' ? w : `${w}px`;
+                  } else {
+                    bodyColRefs?.current?.delete(col.field);
+                  }
                 }}
               />
             ))}
