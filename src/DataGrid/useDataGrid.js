@@ -478,6 +478,7 @@ export function useDataGrid(props) {
       editToolbarSaveButtonSx,
       editToolbarCancelButtonSx,
       fontSize,
+      bodyRow: effectiveBodyRow,
       dropdownBoundaryRef,
       selectionStore,
       selectRow,
@@ -549,6 +550,7 @@ export function useDataGrid(props) {
       handleEditCancel,
       handleValidationErrorClick,
       sortedRows,
+      effectiveBodyRow,
     ]
   );
 

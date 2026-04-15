@@ -7,3 +7,4 @@
 - Before changing performance-sensitive code, identify re-render risks and hot paths.
 - For grid work, do not move selection/edit state into React state on the hot path unless explicitly justified.
 - Run relevant tests after meaningful code changes.
+- If anything in the prompt or requirements is unclear, ask questions before acting. Do not assume intent or fill gaps silently.
