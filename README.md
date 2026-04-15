@@ -125,6 +125,7 @@ Each column can define:
 - `listDropdownSx` – for list type only: optional MUI sx applied to the list editor dropdown (popper and listbox). Use to override width, fontSize, fontWeight, etc. Default: dropdown is not constrained to column width, max width 200px; options show on one line with ellipsis when long.
 - `render(value, row)` – custom display (not used when editing)
 - `getTooltipText(value, row)` – optional. When set, used as the cell tooltip string (e.g. for columns that render React elements like Autocomplete, so the tooltip shows the label instead of "[object Object]").
+- `disableTooltip` – `boolean` – when true, suppresses the cell content tooltip entirely. Use for action-button columns where the tooltip is not meaningful.
 - `rowStyle(row)` – sx for the row (when this column's condition applies)
 - `cellStyle(value, row)` – sx for the cell
 - `align` – `'left' | 'right' | 'center'`

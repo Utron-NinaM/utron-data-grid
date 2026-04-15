@@ -32,6 +32,7 @@ import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck
  * onListInputChange?: (value: string) => void — optional. For type 'list', called when the user types in the Autocomplete input (reason === 'input').
  * listDropdownSx?: object — optional. For type 'list', MUI sx applied to the list editor dropdown (popper and listbox). Use to override width, fontSize, fontWeight, etc.
  * render?: (value, row) => ReactNode — must not return unsanitized HTML or use dangerouslySetInnerHTML with user/API data (React escapes by default).
+ * disableTooltip?: boolean — when true, suppresses the content tooltip entirely (e.g. for action-button columns where a tooltip is not meaningful).
  * rowStyle?: (row) => sx
  * cellStyle?: (value, row) => sx
  * align?: 'left' | 'right' | 'center'

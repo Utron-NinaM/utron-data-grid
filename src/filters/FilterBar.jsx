@@ -19,6 +19,7 @@ import {
   NUMBER_OP_IDS,
   DATE_OP_IDS,
   TEXT_OP_IDS,
+  FILTER_TYPE_NONE,
   FILTER_TYPE_NUMBER,
   FILTER_TYPE_DATE,
   FILTER_TYPE_LIST,
@@ -35,7 +36,7 @@ import {
 export function getHeaderComboSlot(column, filterModel, onFilterChange) {
   const field = column.field;
   const filterType = column.filter ?? column.type ?? DEFAULT_FIELD_TYPE;
-  if (filterType === false) return null;
+  if (filterType === false || filterType === FILTER_TYPE_NONE) return null;
   if (!isColumnFilterActive(column, filterModel)) return null;
   return <HeaderClearFilterButton field={field} onClear={() => onFilterChange(field, null)} />;
 }
@@ -90,6 +91,8 @@ export function getFilterInputSlot(column, filterModel, onFilterChange, directio
           />
         </Box>
       );
+    case FILTER_TYPE_NONE:
+      return null;
     case FILTER_TYPE_LIST:
       return (
         <ListFilter

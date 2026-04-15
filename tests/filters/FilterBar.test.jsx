@@ -9,6 +9,7 @@ import {
   FIELD_TYPE_NUMBER,
   FIELD_TYPE_DATE,
   FIELD_TYPE_LIST,
+  FILTER_TYPE_NONE,
   OPERATOR_IN_RANGE,
   DIRECTION_LTR,
 } from '../../src/config/schema';
@@ -20,6 +21,11 @@ describe('FilterBar slot helpers', () => {
     it('returns null when filter is false', () => {
       const column = { field: 'name', filter: false };
       expect(getHeaderComboSlot(column, {}, noop)).toBeNull();
+    });
+
+    it('returns null when filter is FILTER_TYPE_NONE', () => {
+      const column = { field: 'name', filter: FILTER_TYPE_NONE };
+      expect(getHeaderComboSlot(column, { name: 'foo' }, noop)).toBeNull();
     });
 
     it('returns null for list type', () => {
@@ -51,6 +57,11 @@ describe('FilterBar slot helpers', () => {
   describe('getFilterInputSlot', () => {
     it('returns null when filter is false', () => {
       const column = { field: 'name', filter: false };
+      expect(getFilterInputSlot(column, {}, noop, DIRECTION_LTR)).toBeNull();
+    });
+
+    it('returns null when filter is FILTER_TYPE_NONE', () => {
+      const column = { field: 'name', filter: FILTER_TYPE_NONE };
       expect(getFilterInputSlot(column, {}, noop, DIRECTION_LTR)).toBeNull();
     });
 
@@ -89,6 +100,11 @@ describe('FilterBar slot helpers', () => {
       const column = { field: 'score', filter: false };
       const filterModel = { score: { operator: OPERATOR_IN_RANGE, value: 0, valueTo: 10 } };
       expect(getFilterToInputSlot(column, filterModel, noop)).toBeNull();
+    });
+
+    it('returns null when filter is FILTER_TYPE_NONE', () => {
+      const column = { field: 'name', filter: FILTER_TYPE_NONE };
+      expect(getFilterToInputSlot(column, {}, noop, DIRECTION_LTR)).toBeNull();
     });
 
     it('returns null when operator is not OPERATOR_IN_RANGE', () => {

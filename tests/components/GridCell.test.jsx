@@ -778,6 +778,27 @@ describe('GridCell Component', () => {
       expect(screen.getByText('[object Object]')).toBeInTheDocument();
     });
 
+    describe('disableTooltip', () => {
+      it('suppresses content tooltip for a plain text value', () => {
+        const column = { ...defaultColumn, disableTooltip: true };
+        renderWithContext(<GridCell value="some text" row={mockRow} column={column} />);
+        const cell = screen.getByRole('cell');
+        expect(cell.querySelector('[aria-label]')).toBeNull();
+      });
+
+      it('suppresses content tooltip when render returns JSX', () => {
+        const column = {
+          ...defaultColumn,
+          render: () => <button>Action</button>,
+          disableTooltip: true,
+        };
+        renderWithContext(<GridCell value="action-value" row={mockRow} column={column} />);
+        expect(screen.getByRole('button', { name: 'Action' })).toBeInTheDocument();
+        const cell = screen.getByRole('cell');
+        expect(cell.querySelector('[aria-label]')).toBeNull();
+      });
+    });
+
     it('should show getTooltipText result when column renders React element (e.g. Autocomplete)', () => {
       const priorityKey = 2;
       const rowWithPriority = { ...mockRow, priority: priorityKey };

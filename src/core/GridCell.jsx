@@ -135,6 +135,7 @@ function GridCellInner({ value, row, column, isEditing, editor, hasError, errorM
 
   const contentTooltipText = useMemo(() => {
     if (hasError && errorMessages?.length) return '';
+    if (column.disableTooltip) return '';
     if (typeof column.getTooltipText === 'function') {
       const custom = column.getTooltipText(value, row);
       if (custom != null && String(custom).trim() !== '') return String(custom).trim();
