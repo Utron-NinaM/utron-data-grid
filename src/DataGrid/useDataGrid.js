@@ -71,6 +71,8 @@ export function useDataGrid(props) {
     editToolbarCancelButtonSx,
     fontSize = defaultGridConfig.fontSize,
     dropdownBoundaryRef,
+    rowDoubleClickDelay = 250,
+    rowClickSelectionMode = 'suppressWhenDoubleClick',
   } = props;
 
   const [internalSort, setInternalSort] = useState(() =>
@@ -122,6 +124,8 @@ export function useDataGrid(props) {
   const colRefs = useRef(new Map());
   // Ref for column currently being resized (field name or null); prevents layout from overwriting DOM width during drag
   const resizingColumnRef = useRef(null);
+  // Ref for pending onRowClick timer; used to cancel it when a double-click arrives
+  const rowClickTimerRef = useRef(null);
 
   const { handleRowDoubleClick, handleEditChange, handleCellBlur, handleEditCancel, handleEditSave } = useDataGridEdit({
     editStore,
@@ -255,6 +259,13 @@ export function useDataGrid(props) {
     [onPageSizeChange]
   );
 
+  const clearRowClickTimer = useCallback(() => {
+    if (rowClickTimerRef.current) {
+      clearTimeout(rowClickTimerRef.current);
+      rowClickTimerRef.current = null;
+    }
+  }, []);
+
   const selectRow = useCallback(
     (id, row = null) => {
       // Prevent selection changes when editing is active, unless selecting the editing row itself
@@ -263,9 +274,19 @@ export function useDataGrid(props) {
         return;
       }
       selectionStoreRef.current.set(id);
-      if (onRowClick && row) onRowClick(id, row);
+      if (!onRowClick || !row) return;
+      if (onRowDoubleClick && rowClickSelectionMode === 'suppressWhenDoubleClick') {
+        // Delay so a following dblclick can cancel before onRowClick fires
+        clearRowClickTimer();
+        rowClickTimerRef.current = window.setTimeout(() => {
+          rowClickTimerRef.current = null;
+          onRowClick(id, row);
+        }, rowDoubleClickDelay);
+      } else {
+        onRowClick(id, row);
+      }
     },
-    [onRowClick, editStore]
+    [onRowClick, onRowDoubleClick, rowClickSelectionMode, rowDoubleClickDelay, editStore, clearRowClickTimer]
   );
 
   const handleColumnResize = useCallback(
@@ -281,13 +302,13 @@ export function useDataGrid(props) {
     [] // No dependencies needed - functional update pattern
   );
 
-  // Wrapper: set selection highlight, optionally enter edit, clear checkbox selection without causing sync re-render
+  // Wrapper: cancel any pending onRowClick, set selection highlight, optionally enter edit, clear checkbox selection
   const handleRowDoubleClickWrapper = useCallback(
     (row) => {
+      clearRowClickTimer();
       const id = getRowId(row);
       selectionStoreRef.current.set(id);
       if (editable && onEditCommit) {
-        // handleRowDoubleClick now calls onRowDoubleClick before starting edit mode
         handleRowDoubleClick(row);
         if (selection.size > 0) {
           setTimeout(() => {
@@ -296,17 +317,17 @@ export function useDataGrid(props) {
           }, 0);
         }
       } else {
-        // If editing is not enabled, still call onRowDoubleClick
         if (onRowDoubleClick) {
           onRowDoubleClick(row);
         }
       }
-      queueMicrotask(() => {
-        if (onRowClick) onRowClick(id, row);
-      });
     },
-    [getRowId, onRowClick, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit, selection.size, onSelectionChange]
+    [clearRowClickTimer, getRowId, onRowDoubleClick, handleRowDoubleClick, editable, onEditCommit, selection.size, onSelectionChange]
   );
+
+  useEffect(() => {
+    return () => clearRowClickTimer();
+  }, [clearRowClickTimer]);
 
   const handleValidationErrorClick = useCallback((rowId, _field) => {
     const container = containerRef?.current;

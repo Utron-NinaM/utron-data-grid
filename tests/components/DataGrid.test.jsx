@@ -324,7 +324,7 @@ describe('DataGrid Component Integration', () => {
   });
 
   describe('Row click handler', () => {
-    it('should call onRowClick when a row is clicked', async () => {
+    it('fires onRowClick immediately when only onRowClick is defined', () => {
       const onRowClick = vi.fn();
 
       render(
@@ -332,22 +332,13 @@ describe('DataGrid Component Integration', () => {
           rows={basicRows}
           columns={basicColumns}
           getRowId={getRowId}
-          options={{
-            onRowClick,
-          }}
+          options={{ onRowClick }}
         />
       );
 
-      const aliceRow = screen.getByText('Alice').closest('[data-row-id]');
-      expect(aliceRow).toBeInTheDocument();
+      fireEvent.click(screen.getByText('Alice').closest('[data-row-id]'));
 
-      fireEvent.click(aliceRow);
-      
-      // Wait for the delayed click handler (300ms delay)
-      await waitFor(() => {
-        expect(onRowClick).toHaveBeenCalledTimes(1);
-      }, { timeout: 500 });
-      
+      expect(onRowClick).toHaveBeenCalledTimes(1);
       expect(onRowClick).toHaveBeenCalledWith(
         1,
         expect.objectContaining({ id: 1, name: 'Alice', age: 30 })
@@ -363,15 +354,11 @@ describe('DataGrid Component Integration', () => {
         />
       );
 
-      const aliceRow = screen.getByText('Alice').closest('[data-row-id]');
-      expect(aliceRow).toBeInTheDocument();
-
-      // Should not throw error when clicking without handler
-      fireEvent.click(aliceRow);
+      fireEvent.click(screen.getByText('Alice').closest('[data-row-id]'));
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
 
-    it('should handle row click with multiple rows', async () => {
+    it('fires onRowClick for each clicked row when only onRowClick is defined', () => {
       const onRowClick = vi.fn();
 
       render(
@@ -379,34 +366,126 @@ describe('DataGrid Component Integration', () => {
           rows={basicRows}
           columns={basicColumns}
           getRowId={getRowId}
-          options={{
-            onRowClick,
-          }}
+          options={{ onRowClick }}
         />
       );
 
-      const bobRow = screen.getByText('Bob').closest('[data-row-id]');
-      fireEvent.click(bobRow);
-      
-      // Wait for the delayed click handler
-      await waitFor(() => {
-        expect(onRowClick).toHaveBeenCalledWith(
-          2,
-          expect.objectContaining({ id: 2, name: 'Bob', age: 25 })
-        );
-      }, { timeout: 500 });
+      fireEvent.click(screen.getByText('Bob').closest('[data-row-id]'));
+      fireEvent.click(screen.getByText('Charlie').closest('[data-row-id]'));
 
-      const charlieRow = screen.getByText('Charlie').closest('[data-row-id]');
-      fireEvent.click(charlieRow);
-      
-      // Wait for the delayed click handler
-      await waitFor(() => {
-        expect(onRowClick).toHaveBeenCalledWith(
-          3,
-          expect.objectContaining({ id: 3, name: 'Charlie', age: 35 })
+      expect(onRowClick).toHaveBeenCalledTimes(2);
+      expect(onRowClick).toHaveBeenCalledWith(2, expect.objectContaining({ id: 2 }));
+      expect(onRowClick).toHaveBeenCalledWith(3, expect.objectContaining({ id: 3 }));
+    });
+
+    describe('suppressWhenDoubleClick (default) — both onRowClick and onRowDoubleClick defined', () => {
+      it('delays onRowClick on single click and fires it after the delay', () => {
+        vi.useFakeTimers();
+        const onRowClick = vi.fn();
+        const onRowDoubleClick = vi.fn();
+
+        render(
+          <DataGrid
+            rows={basicRows}
+            columns={basicColumns}
+            getRowId={getRowId}
+            options={{ onRowClick, onRowDoubleClick }}
+          />
         );
+
+        fireEvent.click(screen.getByText('Alice').closest('[data-row-id]'));
+
+        expect(onRowClick).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(250);
+        expect(onRowClick).toHaveBeenCalledTimes(1);
+        expect(onRowClick).toHaveBeenCalledWith(1, expect.objectContaining({ id: 1 }));
+        expect(onRowDoubleClick).not.toHaveBeenCalled();
+
+        vi.useRealTimers();
+      });
+
+      it('cancels onRowClick when a double-click follows, fires only onRowDoubleClick', () => {
+        vi.useFakeTimers();
+        const onRowClick = vi.fn();
+        const onRowDoubleClick = vi.fn();
+
+        render(
+          <DataGrid
+            rows={basicRows}
+            columns={basicColumns}
+            getRowId={getRowId}
+            options={{ onRowClick, onRowDoubleClick }}
+          />
+        );
+
+        const aliceRow = screen.getByText('Alice').closest('[data-row-id]');
+        fireEvent.click(aliceRow);
+        fireEvent.click(aliceRow);
+        fireEvent.doubleClick(aliceRow);
+
+        vi.advanceTimersByTime(250);
+
+        expect(onRowDoubleClick).toHaveBeenCalledTimes(1);
+        expect(onRowDoubleClick).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
+        expect(onRowClick).not.toHaveBeenCalled();
+
+        vi.useRealTimers();
+      });
+
+      it('respects custom rowDoubleClickDelay', () => {
+        vi.useFakeTimers();
+        const onRowClick = vi.fn();
+        const onRowDoubleClick = vi.fn();
+
+        render(
+          <DataGrid
+            rows={basicRows}
+            columns={basicColumns}
+            getRowId={getRowId}
+            options={{ onRowClick, onRowDoubleClick, rowDoubleClickDelay: 400 }}
+          />
+        );
+
+        fireEvent.click(screen.getByText('Alice').closest('[data-row-id]'));
+
+        vi.advanceTimersByTime(250);
+        expect(onRowClick).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(150);
+        expect(onRowClick).toHaveBeenCalledTimes(1);
+
+        vi.useRealTimers();
+      });
+    });
+
+    describe('rowClickSelectionMode=immediate — both handlers defined', () => {
+      it('fires onRowClick immediately and onRowDoubleClick on double-click', () => {
+        vi.useFakeTimers();
+        const onRowClick = vi.fn();
+        const onRowDoubleClick = vi.fn();
+
+        render(
+          <DataGrid
+            rows={basicRows}
+            columns={basicColumns}
+            getRowId={getRowId}
+            options={{ onRowClick, onRowDoubleClick, rowClickSelectionMode: 'immediate' }}
+          />
+        );
+
+        const aliceRow = screen.getByText('Alice').closest('[data-row-id]');
+        fireEvent.click(aliceRow);
+        expect(onRowClick).toHaveBeenCalledTimes(1);
+
+        fireEvent.click(aliceRow);
+        fireEvent.doubleClick(aliceRow);
+        vi.advanceTimersByTime(300);
+
         expect(onRowClick).toHaveBeenCalledTimes(2);
-      }, { timeout: 500 });
+        expect(onRowDoubleClick).toHaveBeenCalledTimes(1);
+
+        vi.useRealTimers();
+      });
     });
   });
 

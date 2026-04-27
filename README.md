@@ -66,8 +66,10 @@ const rows = [
 | `onValidationFail` | `(rowId, errors) => void` | When Save fails validation |
 | `isRowEditable` | `(row) => boolean` | Only these rows are editable |
 | `onSelectionChange` | `(selectedIds) => void` | When the selection set changes (e.g. user selects/deselects rows) |
-| `onRowClick` | `(rowId, row) => void` | When a row is clicked (single click). Distinct from selection: use `onSelectionChange` for selection changes. |
+| `onRowClick` | `(rowId, row) => void` | When a row is clicked (single click). When both `onRowClick` and `onRowDoubleClick` are defined, the default behavior delays this callback so a double-click cancels it — see **Single vs double click** below. |
 | `onRowDoubleClick` | `(row) => void` | When a row is double-clicked. If `editable` is enabled and `onEditCommit` is provided, double-clicking will also start edit mode for the row (or create mode for empty placeholder rows). |
+| `rowClickSelectionMode` | `'suppressWhenDoubleClick' \| 'immediate'` | Controls `onRowClick` behavior when `onRowDoubleClick` is also defined. Default: `'suppressWhenDoubleClick'` — delays `onRowClick` and cancels it if a double-click arrives, so double-clicking fires only `onRowDoubleClick`. Set to `'immediate'` for legacy behavior where both fire. |
+| `rowDoubleClickDelay` | `number` | Milliseconds to wait before firing `onRowClick` when `rowClickSelectionMode` is `'suppressWhenDoubleClick'`. Default: `250`. |
 | `editable` | `boolean` | Master switch for inline edit (default false) |
 | `reserveEditToolbarSpace` | `boolean` | When true and editable, always reserve space for the edit toolbar so layout does not jump when entering/leaving edit mode |
 | `editToolbarHeight` | `number` | Height in px for the reserved edit toolbar slot when `reserveEditToolbarSpace` is true (default 30) |
@@ -329,6 +331,27 @@ Example with an outside header (any `ReactNode` is valid):
   }}
 />
 ```
+
+## Single vs double click
+
+The browser always fires two `click` events before a `dblclick`. Without coordination, defining both `onRowClick` and `onRowDoubleClick` would cause `onRowClick` to fire twice and `onRowDoubleClick` once on every double-click — the wrong behavior for navigation, API calls, or panel-open patterns.
+
+**Default behavior (`rowClickSelectionMode: 'suppressWhenDoubleClick'`):**
+
+When both handlers are defined, `onRowClick` is delayed by `rowDoubleClickDelay` ms (default 250). If a double-click arrives within that window, the pending `onRowClick` is cancelled and only `onRowDoubleClick` fires.
+
+| What user does | `onRowClick` fires | `onRowDoubleClick` fires |
+|---|---|---|
+| Single click | Yes (after delay) | No |
+| Double click | No | Yes |
+
+**Only `onRowClick` defined:** fires immediately on click, no delay.
+
+**Only `onRowDoubleClick` defined:** fires on double-click, no delay.
+
+**Opt out (`rowClickSelectionMode: 'immediate'`):** `onRowClick` fires immediately on every click and `onRowDoubleClick` also fires — both will execute on a double-click. Use only if you explicitly need that behavior.
+
+> **Note:** Internal row selection highlight always updates immediately regardless of mode. Only the developer-provided callbacks are affected.
 
 ## Row selection and always-visible controls
 

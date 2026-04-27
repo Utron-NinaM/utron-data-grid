@@ -23,7 +23,10 @@ import { isEmptyRow } from './useDataGridEdit';
  * @property {Function} [onValidationFail] - (rowId, errors) => void when Save fails validation
  * @property {Function} [isRowEditable] - (row) => boolean
  * @property {Function} [onSelectionChange] - (selectedIds) => void when selection set changes
- * @property {Function} [onRowClick] - (rowId, row) => void when a row is clicked (distinct from selection; use onSelectionChange for selection changes)
+ * @property {Function} [onRowClick] - (rowId, row) => void when a row is clicked (distinct from selection; use onSelectionChange for selection changes). When both onRowClick and onRowDoubleClick are defined and rowClickSelectionMode is 'suppressWhenDoubleClick' (default), onRowClick is delayed by rowDoubleClickDelay ms and cancelled if a double-click arrives — so only one intent fires.
+ * @property {Function} [onRowDoubleClick] - (row) => void when a row is double-clicked
+ * @property {'suppressWhenDoubleClick'|'immediate'} [rowClickSelectionMode='suppressWhenDoubleClick'] - Controls how onRowClick behaves when onRowDoubleClick is also defined. 'suppressWhenDoubleClick' (default): delays onRowClick and cancels it if a double-click arrives, so double-clicking fires only onRowDoubleClick. 'immediate': onRowClick fires on every click regardless of double-click (legacy behavior).
+ * @property {number} [rowDoubleClickDelay=250] - Milliseconds to wait before firing onRowClick when both onRowClick and onRowDoubleClick are defined and rowClickSelectionMode is 'suppressWhenDoubleClick'.
  * @property {boolean} [editable] - Enable row editing
  * @property {boolean} [reserveEditToolbarSpace] - When true and editable, always reserve space for the edit toolbar so layout does not jump when entering/leaving edit mode
  * @property {number} [editToolbarHeight=30] - Height in px for the reserved edit toolbar slot when reserveEditToolbarSpace is true
