@@ -3,16 +3,16 @@
 export const defaultTranslations = {
   // Sort / filters
   clearSort: 'Clear sort',
-  clearAllFilters: 'Clear all filters',
-  clearColumnFilter: 'Clear filter',
-  clearColumnWidths: 'Reset column widths',
-  columnConfig: 'Configure columns',
+  clearAllFilters: 'Clear all Filters',
+  clearColumnFilter: 'Clear Filter',
+  clearColumnWidths: 'Reset Column Widths',
+  columnConfig: 'Configure Columns',
   exportToCsv: 'EXCEL',
   exportToPdf: 'PDF',
   exportToCsvTooltip: 'Export to CSV',
   exportToPdfTooltip: 'Export to PDF',
-  sortAsc: 'Sort ascending',
-  sortDesc: 'Sort descending',
+  sortAsc: 'Sort Ascending',
+  sortDesc: 'Sort Descending',
   sortMultiColumnHint: 'Hold Ctrl to sort by multiple columns',
 
   // Filter placeholders
@@ -49,16 +49,16 @@ export const defaultTranslations = {
   // Pagination
   rowsPerPage: 'Rows per page',
   paginationRange: '{{from}}–{{to}} of {{count}}',
-  firstPage: 'First page',
-  lastPage: 'Last page',
-  prevPage: 'Previous page',
-  nextPage: 'Next page',
+  firstPage: 'First Pa ge',
+  lastPage: 'Last Page',
+  prevPage: 'Previous Page',
+  nextPage: 'Next Page',
 
   // Empty / state
-  noRows: 'No rows',
-  noResults: 'No results match filters',
-  clearMultiSelectionIconTooltip: 'Clear selected rows',
-  clearMultiSelectionIconAria: 'Clear selected rows',
+  noRows: 'No Rows',
+  noResults: 'No Results Match Filters',
+  clearMultiSelectionIconTooltip: 'Clear Selected Rows',
+  clearMultiSelectionIconAria: 'Clear Selected Rows',
 
   // Edit
   save: 'Save',
@@ -82,24 +82,24 @@ export const defaultTranslations = {
 export const hebrewTranslations = {
   ...defaultTranslations,
   // Sort / filters
-  clearSort: 'נקה מיון',
-  clearAllFilters: 'נקה כל הסינונים',
-  clearColumnFilter: 'נקה סינון',
+  clearSort: 'איפוס מיון',
+  clearAllFilters: 'איפוס כל הסינונים',
+  clearColumnFilter: 'איפוס סינון',
   clearColumnWidths: 'איפוס רוחב עמודות',
-  columnConfig: 'הגדר עמודות',
+  columnConfig: 'הגדרת עמודות',
   exportToCsv: 'EXCEL',
   exportToPdf: 'PDF',
   exportToCsvTooltip: 'CSV ייצוא ל ',
   exportToPdfTooltip: 'PDF ייצוא ל ',
-  sortAsc: 'מיין בסדר עולה',
-  sortDesc: 'מיין בסדר יורד',
-  sortMultiColumnHint: 'החזק Ctrl למיון לפי מספר עמודות',
+  sortAsc: 'מיון בסדר עולה',
+  sortDesc: 'מיון בסדר יורד',
+  sortMultiColumnHint: 'יש להחזיק Ctrl למיון לפי מספר עמודות',
 
   // Filter placeholders
   filterPlaceholder: 'סינון',
   filterNumber: 'סינון',
   filterDate: 'סינון',
-  selectOption: 'בחר',
+  selectOption: 'בחירה',
   filterFrom: 'מ',
   filterTo: 'עד',
   listFilterSelectedSingle: 'ערך אחד',
@@ -136,13 +136,13 @@ export const hebrewTranslations = {
   // Empty / state
   noRows: 'אין שורות',
   noResults: 'אין תוצאות התואמות לסינונים',
-  clearMultiSelectionIconTooltip: 'נקה שורות נבחרות',
-  clearMultiSelectionIconAria: 'נקה שורות נבחרות',
+  clearMultiSelectionIconTooltip: 'איפוס שורות נבחרות',
+  clearMultiSelectionIconAria: 'איפוס שורות נבחרות',
 
   // Edit
-  save: 'שמור',
-  cancel: 'בטל',
-  edit: 'ערוך',
+  save: 'שמירה',
+  cancel: 'ביטול',
+  edit: 'עריכה',
 
   // Validation
   validationErrors: 'יש לתקן את השגיאות הבאות:',
@@ -154,5 +154,5 @@ export const hebrewTranslations = {
   // Error messages
   internalErrorOccurred: 'אירעה שגיאה פנימית',
   errorTitle: 'שגיאה',
-  close: 'סגור',
+  close: 'סגירה',
 };
